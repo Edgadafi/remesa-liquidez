@@ -69,6 +69,18 @@ SOLANA_RPC_URL=https://api.devnet.solana.com yarn register-merchants:devnet
 
 Re-running the script **no duplica** cuentas: omite merchants ya whitelisteados.
 
+### 5. E2E on-chain demo (CLI, devnet)
+
+Con `scripts/.merchants-demo-devnet.json` y tus merchants financiadas con SOL:
+
+```bash
+SOLANA_RPC_URL=https://api.devnet.solana.com yarn e2e:devnet
+```
+
+Crea mint SPL nuevo, ATA, `initialize_reservation` → `mark_verified` →
+`validate_cashout` y verifica fee 25 bps (net=fee deducted). Opcional:
+`MERCHANT_INDEX=1`, `AMOUNT_RAW`, `EXPIRY_SECONDS`.
+
 ## Web (Next.js / Vercel)
 
 ### Required env vars

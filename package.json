@@ -3,7 +3,8 @@
   "scripts": {
     "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
     "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
-    "register-merchants:devnet": "SOLANA_CLUSTER=devnet node_modules/.bin/ts-node scripts/register-merchants-devnet.ts"
+    "register-merchants:devnet": "SOLANA_CLUSTER=devnet node_modules/.bin/ts-node scripts/register-merchants-devnet.ts",
+    "e2e:devnet": "SOLANA_CLUSTER=devnet node_modules/.bin/ts-node scripts/e2e-devnet-remittance.ts"
   },
   "dependencies": {
     "@coral-xyz/anchor": "^0.32.1",
