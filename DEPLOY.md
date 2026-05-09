@@ -83,30 +83,52 @@ Crea mint SPL nuevo, ATA, `initialize_reservation` → `mark_verified` →
 
 ## Web (Next.js / Vercel)
 
-### Required env vars
+### Repo layout
+
+- Artefactos Anchor viven también en **`web/idl/remesa_liquidez.json`** y
+  **`web/types/remesa_liquidez.ts`** (actualizados con el script `sync`; **committed** para que Vercel no dependa de Rust).
+- **Root Directory en Vercel:** `web` (importante).
+
+### Un solo comando estable (mono-repo → build como Vercel)
+
+Desde la raíz del proyecto:
+
+```bash
+npm run web:build:vercel
+```
+
+Equivalente interno:
+
+1. `anchor build`
+2. `node web/scripts/sync-anchor-artifacts.cjs` copia IDL/types a `web/`.
+3. `cd web && npm run vercel-build` → sincroniza otra vez (no-op si ya iguales) + `next build`.
+
+Solo `web/` (sin Anchor en esta máquina):
+
+```bash
+cd web && npm run vercel-build
+```
+
+(usará los ficheros ya presentes en `web/idl` y `web/types` si `../target` no existe.)
+
+### Deploy en la UI de Vercel
+
+1. Importar repo → **Framework Preset:** Next.js.
+2. **Root Directory:** `web`.
+3. **Build Command:** *(dejar el default o)* `npm run vercel-build` (ya coincide con [`web/vercel.json`](web/vercel.json)).
+4. **Install Command:** `npm install`.
+
+### Variables de entorno en Vercel
 
 ```
 SOLANA_CLUSTER=devnet
-SOLANA_RPC_URL=<your Helius / Triton / Quicknode devnet RPC>
-NEXT_PUBLIC_BLINK_ICON_URL=https://<your-cdn>/icon.png
+SOLANA_RPC_URL=<tu RPC devnet HTTPS>
+NEXT_PUBLIC_BLINK_ICON_URL=https://...
 ```
 
-### Pre-build hook
+(Optional) `PROGRAM_ID` no hace falta: el programa ID viene en el IDL.
 
-Vercel must have access to `target/idl/remesa_liquidez.json` and
-`target/types/remesa_liquidez.ts` (these are gitignored). Two options:
-
-1. **Recommended** — copy the artifacts into `web/` before pushing:
-   ```bash
-   mkdir -p web/idl web/types
-   cp target/idl/remesa_liquidez.json web/idl/
-   cp target/types/remesa_liquidez.ts  web/types/
-   ```
-   then update the `@root/target/...` imports to `@/idl/...` / `@/types/...`.
-
-2. Or run `anchor build` as a preinstall step in CI.
-
-### Endpoints exposed
+### Endpoints expuestos
 
 | Path                         | Purpose                                          |
 |------------------------------|--------------------------------------------------|

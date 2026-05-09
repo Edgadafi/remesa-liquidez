@@ -8,8 +8,8 @@ import {
   type Cluster,
 } from "@solana/web3.js";
 
-import idl from "@root/target/idl/remesa_liquidez.json";
-import type { RemesaLiquidez } from "@root/target/types/remesa_liquidez";
+import idl from "@/idl/remesa_liquidez.json";
+import type { RemesaLiquidez } from "@/types/remesa_liquidez";
 
 export function getCluster(): Cluster {
   const raw =

@@ -4,6 +4,9 @@
   "private": true,
   "scripts": {
     "dev": "next dev -p 3000",
+    "sync:idls": "node scripts/sync-anchor-artifacts.cjs",
+    "prebuild": "node scripts/sync-anchor-artifacts.cjs",
+    "vercel-build": "node scripts/sync-anchor-artifacts.cjs && next build",
     "build": "next build",
     "start": "next start -p 3000",
     "lint": "next lint",

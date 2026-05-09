@@ -21,7 +21,7 @@ import {
   findTreasuryAuthorityPda,
   findTreasuryTokenAccountPda,
   findVaultPda,
-} from "@root/client";
+} from "@/lib/pdas";
 import { ACTION_ICON_URL, getConnection, getProgram } from "@/lib/anchor";
 
 export const dynamic = "force-dynamic";

@@ -10,7 +10,7 @@ import {
   Transaction,
 } from "@solana/web3.js";
 
-import { findReservationPda } from "@root/client";
+import { findReservationPda } from "@/lib/pdas";
 import {
   ACTION_ICON_URL,
   getConnection,

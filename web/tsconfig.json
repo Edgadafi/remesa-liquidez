@@ -16,8 +16,7 @@
     "incremental": true,
     "baseUrl": ".",
     "paths": {
-      "@/*": ["./*"],
-      "@root/*": ["../*"]
+      "@/*": ["./*"]
     },
     "plugins": [
       {
@@ -30,8 +29,8 @@
     "**/*.ts",
     "**/*.tsx",
     ".next/types/**/*.ts",
-    "../client/**/*.ts",
-    "../target/types/**/*.ts"
+    "idl/**/*.json",
+    "types/**/*.ts"
   ],
   "exclude": ["node_modules"]
 }
