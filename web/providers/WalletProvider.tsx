@@ -14,7 +14,12 @@
  * dando UX nativa sin importar qué wallet tenga instalada el usuario.
  */
 
-import { SolanaMobileWalletAdapter } from "@solana-mobile/wallet-adapter-mobile";
+import {
+  SolanaMobileWalletAdapter,
+  createDefaultAuthorizationResultCache,
+  createDefaultAddressSelector,
+  createDefaultWalletNotFoundHandler,
+} from "@solana-mobile/wallet-adapter-mobile";
 import {
   ConnectionProvider,
   WalletProvider as BaseWalletProvider,
@@ -53,13 +58,11 @@ export function WalletProvider({ children }: { children: ReactNode }) {
       if (typeof window === "undefined") return [];
       return [
         new SolanaMobileWalletAdapter({
-          addressSelector: {
-            select: async (addresses) => addresses[0],
-          },
+          addressSelector: createDefaultAddressSelector(),
           appIdentity: APP_IDENTITY,
-          authorizationResultCache: undefined,
-          cluster: "devnet",
-          onWalletNotFound: undefined,
+          authorizationResultCache: createDefaultAuthorizationResultCache(),
+          cluster,
+          onWalletNotFound: createDefaultWalletNotFoundHandler(),
         }),
         new PhantomWalletAdapter(),
         new SolflareWalletAdapter({ network: cluster }),
