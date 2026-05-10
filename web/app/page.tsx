@@ -227,6 +227,72 @@ export default function Home() {
           </pre>
         </div>
 
+        <div
+          style={{
+            marginTop: 40,
+            paddingTop: 32,
+            borderTop: `1px solid ${border}`,
+          }}
+        >
+          <SectionTitle n="04" title="Bridge cross-chain — LI.FI" />
+          <p style={{ margin: "0 0 14px", fontSize: 15, color: fgMuted }}>
+            ¿Tienes USDC en Arbitrum, Base o Polygon? Llévalo a Solana en un
+            paso antes de crear la reserva. Powered by{" "}
+            <a
+              href="https://li.fi"
+              target="_blank"
+              rel="noopener noreferrer"
+              style={{ color: accent, textDecoration: "none" }}
+            >
+              LI.FI
+            </a>{" "}
+            — 12 bridges integrados, gasless opcional.
+          </p>
+          <ul
+            style={{
+              margin: "0 0 16px",
+              padding: 0,
+              listStyle: "none",
+              display: "flex",
+              flexDirection: "column",
+              gap: 6,
+            }}
+          >
+            {[
+              { chain: "ARB", label: "Arbitrum → Solana" },
+              { chain: "BASE", label: "Base → Solana" },
+              { chain: "POL", label: "Polygon → Solana" },
+            ].map((item) => (
+              <li
+                key={item.chain}
+                className={mono.className}
+                style={{ fontSize: 13, color: fgMuted }}
+              >
+                <span style={{ color: accent, marginRight: 8 }}>→</span>
+                {item.label}
+              </li>
+            ))}
+          </ul>
+          <pre style={codeBlock}>
+            {`GET /api/bridge/quote\n  ?fromAddress=<EVM_WALLET>\n  &toAddress=<SOL_WALLET>\n  &fromAmount=10000000   # 10 USDC (6 decimales)\n  &fromChain=ARB        # ARB | BASE | POL`}
+          </pre>
+          <p
+            className={mono.className}
+            style={{
+              margin: "12px 0 0",
+              fontSize: 12,
+              color: fgMuted,
+              lineHeight: 1.6,
+            }}
+          >
+            Responde con{" "}
+            <span style={{ color: accent }}>toAmount</span>,{" "}
+            <span style={{ color: accent }}>bridge</span> usado,{" "}
+            <span style={{ color: accent }}>feeCostUsd</span> y tiempo estimado
+            — listo para presentar al usuario antes de firmar.
+          </p>
+        </div>
+
         <footer
           className={mono.className}
           style={{
