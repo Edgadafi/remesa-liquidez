@@ -1,6 +1,13 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { WalletProvider } from "@/providers/WalletProvider";
+import dynamic from "next/dynamic";
+
+// WalletProvider accede a localStorage y APIs del browser en el constructor.
+// ssr: false garantiza que NUNCA corre durante SSR/hydration de Next.js.
+const WalletProvider = dynamic(
+  () => import("@/providers/WalletProvider").then((m) => m.WalletProvider),
+  { ssr: false }
+);
 
 const siteOrigin =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/?$/, "") ||
