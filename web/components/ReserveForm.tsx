@@ -90,6 +90,15 @@ export function ReserveForm({ onReserved }: Props) {
           throw new Error("Pubkey del receptor inválida. Ingresa una dirección Solana válida.");
         }
 
+        // Validar que el sender tiene SOL para fees
+        const solBalance = await connection.getBalance(publicKey);
+        if (solBalance < 5_000_000) {
+          throw new Error(
+            `SOL insuficiente para fees (${(solBalance / 1e9).toFixed(4)} SOL). ` +
+            `Solicita devnet SOL en faucet.solana.com`
+          );
+        }
+
         // Derivar PDAs
         const [reservationPda] = PublicKey.findProgramAddressSync(
           [Buffer.from("reservation"), receiverKey.toBuffer()],
@@ -103,6 +112,16 @@ export function ReserveForm({ onReserved }: Props) {
           USDC_DEVNET,
           publicKey
         );
+
+        // Validar que el sender tiene USDC devnet
+        const tokenAccountInfo = await connection.getAccountInfo(senderTokenAccount);
+        if (!tokenAccountInfo) {
+          throw new Error(
+            `No se encontró cuenta USDC devnet en tu wallet. ` +
+            `Mint devnet: 4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU. ` +
+            `Usa el script: npm run e2e:devnet para obtener USDC de prueba.`
+          );
+        }
 
         // Construir provider client-side (la wallet firma via sendTransaction)
         const provider = new AnchorProvider(
@@ -161,7 +180,17 @@ export function ReserveForm({ onReserved }: Props) {
         onReserved?.({ pda, signature, receiverWA });
       } catch (err) {
         setStatus("error");
-        setError(err instanceof Error ? err.message : "Error desconocido.");
+        // WalletSendTransactionError envuelve el error real en .cause o .logs
+        let msg = err instanceof Error ? err.message : "Error desconocido.";
+        const anyErr = err as Record<string, unknown>;
+        if (anyErr?.logs && Array.isArray(anyErr.logs) && anyErr.logs.length > 0) {
+          const relevant = (anyErr.logs as string[]).filter((l) => l.includes("Error") || l.includes("failed"));
+          if (relevant.length > 0) msg += ` | Log: ${relevant[0]}`;
+        }
+        if (msg.toLowerCase().includes("unexpected error")) {
+          msg = "Phantom rechazó la tx. Verifica: (1) SOL para fees, (2) USDC devnet en la wallet, (3) la red en Phantom esté en Devnet.";
+        }
+        setError(msg);
       }
     },
     [publicKey, connected, connection, sendTransaction, amountUSDC, receiverPubkey, receiverWA, onReserved]

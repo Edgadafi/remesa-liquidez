@@ -25,10 +25,7 @@ import {
   WalletProvider as BaseWalletProvider,
 } from "@solana/wallet-adapter-react";
 import { WalletModalProvider } from "@solana/wallet-adapter-react-ui";
-import {
-  PhantomWalletAdapter,
-  SolflareWalletAdapter,
-} from "@solana/wallet-adapter-wallets";
+import { SolflareWalletAdapter } from "@solana/wallet-adapter-wallets";
 import { WalletAdapterNetwork } from "@solana/wallet-adapter-base";
 import { clusterApiUrl } from "@solana/web3.js";
 import type { ReactNode } from "react";
@@ -64,7 +61,8 @@ export function WalletProvider({ children }: { children: ReactNode }) {
           cluster,
           onWalletNotFound: createDefaultWalletNotFoundHandler(),
         }),
-        new PhantomWalletAdapter(),
+        // PhantomWalletAdapter y SolflareWalletAdapter como fallback en desktop
+        // (Phantom también se registra automáticamente como Standard Wallet)
         new SolflareWalletAdapter({ network: cluster }),
       ];
     },
