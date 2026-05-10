@@ -2,6 +2,13 @@ import idl from "@/idl/remesa_liquidez.json";
 import { IBM_Plex_Mono } from "next/font/google";
 import { Instrument_Sans } from "next/font/google";
 import Link from "next/link";
+import dynamic from "next/dynamic";
+
+// MWA / wallet-adapter accede a localStorage → solo puede correr en el cliente
+const SenderApp = dynamic(
+  () => import("@/components/SenderApp").then((m) => m.SenderApp),
+  { ssr: false, loading: () => null }
+);
 
 const sans = Instrument_Sans({
   subsets: ["latin"],
@@ -296,10 +303,34 @@ export default function Home() {
           </p>
         </div>
 
+        {/* ── 05 Sender App — Mobile Wallet Adapter ── */}
+        <div
+          style={{
+            marginTop: 40,
+            paddingTop: 32,
+            borderTop: `1px solid ${border}`,
+          }}
+        >
+          <SectionTitle n="05" title="Sender App — Mobile Wallet Adapter" />
+          <p style={{ margin: "0 0 20px", fontSize: 15, color: fgMuted }}>
+            Conecta Phantom, Solflare o Backpack. En Android usa MWA — abre la
+            wallet nativa via Intent sin salir del navegador. Firma{" "}
+            <span style={{ color: accent, fontFamily: mono.style.fontFamily, fontSize: 13 }}>
+              initialize_reservation
+            </span>{" "}
+            y{" "}
+            <span style={{ color: accent, fontFamily: mono.style.fontFamily, fontSize: 13 }}>
+              mark_verified
+            </span>{" "}
+            on-chain; LidIA notifica al receptor por WhatsApp.
+          </p>
+          <SenderApp />
+        </div>
+
         <footer
           className={mono.className}
           style={{
-            marginTop: 48,
+            marginTop: 56,
             fontSize: 12,
             color: fgMuted,
             letterSpacing: "0.04em",

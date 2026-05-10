@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { WalletProvider } from "@/providers/WalletProvider";
 
 const siteOrigin =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/?$/, "") ||
@@ -36,7 +37,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
           color: "#e7e9ee",
         }}
       >
-        {children}
+        <WalletProvider>{children}</WalletProvider>
       </body>
     </html>
   );
