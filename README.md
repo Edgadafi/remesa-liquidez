@@ -20,9 +20,15 @@ En remesas y pagos locales de LATAM, tres cosas fallan sistemáticamente:
 
 ```mermaid
 flowchart LR
-  Sender -->|"initialize_reservation"| Escrow["Escrow\n(TurnReservation PDA)"]
+  EVM["EVM Wallet\n(Arbitrum/Base/Polygon)"] -->|"GET /api/bridge/quote"| LIFI["LI.FI SDK\n(cross-chain bridge)"]
+  LIFI -->|"USDC SPL → Solana"| SenderWallet["Sender Wallet\n(Solana)"]
+  SenderWallet -->|"MWA / wallet-adapter\ninitialize_reservation"| Escrow["Escrow\n(TurnReservation PDA)"]
   WorldID["World ID\nMiniApp"] -->|"POST /api/lidia/notify"| Render["LidIA\n(Render)"]
   Render -->|"mark_verified tx"| Escrow
+  Escrow -->|"trigger"| NotifyAPI["POST /api/notify/verified"]
+  NotifyAPI -->|"TTS audio"| ElevenLabs["ElevenLabs\n(eleven_multilingual_v2)"]
+  ElevenLabs -->|"base64 mp3"| Render
+  Render -->|"WhatsApp audio"| Receiver["Receiver 📱"]
   Merchant -->|"validate_cashout\nBlink"| Escrow
   Escrow -->|"99.75% payout"| MerchantATA["Merchant ATA"]
   Escrow -->|"0.25% fee"| Treasury["Treasury Vault\n(PDA)"]
@@ -44,6 +50,9 @@ flowchart LR
 | Frontend / Actions | Next.js 14 · Vercel · `@solana/actions` |
 | Backend IA | Node.js · Render · ElevenLabs · World ID |
 | Red | Solana **devnet** (program ID abajo) |
+| Bridge cross-chain | **LI.FI SDK** — USDC desde Arbitrum, Base, Polygon → Solana |
+| Notificación TTS | **ElevenLabs** `eleven_multilingual_v2` — audio "dinero listo" vía LidIA/WhatsApp |
+| Firma móvil | **Mobile Wallet Adapter (MWA)** — Android Intent (Phantom, Solflare, Backpack) |
 
 ---
 
@@ -57,15 +66,29 @@ remesa-liquidez/
 │       └── instructions/           # módulo por instrucción
 ├── web/               # Next.js + Solana Actions → Vercel
 │   ├── app/
-│   │   ├── page.tsx                # landing
+│   │   ├── page.tsx                # Sender App (MWA + wallet-adapter)
 │   │   ├── actions.json/route.ts   # manifest Blinks
-│   │   └── api/actions/
-│   │       ├── verify/route.ts     # mark_verified Blink
-│   │       └── cashout/route.ts    # validate_cashout Blink
+│   │   └── api/
+│   │       ├── actions/
+│   │       │   ├── verify/route.ts     # mark_verified Blink
+│   │       │   └── cashout/route.ts    # validate_cashout Blink
+│   │       ├── bridge/
+│   │       │   └── quote/route.ts      # GET — LI.FI bridge quote
+│   │       └── notify/
+│   │           └── verified/route.ts   # POST — ElevenLabs TTS + WhatsApp
+│   ├── components/
+│   │   ├── SenderApp.tsx           # UI principal: connect → reserve → verify
+│   │   ├── ReserveForm.tsx         # formulario initialize_reservation
+│   │   ├── VerifyButton.tsx        # botón mark_verified (MWA sign)
+│   │   └── ConnectButton.tsx       # botón connect wallet (MWA / modal)
+│   ├── providers/
+│   │   └── WalletProvider.tsx      # MWA + Phantom + Solflare + Backpack
 │   ├── lib/
 │   │   ├── anchor.ts               # program client (read-only)
 │   │   ├── pdas.ts                 # derivación de PDAs
-│   │   └── instructions.ts        # buildMarkVerifiedIx helper
+│   │   ├── instructions.ts         # buildMarkVerifiedIx helper
+│   │   ├── lifi.ts                 # LI.FI SDK — quoteBridgeToSolana()
+│   │   └── elevenlabs.ts           # TTS — textToSpeech() + scripts LidIA
 │   ├── idl/                        # IDL JSON commiteado
 │   └── types/                      # tipos TS generados por Anchor
 ├── backend/           # Backend LidIA (Render) — pendiente scaffold
@@ -139,12 +162,33 @@ cd web && vercel deploy --prod --yes --scope <tu-scope>
 
 | Recurso | URL |
 |---|---|
-| Demo / Landing | `https://web-coral-pi-66.vercel.app` |
+| Demo / Landing (Sender App) | `https://web-coral-pi-66.vercel.app` |
 | Actions manifest | `https://web-coral-pi-66.vercel.app/actions.json` |
 | Verify Action | `https://web-coral-pi-66.vercel.app/api/actions/verify?pda=<PDA>` |
 | Cashout Action | `https://web-coral-pi-66.vercel.app/api/actions/cashout?pda=<PDA>` |
+| Bridge quote (LI.FI) | `https://web-coral-pi-66.vercel.app/api/bridge/quote` |
+| Notify verified (ElevenLabs) | `https://web-coral-pi-66.vercel.app/api/notify/verified` |
 | Backend LidIA | `https://remesa-blink-backend.onrender.com` |
 | Stores (liquidez) | `https://remesa-blink-backend.onrender.com/api/pricing/stores` |
+
+#### Bridge quote
+
+```
+GET /api/bridge/quote?fromAddress=<EVM_WALLET>&toAddress=<SOL_WALLET>&fromAmount=<RAW_USDC>&fromChain=ARB|BASE|POL
+```
+
+Devuelve `{ toAmount, toAmountMin, estimatedTime, tool, feeCostUsd, route }` — el campo `route` es el objeto completo de LI.FI listo para ejecutar con `executeRoute()`.
+
+#### Notify verified
+
+```
+POST /api/notify/verified
+Content-Type: application/json
+
+{ "reservationPda": "<base58>", "txSignature": "<sig>", "receiverWA": "+521234567890", "amountUSDC": 10 }
+```
+
+Genera el audio TTS con ElevenLabs, lo envía como nota de voz a `receiverWA` vía LidIA/WhatsApp, y devuelve `{ ok, audioBase64? }`.
 
 ### Blink URLs amigables
 
@@ -155,6 +199,29 @@ https://web-coral-pi-66.vercel.app/verificar/<reservationPda>
 # Receptor presenta al cajero para cobrar
 https://web-coral-pi-66.vercel.app/remesa/<reservationPda>
 ```
+
+---
+
+## Sender App (Mobile Wallet Adapter)
+
+La ruta `/` sirve la **Sender App**: UI para que quien envía la remesa conecte su wallet Solana y ejecute el flujo on-chain sin salir del browser ni de la wallet nativa.
+
+### Flujo de dos pasos
+
+1. **`initialize_reservation`** — el sender bloquea USDC en el vault PDA. Si el USDC está en una cadena EVM, primero solicita un quote via `GET /api/bridge/quote` para bridgear con LI.FI.
+2. **`mark_verified`** — el sender firma la verificación. Tras confirmación on-chain, el frontend llama automáticamente a `POST /api/notify/verified`, que:
+   - genera audio TTS con ElevenLabs ("¡Tu dinero está listo, LidIA!")
+   - envía la nota de voz al receptor vía LidIA → WhatsApp
+
+### Wallet signing por plataforma
+
+| Plataforma | Mecanismo |
+|---|---|
+| Android (nativo) | **MWA** abre la wallet instalada vía Android Intent — Phantom, Solflare o Backpack Mobile |
+| Desktop / web | Modal estándar `@solana/wallet-adapter-react-ui` — Phantom, Solflare, Backpack extensión |
+| In-app browser | PhantomWalletAdapter detectado automáticamente |
+
+El `WalletProvider` en `web/providers/WalletProvider.tsx` registra `SolanaMobileWalletAdapter` primero; en Android lo activa automáticamente si hay una wallet instalada, sin cambios en el código del componente.
 
 ---
 
@@ -193,11 +260,13 @@ Copiar `.env.example` → `.env` y rellenar:
 | `SENDER_AUTHORITY_SECRET_KEY` | **solo backend** | Keypair JSON (64 bytes) que firma `mark_verified` |
 | `BLINK_BASE_URL` | backend | Base URL de Vercel para construir Blink URLs |
 | `NEXT_PUBLIC_BLINK_BASE_URL` | web | Igual que arriba, expuesta al browser |
-| `RENDER_BACKEND_URL` | web | URL del backend de Render |
-| `ELEVENLABS_API_KEY` | backend | API key de ElevenLabs |
+| `RENDER_BACKEND_URL` | web | URL del backend LidIA en Render (`https://remesa-blink-backend.onrender.com`) |
+| `ELEVENLABS_API_KEY` | **solo web (server-side)** | API key de ElevenLabs — nunca `NEXT_PUBLIC_` |
+| `ELEVENLABS_VOICE_ID` | web | Voice ID (default: `EXAVITQu4vr4xnSDxMaL` — Sarah ES) |
 | `WORLD_ID_APP_ID` | backend | App ID de World ID |
+| `NEXT_PUBLIC_USDC_MINT` | web | USDC mint devnet (default: `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU`) |
 
-> `SENDER_AUTHORITY_SECRET_KEY` **nunca** debe estar en Vercel ni commiteado en el repo.
+> `SENDER_AUTHORITY_SECRET_KEY` y `ELEVENLABS_API_KEY` **nunca** deben estar en Vercel con prefijo `NEXT_PUBLIC_` ni commiteados en el repo.
 
 ---
 
