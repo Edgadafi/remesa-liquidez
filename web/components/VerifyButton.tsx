@@ -109,7 +109,7 @@ export function VerifyButton({ reservationPda, receiverWA, amountUSDC }: Props) 
       );
       setSignature(sig);
 
-      // Notificar a LidIA vía /api/notify/verified → ElevenLabs → WhatsApp
+      // Notificar a TIA vía /api/notify/verified → ElevenLabs → WhatsApp
       if (receiverWA) {
         setStatus("notifying");
         try {

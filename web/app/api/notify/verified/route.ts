@@ -5,7 +5,7 @@
  * Flujo:
  *   1. Lee TurnReservation on-chain → verifica is_verified === true
  *   2. Genera audio "dinero listo" con ElevenLabs TTS
- *   3. Si RENDER_BACKEND_URL está configurado → notifica a Render/LidIA
+ *   3. Si RENDER_BACKEND_URL está configurado → notifica a Render (agente TIA)
  *      para que envíe el audio por WhatsApp al receptor
  *   4. Si no → devuelve audioBase64 directamente (útil para demo/tests)
  *
@@ -26,6 +26,7 @@ import {
   isConfigured,
   textToSpeechBase64,
 } from "@/lib/elevenlabs";
+import { notifyTiaBackend } from "@/lib/tia-backend";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -137,7 +138,7 @@ export async function POST(req: Request) {
         const script = buildConfirmationScript(amountUSDC, storeName);
         audioBase64 = await textToSpeechBase64(script);
         console.log(
-          `[notify/verified] Audio TTS generado para ${receiverWA} — ${amountUSDC} USDC`
+          `[TIA] Audio TTS generado para ${receiverWA} — ${amountUSDC} USDC`
         );
       } catch (err) {
         ttsError = err instanceof Error ? err.message : "ElevenLabs error";
@@ -148,43 +149,25 @@ export async function POST(req: Request) {
       console.warn("[notify/verified]", ttsError);
     }
 
-    // 3. Notificar a Render/LidIA (WhatsApp) si está configurado
+    // 3. Notificar backend TIA (WhatsApp): /api/tia/notify → fallback /api/lidia/notify
     let renderNotified = false;
     let renderError: string | null = null;
+    let notifyPath: string | undefined;
 
     if (RENDER_BACKEND_URL) {
-      try {
-        const renderBody: Record<string, unknown> = {
-          walletSolana,
-          userWA: receiverWA,
-          amountUSDC,
-          reservationPda: pdaRaw,
-          txSignature: txSignature ?? null,
-          isVerified: true,
-        };
+      const tiaResult = await notifyTiaBackend(RENDER_BACKEND_URL, {
+        walletSolana,
+        userWA: receiverWA,
+        amountUSDC,
+        reservationPda: pdaRaw,
+        txSignature: txSignature ?? null,
+        isVerified: true,
+        ...(audioBase64 ? { audioBase64 } : {}),
+      });
 
-        if (audioBase64) {
-          renderBody.audioBase64 = audioBase64;
-        }
-
-        const renderRes = await fetch(`${RENDER_BACKEND_URL}/api/lidia/notify`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(renderBody),
-          signal: AbortSignal.timeout(15_000),
-        });
-
-        if (renderRes.ok) {
-          renderNotified = true;
-          console.log(`[notify/verified] Render notificado → ${receiverWA}`);
-        } else {
-          renderError = `Render ${renderRes.status}: ${await renderRes.text()}`;
-          console.warn("[notify/verified] Render error:", renderError);
-        }
-      } catch (err) {
-        renderError = err instanceof Error ? err.message : "Render fetch error";
-        console.warn("[notify/verified] Render no disponible:", renderError);
-      }
+      renderNotified = tiaResult.notified;
+      notifyPath = tiaResult.path;
+      renderError = tiaResult.error ?? null;
     }
 
     // 4. Respuesta
@@ -203,6 +186,7 @@ export async function POST(req: Request) {
       whatsapp: {
         sent: renderNotified,
         to: receiverWA,
+        path: notifyPath,
         error: renderError,
       },
     });

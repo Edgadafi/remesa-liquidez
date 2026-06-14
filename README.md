@@ -1,6 +1,6 @@
 # Remesa LiquidezIA
 
-> Mesa LATAM por turnos en Solana (Anchor): escrow + whitelist de comercios + fee al tesoro. Frontend Next.js en Vercel con Solana Actions (devnet). Backend LidIA en Render con World ID + ElevenLabs + WhatsApp.
+> Mesa LATAM por turnos en Solana (Anchor): escrow + whitelist de comercios + fee al tesoro. Frontend Next.js en Vercel con Solana Actions (devnet). Backend TIA en Render con World ID + ElevenLabs + WhatsApp.
 
 ---
 
@@ -23,7 +23,7 @@ flowchart LR
   EVM["EVM Wallet\n(Arbitrum/Base/Polygon)"] -->|"GET /api/bridge/quote"| LIFI["LI.FI SDK\n(cross-chain bridge)"]
   LIFI -->|"USDC SPL → Solana"| SenderWallet["Sender Wallet\n(Solana)"]
   SenderWallet -->|"MWA / wallet-adapter\ninitialize_reservation"| Escrow["Escrow\n(TurnReservation PDA)"]
-  WorldID["World ID\nMiniApp"] -->|"POST /api/lidia/notify"| Render["LidIA\n(Render)"]
+  WorldID["World ID\nMiniApp"] -->|"POST /api/tia/notify"| Render["TIA\n(Render)"]
   Render -->|"mark_verified tx"| Escrow
   Escrow -->|"trigger"| NotifyAPI["POST /api/notify/verified"]
   NotifyAPI -->|"TTS audio"| ElevenLabs["ElevenLabs\n(eleven_multilingual_v2)"]
@@ -35,7 +35,7 @@ flowchart LR
 ```
 
 1. **Sender** bloquea SPL tokens en un vault PDA con `initialize_reservation`.
-2. **World ID** valida la identidad del receptor; el backend LidIA firma `mark_verified` on-chain.
+2. **World ID** valida la identidad del receptor; el backend TIA firma `mark_verified` on-chain.
 3. **Merchant** escanea el Blink del receptor → firma `validate_cashout` → recibe el 99.75%; el 0.25% va al tesoro del protocolo.
 4. El admin puede drenar el tesoro con `withdraw_treasury` (admin-only).
 
@@ -51,7 +51,7 @@ flowchart LR
 | Backend IA | Node.js · Render · ElevenLabs · World ID |
 | Red | Solana **devnet** (program ID abajo) |
 | Bridge cross-chain | **LI.FI SDK** — USDC desde Arbitrum, Base, Polygon → Solana |
-| Notificación TTS | **ElevenLabs** `eleven_multilingual_v2` — audio "dinero listo" vía LidIA/WhatsApp |
+| Notificación TTS | **ElevenLabs** `eleven_multilingual_v2` — audio "dinero listo" vía TIA/WhatsApp |
 | Firma móvil | **Mobile Wallet Adapter (MWA)** — Android Intent (Phantom, Solflare, Backpack) |
 
 ---
@@ -88,10 +88,10 @@ remesa-liquidez/
 │   │   ├── pdas.ts                 # derivación de PDAs
 │   │   ├── instructions.ts         # buildMarkVerifiedIx helper
 │   │   ├── lifi.ts                 # LI.FI SDK — quoteBridgeToSolana()
-│   │   └── elevenlabs.ts           # TTS — textToSpeech() + scripts LidIA
+│   │   └── elevenlabs.ts           # TTS — textToSpeech() + scripts TIA
 │   ├── idl/                        # IDL JSON commiteado
 │   └── types/                      # tipos TS generados por Anchor
-├── backend/           # Backend LidIA (Render) — pendiente scaffold
+├── backend/           # Backend TIA (Render) — ver backend/TIA-MIGRATION.md
 ├── client/            # Helpers TS para scripts y tests
 ├── scripts/           # E2E devnet · register merchants
 ├── tests/             # Anchor tests (mocha/chai)
@@ -168,7 +168,7 @@ cd web && vercel deploy --prod --yes --scope <tu-scope>
 | Cashout Action | `https://web-coral-pi-66.vercel.app/api/actions/cashout?pda=<PDA>` |
 | Bridge quote (LI.FI) | `https://web-coral-pi-66.vercel.app/api/bridge/quote` |
 | Notify verified (ElevenLabs) | `https://web-coral-pi-66.vercel.app/api/notify/verified` |
-| Backend LidIA | `https://remesa-blink-backend.onrender.com` |
+| Backend TIA | `https://remesa-blink-backend.onrender.com` |
 | Stores (liquidez) | `https://remesa-blink-backend.onrender.com/api/pricing/stores` |
 
 #### Bridge quote
@@ -188,7 +188,7 @@ Content-Type: application/json
 { "reservationPda": "<base58>", "txSignature": "<sig>", "receiverWA": "+521234567890", "amountUSDC": 10 }
 ```
 
-Genera el audio TTS con ElevenLabs, lo envía como nota de voz a `receiverWA` vía LidIA/WhatsApp, y devuelve `{ ok, audioBase64? }`.
+Genera el audio TTS con ElevenLabs, lo envía como nota de voz a `receiverWA` vía TIA/WhatsApp, y devuelve `{ ok, audioBase64? }`.
 
 ### Blink URLs amigables
 
@@ -210,8 +210,8 @@ La ruta `/` sirve la **Sender App**: UI para que quien envía la remesa conecte 
 
 1. **`initialize_reservation`** — el sender bloquea USDC en el vault PDA. Si el USDC está en una cadena EVM, primero solicita un quote via `GET /api/bridge/quote` para bridgear con LI.FI.
 2. **`mark_verified`** — el sender firma la verificación. Tras confirmación on-chain, el frontend llama automáticamente a `POST /api/notify/verified`, que:
-   - genera audio TTS con ElevenLabs ("¡Tu dinero está listo, LidIA!")
-   - envía la nota de voz al receptor vía LidIA → WhatsApp
+   - genera audio TTS con ElevenLabs ("¡Tu dinero está listo, TIA!")
+   - envía la nota de voz al receptor vía TIA → WhatsApp
 
 ### Wallet signing por plataforma
 
@@ -260,7 +260,7 @@ Copiar `.env.example` → `.env` y rellenar:
 | `SENDER_AUTHORITY_SECRET_KEY` | **solo backend** | Keypair JSON (64 bytes) que firma `mark_verified` |
 | `BLINK_BASE_URL` | backend | Base URL de Vercel para construir Blink URLs |
 | `NEXT_PUBLIC_BLINK_BASE_URL` | web | Igual que arriba, expuesta al browser |
-| `RENDER_BACKEND_URL` | web | URL del backend LidIA en Render (`https://remesa-blink-backend.onrender.com`) |
+| `RENDER_BACKEND_URL` | web | URL del backend TIA en Render (`https://remesa-blink-backend.onrender.com`) |
 | `ELEVENLABS_API_KEY` | **solo web (server-side)** | API key de ElevenLabs — nunca `NEXT_PUBLIC_` |
 | `ELEVENLABS_VOICE_ID` | web | Voice ID (default: `EXAVITQu4vr4xnSDxMaL` — Sarah ES) |
 | `WORLD_ID_APP_ID` | backend | App ID de World ID |

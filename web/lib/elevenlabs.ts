@@ -8,7 +8,7 @@
  * Modelo: eleven_multilingual_v2 — soporta español mexicano nativo
  *
  * Voces sugeridas (sobreescribir con ELEVENLABS_VOICE_ID):
- *   EXAVITQu4vr4xnSDxMaL → Sarah  (femenina, cálida)    ← LidIA default
+ *   EXAVITQu4vr4xnSDxMaL → Sarah  (femenina, cálida)    ← TIA default
  *   onwK4e9ZLuTAKqWW03F9 → Daniel (masculino, neutral)
  *   pNInz6obpgDQGcFmaJgB → Adam   (masculino, formal)
  *   MF3mGyEYCl7XYWbV9V6O → Elli   (femenina, joven)
@@ -80,7 +80,7 @@ export async function textToSpeechBase64(text: string): Promise<string> {
 
 /**
  * Script de confirmación post mark_verified.
- * LidIA anuncia al receptor que su dinero está listo.
+ * TIA anuncia al receptor que su dinero está listo.
  */
 export function buildConfirmationScript(
   amountUSDC: number,
@@ -91,7 +91,7 @@ export function buildConfirmationScript(
 
   if (storeName) {
     return (
-      `¡Hola! Soy LidIA, tu asistente de remesas. ` +
+      `¡Hola! Soy TIA, tu asistente de remesas. ` +
       `Tu remesa de ${amount} dólares, equivalente a ${amountMXN} pesos mexicanos, ` +
       `ya está verificada y lista para retirar. ` +
       `Dirígete a ${storeName} y muestra este código al cajero. ` +
@@ -100,7 +100,7 @@ export function buildConfirmationScript(
   }
 
   return (
-    `¡Hola! Soy LidIA, tu asistente de remesas. ` +
+    `¡Hola! Soy TIA, tu asistente de remesas. ` +
     `Tu remesa de ${amount} dólares, equivalente a ${amountMXN} pesos mexicanos, ` +
     `ya está verificada y lista para retirar en cualquier comercio aliado. ` +
     `¡Tu dinero te espera!`
@@ -116,7 +116,7 @@ export function buildPendingScript(amountUSDC: number): string {
   const amountMXN = (amountUSDC * 17.2).toFixed(0);
 
   return (
-    `¡Hola! Soy LidIA. ` +
+    `¡Hola! Soy TIA. ` +
     `Has recibido una remesa de ${amount} dólares, ` +
     `equivalente a ${amountMXN} pesos mexicanos. ` +
     `Espera la confirmación del remitente para poder retirar el efectivo. ` +

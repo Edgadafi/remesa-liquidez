@@ -233,7 +233,7 @@ export default function Home() {
             {`GET /api/actions/verify?pda=<reservationPda>`}
           </pre>
           <pre style={{ ...codeBlock, marginTop: 12 }}>
-            {`POST /api/notify/verified\n{ "reservationPda": "<pda>", "receiverWA": "521234567890" }\n# → TTS ElevenLabs + WhatsApp "dinero listo" vía LidIA`}
+            {`POST /api/notify/verified\n{ "reservationPda": "<pda>", "receiverWA": "521234567890" }\n# → TTS ElevenLabs + WhatsApp "dinero listo" vía TIA`}
           </pre>
         </div>
 
@@ -322,7 +322,7 @@ export default function Home() {
             <span style={{ color: accent, fontFamily: mono.style.fontFamily, fontSize: 13 }}>
               mark_verified
             </span>{" "}
-            on-chain; LidIA notifica al receptor por WhatsApp.
+            on-chain; TIA notifica al receptor por WhatsApp.
           </p>
           <SenderApp />
         </div>
