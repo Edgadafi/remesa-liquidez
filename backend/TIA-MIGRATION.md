@@ -1,63 +1,38 @@
-# Migración backend → agente TIA (Bridge Dev3pack)
+# Migración backend → agente TIA
 
-El agente conversacional se llama **TIA**. El frontend en Vercel ya llama:
+## Estado Semana 1 (Bridge Dev3pack)
 
-1. `POST {RENDER_BACKEND_URL}/api/tia/notify` (canónico)
-2. Si responde **404**, cae a `POST /api/lidia/notify` (legacy en Render)
+**Implementado en monorepo:** `backend/` con `POST /api/tia/notify` + alias `/api/lidia/notify`.
 
-## Cambios en `backend/src/app.ts`
+El frontend Vercel ([web/lib/tia-backend.ts](../web/lib/tia-backend.ts)) llama primero `/api/tia/notify`.
 
-```ts
-import tiaRouter from "./routes/tia.js";
-import lidiaRouter from "./routes/lidia.js"; // legacy — mismo handler o re-export
+## Deploy
 
-app.use("/api/tia", tiaRouter);
-app.use("/api/lidia", tiaRouter); // alias hasta deprecar remesa-blink
+1. Render Blueprint → [render.yaml](../render.yaml) → servicio `remesa-tia-backend`
+2. Env vars: `BOT_INTERNAL_URL`, `BOT_INTERNAL_SECRET`
+3. Vercel: `RENDER_BACKEND_URL=https://remesa-tia-backend.onrender.com`
+
+## WhatsApp
+
+Proxy a `remesa-blink-bot`:
+
+```
+POST {BOT_INTERNAL_URL}/internal/send
+Authorization: Bearer {BOT_INTERNAL_SECRET}
+{ "to": "521234567890", "text": "..." }
 ```
 
-## Renombrar rutas (recomendado)
+## Sem 2 — audio PTT
 
-| Antes | Después |
-|-------|---------|
-| `routes/lidia.ts` | `routes/tia.ts` |
-| `services/lidiaAgent.ts` | `services/tiaAgent.ts` |
-| `lidiaScript` en DB/types | `tiaScript` (columna nueva o alias) |
-| Logs `[LidIA Route]` | `[TIA]` |
+Añadir en bot Baileys:
 
-## Handler `/notify` — logs y copy
-
-```ts
-console.log("[TIA] notify →", userWA, amountUSDC, "USDC");
-// Mensajes WhatsApp: "Soy TIA, tu asistente de remesas..."
+```
+POST /internal/send-audio-base64
+{ "to", "audioBase64" }
 ```
 
-## Payload (sin cambios)
+Hasta entonces, TIA envía el mismo copy por texto WhatsApp.
 
-```json
-{
-  "walletSolana": "<pubkey>",
-  "userWA": "521234567890",
-  "amountUSDC": 10,
-  "reservationPda": "<pda>",
-  "txSignature": "<sig>",
-  "isVerified": true,
-  "audioBase64": "<opcional — MP3 desde Vercel/ElevenLabs>"
-}
-```
+## Legacy remesa-blink
 
-## Deploy en Render
-
-1. Aplicar cambios en el servicio `remesa-blink-backend`
-2. Verificar `GET /health`
-3. Probar `POST /api/tia/notify` con body mínimo
-4. Confirmar que Vercel recibe `whatsapp.path: "/api/tia/notify"` en la respuesta de `/api/notify/verified`
-
-## Monorepo local
-
-Cuando `backend/` exista en este repo:
-
-```bash
-cp .env.example .env   # RENDER_BACKEND_URL, WhatsApp, DB, etc.
-npm run sync-env
-cd backend && npm install && npm run dev
-```
+No clonar `remesa-blink` completo — otro programa Anchor (`remesas_recurrentes`). Solo reutilizar bot WhatsApp.

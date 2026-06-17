@@ -91,7 +91,8 @@ remesa-liquidez/
 │   │   └── elevenlabs.ts           # TTS — textToSpeech() + scripts TIA
 │   ├── idl/                        # IDL JSON commiteado
 │   └── types/                      # tipos TS generados por Anchor
-├── backend/           # Backend TIA (Render) — ver backend/TIA-MIGRATION.md
+├── backend/           # Backend TIA — POST /api/tia/notify · ver backend/README.md
+│   └── docs/accelerator/week-01/  # VPC, founder story, entrevistas (Bridge Sem 1)
 ├── client/            # Helpers TS para scripts y tests
 ├── scripts/           # E2E devnet · register merchants
 ├── tests/             # Anchor tests (mocha/chai)

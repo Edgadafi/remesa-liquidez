@@ -1,0 +1,27 @@
+# Render — Remesa TIA Backend (Bridge Dev3pack Semana 1)
+# Desplegar como servicio nuevo; apuntar remesa-liquidez RENDER_BACKEND_URL aquí.
+
+services:
+  - type: web
+    name: remesa-tia-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    region: oregon
+    plan: free
+    healthCheckPath: /health
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: "3000"
+      - key: BOT_INTERNAL_URL
+        sync: false
+      - key: BOT_INTERNAL_SECRET
+        sync: false
+      - key: TIA_ALLOW_NOTIFY_WITHOUT_BOT
+        value: "false"
+      - key: ELEVENLABS_API_KEY
+        sync: false
+      - key: ELEVENLABS_VOICE_ID
+        value: EXAVITQu4vr4xnSDxMaL

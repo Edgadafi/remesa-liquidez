@@ -7,7 +7,10 @@
         "web:build:vercel": "npm run anchor:sync-web && cd web && npm run vercel-build",
         "register-merchants:devnet": "SOLANA_CLUSTER=devnet node_modules/.bin/ts-node scripts/register-merchants-devnet.ts",
         "e2e:devnet": "SOLANA_CLUSTER=devnet node_modules/.bin/ts-node scripts/e2e-devnet-remittance.ts",
-        "sync-env": "cp .env ./web/.env && ([ -d ./backend ] && cp .env ./backend/.env || echo '[sync-env] backend/ no existe todavía — solo web/.env actualizado')"
+        "sync-env": "cp .env ./web/.env && ([ -d ./backend ] && cp .env ./backend/.env || echo '[sync-env] backend/ no existe todavía — solo web/.env actualizado')",
+        "backend:install": "cd backend && npm install",
+        "backend:dev": "cd backend && npm run dev",
+        "backend:smoke": "cd backend && npm run smoke:notify"
     },
   "dependencies": {
     "@coral-xyz/anchor": "^0.32.1",
