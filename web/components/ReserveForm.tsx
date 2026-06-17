@@ -28,6 +28,7 @@ import {
   getAssociatedTokenAddressSync,
   TOKEN_PROGRAM_ID,
 } from "@solana/spl-token";
+import { getFallbackMerchantPubkey } from "@/lib/fallbackMerchant";
 
 const PROGRAM_ID = new PublicKey(
   typeof idlJson.address === "string"
@@ -138,11 +139,13 @@ export function ReserveForm({ onReserved }: Props) {
           provider
         ) as unknown as Program<RemesaLiquidez>;
 
+        const fallbackMerchant = getFallbackMerchantPubkey();
+
         const ix = await program.methods
           .initializeReservation(
             amountRaw,
             new BN(DEFAULT_EXPIRY_SECONDS),
-            null // sin merchant preferido
+            fallbackMerchant
           )
           .accountsStrict({
             sender: publicKey,

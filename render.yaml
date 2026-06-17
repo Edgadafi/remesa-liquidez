@@ -21,6 +21,10 @@ services:
         sync: false
       - key: TIA_ALLOW_NOTIFY_WITHOUT_BOT
         value: "false"
+      - key: TIA_MANUAL_OVERRIDE_SECRET
+        sync: false
+      - key: BLINK_BASE_URL
+        value: https://web-coral-pi-66.vercel.app
       - key: ELEVENLABS_API_KEY
         sync: false
       - key: ELEVENLABS_VOICE_ID

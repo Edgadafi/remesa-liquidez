@@ -1,6 +1,18 @@
 /**
  * Copy del agente TIA — alineado con web/lib/elevenlabs.ts
+ * Incluye Blink cashout link (preview_url) — fallback sin ElevenLabs.
  */
+
+function cashoutBlinkUrl(reservationPda: string): string | undefined {
+  const site =
+    process.env.BLINK_BASE_URL ??
+    process.env.NEXT_PUBLIC_SITE_URL ??
+    process.env.NEXT_PUBLIC_BLINK_BASE_URL;
+  if (!site || !reservationPda) return undefined;
+  const base = site.replace(/\/$/, "");
+  const action = `${base}/api/actions/cashout?pda=${encodeURIComponent(reservationPda)}`;
+  return `https://dial.to/?action=solana-action:${action}`;
+}
 
 export function buildTiaConfirmationText(
   amountUSDC: number,
@@ -22,6 +34,10 @@ export function buildTiaConfirmationText(
 
   if (reservationPda) {
     body += `\n\nRef: \`${reservationPda.slice(0, 8)}…${reservationPda.slice(-6)}\``;
+    const blink = cashoutBlinkUrl(reservationPda);
+    if (blink) {
+      body += `\n\nRetiro (comercio): ${blink}`;
+    }
   }
 
   body += `\n\n¡Tu dinero te espera! 💚`;

@@ -33,6 +33,7 @@ export function createApp() {
 <ul>
 <li><code>GET /health</code></li>
 <li><code>POST /api/tia/notify</code></li>
+<li><code>POST /api/tia/manual-notify</code> (override, Bearer secret)</li>
 <li><code>POST /api/lidia/notify</code> (alias legacy)</li>
 </ul>
 </body></html>`);

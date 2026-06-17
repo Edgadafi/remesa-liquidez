@@ -8,6 +8,7 @@ Servicio mínimo para Bridge Dev3pack Semana 1.
 |--------|------|-------------|
 | GET | `/health` | Health check |
 | POST | `/api/tia/notify` | Notificación TIA → WhatsApp |
+| POST | `/api/tia/manual-notify` | Override manual (Bearer `TIA_MANUAL_OVERRIDE_SECRET`) |
 | POST | `/api/lidia/notify` | Alias legacy (mismo handler) |
 
 ## Payload `POST /api/tia/notify`
@@ -41,7 +42,8 @@ npm run smoke:notify -- 521234567890
 
 ## Semana 1 — limitaciones
 
-- WhatsApp: **texto TIA** vía bot Baileys (`/internal/send`)
-- `audioBase64`: recibido y logueado; nota de voz PTT requiere patch bot (`/internal/send-audio-base64`) en Sem 2
+- WhatsApp: **texto TIA** vía bot Baileys (`/internal/send`) + link Dial.to Blink en el mensaje
+- `audioBase64`: recibido y logueado; nota de voz PTT = Post-MVP (ver [SPEC.md](../SPEC.md))
+- Manual override: `POST /api/tia/manual-notify` cuando webhooks fallen en test en vivo
 
 Ver también: [TIA-MIGRATION.md](./TIA-MIGRATION.md)

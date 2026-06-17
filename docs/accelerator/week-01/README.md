@@ -8,6 +8,13 @@ Entregables para sesiones 16–18 jun con Solene, Matute y Laura.
 | Founder story (1-pager) | [founder-story.md](./founder-story.md) |
 | Guion entrevistas usuario | [user-interview-script.md](./user-interview-script.md) |
 | Demo checklist Kick Off | [demo-checklist-kickoff.md](./demo-checklist-kickoff.md) |
+| Tracker entrevistas (3) | [interview-tracker.md](./interview-tracker.md) |
+| Deploy Render | [../DEPLOY.md](../DEPLOY.md) |
+
+## Marco YC
+
+- [yc-mvp-framework.md](../yc-mvp-framework.md)
+- [mvp-spec-bridge.md](../mvp-spec-bridge.md)
 
 ## Build Semana 1
 

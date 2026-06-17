@@ -100,7 +100,7 @@ export default function Home() {
             color: fgMuted,
           }}
         >
-          escrow · whitelist · tesoro · devnet
+          bridge dev3pack · us → mx · devnet
         </p>
 
         <h1
@@ -113,9 +113,8 @@ export default function Home() {
             color: fg,
           }}
         >
-          Remesa
-          <span style={{ color: fgMuted }}> </span>
-          <span style={{ color: accent }}>LiquidezIA</span>
+          Remesa{" "}
+          <span style={{ color: accent }}>TIA</span>
         </h1>
 
         <p
@@ -128,10 +127,83 @@ export default function Home() {
             maxWidth: 520,
           }}
         >
-          Pagos agrupados por turnos sobre Solana con reglas públicas en contrato:
-          orden de ejecución, fechas al tesoro y comercios autorizados. La web expone Actions
-          para cobrar desde la wallet sin depender sólo del front.
+          Envía USDC desde EE.UU. Tu familia retira efectivo en México.
+          TIA les avisa por WhatsApp — sin app, sin banco, fee 0.25% on-chain.
         </p>
+
+        <div
+          style={{
+            marginTop: 28,
+            display: "flex",
+            flexWrap: "wrap",
+            gap: 12,
+          }}
+        >
+          <a
+            href="#sender-app"
+            style={{
+              padding: "12px 20px",
+              background: accent,
+              color: "#0b0d12",
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 600,
+              textDecoration: "none",
+            }}
+          >
+            Probar demo
+          </a>
+          <Link
+            href="/merchant"
+            style={{
+              padding: "12px 20px",
+              background: surface,
+              color: fg,
+              border: `1px solid ${border}`,
+              borderRadius: 8,
+              fontSize: 14,
+              fontWeight: 600,
+              textDecoration: "none",
+            }}
+          >
+            Soy comercio
+          </Link>
+        </div>
+
+        <div
+          style={{
+            marginTop: 40,
+            paddingTop: 32,
+            borderTop: `1px solid ${border}`,
+          }}
+        >
+          <SectionTitle n="00" title="Cómo funciona" />
+          <ol
+            style={{
+              margin: 0,
+              padding: "0 0 0 20px",
+              display: "flex",
+              flexDirection: "column",
+              gap: 16,
+              color: fgMuted,
+              fontSize: 15,
+              lineHeight: 1.55,
+            }}
+          >
+            <li>
+              <strong style={{ color: fg }}>Envía</strong> — Conecta wallet, crea reserva USDC
+              en escrow Anchor.
+            </li>
+            <li>
+              <strong style={{ color: fg }}>Avisa</strong> — TIA notifica al receptor por WhatsApp
+              cuando apruebas la identidad.
+            </li>
+            <li>
+              <strong style={{ color: fg }}>Retira</strong> — Comercio aliado liquida con Blink;
+              99.75% payout, 0.25% tesoro verificable en Solscan.
+            </li>
+          </ol>
+        </div>
 
         <div
           style={{
@@ -305,6 +377,7 @@ export default function Home() {
 
         {/* ── 05 Sender App — Mobile Wallet Adapter ── */}
         <div
+          id="sender-app"
           style={{
             marginTop: 40,
             paddingTop: 32,
@@ -334,9 +407,15 @@ export default function Home() {
             fontSize: 12,
             color: fgMuted,
             letterSpacing: "0.04em",
+            display: "flex",
+            flexWrap: "wrap",
+            gap: "8px 16px",
           }}
         >
-          Remesa LiquidezIA · MVP hackathon · red devnet únicamente
+          <span>Remesa TIA · Bridge Dev3pack · devnet only</span>
+          <Link href="/status" style={{ color: accent, textDecoration: "none" }}>
+            Status ↗
+          </Link>
         </footer>
       </main>
     </>
