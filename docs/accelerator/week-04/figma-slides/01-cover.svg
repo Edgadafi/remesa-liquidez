@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="1280" height="720" viewBox="0 0 1280 720" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1280" height="720" fill="#0F2318"/>
+  <rect x="0" y="0" width="6" height="720" fill="#C9A84C"/><g opacity="0.05">
+    <defs><pattern id="grid-01 / 10" width="48" height="48" patternUnits="userSpaceOnUse">
+      <path d="M 48 0 L 0 0 0 48" fill="none" stroke="#2A6A3E" stroke-width="1"/>
+    </pattern></defs>
+    <rect width="1280" height="720" fill="url(#grid-01 / 10)"/>
+  </g><text x="64" y="200" font-family="Georgia, serif" font-size="96" font-weight="700" fill="#F5F0E8">TIA</text><rect x="64" y="230" width="88" height="5" fill="#C9A84C"/><text x="64" y="290" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#F5F0E8">Send dollars. Cash out at your</text><text x="64" y="328" font-family="Georgia, serif" font-size="28" font-weight="700" fill="#F5F0E8">corner store.</text><text x="64" y="400" font-family="system-ui, sans-serif" font-size="16" fill="#7AAE8A">Agentic US→MX remittances · WhatsApp · 2.25% all-in · 0.25% on-chain</text><rect x="64" y="460" width="96" height="32" fill="#1A4A2E" stroke="#2A6A3E" stroke-width="1"/><rect x="64" y="460" width="4" height="32" fill="#C9A84C"/><text x="78" y="482" font-family="system-ui" font-size="12" fill="#F5F0E8">WhatsApp</text><rect x="172" y="460" width="78" height="32" fill="#1A4A2E" stroke="#2A6A3E" stroke-width="1"/><rect x="172" y="460" width="4" height="32" fill="#C9A84C"/><text x="186" y="482" font-family="system-ui" font-size="12" fill="#F5F0E8">Solana</text><rect x="262" y="460" width="159" height="32" fill="#1A4A2E" stroke="#2A6A3E" stroke-width="1"/><rect x="262" y="460" width="4" height="32" fill="#C9A84C"/><text x="276" y="482" font-family="system-ui" font-size="12" fill="#F5F0E8">Bridge Dev3pack</text><text x="1232" y="692" font-family="system-ui" font-size="11" fill="#7AAE8A" text-anchor="end">01 / 10</text>
+</svg>

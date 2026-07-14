@@ -1,16 +1,23 @@
 # Positioning & Messaging — Remesa TIA
 
-> Leopold · 23 jun · Bridge Dev3pack
+> Leopold · 23 jun · Bridge Dev3pack  
+> **Estrategia:** [hybrid-routing-model.md](./hybrid-routing-model.md) · [narrative-pyramid.md](./narrative-pyramid.md)
 
-## One-liner
+## One-liner (memory test)
 
-**Remesa TIA envía dinero US→México en minutos con fee transparente on-chain y aviso por WhatsApp — sin app para quien recibe.**
+**Senders to Mexico lose 7% and hours on TradFi — TIA automates instant remittances on-chain, routes cash to ATM or tiendita, and WhatsApps your family. Time to build better.**
 
 ## Tagline alternativas (A/B)
 
-1. *"Tu remesa, sin el 7%."*
-2. *"Solana en EE.UU. Efectivo en México. TIA te avisa."*
-3. *"Envía USDC. Tu familia retira en la tienda de la esquina."*
+1. *"Tu remesa recurrente, sin el 7%."*
+2. *"Set it once. TIA sends every payday."*
+3. *"Instant on-chain. Recurring soon. WhatsApp your family."*
+
+## Positioning statement (Bridge)
+
+**Remesa TIA** es la **capa agéntica de liquidez transfronteriza** que conecta USDC on-chain con infraestructura física en LATAM — ATMs (retiro sin tarjeta) y tienditas — sin app para quien recibe.
+
+> No competimos tiendita vs cajero. **Orquestamos ambos.**
 
 ## Messaging house
 
@@ -18,8 +25,8 @@
 
 | Elemento | Copy |
 |----------|------|
-| **Problema** | Western Union se queda con $7 de cada $100 |
-| **Promesa** | Fee 0.25% verificable en Solscan |
+| **Problema** | $7 de fee + días de espera + receptor sin visibilidad |
+| **Promesa** | TIA enruta al mejor punto de retiro; fee 0.25% en Solscan |
 | **CTA** | Conecta wallet → envía en 2 taps |
 | **Objeción** | "¿Crypto?" → MWA abre Phantom como app normal |
 
@@ -27,29 +34,37 @@
 
 | Elemento | Copy |
 |----------|------|
-| **Problema** | Esperar días sin saber si llegó |
-| **Promesa** | Audio TIA en WhatsApp: "tu dinero está listo" |
-| **CTA** | Ve al comercio aliado con tu código |
-| **Objeción** | "¿App?" → Solo WhatsApp, nada que instalar |
+| **Problema** | No sabe dónde ni cuándo puede cobrar |
+| **Promesa** | WhatsApp TIA: instrucciones exactas (ATM o tiendita según zona) |
+| **CTA** | Sigue el mensaje — sin instalar app |
+| **Objeción** | "¿App?" → Solo WhatsApp |
 
-### Comercio (cashout)
+### Comercio / ATM partner
 
 | Elemento | Copy |
 |----------|------|
-| **Problema** | Liquidez informal, sin reglas claras |
-| **Promesa** | Blink → firma → payout instantáneo on-chain |
-| **CTA** | Escanea QR del cliente |
-| **Objeción** | "¿Riesgo?" → Escrow ya verificado on-chain |
+| **Problema** | Liquidez informal sin reglas; ATMs desconectados de remesas crypto |
+| **Promesa** | Tiendita: Blink → payout on-chain. ATM: retiro sin tarjeta con código TIA |
+| **CTA** | Escanea QR (tiendita) o valida código (ATM) |
+| **Objeción** | "¿Riesgo?" → Escrow verificado antes de liberar |
 
 ## Diferenciadores vs competencia
 
 | vs | Remesa TIA |
 |----|------------|
-| Western Union | Fee 5–8% → 0.25% on-chain |
-| Remitly | Receptor necesita banco → solo WhatsApp |
-| Strike / crypto P2P | UX técnica → TIA + comercio local |
-| Apps bancarias | Lento → ~400ms settlement Solana |
+| Western Union | Fee 5–8% → 0.25%; routing inteligente vs sucursal fija |
+| Remitly | Receptor necesita banco → WhatsApp + ATM o tiendita |
+| Crypto P2P | UX técnica → TIA elige rail físico |
+| Solo tiendita / solo ATM | **Híbrido:** urbano ATM, rural tiendita |
 
 ## Elevator pitch (30 seg)
 
-*"En LATAM, enviar $100 cuesta $7 y tarda días. Remesa TIA bloquea USDC en Solana, TIA avisa a tu familia por WhatsApp, y retiran efectivo en una tienda aliada. Fee transparente, auditable, 0.25%. 3er lugar hackathon México, aceleradora Bridge Dev3pack."*
+*"Enviar $100 a México cuesta $7 y tarda días. Remesa TIA bloquea USDC on-chain, TIA enruta al cajero o la tiendita con mejor liquidez, y avisa a tu familia por WhatsApp. Urbano: retiro sin tarjeta. Rural: efectivo en la tiendita del barrio. Fee 0.25%, auditable. Top 3 hackathon MX, Bridge Dev3pack."*
+
+## Bridge demo script (2 min)
+
+1. **Problema** — $7 fee, receptor sin banco, liquidez física rota
+2. **Insight** — last-mile = routing, no solo transfer
+3. **Demo live** — flujo tiendita devnet (rail B)
+4. **Visión** — slide routing: *"En CDMX, TIA hubiera enviado al ATM"* (rail A)
+5. **CTA** — beta US→MX · intro ATM partner · intro tiendita rural

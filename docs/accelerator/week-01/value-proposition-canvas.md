@@ -76,7 +76,11 @@
 
 ## Fit Statement (1 frase)
 
-**Para remitentes US→MX y receptores sin banco**, Remesa TIA es una **remesa on-chain con agente de voz** que **reduce comisiones y elimina la app del receptor**, a diferencia de Western Union / apps bancarias, porque **las reglas viven en Solana y TIA notifica por WhatsApp**.
+**Para remitentes US→MX y receptores sin banco**, Remesa TIA es una **capa agéntica de liquidez transfronteriza** que **enruta el cash-out al ATM o tiendita con mejor liquidez** y **notifica por WhatsApp**, a diferencia de Western Union / apps bancarias, porque **TIA optimiza el last-mile físico, no solo la transferencia**.
+
+## Visión híbrida (Bridge GTM)
+
+Ver [hybrid-routing-model.md](../week-02/hybrid-routing-model.md): urbano → ATM retiro sin tarjeta; rural → tiendita. MVP Bridge demuestra rail tiendita; narrativa pitch incluye ambos rails.
 
 ---
 

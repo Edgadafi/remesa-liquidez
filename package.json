@@ -1,17 +1,17 @@
 {
   "license": "ISC",
-    "scripts": {
-        "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
-        "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
-        "anchor:sync-web": "anchor build && node web/scripts/sync-anchor-artifacts.cjs",
-        "web:build:vercel": "npm run anchor:sync-web && cd web && npm run vercel-build",
-        "register-merchants:devnet": "SOLANA_CLUSTER=devnet node_modules/.bin/ts-node scripts/register-merchants-devnet.ts",
-        "e2e:devnet": "SOLANA_CLUSTER=devnet node_modules/.bin/ts-node scripts/e2e-devnet-remittance.ts",
-        "sync-env": "cp .env ./web/.env && ([ -d ./backend ] && cp .env ./backend/.env || echo '[sync-env] backend/ no existe todavía — solo web/.env actualizado')",
-        "backend:install": "cd backend && npm install",
-        "backend:dev": "cd backend && npm run dev",
-        "backend:smoke": "cd backend && npm run smoke:notify"
-    },
+  "scripts": {
+    "lint:fix": "prettier */*.js \"*/**/*{.js,.ts}\" -w",
+    "lint": "prettier */*.js \"*/**/*{.js,.ts}\" --check",
+    "anchor:sync-web": "anchor build && node web/scripts/sync-anchor-artifacts.cjs",
+    "web:build:vercel": "npm run anchor:sync-web && cd web && npm run vercel-build",
+    "register-merchants:devnet": "SOLANA_CLUSTER=devnet node_modules/.bin/ts-node scripts/register-merchants-devnet.ts",
+    "e2e:devnet": "SOLANA_CLUSTER=devnet node_modules/.bin/ts-node scripts/e2e-devnet-remittance.ts",
+    "sync-env": "cp .env ./web/.env && ([ -d ./backend ] && cp .env ./backend/.env || echo '[sync-env] backend/ no existe todavía — solo web/.env actualizado')",
+    "backend:install": "cd backend && npm install",
+    "backend:dev": "cd backend && npm run dev",
+    "backend:smoke": "cd backend && npm run smoke:notify"
+  },
   "dependencies": {
     "@coral-xyz/anchor": "^0.32.1",
     "@solana/spl-token": "^0.4.9"
@@ -26,5 +26,24 @@
     "@types/node": "^20.0.0",
     "typescript": "^5.7.3",
     "prettier": "^2.6.2"
-  }
+  },
+  "name": "remesa-liquidez",
+  "version": "1.0.0",
+  "description": "> Mesa LATAM por turnos en Solana (Anchor): escrow + whitelist de comercios + fee al tesoro. Frontend Next.js en Vercel con Solana Actions (devnet). Backend TIA en Render con World ID + ElevenLabs + WhatsApp.",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs",
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Edgadafi/remesa-liquidez.git"
+  },
+  "keywords": [],
+  "author": "",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Edgadafi/remesa-liquidez/issues"
+  },
+  "homepage": "https://github.com/Edgadafi/remesa-liquidez#readme"
 }

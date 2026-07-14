@@ -1,9 +1,9 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import dynamic from "next/dynamic";
+import "@/styles/tia-brand.css";
+import "@solana/wallet-adapter-react-ui/styles.css";
 
-// WalletProvider accede a localStorage y APIs del browser en el constructor.
-// ssr: false garantiza que NUNCA corre durante SSR/hydration de Next.js.
 const WalletProvider = dynamic(
   () => import("@/providers/WalletProvider").then((m) => m.WalletProvider),
   { ssr: false }
@@ -16,34 +16,27 @@ const siteOrigin =
 export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),
   title: {
-    default: "Remesa LiquidezIA — Solana · devnet",
-    template: "%s · Remesa LiquidezIA",
+    default: "TIA — Manda dólares. Cóbralos en tu tienda.",
+    template: "%s · TIA",
   },
   description:
-    "Mesa LATAM por turnos: escrow + whitelist de comercios + tesoro/fees definidos en contrato Anchor; frontend Next.js con Solana Actions (devnet).",
-  keywords: ["Solana", "Anchor", "remesas", "Actions", "Blinks", "devnet", "LATAM"],
+    "Send dollars. Cash out at your corner store. Remesas US→MX por WhatsApp. Fee 0.25%, no 7%.",
+  keywords: ["TIA", "remesas", "US Mexico", "WhatsApp", "LATAM"],
+  icons: { icon: "/brand/tia-monogram.svg" },
   openGraph: {
     type: "website",
-    locale: "es",
-    siteName: "Remesa LiquidezIA",
-    title: "Remesa LiquidezIA — Solana · devnet",
+    locale: "es_MX",
+    siteName: "TIA",
+    title: "TIA — Send dollars. Cash out at your corner store.",
     description:
-      "Escrow por turnos, payout y tesoro on-chain expuestos vía HTTPS Actions para wallets.",
+      "Manda dólares. Cóbralos en tu tienda de la esquina. TIA avisa por WhatsApp.",
   },
 };
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="es">
-      <body
-        style={{
-          fontFamily:
-            "ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
-          margin: 0,
-          background: "#0b0d12",
-          color: "#e7e9ee",
-        }}
-      >
+      <body className="tia-surface-web">
         <WalletProvider>{children}</WalletProvider>
       </body>
     </html>

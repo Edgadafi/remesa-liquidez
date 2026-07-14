@@ -1,0 +1,609 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>TIA Pitch Deck — Dev3pack · Brand Kit v1.0</title>
+  <style>
+    /* TIA Brand Kit v1.0 tokens */
+    :root {
+      --forest: #0F2318;
+      --institution: #1A4A2E;
+      --cream: #F5F0E8;
+      --grove: #2A6A3E;
+      --sage: #4A7A5E;
+      --muted-green: #7AAE8A;
+      --calor: #C9A84C;
+      --font-display: Georgia, "Times New Roman", serif;
+      --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --slide-w: 1280px;
+      --slide-h: 720px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-ui);
+      background: #0a1812;
+      color: var(--cream);
+      line-height: 1.45;
+    }
+
+    .toolbar {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 10px 20px;
+      background: rgba(15, 35, 24, 0.95);
+      border-bottom: 1px solid var(--grove);
+      backdrop-filter: blur(8px);
+    }
+
+    .toolbar span { color: var(--muted-green); font-size: 13px; }
+    .toolbar button {
+      background: var(--institution);
+      color: var(--cream);
+      border: 1px solid var(--grove);
+      padding: 6px 14px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .toolbar button:hover { background: #143D24; }
+    .toolbar .accent { color: var(--calor); font-weight: 600; }
+
+    .deck { padding: 70px 24px 40px; max-width: calc(var(--slide-w) + 48px); margin: 0 auto; }
+
+    .slide {
+      position: relative;
+      width: var(--slide-w);
+      height: var(--slide-h);
+      background: var(--forest);
+      margin: 0 auto 32px;
+      padding: 48px 56px 40px 64px;
+      overflow: hidden;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.45);
+      page-break-after: always;
+    }
+
+    .slide::before {
+      content: "";
+      position: absolute;
+      left: 0; top: 0; bottom: 0;
+      width: 6px;
+      background: var(--calor);
+    }
+
+    .slide::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(var(--grove) 1px, transparent 1px),
+        linear-gradient(90deg, var(--grove) 1px, transparent 1px);
+      background-size: 48px 48px;
+      opacity: 0.05;
+      pointer-events: none;
+    }
+
+    .slide-num {
+      position: absolute;
+      right: 32px;
+      bottom: 24px;
+      font-size: 11px;
+      color: var(--muted-green);
+      letter-spacing: 0.1em;
+      z-index: 2;
+    }
+
+    .slide-label {
+      font-size: 11px;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      color: var(--calor);
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 2;
+    }
+
+    h1, h2 {
+      font-family: var(--font-display);
+      font-weight: 700;
+      color: var(--cream);
+      position: relative;
+      z-index: 2;
+    }
+
+    .cover h1 {
+      font-size: 96px;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+
+    h2 { font-size: 32px; line-height: 1.2; margin-bottom: 10px; max-width: 95%; }
+
+    .accent-bar {
+      width: 88px;
+      height: 5px;
+      background: var(--calor);
+      margin: 16px 0 20px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .sub, .one-message {
+      font-size: 16px;
+      color: var(--muted-green);
+      margin-bottom: 24px;
+      max-width: 90%;
+      position: relative;
+      z-index: 2;
+    }
+
+    .one-message { font-style: italic; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 14px;
+      position: relative;
+      z-index: 2;
+    }
+
+    th {
+      text-align: left;
+      padding: 10px 14px;
+      background: var(--institution);
+      color: var(--cream);
+      font-weight: 600;
+      border: 1px solid var(--grove);
+    }
+
+    td {
+      padding: 10px 14px;
+      border: 1px solid var(--grove);
+      color: var(--muted-green);
+      vertical-align: top;
+    }
+
+    td:first-child { color: var(--cream); font-weight: 500; }
+
+    .footer-note {
+      position: absolute;
+      left: 64px;
+      right: 56px;
+      bottom: 48px;
+      font-size: 11px;
+      color: var(--muted-green);
+      font-style: italic;
+      z-index: 2;
+    }
+
+    .pills {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 28px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .pill {
+      display: inline-flex;
+      align-items: center;
+      background: var(--institution);
+      border: 1px solid var(--grove);
+      padding: 6px 14px 6px 10px;
+      font-size: 12px;
+      color: var(--cream);
+      border-radius: 2px;
+    }
+
+    .pill::before {
+      content: "";
+      display: inline-block;
+      width: 4px;
+      height: 14px;
+      background: var(--calor);
+      margin-right: 10px;
+    }
+
+    .logo-wrap {
+      margin-bottom: 24px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .logo-wrap img { height: 56px; width: auto; }
+
+    .bullets {
+      list-style: none;
+      position: relative;
+      z-index: 2;
+    }
+
+    .bullets li {
+      padding: 6px 0 6px 18px;
+      color: var(--muted-green);
+      font-size: 14px;
+      position: relative;
+    }
+
+    .bullets li::before {
+      content: "▸";
+      position: absolute;
+      left: 0;
+      color: var(--calor);
+    }
+
+    .placeholder {
+      border: 1px dashed var(--grove);
+      background: rgba(26, 74, 46, 0.35);
+      padding: 20px;
+      text-align: center;
+      color: var(--muted-green);
+      font-size: 13px;
+      margin-top: 16px;
+      position: relative;
+      z-index: 2;
+    }
+
+    .import-guide {
+      max-width: var(--slide-w);
+      margin: 0 auto 48px;
+      padding: 24px 28px;
+      background: var(--institution);
+      border-left: 4px solid var(--calor);
+      font-size: 14px;
+      color: var(--muted-green);
+    }
+
+    .import-guide h3 {
+      font-family: var(--font-display);
+      color: var(--cream);
+      margin-bottom: 12px;
+      font-size: 20px;
+    }
+
+    .import-guide ol { margin-left: 20px; }
+    .import-guide li { margin: 6px 0; }
+    .import-guide strong { color: var(--cream); }
+
+    @media print {
+      .toolbar, .import-guide { display: none !important; }
+      body { background: white; }
+      .deck { padding: 0; }
+      .slide { margin: 0; box-shadow: none; }
+    }
+
+    .slide-compact table { font-size: 12px; }
+    .slide-compact th, .slide-compact td { padding: 7px 10px; }
+    .honest-banner {
+      display: inline-block;
+      margin: 8px 0 16px;
+      padding: 6px 12px;
+      background: var(--institution);
+      border-left: 4px solid var(--calor);
+      font-size: 13px;
+      color: var(--calor);
+      position: relative;
+      z-index: 2;
+    }
+    .two-block { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; position: relative; z-index: 2; }
+    @media (max-width: 1320px) {
+      .slide { transform: scale(0.85); transform-origin: top center; margin-bottom: -80px; }
+    }
+  </style>
+</head>
+<body>
+
+<nav class="toolbar">
+  <strong class="accent">TIA Pitch Deck</strong>
+  <span>18 slides · Brand Kit v1.0 · Validation-first</span>
+  <button onclick="window.print()">Export PDF</button>
+  <button onclick="location.href='pitch-deck-tia-dev3pack.pptx'">Download PPTX</button>
+</nav>
+
+<div class="import-guide">
+  <h3>Importar a Google Slides / Figma</h3>
+  <ol>
+    <li><strong>Google Slides:</strong> Archivo → Importar diapositivas → Subir <code>pitch-deck-tia-dev3pack.pptx</code> (mismo folder). Edita texto y reemplaza placeholders [FILL].</li>
+    <li><strong>Figma:</strong> Plugins → "Pitchdeck Presentation Studio" o arrastra cada SVG de <code>figma-slides/</code> como frame 1280×720. Tokens ya aplicados.</li>
+    <li><strong>PDF rápido:</strong> Botón "Export PDF" arriba → imprimir a PDF → importar en Slides si prefieres.</li>
+    <li><strong>Antes de presentar:</strong> Slides 6–8 = validación honesta (sin pilotos falsos). Screenshots en 3, 4, 6.</li>
+  </ol>
+</div>
+
+<main class="deck">
+
+  <!-- SLIDE 1 COVER -->
+  <section class="slide cover" id="s1">
+    <div class="logo-wrap">
+      <img src="../../../web/public/brand/tia-logo-horizontal-dark.svg" alt="TIA" onerror="this.style.display='none'" />
+    </div>
+    <h1>TIA</h1>
+    <div class="accent-bar"></div>
+    <h2 style="font-size:28px">Send dollars. Cash out at your corner store.</h2>
+    <p class="sub">Agentic US→MX remittances · WhatsApp for family · <strong style="color:var(--cream)">2.25% all-in</strong> · 0.25% on-chain</p>
+    <div class="pills">
+      <span class="pill">WhatsApp</span>
+      <span class="pill">Solana</span>
+      <span class="pill">Bridge Dev3pack</span>
+    </div>
+    <span class="slide-num">01 / 12</span>
+  </section>
+
+  <!-- SLIDE 2 PROBLEM -->
+  <section class="slide" id="s2">
+    <p class="slide-label">Problem</p>
+    <h2>Staying stuck costs families 7% and hours — every month.</h2>
+    <p class="one-message">Senders to Mexico cannot automate instant, recurring transfers.</p>
+    <table>
+      <thead><tr><th>Pain</th><th>Cost</th></tr></thead>
+      <tbody>
+        <tr><td>TradFi friction</td><td>Hidden fees up to <strong style="color:var(--cream)">7%</strong> of capital</td></tr>
+        <tr><td>Slow settlement</td><td><strong style="color:var(--cream)">Hours</strong> waiting per transaction</td></tr>
+        <tr><td>No recurrence</td><td>Manual run every payday</td></tr>
+        <tr><td>Receiver excluded</td><td>No bank, no app — needs <strong style="color:var(--cream)">cash</strong></td></tr>
+      </tbody>
+    </table>
+    <span class="slide-num">02 / 12</span>
+  </section>
+
+  <!-- SLIDE 3 PROOF -->
+  <section class="slide" id="s3">
+    <p class="slide-label">Proof of the problem</p>
+    <h2>The world already documents this pain.</h2>
+    <table>
+      <thead><tr><th>Evidence</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>US→MX remittance corridor</td><td>~$60B+/year (World Bank / BBB)</td></tr>
+        <tr><td>Average remittance fee LATAM</td><td>~6% (World Bank Remittance Prices Worldwide)</td></tr>
+        <tr><td>Underbanked adults Mexico</td><td>~40% without full banking (validate Laura)</td></tr>
+        <tr><td>Customer story</td><td><em>"I send $500 every two weeks — $35 disappears and my mom waits three days."</em></td></tr>
+      </tbody>
+    </table>
+    <div class="placeholder">📷 Fee comparison: WU ~7% ($14 on $200) vs TIA 2.25% all-in ($4.50) · 0.25% on Solscan</div>
+    <span class="slide-num">03 / 12</span>
+  </section>
+
+  <!-- SLIDE 4 SOLUTION -->
+  <section class="slide" id="s4">
+    <p class="slide-label">Solution</p>
+    <h2>On-chain settlement → physical cash-out via WhatsApp.</h2>
+    <table>
+      <thead><tr><th>Outcome</th><th>Mechanism</th></tr></thead>
+      <tbody>
+        <tr><td>Instant send + notify</td><td>USDC escrow → TIA agent → WhatsApp</td></tr>
+        <tr><td>Cash in hand</td><td>Hybrid rail: <strong style="color:var(--cream)">ATM</strong> (urban) / <strong style="color:var(--cream)">tiendita</strong> (rural)</td></tr>
+        <tr><td>No app for receiver</td><td>Native WhatsApp only</td></tr>
+      </tbody>
+    </table>
+    <div class="placeholder">📷 Diagram: hybrid-routing · Demo: WhatsApp + Solscan side-by-side</div>
+    <span class="slide-num">04 / 12</span>
+  </section>
+
+  <!-- SLIDE 5 OPPORTUNITY -->
+  <section class="slide" id="s5">
+    <p class="slide-label">Opportunity</p>
+    <h2>$60B corridor — beachhead: crypto-curious senders + WhatsApp receivers.</h2>
+    <table>
+      <thead><tr><th>Layer</th><th>Number</th><th>Source</th></tr></thead>
+      <tbody>
+        <tr><td>TAM</td><td>US→MX remittances ~$60B/yr</td><td>World Bank</td></tr>
+        <tr><td>SAM</td><td>Diaspora senders $50–500/mo digitally</td><td>Bridge interviews</td></tr>
+        <tr><td>Beachhead</td><td>Next: 10 pilot users · 1 CDMX merchant · 1 ATM partner</td><td>Q3 2026</td></tr>
+      </tbody>
+    </table>
+    <span class="slide-num">05 / 12</span>
+  </section>
+
+  <!-- SLIDE 6 BUILT TO TEST -->
+  <section class="slide" id="s6">
+    <p class="slide-label">Built to test</p>
+    <h2>Product on devnet — ready to run the experiment.</h2>
+    <p class="honest-banner">No production pilots yet — devnet play-money only.</p>
+    <table>
+      <thead><tr><th>What exists</th><th>Status</th><th>Date</th></tr></thead>
+      <tbody>
+        <tr><td>E2E flow built</td><td>reserve → verify → WhatsApp → cashout</td><td>Devnet · Jul 2026</td></tr>
+        <tr><td>Live demo</td><td>web-coral-pi-66.vercel.app</td><td>Devnet</td></tr>
+        <tr><td>Hackathon MX</td><td>3rd place</td><td>May 2026</td></tr>
+        <tr><td>Bridge LATAM rank</td><td>#43 / 194</td><td>Jun 2026</td></tr>
+      </tbody>
+    </table>
+    <div class="placeholder">📷 Screenshot: Sender App + merchant cashout UI (product proof, not user proof)</div>
+    <span class="slide-num">06 / 12</span>
+  </section>
+
+  <!-- SLIDE 7 VALIDATION PLAN -->
+  <section class="slide" id="s7">
+    <p class="slide-label">Validation plan</p>
+    <h2>How we recruit 10 users in 30 days — not that we already have them.</h2>
+    <table>
+      <thead><tr><th>Channel</th><th>How we recruit</th><th>Target</th></tr></thead>
+      <tbody>
+        <tr><td>Bridge / Dev3pack</td><td>Warm intros — US senders $50–200/mo to MX</td><td>6 senders</td></tr>
+        <tr><td>Laura network</td><td>CDMX receivers — WhatsApp-first, no wallet</td><td>6 receivers</td></tr>
+        <tr><td>Founder onboarding</td><td>15-min screenshare · devnet · joint first tx</td><td>Guided W1–W2</td></tr>
+        <tr><td>1 tiendita CDMX/GDL</td><td>In-person visit · simple pilot agreement</td><td>1 merchant</td></tr>
+      </tbody>
+    </table>
+    <p class="footer-note">Segment: crypto-curious sender + family receiver who needs cash, not an app.</p>
+    <span class="slide-num">07 / 12</span>
+  </section>
+
+  <!-- SLIDE 8 SUCCESS & LEARNING -->
+  <section class="slide slide-compact" id="s8">
+    <p class="slide-label">Success &amp; learning</p>
+    <h2>Clear go/no-go before mainnet.</h2>
+    <div class="two-block">
+      <div>
+        <p class="one-message" style="margin-bottom:10px">Success metrics (30-day pilot)</p>
+        <table>
+          <thead><tr><th>Metric</th><th>Threshold</th></tr></thead>
+          <tbody>
+            <tr><td>Completion rate</td><td><strong style="color:var(--cream)">≥50%</strong> reserva → cashout</td></tr>
+            <tr><td>WhatsApp delivery</td><td><strong style="color:var(--cream)">≥90%</strong></td></tr>
+            <tr><td>NPS receiver</td><td><strong style="color:var(--cream)">≥7</strong></td></tr>
+            <tr><td>Repeat intent (30d)</td><td><strong style="color:var(--cream)">≥2 users</strong> ask to send again</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div>
+        <p class="one-message" style="margin-bottom:10px">Learning timeline — first 10 users</p>
+        <table>
+          <thead><tr><th>Week</th><th>Target</th><th>What we learn</th></tr></thead>
+          <tbody>
+            <tr><td>W1</td><td>3 senders</td><td>Can sender finish devnet flow with help?</td></tr>
+            <tr><td>W2</td><td>5 · 1 merchant</td><td>Does tiendita trust Blink cashout UX?</td></tr>
+            <tr><td>W3</td><td>8 self-serve</td><td>Where does funnel break alone?</td></tr>
+            <tr><td>W4</td><td>10 · retention</td><td>Will anyone send twice without a push?</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="footer-note">Go/no-go: ≥5 repeat intent · merchant continues · legal path clear (Yarden)</p>
+    <span class="slide-num">08 / 12</span>
+  </section>
+
+  <!-- SLIDE 9 PARTNERS -->
+  <section class="slide" id="s9">
+    <p class="slide-label">Partners</p>
+    <h2>Borrowed credibility — labelled honestly.</h2>
+    <table>
+      <thead><tr><th>Partner</th><th>Status</th><th>Function</th></tr></thead>
+      <tbody>
+        <tr><td>Dev3pack / Bridge</td><td style="color:#A8C5B0">Live</td><td>GTM, legal, fundraising mentors</td></tr>
+        <tr><td>Solana devnet program</td><td style="color:#A8C5B0">Live</td><td>Escrow + Blinks</td></tr>
+        <tr><td>WhatsApp (Baileys bot)</td><td style="color:#A8C5B0">Live</td><td>Receiver notifications</td></tr>
+        <tr><td>ATM partner CDMX</td><td style="color:var(--calor)">In discussion</td><td>Urban cash-out rail</td></tr>
+        <tr><td>Tiendita pilot</td><td style="color:var(--calor)">In discussion</td><td>Rural cash-out rail</td></tr>
+        <tr><td>Bitso / on-ramp</td><td>Exploring</td><td>First-mile USDC</td></tr>
+      </tbody>
+    </table>
+    <span class="slide-num">09 / 12</span>
+  </section>
+
+  <!-- SLIDE 10 BUSINESS MODEL -->
+  <section class="slide slide-compact" id="s10">
+    <p class="slide-label">Business model</p>
+    <h2>2.25% all-in to sender · 0.25% protocol on-chain.</h2>
+    <div class="two-block">
+      <div>
+        <p class="one-message" style="margin-bottom:10px">Sender pricing</p>
+        <table>
+          <thead><tr><th>Layer</th><th>Rate</th></tr></thead>
+          <tbody>
+            <tr><td><strong style="color:var(--cream)">All-in (pilot)</strong></td><td><strong style="color:var(--calor)">2.25%</strong> · ~65% below TradFi</td></tr>
+            <tr><td>Protocol (TIA treasury)</td><td>0.25% · auditable on Solscan</td></tr>
+            <tr><td>Partner rails</td><td>~2.0% · on-ramp + ATM/tiendita</td></tr>
+            <tr><td>Recurring (future)</td><td>1.49–1.75% · Keeper volume</td></tr>
+          </tbody>
+        </table>
+        <p class="footer-note" style="position:static;margin-top:10px">$200 send: TradFi ~$14 · TIA $4.50 all-in · treasury $0.50</p>
+      </div>
+      <div>
+        <p class="one-message" style="margin-bottom:10px">Revenue to TIA</p>
+        <table>
+          <thead><tr><th>Stream</th><th>Mechanism</th></tr></thead>
+          <tbody>
+            <tr><td>Protocol fee</td><td>0.25% → 0.35% at scale</td></tr>
+            <tr><td>ATM rev-share</td><td>~0.15% effective urban volume</td></tr>
+            <tr><td>Merchant SaaS</td><td>$29–99/mo post-pilot</td></tr>
+            <tr><td>B2B routing API</td><td>0.10–0.20% partner GMV</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+    <p class="footer-note">Who pays: sender only · all-in quoted upfront · no hidden FX spread</p>
+    <span class="slide-num">10 / 12</span>
+  </section>
+
+  <!-- SLIDE 11 TEAM -->
+  <section class="slide" id="s11">
+    <p class="slide-label">Team</p>
+    <h2>At pre-seed, team is the product.</h2>
+    <table>
+      <thead><tr><th>Name</th><th>Role</th><th>Proof line</th></tr></thead>
+      <tbody>
+        <tr><td style="color:var(--calor)">[Founder]</td><td>CEO / Product</td><td>Built E2E devnet remittance + TIA agent</td></tr>
+        <tr><td style="color:var(--calor)">[Co-founder]</td><td>[if applicable]</td><td>Anchor + Solana Actions in production</td></tr>
+        <tr><td>Mentors</td><td>Bridge cohort</td><td>GTM (Leopold), legal (Yarden), ops (Sylvain)</td></tr>
+      </tbody>
+    </table>
+    <div class="pills">
+      <span class="pill">Dev3pack</span>
+      <span class="pill">Hackathon MX</span>
+      <span class="pill">Solana</span>
+    </div>
+    <span class="slide-num">11 / 12</span>
+  </section>
+
+  <!-- SLIDE 12 ASK -->
+  <section class="slide" id="s12">
+    <p class="slide-label">Ask</p>
+    <h2>The ask — readable without context.</h2>
+    <table>
+      <thead><tr><th>Field</th><th>Draft</th></tr></thead>
+      <tbody>
+        <tr><td>Amount</td><td style="color:var(--calor)">$X pre-seed (fill post-Bridge feedback)</td></tr>
+        <tr><td>Instrument</td><td>SAFE / equity</td></tr>
+        <tr><td>Valuation</td><td style="color:var(--calor)">$X cap</td></tr>
+        <tr><td>Milestones (12 mo)</td><td>30-day validation · mainnet-beta if go/no-go · hybrid CDMX</td></tr>
+        <tr><td>Contact</td><td>founder@ / @remesatia</td></tr>
+      </tbody>
+    </table>
+    <ul class="bullets" style="margin-top:16px">
+      <li>40% engineering (keeper, routing agent, mainnet)</li>
+      <li>30% pilot ops (merchant + ATM onboarding)</li>
+      <li>20% legal/compliance MX-US</li>
+      <li>10% GTM (community events, first-mile)</li>
+    </ul>
+    <span class="slide-num">12 / 12</span>
+  </section>
+
+  <!-- APPENDIX A1-A6 -->
+  <section class="slide" id="a1">
+    <p class="slide-label">Appendix A1</p>
+    <h2>Competition map</h2>
+    <p class="sub">competitive-battle-map.md — off-slide backup</p>
+    <span class="slide-num">A1</span>
+  </section>
+  <section class="slide" id="a2">
+    <p class="slide-label">Appendix A2</p>
+    <h2>Hybrid routing</h2>
+    <p class="sub">hybrid-routing-model.md</p>
+    <span class="slide-num">A2</span>
+  </section>
+  <section class="slide" id="a3">
+    <p class="slide-label">Appendix A3</p>
+    <h2>First-mile on-ramp</h2>
+    <p class="sub">first-mile-onramp-proposals.md</p>
+    <span class="slide-num">A3</span>
+  </section>
+  <section class="slide" id="a4">
+    <p class="slide-label">Appendix A4</p>
+    <h2>Tech architecture</h2>
+    <p class="sub">Anchor escrow · Blinks · TIA backend · devnet program ID</p>
+    <span class="slide-num">A4</span>
+  </section>
+  <section class="slide" id="a5">
+    <p class="slide-label">Appendix A5</p>
+    <h2>Regulatory posture</h2>
+    <p class="sub">legal-checklist-yarden.md</p>
+    <span class="slide-num">A5</span>
+  </section>
+  <section class="slide" id="a6">
+    <p class="slide-label">Appendix A6</p>
+    <h2>Roadmap Q3–Q4</h2>
+    <p class="sub">pilot-plan-10-users.md</p>
+    <span class="slide-num">A6</span>
+  </section>
+
+</main>
+</body>
+</html>

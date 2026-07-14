@@ -10,7 +10,7 @@
 
 1. **Hold the problem tightly:** Seamless, secure digital-to-physical remittance cash-outs in LATAM.
 2. **Hold the customer tightly:** Unbanked receivers + neighborhood merchants (*tienditas*).
-3. **Hold the solution loosely:** Today = Solana Blinks + Anchor escrow + WhatsApp. Adapt if data shows friction.
+3. **Hold the solution loosely:** Blinks + WhatsApp + **hybrid routing (ATM ↔ tiendita)**. Adapt rails by liquidity/geo data.
 4. **Vision big, MVP small.**
 
 ---
@@ -66,7 +66,10 @@ Check only when **working in prod/devnet**, not when scaffolded.
 ## Post-MVP (do not build during Bridge unless spec change approved)
 
 - Mainnet + formal audit
+- **Recurring / automated transfers** (keeper — set once, TIA runs every payday) — @remesatia blueprint
 - ElevenLabs real-time voice pipeline / WhatsApp PTT
+- **TIA auto-routing v1** (geo + tiendita liquidity → ATM vs tiendita) — [hybrid-routing-model.md](docs/accelerator/week-02/hybrid-routing-model.md)
+- **ATM cardless withdrawal partner API** (urban rail)
 - Store location distance math (`/api/pricing/stores`)
 - Pricing engine / subscriptions (remesa-blink)
 - cNFT tickets, Etherfuse off-ramp

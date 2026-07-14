@@ -11,65 +11,91 @@ Logo · Bridge Dev3pack · #43 LATAM Dev3pack
 
 ## Slide 2 — Problem
 
-- $7 fee on every $100 sent (Western Union avg)
-- 2–5 days settlement
-- Receiver often unbanked — needs cash, not app
+- Senders **can't automate** instant, recurring US→MX transfers (TradFi)
+- Hidden fees: **up to 7%** of capital per txn
+- Slow settlement: **hours/days** waiting + manual runs every payday
+- Receiver still needs physical cash-out — broken last-mile too
 
-**Screenshot:** fee comparison table or VPC pain
+**Line:** *"Staying stuck costs families 7% and hours. Time to build better."*
 
-## Slide 3 — Solution
+## Slide 3 — Solution (Hybrid Routing)
+
+**TIA = capa agéntica de liquidez transfronteriza**
+
+| Contexto | Rail | Experiencia receptor |
+|----------|------|----------------------|
+| Urbano / baja liquidez tiendita | ATM aliado (retiro sin tarjeta) | WhatsApp + código cajero |
+| Rural / comunidad aislada | Tiendita local | WhatsApp + Blink tiendita |
+
+**Diagram:** [hybrid-routing-model.md](../week-02/hybrid-routing-model.md) mermaid
+
+## Slide 4 — Mechanism (demo today)
 
 1. Sender locks USDC in Anchor escrow (0.25% fee)
-2. TIA notifies receiver via WhatsApp
-3. Merchant cashout at corner store (Blink)
+2. TIA routes + notifies via WhatsApp
+3. **Live demo:** tiendita cashout (Blink) — rail B
+4. **Narrate:** urban scenario → rail A (ATM) in pilot Q3
 
-**Screenshot:** landing hero + Sender App
+**Screenshot:** landing + WhatsApp + Solscan
 
-## Slide 4 — Demo flow
+## Slide 5 — Demo flow
 
 **Screenshot:** Solscan tx + WhatsApp message side by side
 
-## Slide 5 — Why now
+## Slide 6 — Why now
 
-- Solana Actions/Blinks mature (2025–26)
-- Stablecoin adoption US LATAM diaspora
-- AI agents for last-mile UX (TIA voice)
+- Solana Blinks + stablecoins = instant settlement before physical routing
+- Cardless ATM networks in MX (urban rail)
+- WhatsApp = zero app for receiver
+- AI agents = liquidity-aware routing (TIA)
 
-## Slide 6 — Market
+## Slide 7 — Market
 
 - $60B+ US→MX remittance corridor
 - Beachhead: crypto-curious senders, WhatsApp receivers
 
-## Slide 7 — Business model
+## Slide 10 — Business model (was slide 8 in 10-slide outline)
 
-- 0.25% protocol fee on-chain (transparent)
-- Future: merchant subscription, FX spread, B2B API
+**Sender pricing**
+- **2.25% all-in** (pilot → Year 1) · ~65% below TradFi ~6–7%
+- **0.25% protocol** on-chain (Solscan) · ~2.0% partner rails
+- Recurring (Keeper): 1.49–1.75% at volume
 
-## Slide 8 — Traction (Bridge)
+**Revenue to TIA**
+- Protocol 0.25% → 0.35% at scale
+- ATM rev-share ~0.15% effective
+- Merchant SaaS $29–99/mo · B2B API 0.10–0.20% GMV
+
+**Example:** $200 send — TradFi ~$14 · TIA $4.50 all-in · treasury $0.50
+
+## Slide 9 — Traction (Bridge)
 
 - 3rd place hackathon MX
 - X beta users · Y E2E txs (fill from trackers)
 - 3 user interviews → insight quote
 
-## Slide 9 — Competition
+## Slide 10 — Competition
 
 | | WU | Remitly | Remesa TIA |
 |-|----|---------|------------|
-| Fee | 5–8% | ~2% | 0.25% |
-| Receiver UX | Bank | Bank/app | WhatsApp |
-| Auditability | No | No | Solscan |
+| Fee | 5–8% | ~2% | **2.25% all-in** (0.25% protocol) |
+| Receiver UX | Bank/branch | Bank/app | WhatsApp |
+| Physical rail | Branch only | Bank | **ATM + tiendita (hybrid)** |
+| Routing | Fixed | Fixed | **TIA agent by liquidity + geo** |
 
-## Slide 10 — Team
+## Slide 11 — Team
 
 Founder + roles · Bridge mentors leveraged
 
-## Slide 11 — Roadmap Q3
+## Slide 12 — Roadmap Q3
 
-- 10-user pilot (see pilot-plan)
-- 1 merchant CDMX
+- 10-user pilot (tiendita rail — live)
+- 1 ATM partner CDMX (urban pilot)
+- 2 tienditas rural Oaxaca/GDL periurbano
+- TIA auto-routing v1 (liquidity signals)
 - World ID prod · mainnet eval post-legal
 
-## Slide 12 — Ask
+## Slide 13 — Ask
 
 - Bridge completion → intro merchants / legal
 - $X pre-seed for pilot (optional)

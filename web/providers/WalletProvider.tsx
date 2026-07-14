@@ -40,11 +40,11 @@ const endpoint =
 
 /** URL canónica de la dApp — necesaria para el MWA identity proof */
 const APP_IDENTITY = {
-  name: "Remesa LiquidezIA",
+  name: "TIA",
   uri:
     process.env.NEXT_PUBLIC_SITE_URL ??
     (typeof window !== "undefined" ? window.location.origin : "https://web-coral-pi-66.vercel.app"),
-  icon: "/icon.png" as const,
+  icon: "/brand/tia-monogram.svg" as const,
 };
 
 export function WalletProvider({ children }: { children: ReactNode }) {

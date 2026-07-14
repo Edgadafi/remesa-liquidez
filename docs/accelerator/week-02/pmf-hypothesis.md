@@ -2,7 +2,11 @@
 
 ## Hipótesis principal
 
-**Corredor US→MX** con senders crypto-native (o crypto-curiosos) que envían $50–500/mes a familiares underbanked en México.
+**Corredor US→MX** con senders crypto-native que envían $50–500/mes a familiares underbanked. TIA enruta cash-out híbrido: **ATM en urbano**, **tiendita en rural**.
+
+## Moat (post-Bridge)
+
+Grafo de liquidez física + agente de routing — no solo fee bajo. Competidores optimizan send; TIA optimiza **dónde cobrar efectivo**.
 
 ## Segmento beachhead
 

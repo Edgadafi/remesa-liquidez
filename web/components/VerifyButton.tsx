@@ -22,6 +22,7 @@ import {
 import { useCallback, useState } from "react";
 import idlJson from "@/idl/remesa_liquidez.json";
 import type { RemesaLiquidez } from "@/types/remesa_liquidez";
+import { TIA } from "@/lib/tia-brand";
 
 const PROGRAM_ID = new PublicKey(
   typeof idlJson.address === "string"
@@ -29,12 +30,12 @@ const PROGRAM_ID = new PublicKey(
     : "Fprb6jTLfjXfZ6yuWzS7LVXxwVvPbPgPZiEqDEL9bRfj"
 );
 
-const accent = "#5eebc4";
-const surface = "#10141f";
-const border = "#232937";
-const fg = "#e9ecf3";
-const fgMuted = "rgba(233,236,243,0.58)";
-const errorColor = "#ff6b6b";
+const accent = TIA.institution;
+const surface = TIA.cream;
+const border = TIA.softGreen;
+const fg = TIA.textDark;
+const fgMuted = TIA.textSecondary;
+const errorColor = TIA.calorWarm;
 
 type Status = "idle" | "signing" | "confirming" | "notifying" | "done" | "error";
 
@@ -162,7 +163,7 @@ export function VerifyButton({ reservationPda, receiverWA, amountUSDC }: Props) 
             : connected
             ? accent
             : `${accent}33`,
-          color: isDone ? accent : "#0b0d12",
+          color: isDone ? TIA.institution : TIA.cream,
           border: isDone ? `1px solid ${accent}44` : "none",
           borderRadius: 8,
           fontSize: 14,

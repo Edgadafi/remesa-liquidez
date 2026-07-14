@@ -5,9 +5,13 @@
 | Documento | Archivo |
 |-----------|---------|
 | Positioning & messaging | [positioning-messaging.md](./positioning-messaging.md) |
+| **Modelo híbrido ATM + tiendita** | [hybrid-routing-model.md](./hybrid-routing-model.md) |
+| Pirámide narrativa (Vanina/Ginevra) | [narrative-pyramid.md](./narrative-pyramid.md) |
 | Beta users tracker | [beta-users-tracker.md](./beta-users-tracker.md) |
 | One-liner + hooks | [web3-marketing-hooks.md](./web3-marketing-hooks.md) |
 | PMF hypothesis | [pmf-hypothesis.md](./pmf-hypothesis.md) |
+| Battle map vs incumbents | [competitive-battle-map.md](../competitive-battle-map.md) |
+| Primera milla — 10 propuestas | [first-mile-onramp-proposals.md](../first-mile-onramp-proposals.md) |
 
 ## Sesiones Bridge
 

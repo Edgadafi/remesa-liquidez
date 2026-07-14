@@ -20,22 +20,34 @@ Remesa TIA nació en el hackathon Dev3pack México. El equipo vio el mismo patr�
 
 ## Problema
 
-1. **Comisiones opacas** — el fee no es verificable.
-2. **Receptor excluido** — necesita banco o app que no tiene.
-3. **Confianza rota** — "¿llegó?" se responde con capturas, no con reglas públicas.
+1. **Sin automatización** — senders no pueden programar remesas recurrentes instantáneas (TradFi).
+2. **Hasta 7% de capital** — comisiones ocultas, no verificables.
+3. **Horas por txn** — settlement lento + filas + confirmación manual cada quincena.
+4. **Last-mile roto** — receptor sin banco; liquidez física impredecible.
+
+Ver [blueprint-remesatia.md](../blueprint-remesatia.md)
 
 ---
 
-## Solución: TIA + Solana
+## Solución: TIA + Solana (modelo híbrido)
+
+TIA no elige entre tiendita o cajero — **enruta al mejor punto de liquidez física**:
+
+| Contexto | Rail | Receptor |
+|----------|------|----------|
+| Urbano / tiendita sin float | ATM aliado (retiro sin tarjeta) | WhatsApp + código cajero |
+| Rural / comunidad aislada | Tiendita local | WhatsApp + Blink comercio |
 
 | Actor | Experiencia |
 |-------|-------------|
 | **Sender** | Conecta wallet (MWA), bloquea USDC en escrow Anchor |
-| **TIA** | Agente de voz — *"Soy TIA, tu remesa de X dólares está lista"* vía WhatsApp |
-| **Receptor** | Recibe audio, va al comercio aliado |
-| **Comercio** | Escanea Blink, firma cashout — 99.75% payout, 0.25% tesoro |
+| **TIA** | Agente de routing + WhatsApp — instrucciones según rail |
+| **Receptor** | Mensaje claro: dónde ir, cuánto cobrar, sin app |
+| **Comercio / ATM** | Settlement on-chain · reglas públicas |
 
-Todo auditable on-chain. Sin banco. Sin app extra para quien recibe.
+Todo auditable on-chain. **Capa agéntica de liquidez transfronteriza**, no solo app de remesas.
+
+Ver [hybrid-routing-model.md](../week-02/hybrid-routing-model.md)
 
 ---
 

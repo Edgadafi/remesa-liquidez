@@ -5,16 +5,16 @@
 ## Hero copy (live)
 
 **Headline:** Remesa TIA  
-**Sub:** Envía USDC desde EE.UU. Tu familia retira efectivo en México. TIA les avisa por WhatsApp.
+**Sub:** TIA enruta tu remesa al mejor punto de efectivo — cajero aliado o tiendita local — y avisa por WhatsApp.
 
-**CTA primary:** Probar demo (scroll → Sender App)  
+**CTA primary:** Probar demo (scroll → Sender App — rail tiendita)  
 **CTA secondary:** Comercio → `/merchant`
 
-## Sección "Cómo funciona" (3 pasos)
+## Sección "Cómo funciona" (3 pasos — híbrido)
 
 1. **Envía** — Conecta wallet, crea reserva USDC on-chain
-2. **Avisa** — TIA notifica al receptor por WhatsApp
-3. **Retira** — Comercio aliado liquida con Blink (99.75% payout)
+2. **Enruta** — TIA elige ATM (urbano) o tiendita (rural) según liquidez y zona
+3. **Cobra** — Receptor sigue instrucciones WhatsApp; efectivo en mano
 
 ## Trust signals
 

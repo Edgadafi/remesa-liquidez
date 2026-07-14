@@ -1,63 +1,44 @@
 import idl from "@/idl/remesa_liquidez.json";
-import { IBM_Plex_Mono } from "next/font/google";
-import { Instrument_Sans } from "next/font/google";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { TiaLogo } from "@/components/TiaLogo";
+import { TiaPill } from "@/components/TiaPill";
+import { TIA, TIA_FONT, TIA_TAGLINE_ES } from "@/lib/tia-brand";
 
-// MWA / wallet-adapter accede a localStorage → solo puede correr en el cliente
 const SenderApp = dynamic(
   () => import("@/components/SenderApp").then((m) => m.SenderApp),
   { ssr: false, loading: () => null }
 );
 
-const sans = Instrument_Sans({
-  subsets: ["latin"],
-  weight: ["400", "600", "700"],
-});
-
-const mono = IBM_Plex_Mono({
-  subsets: ["latin"],
-  weight: ["400", "600"],
-});
-
 const programId =
   typeof idl.address === "string" ? idl.address : "Fprb6jTLfjXfZ6yuWzS7LVXxwVvPbPgPZiEqDEL9bRfj";
-
-const fg = "#e9ecf3";
-const fgMuted = "rgba(233,236,243,0.58)";
-const border = "#232937";
-const surface = "#10141f";
-const accent = "#5eebc4";
 
 const codeBlock: React.CSSProperties = {
   margin: 0,
   padding: "14px 16px",
-  background: "#0d1018",
+  background: TIA.cream,
   borderRadius: 8,
-  border: `1px solid ${border}`,
-  fontFamily: mono.style.fontFamily,
+  border: `1px solid ${TIA.softGreen}`,
+  fontFamily: TIA_FONT.mono,
   fontSize: 13,
   lineHeight: 1.65,
-  color: "#c9d7e8",
+  color: TIA.textSecondary,
   overflowX: "auto",
 };
 
 function SectionTitle({ n, title }: { n: string; title: string }) {
   return (
     <div
-      className={mono.className}
+      className="text-label"
       style={{
         display: "flex",
         gap: 10,
         alignItems: "baseline",
         marginBottom: 14,
-        fontSize: 11,
-        letterSpacing: "0.14em",
-        textTransform: "uppercase",
-        color: fgMuted,
+        color: TIA.textMuted,
       }}
     >
-      <span style={{ color: accent }}>{n}</span>
+      <span style={{ color: TIA.calor }}>{n}</span>
       <span>{title}</span>
     </div>
   );
@@ -66,117 +47,72 @@ function SectionTitle({ n, title }: { n: string; title: string }) {
 export default function Home() {
   return (
     <>
-      <div
-        aria-hidden
-        style={{
-          position: "fixed",
-          left: 0,
-          top: 0,
-          bottom: 0,
-          width: 5,
-          background: `linear-gradient(180deg, ${accent} 0%, rgba(94,235,196,0.18) 45%, rgba(94,235,196,0.08) 100%)`,
-          pointerEvents: "none",
-        }}
-      />
+      <div className="tia-left-accent" aria-hidden />
 
       <main
-        className={sans.className}
+        className="bg-grid"
         style={{
           minHeight: "100vh",
           boxSizing: "border-box",
           maxWidth: 640,
           margin: "0 auto",
-          padding: "56px 28px 80px",
+          padding: "48px 28px 80px",
           paddingLeft: 36,
+          fontFamily: TIA_FONT.ui,
         }}
       >
-        <p
-          className={mono.className}
-          style={{
-            margin: "0 0 20px",
-            fontSize: 11,
-            letterSpacing: "0.22em",
-            textTransform: "uppercase",
-            color: fgMuted,
-          }}
-        >
-          bridge dev3pack · us → mx · devnet
-        </p>
-
-        <h1
-          style={{
-            margin: 0,
-            fontSize: "clamp(1.95rem, 5vw, 2.65rem)",
-            fontWeight: 700,
-            lineHeight: 1.08,
-            letterSpacing: "-0.035em",
-            color: fg,
-          }}
-        >
-          Remesa{" "}
-          <span style={{ color: accent }}>TIA</span>
-        </h1>
-
-        <p
-          style={{
-            margin: "22px 0 0",
-            fontSize: 17,
-            fontWeight: 400,
-            lineHeight: 1.55,
-            color: fgMuted,
-            maxWidth: 520,
-          }}
-        >
-          Envía USDC desde EE.UU. Tu familia retira efectivo en México.
-          TIA les avisa por WhatsApp — sin app, sin banco, fee 0.25% on-chain.
-        </p>
+        <TiaLogo variant="light" showTagline height={52} />
 
         <div
           style={{
             marginTop: 28,
             display: "flex",
             flexWrap: "wrap",
-            gap: 12,
+            gap: 8,
           }}
         >
-          <a
-            href="#sender-app"
-            style={{
-              padding: "12px 20px",
-              background: accent,
-              color: "#0b0d12",
-              borderRadius: 8,
-              fontSize: 14,
-              fontWeight: 600,
-              textDecoration: "none",
-            }}
-          >
+          <TiaPill label="WhatsApp" />
+          <TiaPill label="AI Agent" />
+          <TiaPill label="USDC · MXNe" />
+          <TiaPill label="Solana" technical />
+        </div>
+
+        <h1
+          className="text-headline"
+          style={{
+            margin: "32px 0 0",
+            fontSize: "clamp(1.75rem, 4vw, 2.25rem)",
+            color: TIA.textDark,
+            fontFamily: TIA_FONT.display,
+          }}
+        >
+          Manda dólares.{" "}
+          <span style={{ color: TIA.calor }}>Cóbralos en tu tienda.</span>
+        </h1>
+
+        <p className="text-body" style={{ margin: "20px 0 0", lineHeight: 1.6, color: TIA.textSecondary, maxWidth: 520 }}>
+          TradFi cobra hasta 7% y tarda días — sin automatizar remesas recurrentes.
+          TIA envía al instante, enruta el efectivo al cajero o la tiendita,
+          y avisa a tu familia por WhatsApp.
+        </p>
+
+        <p
+          className="text-caption"
+          style={{ margin: "12px 0 0", color: TIA.sage, letterSpacing: "0.1em" }}
+        >
+          {TIA_TAGLINE_ES} · demo devnet
+        </p>
+
+        <div style={{ marginTop: 28, display: "flex", flexWrap: "wrap", gap: 12 }}>
+          <a href="#sender-app" className="btn-primary">
             Probar demo
           </a>
-          <Link
-            href="/merchant"
-            style={{
-              padding: "12px 20px",
-              background: surface,
-              color: fg,
-              border: `1px solid ${border}`,
-              borderRadius: 8,
-              fontSize: 14,
-              fontWeight: 600,
-              textDecoration: "none",
-            }}
-          >
+          <Link href="/merchant" className="btn-secondary">
             Soy comercio
           </Link>
         </div>
 
-        <div
-          style={{
-            marginTop: 40,
-            paddingTop: 32,
-            borderTop: `1px solid ${border}`,
-          }}
-        >
+        <div style={{ marginTop: 40, paddingTop: 32, borderTop: `1px solid ${TIA.softGreen}` }}>
           <SectionTitle n="00" title="Cómo funciona" />
           <ol
             style={{
@@ -185,50 +121,41 @@ export default function Home() {
               display: "flex",
               flexDirection: "column",
               gap: 16,
-              color: fgMuted,
+              color: TIA.textSecondary,
               fontSize: 15,
               lineHeight: 1.55,
             }}
           >
             <li>
-              <strong style={{ color: fg }}>Envía</strong> — Conecta wallet, crea reserva USDC
-              en escrow Anchor.
+              <strong style={{ color: TIA.textDark }}>Envía</strong> — Conecta tu billetera y crea la remesa.
             </li>
             <li>
-              <strong style={{ color: fg }}>Avisa</strong> — TIA notifica al receptor por WhatsApp
-              cuando apruebas la identidad.
+              <strong style={{ color: TIA.textDark }}>Enruta</strong> — TIA elige cajero o tiendita y avisa por WhatsApp.
             </li>
             <li>
-              <strong style={{ color: fg }}>Retira</strong> — Comercio aliado liquida con Blink;
-              99.75% payout, 0.25% tesoro verificable en Solscan.
+              <strong style={{ color: TIA.textDark }}>Cobra</strong> — Tu familia retira efectivo sin instalar nada.
             </li>
           </ol>
         </div>
 
-        <div
-          style={{
-            marginTop: 36,
-            paddingTop: 32,
-            borderTop: `1px solid ${border}`,
-          }}
-        >
-          <SectionTitle n="01" title="Contrato vivo" />
-          <p style={{ margin: "0 0 12px", fontSize: 15, color: fgMuted }}>
-            Anchor program ID (devnet) — clic para ver en explorer.
+        <div style={{ marginTop: 36, paddingTop: 32, borderTop: `1px solid ${TIA.softGreen}` }}>
+          <SectionTitle n="01" title="Ficha técnica" />
+          <p style={{ margin: "0 0 12px", fontSize: 14, color: TIA.textSecondary }}>
+            Contrato en devnet — solo para desarrolladores y mentores Bridge.
           </p>
           <a
             href={`https://solscan.io/account/${programId}?cluster=devnet`}
             target="_blank"
             rel="noopener noreferrer"
-            className={mono.className}
             style={{
               display: "inline-block",
               padding: "10px 12px",
-              background: surface,
+              background: TIA.cream,
               borderRadius: 8,
-              border: `1px solid ${border}`,
-              color: accent,
+              border: `1px solid ${TIA.softGreen}`,
+              color: TIA.institution,
               fontSize: 12,
+              fontFamily: TIA_FONT.mono,
               textDecoration: "none",
               wordBreak: "break-all",
             }}
@@ -237,183 +164,28 @@ export default function Home() {
           </a>
         </div>
 
-        <div
-          style={{
-            marginTop: 40,
-            paddingTop: 32,
-            borderTop: `1px solid ${border}`,
-          }}
-        >
-          <SectionTitle n="02" title="Endpoints Actions" />
-          <p style={{ margin: "0 0 16px", fontSize: 15, color: fgMuted }}>
-            Manifest + rutas Blink listas para integrar wallets.
+        <div id="sender-app" style={{ marginTop: 40, paddingTop: 32, borderTop: `1px solid ${TIA.softGreen}` }}>
+          <SectionTitle n="02" title="Enviar remesa" />
+          <p style={{ margin: "0 0 20px", fontSize: 14, color: TIA.textSecondary, lineHeight: 1.55 }}>
+            Conecta tu billetera en el celular o computadora. TIA notifica a tu familia cuando la remesa está lista.
           </p>
-          <ul
-            style={{
-              margin: 0,
-              padding: 0,
-              listStyle: "none",
-              display: "flex",
-              flexDirection: "column",
-              gap: 10,
-            }}
-          >
-            {[
-              { href: "/actions.json", label: "Manifest", hint: "registro de rutas Action" },
-              { href: "/api/actions/verify", label: "Verify", hint: "marca verified (firmado)" },
-              { href: "/api/actions/cashout", label: "Cashout", hint: "liquida payout + fee tesoro" },
-            ].map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className={mono.className}
-                  prefetch={false}
-                  style={{
-                    display: "inline-flex",
-                    flexWrap: "wrap",
-                    alignItems: "baseline",
-                    gap: "10px 16px",
-                    fontSize: 14,
-                    color: fg,
-                    textDecorationColor: accent,
-                  }}
-                >
-                  <strong style={{ color: fg, fontWeight: 600, minWidth: 110 }}>{item.label}</strong>
-                  <span style={{ color: accent }}>{item.href}</span>
-                  <span style={{ color: fgMuted, fontSize: 13 }}>{item.hint}</span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
-
-        <div
-          style={{
-            marginTop: 40,
-            paddingTop: 32,
-            borderTop: `1px solid ${border}`,
-          }}
-        >
-          <SectionTitle n="03" title="Ejemplo query" />
-          <p style={{ margin: "0 0 14px", fontSize: 15, color: fgMuted }}>
-            Cashout espera la PDA de la reserva (reservation PDA).
-          </p>
-          <pre style={codeBlock}>
-            {`GET /api/actions/cashout?pda=<reservationPda>`}
-          </pre>
-          <pre style={{ ...codeBlock, marginTop: 12 }}>
-            {`GET /api/actions/verify?pda=<reservationPda>`}
-          </pre>
-          <pre style={{ ...codeBlock, marginTop: 12 }}>
-            {`POST /api/notify/verified\n{ "reservationPda": "<pda>", "receiverWA": "521234567890" }\n# → TTS ElevenLabs + WhatsApp "dinero listo" vía TIA`}
-          </pre>
-        </div>
-
-        <div
-          style={{
-            marginTop: 40,
-            paddingTop: 32,
-            borderTop: `1px solid ${border}`,
-          }}
-        >
-          <SectionTitle n="04" title="Bridge cross-chain — LI.FI" />
-          <p style={{ margin: "0 0 14px", fontSize: 15, color: fgMuted }}>
-            ¿Tienes USDC en Arbitrum, Base o Polygon? Llévalo a Solana en un
-            paso antes de crear la reserva. Powered by{" "}
-            <a
-              href="https://li.fi"
-              target="_blank"
-              rel="noopener noreferrer"
-              style={{ color: accent, textDecoration: "none" }}
-            >
-              LI.FI
-            </a>{" "}
-            — 12 bridges integrados, gasless opcional.
-          </p>
-          <ul
-            style={{
-              margin: "0 0 16px",
-              padding: 0,
-              listStyle: "none",
-              display: "flex",
-              flexDirection: "column",
-              gap: 6,
-            }}
-          >
-            {[
-              { chain: "ARB", label: "Arbitrum → Solana" },
-              { chain: "BASE", label: "Base → Solana" },
-              { chain: "POL", label: "Polygon → Solana" },
-            ].map((item) => (
-              <li
-                key={item.chain}
-                className={mono.className}
-                style={{ fontSize: 13, color: fgMuted }}
-              >
-                <span style={{ color: accent, marginRight: 8 }}>→</span>
-                {item.label}
-              </li>
-            ))}
-          </ul>
-          <pre style={codeBlock}>
-            {`GET /api/bridge/quote\n  ?fromAddress=<EVM_WALLET>\n  &toAddress=<SOL_WALLET>\n  &fromAmount=10000000   # 10 USDC (6 decimales)\n  &fromChain=ARB        # ARB | BASE | POL`}
-          </pre>
-          <p
-            className={mono.className}
-            style={{
-              margin: "12px 0 0",
-              fontSize: 12,
-              color: fgMuted,
-              lineHeight: 1.6,
-            }}
-          >
-            Responde con{" "}
-            <span style={{ color: accent }}>toAmount</span>,{" "}
-            <span style={{ color: accent }}>bridge</span> usado,{" "}
-            <span style={{ color: accent }}>feeCostUsd</span> y tiempo estimado
-            — listo para presentar al usuario antes de firmar.
-          </p>
-        </div>
-
-        {/* ── 05 Sender App — Mobile Wallet Adapter ── */}
-        <div
-          id="sender-app"
-          style={{
-            marginTop: 40,
-            paddingTop: 32,
-            borderTop: `1px solid ${border}`,
-          }}
-        >
-          <SectionTitle n="05" title="Sender App — Mobile Wallet Adapter" />
-          <p style={{ margin: "0 0 20px", fontSize: 15, color: fgMuted }}>
-            Conecta Phantom, Solflare o Backpack. En Android usa MWA — abre la
-            wallet nativa via Intent sin salir del navegador. Firma{" "}
-            <span style={{ color: accent, fontFamily: mono.style.fontFamily, fontSize: 13 }}>
-              initialize_reservation
-            </span>{" "}
-            y{" "}
-            <span style={{ color: accent, fontFamily: mono.style.fontFamily, fontSize: 13 }}>
-              mark_verified
-            </span>{" "}
-            on-chain; TIA notifica al receptor por WhatsApp.
-          </p>
-          <SenderApp />
+          <div className="card">
+            <SenderApp />
+          </div>
         </div>
 
         <footer
-          className={mono.className}
           style={{
             marginTop: 56,
             fontSize: 12,
-            color: fgMuted,
-            letterSpacing: "0.04em",
+            color: TIA.textMuted,
             display: "flex",
             flexWrap: "wrap",
             gap: "8px 16px",
           }}
         >
-          <span>Remesa TIA · Bridge Dev3pack · devnet only</span>
-          <Link href="/status" style={{ color: accent, textDecoration: "none" }}>
+          <span>TIA · Bridge Dev3pack</span>
+          <Link href="/status" style={{ color: TIA.institution, textDecoration: "none" }}>
             Status ↗
           </Link>
         </footer>

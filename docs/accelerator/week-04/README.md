@@ -4,7 +4,9 @@
 
 | Documento | Archivo |
 |-----------|---------|
-| Pitch deck outline | [pitch-deck-outline.md](./pitch-deck-outline.md) |
+| **Pitch deck TIA (10 slides)** | [pitch-deck-tia-dev3pack.md](./pitch-deck-tia-dev3pack.md) |
+| Plantilla PDF Kerna | [reference/](./reference/) |
+| Pitch deck outline (legacy) | [pitch-deck-outline.md](./pitch-deck-outline.md) |
 | Landing v2 brief | [landing-v2-brief.md](./landing-v2-brief.md) |
 | Build in public post | [build-in-public-post.md](./build-in-public-post.md) |
 | Plan piloto 10 usuarios | [pilot-plan-10-users.md](./pilot-plan-10-users.md) |
