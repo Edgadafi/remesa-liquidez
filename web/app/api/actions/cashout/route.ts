@@ -23,6 +23,7 @@ import {
   findVaultPda,
 } from "@/lib/pdas";
 import { ACTION_ICON_URL, getConnection, getProgram } from "@/lib/anchor";
+import { getUsdMxnRate, usdcBaseUnitsToMxnEstimate } from "@/lib/fx";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -45,6 +46,15 @@ function jsonWithCors(body: unknown, init: ResponseInit = {}) {
   });
 }
 
+/** Formatea un estimado en pesos para mostrar al comerciante, sin prometer un
+ *  monto exacto — es una referencia, no el resultado de una conversión real. */
+function formatMxnEstimate(mxn: number, isLive: boolean): string {
+  const formatted = mxn.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
+  return isLive
+    ? `≈ ${formatted} (estimado, tipo de cambio del día)`
+    : `≈ ${formatted} (estimado, tipo de cambio de respaldo — sin conexión al proveedor de tasas)`;
+}
+
 export async function OPTIONS() {
   return new Response(null, { status: 204, headers: ACTIONS_CORS_HEADERS });
 }
@@ -65,8 +75,9 @@ export async function GET(req: Request) {
     return jsonWithCors(errResponse, { status: 400 });
   }
 
+  let reservationPda: PublicKey;
   try {
-    new PublicKey(pda);
+    reservationPda = new PublicKey(pda);
   } catch {
     const errResponse: ActionGetResponse = {
       icon: ICON_URL,
@@ -79,11 +90,39 @@ export async function GET(req: Request) {
     return jsonWithCors(errResponse, { status: 400 });
   }
 
+  // Se intenta enriquecer la descripción con el monto y su estimado en pesos.
+  // Si algo falla aquí (RPC lento, reserva no encontrada, etc.), no se bloquea
+  // la pantalla — simplemente se muestra la descripción genérica de siempre,
+  // y el detalle real se valida de todas formas en el POST antes de firmar.
+  let description = DESCRIPTION;
+  try {
+    const connection = getConnection();
+    const program = getProgram(connection);
+    const reservation = await program.account.turnReservation.fetchNullable(reservationPda);
+
+    if (reservation) {
+      const gross = BigInt(reservation.amount.toString());
+      const fee = (gross * 25n) / 10000n;
+      const net = gross - fee;
+
+      const { rate, isLive } = await getUsdMxnRate();
+      const mxnEstimate = usdcBaseUnitsToMxnEstimate(net, rate);
+      const netUsdc = (Number(net) / 1_000_000).toFixed(2);
+
+      description = `${DESCRIPTION}\n\nMonto a entregar: ${netUsdc} USDC — ${formatMxnEstimate(
+        mxnEstimate,
+        isLive
+      )}`;
+    }
+  } catch (err) {
+    console.warn("[GET /api/actions/cashout] No se pudo calcular el estimado en pesos:", err);
+  }
+
   const response: ActionGetResponse = {
     icon: ICON_URL,
     title: TITLE,
     label: LABEL,
-    description: DESCRIPTION,
+    description,
   };
   return jsonWithCors(response);
 }
@@ -267,11 +306,24 @@ export async function POST(req: Request) {
     const gross = BigInt(reservation.amount.toString());
     const fee = (gross * 25n) / 10000n;
     const net = gross - fee;
+
+    // Estimado informativo en pesos — no afecta el monto real (que siempre es
+    // en USDC on-chain), solo ayuda al comerciante a saber cuánto efectivo
+    // entregar aproximadamente.
+    let mxnNote = "";
+    try {
+      const { rate, isLive } = await getUsdMxnRate();
+      const mxnEstimate = usdcBaseUnitsToMxnEstimate(net, rate);
+      mxnNote = ` — ${formatMxnEstimate(mxnEstimate, isLive)}`;
+    } catch (err) {
+      console.warn("[POST /api/actions/cashout] No se pudo calcular el estimado en pesos:", err);
+    }
+
     const payload: ActionPostResponse = await createPostResponse({
       fields: {
         type: "transaction",
         transaction: tx,
-        message: `Validar entrega de efectivo: recibirás ${net.toString()} (neto) y ${fee.toString()} se enviarán al tesoro del protocolo (0.25%).`,
+        message: `Validar entrega de efectivo: recibirás ${net.toString()} (neto) y ${fee.toString()} se enviarán al tesoro del protocolo (0.25%)${mxnNote}.`,
       },
     });
 
