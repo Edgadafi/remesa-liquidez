@@ -1,5 +1,6 @@
 import express from "express";
 import tiaRouter from "./routes/tia.js";
+import { getProvaStatus } from "./services/prova.js";
 
 export function createApp() {
   const app = express();
@@ -15,12 +16,14 @@ export function createApp() {
 
   app.options("*", (_req, res) => res.sendStatus(204));
 
-  app.get("/health", (_req, res) => {
+  app.get("/health", async (_req, res) => {
+    const prova = await getProvaStatus();
     res.json({
       ok: true,
       agent: "TIA",
       service: "remesa-tia-backend",
       timestamp: new Date().toISOString(),
+      prova,
     });
   });
 

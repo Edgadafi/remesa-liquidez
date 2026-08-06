@@ -45,6 +45,15 @@ Check only when **working in prod/devnet**, not when scaffolded.
 - [x] WhatsApp template includes Blink `preview_url` (text fallback; no ElevenLabs required)
 - [x] Manual override `POST /api/tia/manual-notify` (Do Things That Don't Scale)
 
+### Prova attestation (devnet — fail-open)
+
+- [ ] `npm run register-prova:devnet` → `NEXT_PUBLIC_PROVA_AGENT_PDA` in `.env`
+- [ ] `PROVA_ENABLED=true` on Render + Vercel (agent/operator keys server-side only)
+- [ ] Notify attest: backend `ToolCall` on WhatsApp send (`privacyMode`)
+- [ ] Tx attest: `/api/notify/verified` (`Transaction` + optional `Decision`)
+- [ ] Cashout attest: `/api/notify/cashout` after merchant `validate_cashout`
+- [ ] `/status` shows Prova explorer link for TIA agent
+
 ### Users & GTM
 
 - [ ] 3 user interviews logged ([interview-tracker.md](docs/accelerator/week-01/interview-tracker.md))
@@ -65,6 +74,7 @@ Check only when **working in prod/devnet**, not when scaffolded.
 
 ## Post-MVP (do not build during Bridge unless spec change approved)
 
+- **Stellar Soroban escrow** — dual-chain PoC in `contracts/remesa-tia-stellar/` ([dual-chain-decision.md](docs/dual-chain-decision.md)); Solana wins pilot until metrics say otherwise
 - Mainnet + formal audit
 - **Recurring / automated transfers** (keeper — set once, TIA runs every payday) — @remesatia blueprint
 - ElevenLabs real-time voice pipeline / WhatsApp PTT
@@ -95,6 +105,27 @@ Check only when **working in prod/devnet**, not when scaffolded.
 | Manual WhatsApp push | Helius/webhook missed a block during live test | `POST /api/tia/manual-notify` + `TIA_MANUAL_OVERRIDE_SECRET` |
 | Hardcoded merchant | Store routing fails under pressure | `NEXT_PUBLIC_FALLBACK_MERCHANT_PUBKEY` on reservation |
 | Degraded notify OK | Bot offline during demo | `TIA_ALLOW_NOTIFY_WITHOUT_BOT=true` (dev only) |
+| Prova attest off | Agent unregistered or RPC down | `PROVA_ENABLED=false` (default) — remesa flow unaffected |
+
+---
+
+## Prova setup (devnet)
+
+```bash
+# 1. Fund KEEPER on devnet (~0.5 SOL)
+# 2. Register TIA agent
+npm run register-prova:devnet
+
+# 3. Copy printed vars to .env, then:
+npm run sync-env
+PROVA_ENABLED=true
+
+# 4. Smoke (local backend)
+npm run backend:dev
+npm run backend:smoke
+```
+
+**Deploy vars:** `PROVA_ENABLED`, `PROVA_RPC_URL`, `PROVA_AGENT_SECRET_KEY`, `PROVA_OPERATOR_SECRET_KEY` (or `KEEPER_PRIVATE_KEY`) on Render; `NEXT_PUBLIC_PROVA_AGENT_PDA` on Vercel.
 
 ---
 
@@ -112,3 +143,4 @@ Check only when **working in prod/devnet**, not when scaffolded.
 - [docs/accelerator/yc-mvp-framework.md](docs/accelerator/yc-mvp-framework.md)
 - [docs/accelerator/mvp-spec-bridge.md](docs/accelerator/mvp-spec-bridge.md)
 - [docs/accelerator/DEPLOY.md](docs/accelerator/DEPLOY.md)
+- [docs/dual-chain-decision.md](docs/dual-chain-decision.md) — Solana vs Stellar kill/win criteria

@@ -13,7 +13,12 @@ const nextConfig = {
     "@solana/wallet-adapter-react-ui",
     "@solana/wallet-adapter-wallets",
     "@solana-mobile/wallet-adapter-mobile",
+    "@accesly/react",
+    "@accesly/core",
   ],
+  experimental: {
+    serverComponentsExternalPackages: ["@stellar/stellar-sdk"],
+  },
 };
 
 export default nextConfig;

@@ -9,21 +9,67 @@ const programId =
 const backendUrl =
   process.env.RENDER_BACKEND_URL ?? "https://remesa-tia-backend.onrender.com";
 
+const provaAgentPda = process.env.NEXT_PUBLIC_PROVA_AGENT_PDA ?? "";
+const acceslyAppId = process.env.NEXT_PUBLIC_ACCESLY_APP_ID ?? "";
+const stellarPilotEnabled =
+  process.env.NEXT_PUBLIC_STELLAR_PILOT_ENABLED === "true";
+const acceslyEnv = process.env.NEXT_PUBLIC_ACCESLY_ENV ?? "dev";
+
 export const dynamic = "force-dynamic";
 
-async function fetchHealth(url: string): Promise<{ ok: boolean; detail: string }> {
+interface BackendHealth {
+  ok: boolean;
+  detail: string;
+  prova?: {
+    enabled: boolean;
+    active: boolean;
+    agentPda: string | null;
+    attestationCount?: number;
+  };
+}
+
+async function fetchHealth(url: string): Promise<BackendHealth> {
   try {
     const res = await fetch(`${url}/health`, { next: { revalidate: 60 } });
     if (!res.ok) return { ok: false, detail: `HTTP ${res.status}` };
-    const data = (await res.json()) as { status?: string; agent?: string };
-    return { ok: true, detail: data.status ?? data.agent ?? "ok" };
+    const data = (await res.json()) as {
+      status?: string;
+      agent?: string;
+      prova?: BackendHealth["prova"];
+    };
+    return {
+      ok: true,
+      detail: data.status ?? data.agent ?? "ok",
+      prova: data.prova,
+    };
   } catch (e) {
     return { ok: false, detail: e instanceof Error ? e.message : "offline" };
   }
 }
 
+function provaExplorerUrl(agentPda: string): string {
+  return `https://www.theprova.xyz/explorer?agent=${encodeURIComponent(agentPda)}`;
+}
+
 export default async function StatusPage() {
   const tiaBackend = await fetchHealth(backendUrl);
+  const provaPda =
+    tiaBackend.prova?.agentPda || provaAgentPda || null;
+  const provaLive =
+    Boolean(tiaBackend.prova?.enabled && tiaBackend.prova?.active) ||
+    Boolean(provaAgentPda);
+  const provaDetail = tiaBackend.prova?.enabled
+    ? tiaBackend.prova.active
+      ? `${tiaBackend.prova.attestationCount ?? 0} attestations`
+      : "enabled · not registered"
+    : "disabled";
+
+  const acceslyLive = acceslyAppId.length > 0 && stellarPilotEnabled;
+  const acceslyDetail = acceslyAppId
+    ? stellarPilotEnabled
+      ? `${acceslyEnv} · ${acceslyAppId.slice(0, 10)}…`
+      : "app configured · pilot off"
+    : "NEXT_PUBLIC_ACCESLY_APP_ID unset";
 
   const metrics = [
     { label: "Corredor", value: "US → MX" },
@@ -79,6 +125,22 @@ export default async function StatusPage() {
             status="live"
             detail={programId.slice(0, 8) + "…"}
             href={`https://solscan.io/account/${programId}?cluster=devnet`}
+          />
+          <StatusRow
+            name="TIA Agent (Prova)"
+            status={provaLive ? "live" : "degraded"}
+            detail={provaDetail}
+            href={
+              provaPda
+                ? provaExplorerUrl(provaPda)
+                : "https://www.theprova.xyz/explorer"
+            }
+          />
+          <StatusRow
+            name="Accesly Stellar"
+            status={acceslyLive ? "live" : "degraded"}
+            detail={acceslyDetail}
+            href="https://dev.accesly.xyz"
           />
         </div>
       </section>

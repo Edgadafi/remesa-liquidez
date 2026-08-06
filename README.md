@@ -60,10 +60,12 @@ flowchart LR
 
 ```
 remesa-liquidez/
-├── programs/          # Programa Anchor (Rust)
+├── programs/          # Anchor (Solana — production pilot)
 │   └── remesa-liquidez/src/
 │       ├── lib.rs                  # entry point — 8 instrucciones
 │       └── instructions/           # módulo por instrucción
+├── contracts/
+│   └── remesa-tia-stellar/        # Soroban escrow (Stellar — PoC scaffold)
 ├── web/               # Next.js + Solana Actions → Vercel
 │   ├── app/
 │   │   ├── page.tsx                # Sender App (MWA + wallet-adapter)
@@ -84,8 +86,10 @@ remesa-liquidez/
 │   ├── providers/
 │   │   └── WalletProvider.tsx      # MWA + Phantom + Solflare + Backpack
 │   ├── lib/
+│   │   ├── chain/                  # dual-chain adapters (Solana + Stellar)
 │   │   ├── anchor.ts               # program client (read-only)
 │   │   ├── pdas.ts                 # derivación de PDAs
+│   │   ├── fx.ts                   # Bitso MXN estimate (shared)
 │   │   ├── instructions.ts         # buildMarkVerifiedIx helper
 │   │   ├── lifi.ts                 # LI.FI SDK — quoteBridgeToSolana()
 │   │   └── elevenlabs.ts           # TTS — textToSpeech() + scripts TIA
@@ -93,8 +97,12 @@ remesa-liquidez/
 │   └── types/                      # tipos TS generados por Anchor
 ├── backend/           # Backend TIA — POST /api/tia/notify · ver backend/README.md
 │   └── docs/accelerator/week-01/  # VPC, founder story, entrevistas (Bridge Sem 1)
-├── client/            # Helpers TS para scripts y tests
-├── scripts/           # E2E devnet · register merchants
+├── client/
+│   ├── index.ts       # Solana ix builders
+│   └── stellar/       # Stellar client stub
+├── docs/
+│   └── dual-chain-decision.md     # kill/win criteria Solana vs Stellar
+├── scripts/           # e2e:devnet · e2e:stellar:testnet · register merchants
 ├── tests/             # Anchor tests (mocha/chai)
 ├── migrations/        # initialize_config bootstrap
 ├── .env.example       # Vars unificadas (fuente de verdad)

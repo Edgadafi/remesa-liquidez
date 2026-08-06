@@ -27,6 +27,8 @@ import {
   textToSpeechBase64,
 } from "@/lib/elevenlabs";
 import { notifyTiaBackend } from "@/lib/tia-backend";
+import { AttestationBuilder } from "prova-agent-sdk";
+import { attestBuiltAction } from "@/lib/prova";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
@@ -170,7 +172,48 @@ export async function POST(req: Request) {
       renderError = tiaResult.error ?? null;
     }
 
-    // 4. Respuesta
+    // 4. Prova attestation (fail-open)
+    let prova:
+      | { ok: boolean; explorerUrl?: string; decisionExplorerUrl?: string; error?: string }
+      | undefined;
+
+    if (txSignature) {
+      const txPayload = AttestationBuilder.transaction(txSignature, {
+        reservationPda: pdaRaw,
+        amountUSDC,
+        action: "mark_verified",
+      });
+      const txAttest = await attestBuiltAction("Transaction", txPayload);
+
+      let decisionExplorerUrl: string | undefined;
+      if (storeName) {
+        const decisionPayload = AttestationBuilder.decision(storeName, "merchant_routing", {
+          reservationPda: pdaRaw,
+        });
+        const decisionAttest = await attestBuiltAction("Decision", decisionPayload);
+        if (decisionAttest.ok) {
+          decisionExplorerUrl = decisionAttest.explorerUrl;
+        }
+      }
+
+      prova = txAttest.ok
+        ? {
+            ok: true,
+            explorerUrl: txAttest.explorerUrl,
+            ...(decisionExplorerUrl ? { decisionExplorerUrl } : {}),
+          }
+        : { ok: false, error: txAttest.error };
+    } else if (storeName) {
+      const decisionPayload = AttestationBuilder.decision(storeName, "merchant_routing", {
+        reservationPda: pdaRaw,
+      });
+      const decisionAttest = await attestBuiltAction("Decision", decisionPayload);
+      prova = decisionAttest.ok
+        ? { ok: true, explorerUrl: decisionAttest.explorerUrl }
+        : { ok: false, error: decisionAttest.error };
+    }
+
+    // 5. Respuesta
     return json({
       ok: true,
       reservationPda: pdaRaw,
@@ -189,6 +232,7 @@ export async function POST(req: Request) {
         path: notifyPath,
         error: renderError,
       },
+      ...(prova ? { prova } : {}),
     });
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";

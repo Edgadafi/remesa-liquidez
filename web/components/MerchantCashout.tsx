@@ -83,6 +83,18 @@ export function MerchantCashout() {
 
       setSignature(sig);
       setStatus("done");
+
+      void fetch("/api/notify/cashout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          reservationPda: pda.trim(),
+          txSignature: sig,
+          merchant: publicKey.toBase58(),
+        }),
+      }).catch(() => {
+        /* Prova attest is best-effort */
+      });
     } catch (err) {
       setStatus("error");
       setError(err instanceof Error ? err.message : "Error desconocido.");

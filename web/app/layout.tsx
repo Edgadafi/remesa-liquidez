@@ -9,6 +9,16 @@ const WalletProvider = dynamic(
   { ssr: false }
 );
 
+const AcceslyRoot = dynamic(
+  () => import("@/providers/AcceslyRoot").then((m) => m.AcceslyRoot),
+  { ssr: false }
+);
+
+const ChainProvider = dynamic(
+  () => import("@/context/ChainContext").then((m) => m.ChainProvider),
+  { ssr: false }
+);
+
 const siteOrigin =
   process.env.NEXT_PUBLIC_SITE_URL?.replace(/\/?$/, "") ||
   (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "http://localhost:3000");
@@ -37,7 +47,11 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="es">
       <body className="tia-surface-web">
-        <WalletProvider>{children}</WalletProvider>
+        <WalletProvider>
+          <AcceslyRoot>
+            <ChainProvider>{children}</ChainProvider>
+          </AcceslyRoot>
+        </WalletProvider>
       </body>
     </html>
   );

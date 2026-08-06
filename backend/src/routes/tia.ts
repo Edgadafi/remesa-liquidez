@@ -1,6 +1,7 @@
 import { Router, type Request, type Response } from "express";
 import { requireOverrideSecret } from "../middleware/overrideAuth.js";
 import { handleTiaNotify, TiaNotifySchema } from "../services/tiaNotify.js";
+import { getProvaStatus } from "../services/prova.js";
 
 const router = Router();
 
@@ -52,8 +53,14 @@ router.post(
 );
 
 /** GET /health — sub-ruta del router TIA */
-router.get("/health", (_req, res) => {
-  res.json({ ok: true, agent: "TIA", service: "remesa-tia-backend" });
+router.get("/health", async (_req, res) => {
+  const prova = await getProvaStatus();
+  res.json({
+    ok: true,
+    agent: "TIA",
+    service: "remesa-tia-backend",
+    prova,
+  });
 });
 
 export default router;

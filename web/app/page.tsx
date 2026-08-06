@@ -5,8 +5,8 @@ import { TiaLogo } from "@/components/TiaLogo";
 import { TiaPill } from "@/components/TiaPill";
 import { TIA, TIA_FONT, TIA_TAGLINE_ES } from "@/lib/tia-brand";
 
-const SenderApp = dynamic(
-  () => import("@/components/SenderApp").then((m) => m.SenderApp),
+const DualChainSender = dynamic(
+  () => import("@/components/DualChainSender").then((m) => m.DualChainSender),
   { ssr: false, loading: () => null }
 );
 
@@ -75,6 +75,7 @@ export default function Home() {
           <TiaPill label="AI Agent" />
           <TiaPill label="USDC · MXNe" />
           <TiaPill label="Solana" technical />
+          <TiaPill label="Stellar beta" technical />
         </div>
 
         <h1
@@ -170,7 +171,7 @@ export default function Home() {
             Conecta tu billetera en el celular o computadora. TIA notifica a tu familia cuando la remesa está lista.
           </p>
           <div className="card">
-            <SenderApp />
+            <DualChainSender />
           </div>
         </div>
 

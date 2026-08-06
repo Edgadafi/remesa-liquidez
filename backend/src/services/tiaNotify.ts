@@ -1,6 +1,8 @@
 import { z } from "zod";
+import { AttestationBuilder } from "prova-agent-sdk";
 import { sendWhatsAppText } from "./whatsapp.js";
 import { buildTiaConfirmationText } from "./tiaMessages.js";
+import { attestBuiltAction } from "./prova.js";
 
 export const TiaNotifySchema = z.object({
   walletSolana: z.string().min(32),
@@ -21,6 +23,7 @@ export interface TiaNotifyOutput {
   agent: "TIA";
   whatsapp?: { to: string; textSent: boolean; audioNote?: string };
   error?: string;
+  prova?: { ok: boolean; explorerUrl?: string; error?: string };
 }
 
 /**
@@ -50,6 +53,14 @@ export async function handleTiaNotify(
     await sendWhatsAppText(input.userWA, text);
     console.log(`[TIA] WhatsApp text OK → ${input.userWA}`);
 
+    const toolPayload = AttestationBuilder.toolCall("whatsapp.notify", {
+      reservationPda: input.reservationPda,
+      amountUSDC: input.amountUSDC,
+      isVerified: input.isVerified,
+      txSignature: input.txSignature,
+    });
+    const prova = await attestBuiltAction("ToolCall", toolPayload, true);
+
     return {
       ok: true,
       messageSent: true,
@@ -61,6 +72,9 @@ export async function handleTiaNotify(
           ? "audio recibido; nota de voz requiere /internal/send-audio-base64 en bot"
           : undefined,
       },
+      prova: prova.ok
+        ? { ok: true, explorerUrl: prova.explorerUrl }
+        : { ok: false, error: prova.error },
     };
   } catch (err) {
     const message = err instanceof Error ? err.message : "WhatsApp error";
