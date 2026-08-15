@@ -175,18 +175,29 @@ cd web && vercel deploy --prod --yes --scope <tu-scope>
 | Actions manifest | `https://web-coral-pi-66.vercel.app/actions.json` |
 | Verify Action | `https://web-coral-pi-66.vercel.app/api/actions/verify?pda=<PDA>` |
 | Cashout Action | `https://web-coral-pi-66.vercel.app/api/actions/cashout?pda=<PDA>` |
-| Bridge quote (LI.FI) | `https://web-coral-pi-66.vercel.app/api/bridge/quote` |
+| Bridge quote (LI.FI, free) | `https://web-coral-pi-66.vercel.app/api/bridge/quote` |
+| Premium bridge quote (x402) | `https://remesa-tia-backend.onrender.com/premium/bridge-quote` |
+| Premium FX tick (x402) | `https://remesa-tia-backend.onrender.com/premium/fx` |
 | Notify verified (ElevenLabs) | `https://web-coral-pi-66.vercel.app/api/notify/verified` |
-| Backend TIA | `https://remesa-blink-backend.onrender.com` |
+| Backend TIA | `https://remesa-tia-backend.onrender.com` |
 | Stores (liquidez) | `https://remesa-blink-backend.onrender.com/api/pricing/stores` |
 
-#### Bridge quote
+#### Bridge quote (free — UI TIA)
 
 ```
 GET /api/bridge/quote?fromAddress=<EVM_WALLET>&toAddress=<SOL_WALLET>&fromAmount=<RAW_USDC>&fromChain=ARB|BASE|POL
 ```
 
 Devuelve `{ toAmount, toAmountMin, estimatedTime, tool, feeCostUsd, route }` — el campo `route` es el objeto completo de LI.FI listo para ejecutar con `executeRoute()`.
+
+#### Premium API (x402 — USDC Stellar per call)
+
+Pagada vía [Nirium x402](docs/nirium-x402-integration.md). Sin pago → **402 Payment Required**.
+
+```
+GET /premium/bridge-quote?...   # $0.02 — mismos query params que bridge quote free
+GET /premium/fx                 # $0.01 — USD/MXN Bitso live
+```
 
 #### Notify verified
 

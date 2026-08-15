@@ -54,6 +54,14 @@ Check only when **working in prod/devnet**, not when scaffolded.
 - [ ] Cashout attest: `/api/notify/cashout` after merchant `validate_cashout`
 - [ ] `/status` shows Prova explorer link for TIA agent
 
+### Nirium x402 (premium API — fail-closed when disabled)
+
+- [ ] `X402_FACILITATOR_API_KEY` from [OpenZeppelin testnet](https://channels.openzeppelin.com/testnet/gen)
+- [ ] `STELLAR_PAY_TO` + `NIRIUM_X402_ENABLED=true` on Render backend
+- [ ] `curl -i $BACKEND/premium/fx` returns **402** without payment
+- [ ] `npm run x402:smoke` returns **200** + Stellar testnet tx verifiable
+- [ ] `/status` shows TIA Premium API (x402) row with prices
+
 ### Users & GTM
 
 - [ ] 3 user interviews logged ([interview-tracker.md](docs/accelerator/week-01/interview-tracker.md))
@@ -126,6 +134,30 @@ npm run backend:smoke
 ```
 
 **Deploy vars:** `PROVA_ENABLED`, `PROVA_RPC_URL`, `PROVA_AGENT_SECRET_KEY`, `PROVA_OPERATOR_SECRET_KEY` (or `KEEPER_PRIVATE_KEY`) on Render; `NEXT_PUBLIC_PROVA_AGENT_PDA` on Vercel.
+
+---
+
+## Nirium x402 setup (testnet)
+
+```bash
+# 1. Facilitator key (testnet): channels.openzeppelin.com/testnet/gen
+# 2. Stellar G... address for STELLAR_PAY_TO
+# 3. Enable on Render backend:
+NIRIUM_X402_ENABLED=true
+STELLAR_PAY_TO=G...
+X402_FACILITATOR_API_KEY=...
+
+npm run sync-env
+
+# 4. Unpaid probe
+curl -i $RENDER_BACKEND_URL/premium/fx
+
+# 5. Paid smoke (funded testnet secret)
+STELLAR_TESTNET_SECRET=S...
+npm run x402:smoke
+```
+
+See [docs/nirium-x402-integration.md](docs/nirium-x402-integration.md).
 
 ---
 

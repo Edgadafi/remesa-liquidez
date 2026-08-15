@@ -26,6 +26,12 @@ interface BackendHealth {
     agentPda: string | null;
     attestationCount?: number;
   };
+  x402?: {
+    enabled: boolean;
+    network: string;
+    payTo: string | null;
+    routes: Record<string, string>;
+  };
 }
 
 async function fetchHealth(url: string): Promise<BackendHealth> {
@@ -36,11 +42,13 @@ async function fetchHealth(url: string): Promise<BackendHealth> {
       status?: string;
       agent?: string;
       prova?: BackendHealth["prova"];
+      x402?: BackendHealth["x402"];
     };
     return {
       ok: true,
       detail: data.status ?? data.agent ?? "ok",
       prova: data.prova,
+      x402: data.x402,
     };
   } catch (e) {
     return { ok: false, detail: e instanceof Error ? e.message : "offline" };
@@ -70,6 +78,13 @@ export default async function StatusPage() {
       ? `${acceslyEnv} · ${acceslyAppId.slice(0, 10)}…`
       : "app configured · pilot off"
     : "NEXT_PUBLIC_ACCESLY_APP_ID unset";
+
+  const x402Enabled = Boolean(tiaBackend.x402?.enabled);
+  const x402Detail = x402Enabled
+    ? `${tiaBackend.x402?.network ?? "stellar:testnet"} · bridge ${
+        tiaBackend.x402?.routes?.["GET /premium/bridge-quote"] ?? "$0.02"
+      } · fx ${tiaBackend.x402?.routes?.["GET /premium/fx"] ?? "$0.01"}`
+    : "disabled · set NIRIUM_X402_ENABLED on Render";
 
   const metrics = [
     { label: "Corredor", value: "US → MX" },
@@ -141,6 +156,12 @@ export default async function StatusPage() {
             status={acceslyLive ? "live" : "degraded"}
             detail={acceslyDetail}
             href="https://dev.accesly.xyz"
+          />
+          <StatusRow
+            name="TIA Premium API (x402)"
+            status={x402Enabled ? "live" : "degraded"}
+            detail={x402Detail}
+            href={`${backendUrl}/premium/fx`}
           />
         </div>
       </section>

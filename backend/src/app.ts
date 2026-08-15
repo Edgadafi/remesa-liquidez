@@ -1,6 +1,18 @@
 import express from "express";
+import niriumImport from "nirium";
 import tiaRouter from "./routes/tia.js";
+import premiumRouter from "./routes/premium.js";
 import { getProvaStatus } from "./services/prova.js";
+import {
+  getX402ServeConfig,
+  getX402Status,
+  isX402Enabled,
+} from "./services/x402Config.js";
+
+// tsx/Node ESM interop: named import of x402Serve can fail; module object carries it.
+const { x402Serve } = niriumImport as typeof niriumImport & {
+  x402Serve: (config: ReturnType<typeof getX402ServeConfig>) => express.RequestHandler;
+};
 
 export function createApp() {
   const app = express();
@@ -10,7 +22,10 @@ export function createApp() {
   app.use((_req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
-    res.setHeader("Access-Control-Allow-Headers", "Content-Type, Authorization");
+    res.setHeader(
+      "Access-Control-Allow-Headers",
+      "Content-Type, Authorization, X-PAYMENT"
+    );
     next();
   });
 
@@ -18,14 +33,21 @@ export function createApp() {
 
   app.get("/health", async (_req, res) => {
     const prova = await getProvaStatus();
+    const x402 = getX402Status();
     res.json({
       ok: true,
       agent: "TIA",
       service: "remesa-tia-backend",
       timestamp: new Date().toISOString(),
       prova,
+      x402,
     });
   });
+
+  const premiumEndpoints = isX402Enabled()
+    ? `<li><code>GET /premium/bridge-quote</code> (x402)</li>
+<li><code>GET /premium/fx</code> (x402)</li>`
+    : "";
 
   app.get("/", (_req, res) => {
     res.type("html").send(`<!DOCTYPE html>
@@ -38,9 +60,23 @@ export function createApp() {
 <li><code>POST /api/tia/notify</code></li>
 <li><code>POST /api/tia/manual-notify</code> (override, Bearer secret)</li>
 <li><code>POST /api/lidia/notify</code> (alias legacy)</li>
+${premiumEndpoints}
 </ul>
 </body></html>`);
   });
+
+  if (isX402Enabled()) {
+    try {
+      const x402Config = getX402ServeConfig();
+      app.use("/premium", x402Serve(x402Config));
+      app.use("/premium", premiumRouter);
+      console.log(
+        `[TIA] x402 premium API enabled (${x402Config.network}) → ${Object.keys(x402Config.routes).join(", ")}`
+      );
+    } catch (err) {
+      console.error("[TIA] x402 setup failed:", err);
+    }
+  }
 
   app.use("/api/tia", tiaRouter);
   // Alias legacy — mismo handler hasta deprecar remesa-blink routes
