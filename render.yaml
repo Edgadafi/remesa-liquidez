@@ -29,3 +29,16 @@ services:
         sync: false
       - key: ELEVENLABS_VOICE_ID
         value: EXAVITQu4vr4xnSDxMaL
+      # Nirium x402 — premium API (/premium/*). Facilitator key: channels.openzeppelin.com/testnet/gen
+      - key: NIRIUM_X402_ENABLED
+        value: "false"
+      - key: STELLAR_NETWORK
+        value: testnet
+      - key: STELLAR_PAY_TO
+        sync: false
+      - key: X402_FACILITATOR_API_KEY
+        sync: false
+      - key: NIRIUM_X402_BRIDGE_PRICE
+        value: "0.02"
+      - key: NIRIUM_X402_FX_PRICE
+        value: "0.01"

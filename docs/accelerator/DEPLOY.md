@@ -13,9 +13,15 @@ Guía para completar Semana 1: backend TIA + WhatsApp real.
 |----------|-------|
 | `BOT_INTERNAL_URL` | `https://remesa-blink-bot.onrender.com` |
 | `BOT_INTERNAL_SECRET` | Mismo secret que el bot Baileys |
-| `TIA_ALLOW_NOTIFY_WITHOUT_BOT` | `false` (prod) |
+| `ELEVENLABS_API_KEY` | `<tu_key>` (opcional) |
+| `NIRIUM_X402_ENABLED` | `true` (premium API) |
+| `STELLAR_PAY_TO` | `G…` testnet con trustline USDC |
+| `X402_FACILITATOR_API_KEY` | [OpenZeppelin testnet](https://channels.openzeppelin.com/testnet/gen) |
+| `STELLAR_NETWORK` | `testnet` |
 
 5. Deploy → anotar URL: `https://remesa-tia-backend.onrender.com`
+
+Ver x402: `curl -i https://remesa-tia-backend.onrender.com/premium/fx` → **402**
 
 ### Verificar
 
