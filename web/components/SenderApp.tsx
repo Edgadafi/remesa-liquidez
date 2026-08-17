@@ -29,7 +29,7 @@ export function SenderApp() {
   const stepLabel = {
     margin: "0 0 16px",
     fontSize: 11,
-    color: TIA.sage,
+    color: TIA.textSecondary,
     fontFamily: TIA_FONT.ui,
     letterSpacing: "0.12em",
     textTransform: "uppercase" as const,
@@ -56,7 +56,7 @@ export function SenderApp() {
         <p style={stepLabel}>Paso 2 · Confirmar y avisar</p>
         {reservation ? (
           <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <p style={{ margin: 0, fontSize: 12, color: TIA.textMuted, fontFamily: TIA_FONT.mono }}>
+            <p style={{ margin: 0, fontSize: 13, color: TIA.textSecondary, fontFamily: TIA_FONT.mono, wordBreak: "break-all" }}>
               Ref: <span style={{ color: TIA.institution, wordBreak: "break-all" }}>{reservation.pda}</span>
             </p>
             <VerifyButton

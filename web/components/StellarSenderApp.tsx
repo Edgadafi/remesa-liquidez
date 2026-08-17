@@ -38,7 +38,7 @@ export function StellarSenderApp() {
     return (
       <SetupMessage
         title="Accesly no configurado"
-        body="Registra TIA en dev.accesly.xyz, habilita Google OAuth y añade NEXT_PUBLIC_ACCESLY_APP_ID. Ver docs/accesly-integration.md."
+        body="El acceso Stellar aún no está activo en esta demo. Usa Solana para enviar."
       />
     );
   }

@@ -47,6 +47,9 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="es">
       <body className="tia-surface-web">
+        <a className="tia-skip" href="#contenido">
+          Saltar al contenido
+        </a>
         <WalletProvider>
           <AcceslyRoot>
             <ChainProvider>{children}</ChainProvider>

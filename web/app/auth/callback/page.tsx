@@ -10,6 +10,7 @@ export default function AcceslyAuthCallbackPage() {
 
   return (
     <main
+      id="contenido"
       style={{
         minHeight: "100vh",
         display: "flex",

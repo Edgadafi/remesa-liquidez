@@ -16,7 +16,7 @@ export function ChainPicker() {
           fontSize: 11,
           letterSpacing: "0.12em",
           textTransform: "uppercase",
-          color: TIA.sage,
+          color: TIA.textSecondary,
           fontFamily: TIA_FONT.ui,
         }}
       >
@@ -33,6 +33,7 @@ export function ChainPicker() {
               key={id}
               type="button"
               disabled={disabled}
+              aria-pressed={active}
               onClick={() => setChain(id)}
               style={{
                 padding: "10px 14px",
@@ -53,9 +54,8 @@ export function ChainPicker() {
         })}
       </div>
       {!stellarPilotEnabled && (
-        <p style={{ margin: 0, fontSize: 12, color: TIA.textMuted, lineHeight: 1.5 }}>
-          Stellar beta: activa <code>NEXT_PUBLIC_STELLAR_PILOT_ENABLED=true</code> y{" "}
-          <code>NEXT_PUBLIC_ACCESLY_APP_ID</code>.
+        <p style={{ margin: 0, fontSize: 14, color: TIA.textSecondary, lineHeight: 1.5 }}>
+          Stellar está en lista de espera. El piloto activo hoy es Solana.
         </p>
       )}
     </div>

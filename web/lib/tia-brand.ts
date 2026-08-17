@@ -17,8 +17,13 @@ export const TIA = {
   solana: "#9945FF",
   textPrimary: "#F5F0E8",
   textDark: "#1A4A2E",
-  textSecondary: "#4A7A5E",
-  textMuted: "#7AAE8A",
+  /** Body on cream — ≥4.5:1 vs #F5F0E8 */
+  textSecondary: "#2D5A3C",
+  /** Large labels only; not small body on dark */
+  textMuted: "#2D5A3C",
+  onDark: "#F5F0E8",
+  /** Secondary on forest/institution — ≥4.5:1 */
+  onDarkMuted: "#D4E8DA",
   institutionHover: "#143D24",
 } as const;
 

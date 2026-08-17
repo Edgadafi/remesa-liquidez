@@ -14,11 +14,11 @@ export function TiaPill({ label, technical }: Props) {
           display: "inline-block",
           padding: "4px 10px",
           borderRadius: 3,
-          fontSize: 10.5,
+          fontSize: 12,
           fontWeight: 500,
           letterSpacing: "0.03em",
           background: `${TIA.solana}18`,
-          color: TIA.solana,
+          color: "#6B21A8",
           border: `1px solid ${TIA.solana}44`,
         }}
       >

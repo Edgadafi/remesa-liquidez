@@ -1,7 +1,8 @@
+import type { Metadata } from "next";
 import idl from "@/idl/remesa_liquidez.json";
-import Link from "next/link";
 import { TIA, TIA_FONT } from "@/lib/tia-brand";
-import { TiaLogo } from "@/components/TiaLogo";
+import { SiteNav } from "@/components/SiteNav";
+import { CopyValue } from "@/components/CopyValue";
 
 const programId =
   typeof idl.address === "string" ? idl.address : "Fprb6jTLfjXfZ6yuWzS7LVXxwVvPbPgPZiEqDEL9bRfj";
@@ -13,9 +14,13 @@ const provaAgentPda = process.env.NEXT_PUBLIC_PROVA_AGENT_PDA ?? "";
 const acceslyAppId = process.env.NEXT_PUBLIC_ACCESLY_APP_ID ?? "";
 const stellarPilotEnabled =
   process.env.NEXT_PUBLIC_STELLAR_PILOT_ENABLED === "true";
-const acceslyEnv = process.env.NEXT_PUBLIC_ACCESLY_ENV ?? "dev";
 
 export const dynamic = "force-dynamic";
+
+export const metadata: Metadata = {
+  title: "Status",
+  description: "Estado de servicios TIA — data room Bridge Dev3pack.",
+};
 
 interface BackendHealth {
   ok: boolean;
@@ -34,6 +39,8 @@ interface BackendHealth {
   };
 }
 
+type ServiceTone = "live" | "wait";
+
 async function fetchHealth(url: string): Promise<BackendHealth> {
   try {
     const res = await fetch(`${url}/health`, { next: { revalidate: 60 } });
@@ -50,8 +57,8 @@ async function fetchHealth(url: string): Promise<BackendHealth> {
       prova: data.prova,
       x402: data.x402,
     };
-  } catch (e) {
-    return { ok: false, detail: e instanceof Error ? e.message : "offline" };
+  } catch {
+    return { ok: false, detail: "Sin respuesta" };
   }
 }
 
@@ -59,32 +66,64 @@ function provaExplorerUrl(agentPda: string): string {
   return `https://www.theprova.xyz/explorer?agent=${encodeURIComponent(agentPda)}`;
 }
 
+function humanBackendDetail(detail: string): string {
+  const d = detail.trim().toLowerCase();
+  if (d === "ok" || d === "healthy" || d === "tia") return "API respondiendo";
+  if (detail.startsWith("HTTP")) return `Error del servidor (${detail})`;
+  if (detail === "Sin respuesta") return "Sin respuesta ahora";
+  return detail;
+}
+
 export default async function StatusPage() {
   const tiaBackend = await fetchHealth(backendUrl);
-  const provaPda =
-    tiaBackend.prova?.agentPda || provaAgentPda || null;
-  const provaLive =
-    Boolean(tiaBackend.prova?.enabled && tiaBackend.prova?.active) ||
-    Boolean(provaAgentPda);
-  const provaDetail = tiaBackend.prova?.enabled
-    ? tiaBackend.prova.active
-      ? `${tiaBackend.prova.attestationCount ?? 0} attestations`
-      : "enabled · not registered"
-    : "disabled";
+  const provaPda = tiaBackend.prova?.agentPda || provaAgentPda || null;
 
-  const acceslyLive = acceslyAppId.length > 0 && stellarPilotEnabled;
-  const acceslyDetail = acceslyAppId
+  const prova: { tone: ServiceTone; badge: string; detail: string } =
+    tiaBackend.prova?.enabled && tiaBackend.prova.active
+      ? {
+          tone: "live",
+          badge: "En línea",
+          detail:
+            (tiaBackend.prova.attestationCount ?? 0) === 1
+              ? "1 atestación"
+              : `${tiaBackend.prova.attestationCount ?? 0} atestaciones`,
+        }
+      : tiaBackend.prova?.enabled
+        ? {
+            tone: "wait",
+            badge: "En pausa",
+            detail: "Agente creado, aún no registrado",
+          }
+        : {
+            tone: "wait",
+            badge: "En pausa",
+            detail: "Agente de verificación no activo en esta demo",
+          };
+
+  const accesly: { tone: ServiceTone; badge: string; detail: string } = acceslyAppId
     ? stellarPilotEnabled
-      ? `${acceslyEnv} · ${acceslyAppId.slice(0, 10)}…`
-      : "app configured · pilot off"
-    : "NEXT_PUBLIC_ACCESLY_APP_ID unset";
+      ? { tone: "live", badge: "En línea", detail: "Cuentas inteligentes Stellar listas" }
+      : { tone: "wait", badge: "En pausa", detail: "Piloto Stellar en lista de espera" }
+    : { tone: "wait", badge: "No configurado", detail: "Stellar no está activo en esta demo" };
 
   const x402Enabled = Boolean(tiaBackend.x402?.enabled);
-  const x402Detail = x402Enabled
-    ? `${tiaBackend.x402?.network ?? "stellar:testnet"} · bridge ${
-        tiaBackend.x402?.routes?.["GET /premium/bridge-quote"] ?? "$0.02"
-      } · fx ${tiaBackend.x402?.routes?.["GET /premium/fx"] ?? "$0.01"}`
-    : "disabled · set NIRIUM_X402_ENABLED on Render";
+  const x402: { tone: ServiceTone; badge: string; detail: string } = x402Enabled
+    ? {
+        tone: "live",
+        badge: "En línea",
+        detail: [
+          tiaBackend.x402?.network ?? "stellar:testnet",
+          tiaBackend.x402?.routes?.["GET /premium/bridge-quote"]
+            ? `puente ${tiaBackend.x402.routes["GET /premium/bridge-quote"]}`
+            : null,
+          tiaBackend.x402?.routes?.["GET /premium/fx"]
+            ? `tipo de cambio ${tiaBackend.x402.routes["GET /premium/fx"]}`
+            : null,
+        ]
+          .filter(Boolean)
+          .join(" · "),
+      }
+    : { tone: "wait", badge: "En pausa", detail: "API premium no activa en esta demo" };
 
   const metrics = [
     { label: "Corredor", value: "US → MX" },
@@ -94,138 +133,182 @@ export default async function StatusPage() {
   ];
 
   return (
-    <main
-      className="tia-surface-admin"
-      style={{
-        minHeight: "100vh",
-        maxWidth: 720,
-        margin: "0 auto",
-        padding: "48px 28px 80px",
-        background: TIA.forest,
-        color: TIA.cream,
-      }}
-    >
-      <Link href="/" style={{ fontSize: 12, color: TIA.textMuted, textDecoration: "none" }}>
-        ← TIA
-      </Link>
+    <div className="tia-page tia-page--admin">
+      <div className="tia-shell">
+        <SiteNav variant="dark" />
 
-      <div style={{ marginTop: 24 }}>
-        <TiaLogo variant="dark" href="/" height={44} />
-      </div>
+        <main id="contenido">
+          <p className="text-label" style={{ margin: "0 0 8px", color: TIA.onDarkMuted }}>
+            Data room · Bridge Dev3pack
+          </p>
+          <h1 className="text-headline" style={{ margin: "0 0 28px", color: TIA.cream }}>
+            Status
+          </h1>
 
-      <h1
-        className="text-headline"
-        style={{ margin: "28px 0 8px", color: TIA.cream, fontFamily: TIA_FONT.display }}
-      >
-        Status
-      </h1>
-      <p className="text-caption" style={{ margin: "0 0 32px", color: TIA.mutedGreen }}>
-        Data room · Bridge Dev3pack
-      </p>
-
-      <section style={{ marginBottom: 32 }}>
-        <h2 className="text-label" style={{ margin: "0 0 16px", color: TIA.mutedGreen }}>
-          Servicios
-        </h2>
-        <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-          <StatusRow name="Web" status="live" detail="vercel.app" href="https://web-coral-pi-66.vercel.app" />
-          <StatusRow
-            name="TIA Backend"
-            status={tiaBackend.ok ? "live" : "degraded"}
-            detail={tiaBackend.detail}
-            href={backendUrl}
-          />
-          <StatusRow
-            name="Contrato"
-            status="live"
-            detail={programId.slice(0, 8) + "…"}
-            href={`https://solscan.io/account/${programId}?cluster=devnet`}
-          />
-          <StatusRow
-            name="TIA Agent (Prova)"
-            status={provaLive ? "live" : "degraded"}
-            detail={provaDetail}
-            href={
-              provaPda
-                ? provaExplorerUrl(provaPda)
-                : "https://www.theprova.xyz/explorer"
-            }
-          />
-          <StatusRow
-            name="Accesly Stellar"
-            status={acceslyLive ? "live" : "degraded"}
-            detail={acceslyDetail}
-            href="https://dev.accesly.xyz"
-          />
-          <StatusRow
-            name="TIA Premium API (x402)"
-            status={x402Enabled ? "live" : "degraded"}
-            detail={x402Detail}
-            href={`${backendUrl}/premium/fx`}
-          />
-        </div>
-      </section>
-
-      <section style={{ marginBottom: 32 }}>
-        <h2 className="text-label" style={{ margin: "0 0 16px", color: TIA.mutedGreen }}>
-          Métricas MVP
-        </h2>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
-            gap: 12,
-          }}
-        >
-          {metrics.map((m) => (
-            <div key={m.label} className="card-dark">
-              <p className="text-label" style={{ margin: 0, color: TIA.mutedGreen }}>
-                {m.label}
-              </p>
-              <p style={{ margin: "8px 0 0", fontSize: 15, fontWeight: 600, color: TIA.cream }}>
-                {m.value}
-              </p>
+          <section style={{ marginBottom: 40 }} aria-labelledby="servicios-heading">
+            <h2
+              id="servicios-heading"
+              className="text-label"
+              style={{ margin: "0 0 16px", color: TIA.onDarkMuted }}
+            >
+              Servicios
+            </h2>
+            <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+              <StatusRow
+                name="Web"
+                tone="live"
+                badge="En línea"
+                detail="Producción Vercel"
+                href="https://web-coral-pi-66.vercel.app"
+              />
+              <StatusRow
+                name="TIA Backend"
+                tone={tiaBackend.ok ? "live" : "wait"}
+                badge={tiaBackend.ok ? "En línea" : "En pausa"}
+                detail={humanBackendDetail(tiaBackend.detail)}
+                href={backendUrl}
+              />
+              <StatusRow
+                name="Contrato Solana"
+                tone="live"
+                badge="Devnet"
+                href={`https://solscan.io/account/${programId}?cluster=devnet`}
+                copy={{ value: programId, label: "dirección del contrato" }}
+              />
+              <StatusRow
+                name="TIA Agent (Prova)"
+                tone={prova.tone}
+                badge={prova.badge}
+                detail={prova.detail}
+                href={
+                  provaPda
+                    ? provaExplorerUrl(provaPda)
+                    : "https://www.theprova.xyz/explorer"
+                }
+              />
+              <StatusRow
+                name="Accesly Stellar"
+                tone={accesly.tone}
+                badge={accesly.badge}
+                detail={accesly.detail}
+                href="https://dev.accesly.xyz"
+              />
+              <StatusRow
+                name="TIA Premium API"
+                tone={x402.tone}
+                badge={x402.badge}
+                detail={x402.detail}
+                href={`${backendUrl}/premium/fx`}
+              />
             </div>
-          ))}
-        </div>
-      </section>
+          </section>
 
-      <div className="alert-liquidity" style={{ marginTop: 8 }}>
-        Ejemplo: liquidez baja en tiendita — solo visible en panel de operadores.
+          <section style={{ marginBottom: 40 }} aria-labelledby="metricas-heading">
+            <h2
+              id="metricas-heading"
+              className="text-label"
+              style={{ margin: "0 0 16px", color: TIA.onDarkMuted }}
+            >
+              Métricas MVP
+            </h2>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "repeat(auto-fill, minmax(200px, 1fr))",
+                gap: 12,
+              }}
+            >
+              {metrics.map((m) => (
+                <div key={m.label} className="card-dark">
+                  <p className="text-label" style={{ margin: 0, color: TIA.onDarkMuted }}>
+                    {m.label}
+                  </p>
+                  <p
+                    style={{
+                      margin: "8px 0 0",
+                      fontSize: 18,
+                      fontWeight: 600,
+                      color: TIA.cream,
+                      fontFamily: TIA_FONT.ui,
+                    }}
+                  >
+                    {m.value}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </section>
+
+          <div className="alert-liquidity">
+            Ejemplo de alerta operativa: liquidez baja en tiendita — solo visible para operadores, no para la familia.
+          </div>
+        </main>
       </div>
-    </main>
+    </div>
   );
 }
 
 function StatusRow({
   name,
-  status,
+  tone,
+  badge,
   detail,
   href,
+  copy,
 }: {
   name: string;
-  status: "live" | "degraded";
-  detail: string;
+  tone: ServiceTone;
+  badge: string;
+  detail?: string;
   href: string;
+  copy?: { value: string; label: string };
 }) {
-  const dot = status === "live" ? TIA.mutedGreen : TIA.calor;
   return (
-    <a
-      href={href}
-      target="_blank"
-      rel="noopener noreferrer"
+    <div
       className="card-dark"
       style={{
         display: "flex",
         alignItems: "center",
         gap: 12,
-        textDecoration: "none",
-        color: TIA.cream,
+        flexWrap: "wrap",
       }}
     >
-      <span style={{ width: 8, height: 8, borderRadius: "50%", background: dot, flexShrink: 0 }} />
-      <span style={{ flex: 1, fontWeight: 600, fontSize: 14 }}>{name}</span>
-      <span style={{ fontSize: 12, color: TIA.mutedGreen, fontFamily: TIA_FONT.mono }}>{detail}</span>
-    </a>
+      <span
+        aria-hidden="true"
+        style={{
+          width: 8,
+          height: 8,
+          borderRadius: "50%",
+          background: tone === "live" ? TIA.onDarkMuted : TIA.calor,
+          flexShrink: 0,
+        }}
+      />
+      <span style={{ flex: "1 1 140px", fontWeight: 600, fontSize: 15, color: TIA.cream }}>
+        {name}
+      </span>
+      <span className={`status-badge status-badge--${tone}`}>{badge}</span>
+      {copy ? (
+        <CopyValue value={copy.value} label={copy.label} />
+      ) : detail ? (
+        <span style={{ fontSize: 14, color: TIA.onDarkMuted, lineHeight: 1.4 }}>{detail}</span>
+      ) : null}
+      <a
+        href={href}
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          marginLeft: "auto",
+          fontSize: 13,
+          fontWeight: 600,
+          color: TIA.calor,
+          textDecoration: "none",
+          minHeight: 44,
+          display: "inline-flex",
+          alignItems: "center",
+        }}
+      >
+        Abrir
+      </a>
+    </div>
   );
 }

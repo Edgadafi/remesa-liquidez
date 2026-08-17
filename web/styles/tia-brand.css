@@ -1,4 +1,4 @@
-/* TIA Brand Kit v1.0 — web/styles/tia-brand.css */
+/* TIA Brand Kit v1.1 — contrast + shells. See design-system/MASTER.md */
 
 :root {
   --color-forest: #0f2318;
@@ -14,12 +14,14 @@
   --color-solana: #9945ff;
   --color-text-primary: #f5f0e8;
   --color-text-dark: #1a4a2e;
-  --color-text-secondary: #4a7a5e;
-  --color-text-muted: #7aae8a;
+  --color-text-secondary: #2d5a3c;
+  --color-text-muted: #2d5a3c;
+  --color-on-dark: #f5f0e8;
+  --color-on-dark-muted: #d4e8da;
 
   --font-display: Georgia, "Times New Roman", serif;
   --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --font-mono: "DM Mono", "Courier New", monospace;
+  --font-mono: "DM Mono", "Courier New", ui-monospace, monospace;
 
   --space-xs: 4px;
   --space-sm: 8px;
@@ -32,18 +34,141 @@
   --radius-md: 4px;
   --radius-lg: 8px;
   --radius-xl: 12px;
+
+  --nav-height: 64px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-padding-top: var(--nav-height);
 }
 
 body.tia-surface-web {
+  margin: 0;
   background: var(--color-cream);
   color: var(--color-text-dark);
   font-family: var(--font-ui);
 }
 
 body.tia-surface-admin {
+  margin: 0;
   background: var(--color-forest);
   color: var(--color-text-primary);
   font-family: var(--font-ui);
+}
+
+a,
+button,
+[role="button"],
+summary {
+  cursor: pointer;
+}
+
+button:disabled,
+a[aria-disabled="true"] {
+  cursor: not-allowed;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-calor);
+  outline-offset: 3px;
+}
+
+.tia-skip {
+  position: absolute;
+  left: 12px;
+  top: -40px;
+  z-index: 100;
+  padding: 8px 12px;
+  background: var(--color-institution);
+  color: var(--color-cream);
+  text-decoration: none;
+  border-radius: var(--radius-md);
+}
+
+.tia-skip:focus {
+  top: 12px;
+}
+
+.tia-page {
+  min-height: 100vh;
+  width: 100%;
+}
+
+.tia-page--web {
+  background: var(--color-cream);
+  color: var(--color-text-dark);
+}
+
+.tia-page--admin {
+  background: var(--color-forest);
+  color: var(--color-on-dark);
+}
+
+.tia-shell {
+  width: min(960px, 100%);
+  margin: 0 auto;
+  padding: 20px 20px 80px;
+}
+
+@media (min-width: 768px) {
+  .tia-shell {
+    padding: 28px 32px 88px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .tia-shell {
+    padding: 40px 48px 96px;
+  }
+}
+
+.tia-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  min-height: var(--nav-height);
+  margin-bottom: 28px;
+}
+
+.tia-nav__links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 8px;
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.tia-nav__link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  text-decoration: none;
+  border-radius: var(--radius-md);
+}
+
+.tia-nav--light .tia-nav__link {
+  color: var(--color-text-dark);
+}
+
+.tia-nav--dark .tia-nav__link {
+  color: var(--color-on-dark);
+}
+
+.tia-nav__link[aria-current="page"] {
+  box-shadow: inset 0 -2px 0 var(--color-calor);
 }
 
 .text-display {
@@ -55,50 +180,52 @@ body.tia-surface-admin {
 
 .text-headline {
   font-family: var(--font-display);
-  font-size: 28px;
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
   font-weight: 700;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
 }
 
 .text-label {
   font-family: var(--font-ui);
-  font-size: 10.5px;
-  font-weight: 500;
-  letter-spacing: 0.12em;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
 }
 
 .text-body {
   font-family: var(--font-ui);
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
-  letter-spacing: 0.02em;
+  letter-spacing: 0.01em;
+  line-height: 1.6;
 }
 
 .text-caption {
   font-family: var(--font-ui);
-  font-size: 11px;
+  font-size: 13px;
   font-weight: 400;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.04em;
 }
 
 .text-tagline {
   font-family: var(--font-ui);
   font-size: 13px;
   font-weight: 400;
-  letter-spacing: 0.16em;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
 }
 
 .pill {
   background: var(--color-institution);
-  color: var(--color-muted-green);
+  color: var(--color-cream);
   font-family: var(--font-ui);
-  font-size: 10.5px;
+  font-size: 12px;
   font-weight: 500;
   letter-spacing: 0.03em;
   border-radius: var(--radius-sm);
-  padding: 4px 12px 4px 14px;
+  padding: 6px 12px 6px 14px;
   position: relative;
   display: inline-block;
 }
@@ -122,11 +249,14 @@ body.tia-surface-admin {
   font-weight: 500;
   letter-spacing: 0.04em;
   padding: 12px 28px;
+  min-height: 44px;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-grove);
   cursor: pointer;
   text-decoration: none;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: background 0.15s ease, border-color 0.15s ease;
 }
 
@@ -143,11 +273,14 @@ body.tia-surface-admin {
   font-weight: 500;
   letter-spacing: 0.04em;
   padding: 12px 28px;
+  min-height: 44px;
   border-radius: var(--radius-md);
   border: 1px solid var(--color-calor-warm);
   cursor: pointer;
   text-decoration: none;
-  display: inline-block;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   transition: background 0.15s ease;
 }
 
@@ -166,8 +299,8 @@ body.tia-surface-admin {
   background: var(--color-institution);
   border: 1px solid var(--color-grove);
   border-radius: var(--radius-lg);
-  padding: var(--space-lg);
-  color: var(--color-soft-green);
+  padding: 16px 18px;
+  color: var(--color-on-dark);
 }
 
 .card-title {
@@ -205,13 +338,82 @@ body.tia-surface-admin {
 }
 
 .alert-liquidity {
-  background: rgba(232, 93, 38, 0.08);
+  background: rgba(232, 93, 38, 0.12);
   border: 1px solid var(--color-alert);
   border-left: 3px solid var(--color-alert);
-  color: var(--color-alert);
+  color: #ffb199;
   border-radius: var(--radius-md);
-  padding: 10px 14px;
+  padding: 12px 14px;
+  font-family: var(--font-ui);
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 1.45;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  min-height: 24px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.status-badge--live {
+  background: rgba(212, 232, 218, 0.16);
+  color: var(--color-on-dark-muted);
+  border: 1px solid var(--color-grove);
+}
+
+.status-badge--wait {
+  background: rgba(201, 168, 76, 0.16);
+  color: var(--color-calor);
+  border: 1px solid rgba(201, 168, 76, 0.45);
+}
+
+.copy-value {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.copy-value code {
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.4;
+  color: inherit;
+  word-break: break-all;
+}
+
+.copy-value__btn {
   font-family: var(--font-ui);
   font-size: 12px;
-  font-weight: 500;
+  font-weight: 600;
+  padding: 6px 10px;
+  min-height: 32px;
+  border-radius: var(--radius-md);
+  border: 1px solid currentColor;
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+
+  .tia-left-accent {
+    background: var(--color-calor);
+  }
 }
