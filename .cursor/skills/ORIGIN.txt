@@ -1,0 +1,2 @@
+nirium-agentic-payments  d928152  https://github.com/nirium-protocol/nirium-sdk
+stellar-dev-skill        202be80  https://github.com/stellar/stellar-dev-skill
