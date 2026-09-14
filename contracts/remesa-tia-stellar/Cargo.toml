@@ -1,3 +1,7 @@
+## Empty table keeps this crate out of the root Anchor workspace, which pins a
+## different toolchain via rust-toolchain.toml.
+[workspace]
+
 [package]
 name = "remesa-tia-stellar"
 version = "0.1.0"

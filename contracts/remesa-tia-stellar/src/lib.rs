@@ -4,10 +4,24 @@
 //! metadata on-chain for E2E + Accesly signing integration.
 
 #![no_std]
-use soroban_sdk::{contract, contractimpl, contracttype, Address, Env, Symbol};
+use soroban_sdk::{
+    contract, contracterror, contractimpl, contracttype, symbol_short, Address, Env, Symbol,
+};
 
 const FEE_BPS: i128 = 25;
 const BPS_DENOM: i128 = 10_000;
+
+/// Contract errors must be a `#[contracterror]` enum with a stable `u32`
+/// discriminant — Soroban cannot return a `Symbol` as the `Err` variant.
+#[contracterror]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, PartialOrd, Ord)]
+#[repr(u32)]
+pub enum Error {
+    InvalidAmount = 1,
+    ReservationNotFound = 2,
+    NotSender = 3,
+    NotImplemented = 4,
+}
 
 #[contracttype]
 #[derive(Clone)]
@@ -34,10 +48,10 @@ impl RemesaTiaContract {
         receiver: Address,
         amount: i128,
         reservation_id: u64,
-    ) -> Result<(), Symbol> {
+    ) -> Result<(), Error> {
         sender.require_auth();
         if amount <= 0 {
-            return Err(symbol_short!("bad_amt"));
+            return Err(Error::InvalidAmount);
         }
         let key = (symbol_short!("res"), reservation_id);
         let reservation = Reservation {
@@ -50,28 +64,32 @@ impl RemesaTiaContract {
         Ok(())
     }
 
-    pub fn mark_verified(env: Env, sender: Address, reservation_id: u64) -> Result<(), Symbol> {
+    pub fn mark_verified(env: Env, sender: Address, reservation_id: u64) -> Result<(), Error> {
         sender.require_auth();
         let key = (symbol_short!("res"), reservation_id);
         let mut reservation: Reservation = env
             .storage()
             .persistent()
             .get(&key)
-            .ok_or(symbol_short!("no_res"))?;
+            .ok_or(Error::ReservationNotFound)?;
         if reservation.sender != sender {
-            return Err(symbol_short!("not_snd"));
+            return Err(Error::NotSender);
         }
         reservation.verified = true;
         env.storage().persistent().set(&key, &reservation);
         Ok(())
     }
 
-    pub fn validate_cashout(_env: Env, _merchant: Address, _reservation_id: u64) -> Result<(), Symbol> {
-        Err(symbol_short!("not_impl"))
+    pub fn validate_cashout(
+        _env: Env,
+        _merchant: Address,
+        _reservation_id: u64,
+    ) -> Result<(), Error> {
+        Err(Error::NotImplemented)
     }
 
-    pub fn register_merchant(_env: Env, _merchant: Address) -> Result<(), Symbol> {
-        Err(symbol_short!("not_impl"))
+    pub fn register_merchant(_env: Env, _merchant: Address) -> Result<(), Error> {
+        Err(Error::NotImplemented)
     }
 }
 

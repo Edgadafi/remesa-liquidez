@@ -2,38 +2,48 @@
 
 Dual-chain sibling of `programs/remesa-liquidez` (Solana Anchor).
 
-**Status:** Scaffold only — not deployed. Parity target:
+**Status:** Builds and tests clean; **not deployed**. Release wasm is ~2.8 KB.
 
-| Solana (Anchor) | Stellar (Soroban) |
-|-----------------|-------------------|
-| `initialize_reservation` | `initialize_reservation` |
-| `mark_verified` | `mark_verified` |
-| `validate_cashout` | `validate_cashout` |
-| Merchant whitelist | Merchant registry |
-| 25 bps → treasury | 25 bps → treasury |
+No entrypoint moves USDC yet — `initialize_reservation` and `mark_verified`
+only persist metadata, so nothing here can settle a remittance.
+
+| Behaviour | Solana (Anchor) | Stellar (Soroban) |
+|-----------|-----------------|-------------------|
+| `initialize_reservation` | tokens locked in vault PDA | metadata only |
+| `mark_verified` | flips `is_verified` | flips `verified` |
+| `validate_cashout` | 99.75/0.25 split transfer | `NotImplemented` |
+| Merchant whitelist | `register_merchant` + status | `NotImplemented` |
+| 25 bps → treasury | enforced on settlement | constant only, never applied |
+| Reservation expiry | `expires_at` checked | absent |
 
 ## Build
 
-Requires [Soroban CLI](https://soroban.stellar.org/docs/getting-started/setup).
-
 ```bash
 cd contracts/remesa-tia-stellar
-soroban contract build
+cargo test                                    # host tests
+cargo build --release --target wasm32v1-none  # deployable artifact
 ```
 
-## Deploy (testnet — when implemented)
+`stellar contract build` works too, but plain cargo needs no CLI install.
+
+This crate declares an empty `[workspace]` table so it resolves independently
+of the root Anchor workspace, which pins a different toolchain. `Cargo.lock`
+is committed and holds `ed25519-dalek` at 2.2.0: `soroban-env-host` requires
+`>=2.0.0` with no upper bound, and 3.0.0 does not compile against the
+`rand_core` version it passes in. Re-running `cargo update` unpinned will
+break `cargo test` again.
+
+## Deploy (testnet — free via friendbot)
 
 ```bash
-soroban contract deploy \
+stellar contract deploy \
   --wasm target/wasm32v1-none/release/remesa_tia_stellar.wasm \
   --source-account <DEPLOYER_SECRET> \
   --network testnet
 ```
 
-Register merchant pubkeys via admin entrypoint (TBD).
-
-## Not in workspace root
-
-This crate is **outside** the Anchor `[workspace]` in root `Cargo.toml` to avoid toolchain conflicts.
+Deploying before `validate_cashout` transfers USDC only pays upload and rent
+fees for a contract that cannot settle anything. Wire the token transfers,
+the merchant registry and the 25 bps treasury first.
 
 See [docs/dual-chain-decision.md](../../docs/dual-chain-decision.md).
