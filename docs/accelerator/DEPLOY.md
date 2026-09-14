@@ -38,6 +38,50 @@ Hace falta **todo** esto a la vez:
 
 Mezclar el `GAAXQWE6…` de testnet con `stellar:pubnet` **no cobra**.
 
+101 XLM alcanzan. El `G…` de Lobstr cobra x402; **no** firma el escrow. Dos rieles:
+
+```mermaid
+flowchart TB
+  lobstr["Lobstr G… · 101 XLM"]
+
+  subgraph cobro["Rail A — x402 cobro Premium"]
+    trust["Trustline USDC Circle mainnet<br/>reserva ~1.5 XLM"]
+    payto["STELLAR_PAY_TO = ese G…"]
+    net["STELLAR_NETWORK = pubnet"]
+    fac["Facilitator /gen<br/>no /testnet/gen"]
+    api["Vercel remesa-tia-backend"]
+    live["Cobra USDC en /premium/*"]
+    lobstr --> trust
+    trust --> payto
+    trust --> net
+    trust --> fac
+    payto --> api
+    net --> api
+    fac --> api
+    api --> live
+  end
+
+  subgraph escrow["Rail B — escrow Soroban (aún no desplegado)"]
+    fund["10–20 XLM a deployer aparte"]
+    key["S… del deployer<br/>nunca seed Lobstr"]
+    wasm["stellar contract deploy"]
+    ctor["Constructor: admin + SAC mainnet + treasury"]
+    cid["STELLAR_CONTRACT_ID = CBCWBOZB…M5MP"]
+    lobstr --> fund
+    fund --> key
+    key --> wasm
+    wasm --> ctor
+    ctor --> cid
+  end
+```
+
+| Pieza | Testnet (hoy) | Mainnet |
+|-------|---------------|---------|
+| `STELLAR_PAY_TO` | `GAAXQWE6…` | `G…` Lobstr |
+| Facilitator | `/testnet/gen` | `/gen` |
+| USDC | SAC `CBIELTK6…` | Circle mainnet `GA5ZSEJY…KZVN` |
+| Secret de pago | `.env` local | `.env` local — **nunca** Vercel |
+
 ## 2. Frontend — Vercel `web` (web-coral-pi-66)
 
 `RENDER_BACKEND_URL` vive **aquí**, no en `remesa-tia-backend`:

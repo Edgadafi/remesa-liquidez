@@ -82,7 +82,7 @@ Check only when **working in prod/devnet**, not when scaffolded.
 
 ## Post-MVP (do not build during Bridge unless spec change approved)
 
-- **Stellar Soroban escrow deploy** — USDC SAC lock/cashout is wired in `contracts/remesa-tia-stellar/` (testnet, not deployed); Solana wins pilot until metrics say otherwise ([dual-chain-decision.md](docs/dual-chain-decision.md))
+- **Stellar Soroban escrow** — deployed mainnet 14 sep 2026 `CBCWBOZB…M5MP` ([113f072b…32e6](https://stellar.expert/explorer/public/tx/113f072b09b6addd41f9d2e98cb2e6d91d83f6da1b9c7f265231e0e4c5c432e6)); set `STELLAR_CONTRACT_ID` on `web`. Solana remains remesa pilot until metrics say otherwise ([dual-chain-decision.md](docs/dual-chain-decision.md))
 - Mainnet + formal audit
 - **Recurring / automated transfers** (keeper — set once, TIA runs every payday) — @remesatia blueprint
 - ElevenLabs real-time voice pipeline / WhatsApp PTT
@@ -172,6 +172,7 @@ See [docs/nirium-x402-integration.md](docs/nirium-x402-integration.md).
 | 14 sep | x402 unpaid smoke checked; Soroban USDC lock/cashout | Rail cobraba 402 pero el escrow Stellar no movía USDC | Founder |
 | 14 sep | x402 paid smoke 200 + tx e08479dc | Cobro FX live verificado; no sustituye 3 txs remesa E2E | Founder |
 | 14 sep | x402 paid smoke pubnet 200 + tx f20a580a | Cobro USDC real Circle; no sustituye 3 txs remesa E2E | Founder |
+| 14 sep | Soroban escrow mainnet CBCWBOZB | Founder pidió deploy; lock USDC on-chain | Founder |
 
 ---
 

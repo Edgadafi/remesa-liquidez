@@ -51,7 +51,7 @@ Same promise: **2.25% all-in** · WhatsApp · tiendita cash-out.
 
 | Phase | Solana | Stellar |
 |-------|--------|---------|
-| Now | Mainnet-beta 1 tiendita, real fees | Soroban escrow **locks/unlocks USDC SAC** in tests (`cargo test` in `contracts/remesa-tia-stellar`); **not deployed** |
+| Now | Mainnet-beta 1 tiendita, real fees | Soroban escrow **mainnet** `CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTSAELKESPY6D7DUA22M5MP` (14 sep 2026) |
 | +30d | 10 txs, repeat users | 2 Stellar-native beta senders |
 | +60d | Scale if metrics win | Beta only if tied; else maintenance |
 
