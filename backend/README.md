@@ -1,6 +1,6 @@
 # Backend TIA — Remesa LiquidezIA
 
-Servicio mínimo para Bridge Dev3pack Semana 1.
+Backend TIA de holatia.app — notificaciones WhatsApp y API premium x402.
 
 ## Endpoints
 
@@ -34,11 +34,16 @@ npm run dev
 npm run smoke:notify -- 521234567890
 ```
 
-## Deploy Render
+## Deploy Vercel (`remesa-tia-backend`)
 
-1. Blueprint: `render.yaml` en raíz del monorepo
-2. Configurar `BOT_INTERNAL_URL` + `BOT_INTERNAL_SECRET`
-3. Actualizar `RENDER_BACKEND_URL` en Vercel → URL del nuevo servicio
+Root Directory = `backend`. Adapter: [`api/index.ts`](api/index.ts) (`export default createApp()`).
+
+1. `BOT_INTERNAL_URL` = HTTPS **público** del bot Baileys (Render o túnel). Nunca localhost.
+2. `BOT_INTERNAL_SECRET` = el mismo del bot. Sin URL pública el secret no evita el 502.
+3. En el proyecto Vercel **del frontend** (`web`): `RENDER_BACKEND_URL=https://remesa-tia-backend.vercel.app`
+4. No subir `STELLAR_TESTNET_SECRET` (solo `npm run x402:smoke` en tu máquina).
+
+Producción: https://remesa-tia-backend.vercel.app — `GET /health` 200, `GET /premium/fx` 402.
 
 ## Semana 1 — limitaciones
 

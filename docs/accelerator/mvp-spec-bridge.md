@@ -1,4 +1,4 @@
-# MVP Spec — Bridge Dev3pack
+# MVP Spec — holatia.app
 
 **Proyecto:** Remesa TIA  
 **Deadline duro:** 9 jul 2026  

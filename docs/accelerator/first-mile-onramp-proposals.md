@@ -147,7 +147,7 @@
 
 **Flujo:** Evento 2h en iglesia/CU → instalan Phantom → fund $10 community pool → envían remesa demo en vivo → familia recibe WhatsApp.
 
-**Alianza:** LULAC chapters · local credit unions · Bridge Dev3pack LATAM network.
+**Alianza:** LULAC chapters · local credit unions · holatia.app LATAM network.
 
 **Onboarding copy:**
 > *Aprende a mandar remesas sin el 7% — taller gratis este sábado.*

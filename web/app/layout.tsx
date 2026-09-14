@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteOrigin),
   title: {
     default: "TIA — Manda dólares. Cóbralos en tu tienda.",
-    template: "%s · TIA",
+    template: "%s · holatia.app",
   },
   description:
     "Send dollars. Cash out at your corner store. Remesas US→MX por WhatsApp. Fee 0.25%, no 7%.",
@@ -36,7 +36,7 @@ export const metadata: Metadata = {
   openGraph: {
     type: "website",
     locale: "es_MX",
-    siteName: "TIA",
+    siteName: "holatia.app",
     title: "TIA — Send dollars. Cash out at your corner store.",
     description:
       "Manda dólares. Cóbralos en tu tienda de la esquina. TIA avisa por WhatsApp.",

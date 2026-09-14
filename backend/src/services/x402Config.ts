@@ -51,6 +51,15 @@ export function getX402ServeConfig() {
     );
   }
 
+  // Pubnet cobro: payTo must be a mainnet G… with USDC trustline + ~1.5 XLM;
+  // facilitator key from channels.openzeppelin.com/gen (not /testnet/gen).
+  // Mixing a testnet G address with stellar:pubnet will not settle.
+  if (network === "stellar:pubnet") {
+    console.log(
+      "[TIA] x402 pubnet: STELLAR_PAY_TO must be mainnet G… with USDC trustline; facilitator from channels.openzeppelin.com/gen"
+    );
+  }
+
   return {
     payTo,
     facilitatorApiKey,

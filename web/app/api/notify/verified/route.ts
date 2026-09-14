@@ -5,7 +5,7 @@
  * Flujo:
  *   1. Lee TurnReservation on-chain → verifica is_verified === true
  *   2. Genera audio "dinero listo" con ElevenLabs TTS
- *   3. Si RENDER_BACKEND_URL está configurado → notifica a Render (agente TIA)
+ *   3. Si RENDER_BACKEND_URL está configurado → notifica al backend TIA (Vercel)
  *      para que envíe el audio por WhatsApp al receptor
  *   4. Si no → devuelve audioBase64 directamente (útil para demo/tests)
  *

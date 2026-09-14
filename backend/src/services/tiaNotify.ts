@@ -27,8 +27,8 @@ export interface TiaNotifyOutput {
 }
 
 /**
- * Orquestador TIA — Semana 1 Bridge Dev3pack.
- * Envía mensaje WhatsApp (texto). audioBase64 se registra; PTT requiere patch en bot (Sem 2).
+ * Orquestador TIA — holatia.app.
+ * Envía mensaje WhatsApp (texto). audioBase64 se registra; PTT requiere patch en bot.
  */
 export async function handleTiaNotify(
   input: TiaNotifyInput

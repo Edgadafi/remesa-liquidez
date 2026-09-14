@@ -44,7 +44,7 @@ Regenerar tras editar copy: `node docs/accelerator/week-04/generate-pitch-pptx.m
 
 **Why this works:** One sentence, no buzzword soup. Not "AI-powered RWA infrastructure."
 
-**Pills (optional):** WhatsApp · Solana · Bridge Dev3pack
+**Pills (optional):** WhatsApp · Solana · holatia.app
 
 ---
 
@@ -139,7 +139,7 @@ Regenerar tras editar copy: `node docs/accelerator/week-04/generate-pitch-pptx.m
 
 | Channel | How we recruit | Target |
 |---------|----------------|--------|
-| Bridge / Dev3pack | Warm intros to US senders ($50–200/mo to MX) | 6 senders |
+| holatia.app | Warm intros to US senders ($50–200/mo to MX) | 6 senders |
 | Laura network | CDMX receivers — WhatsApp-first, no wallet | 6 receivers (overlap) |
 | Founder onboarding | 15-min screenshare · devnet faucet · joint first tx | 100% guided W1–W2 |
 | 1 tiendita CDMX/GDL | In-person visit · simple pilot agreement | 1 merchant signed |
@@ -186,7 +186,7 @@ Regenerar tras editar copy: `node docs/accelerator/week-04/generate-pitch-pptx.m
 
 | Partner | Status | Function |
 |---------|--------|----------|
-| Dev3pack / Bridge | **Live** | GTM, legal, fundraising mentors |
+| holatia.app | **Live** | GTM, legal, fundraising |
 | Solana devnet program | **Live** | Escrow + Blinks |
 | WhatsApp (Baileys bot) | **Live** | Receiver notifications |
 | ATM partner CDMX | **In discussion** | Urban cash-out rail |
@@ -237,7 +237,7 @@ Regenerar tras editar copy: `node docs/accelerator/week-04/generate-pitch-pptx.m
 | _Co-founder / tech_ | _if applicable_ | Anchor + Solana Actions in production |
 | **Mentors** | Bridge cohort | GTM (Leopold), legal (Yarden), ops (Sylvain) |
 
-**Logos:** Dev3pack · Hackathon MX · Solana
+**Logos:** holatia.app · WhatsApp · Solana
 
 **Trap avoided:** Hobbies — one **proof line** each. LinkedIn-ready.
 

@@ -14,7 +14,7 @@
 
 Remesa TIA nació en el hackathon Dev3pack México. El equipo vio el mismo patrón una y otra vez: remitentes con USDC en Solana, familiares en México que cobran en efectivo en tienditas, y un intermediario que se queda con el 7%.
 
-**3er lugar en México** nos abrió las puertas a Bridge Dev3pack. Hoy estamos **#43 de 194 proyectos LATAM** — y esta aceleradora es donde convertimos el MVP en producto.
+**3er lugar en México** nos abrió las puertas a holatia.app. Hoy estamos **#43 de 194 proyectos LATAM** — y esta aceleradora es donde convertimos el MVP en producto.
 
 ---
 

@@ -1,5 +1,5 @@
-# Render — Remesa TIA Backend (Bridge Dev3pack Semana 1)
-# Desplegar como servicio nuevo; apuntar remesa-liquidez RENDER_BACKEND_URL aquí.
+# Render — Remesa TIA Backend (holatia.app)
+# Desplegar como servicio nuevo; apuntar RENDER_BACKEND_URL del proyecto Vercel `web` a la URL TIA.
 
 services:
   - type: web

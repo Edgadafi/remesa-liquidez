@@ -39,7 +39,7 @@ Keep forest green + cream. Serif display (Georgia) + sans UI is intentional hier
 - Full-bleed surface (cream or forest), not a narrow card floating on the other color
 - Shell: `min(960px, 100%)` centered; padding 24px (375) → 48px (1024+)
 - Shared `SiteNav`: Inicio · Comercio · Status, `aria-current="page"`
-- Status is a data room for Bridge mentors — honest states, no fake “online”
+- Status is the holatia.app ops room — honest states, no fake “online”
 
 ## Interaction & a11y
 

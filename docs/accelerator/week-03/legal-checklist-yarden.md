@@ -1,6 +1,6 @@
 # Legal Checklist — Remesas / Crypto MX-US
 
-> Yarden · 1 jul · Bridge Dev3pack  
+> Yarden · 1 jul · holatia.app  
 > **Nota:** Devnet MVP ≠ producto regulado. Este checklist prepara mainnet/piloto.
 
 ## Estado actual (MVP Bridge)

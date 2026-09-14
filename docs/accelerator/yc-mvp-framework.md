@@ -1,7 +1,7 @@
 # YC Startup School: How to Plan an MVP
 
 **Speaker:** Michael Seibel (Y Combinator)  
-**Aplicado a:** Remesa TIA · Bridge Dev3pack · 16 jun – 9 jul 2026
+**Aplicado a:** Remesa TIA · holatia.app · 16 jun – 9 jul 2026
 
 > **Checklist operativo (immutable):** [SPEC.md](../../SPEC.md) en la raíz del repo.
 

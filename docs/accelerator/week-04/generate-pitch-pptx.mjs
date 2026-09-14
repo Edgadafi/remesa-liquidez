@@ -23,7 +23,7 @@ const pptx = new PptxGenJS();
 pptx.layout = "LAYOUT_WIDE";
 pptx.author = "TIA / Remesa Liquidez";
 pptx.title = "TIA — Pitch Deck (Dev3pack)";
-pptx.subject = "Bridge Dev3pack · July 2026";
+pptx.subject = "holatia.app · July 2026";
 
 function slideBase(slide, slideNum) {
   slide.background = { color: C.forest };
@@ -202,7 +202,7 @@ function addPills(slide, labels, y = 4.85) {
     fill: { color: C.calor },
   });
   addSub(s, "Agentic US→MX remittances · WhatsApp for family · 2.25% all-in · 0.25% on-chain", 3.85);
-  addPills(s, ["WhatsApp", "Solana", "Bridge Dev3pack"], 4.75);
+  addPills(s, ["WhatsApp", "Solana", "holatia.app"], 4.75);
 }
 
 // Slide 2 — Problem
@@ -302,7 +302,7 @@ function addPills(slide, labels, y = 4.85) {
     s,
     ["Channel", "How we recruit", "Target"],
     [
-      ["Bridge / Dev3pack", "Warm intros — US senders $50–200/mo to MX", "6 senders"],
+      ["holatia.app", "Warm intros — US senders $50–200/mo to MX", "6 senders"],
       ["Laura network", "CDMX receivers — WhatsApp-first, no wallet", "6 receivers"],
       ["Founder onboarding", "15-min screenshare · devnet · joint first tx", "Guided W1–W2"],
       ["1 tiendita CDMX/GDL", "In-person visit · simple pilot agreement", "1 merchant"],
@@ -351,7 +351,7 @@ function addPills(slide, labels, y = 4.85) {
     s,
     ["Partner", "Status", "Function"],
     [
-      ["Dev3pack / Bridge", "Live", "GTM, legal, fundraising mentors"],
+      ["holatia.app", "Live", "GTM, legal, fundraising"],
       ["Solana devnet program", "Live", "Escrow + Blinks"],
       ["WhatsApp (Baileys bot)", "Live", "Receiver notifications"],
       ["ATM partner CDMX", "In discussion", "Urban cash-out rail"],
@@ -407,7 +407,7 @@ function addPills(slide, labels, y = 4.85) {
       ["Mentors", "Bridge cohort", "GTM (Leopold), legal (Yarden), ops (Sylvain)"],
     ]
   );
-  addPills(s, ["Dev3pack", "Hackathon MX", "Solana"], 4.85);
+  addPills(s, ["holatia.app", "WhatsApp", "Solana"], 4.85);
 }
 
 // Slide 12 — Ask

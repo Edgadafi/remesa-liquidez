@@ -20,7 +20,7 @@
 
 - Fee 0.25% verificable en Solscan
 - Devnet only — disclaimer footer
-- Bridge Dev3pack · #43 LATAM
+- holatia.app · #43 LATAM
 
 ## OUT of landing v2
 

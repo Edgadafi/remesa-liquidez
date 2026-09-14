@@ -1,6 +1,6 @@
 # Modelo Híbrido de Enrutamiento Dinámico — TIA
 
-> Bridge Dev3pack · Positioning estratégico · Vanina/Ginevra + Leopold  
+> holatia.app · Positioning estratégico · Vanina/Ginevra + Leopold  
 > **Principio:** No sustituir tienditas por cajeros — **orquestar ambos** según liquidez y geografía.
 
 ---

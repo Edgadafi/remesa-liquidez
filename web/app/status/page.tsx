@@ -8,7 +8,7 @@ const programId =
   typeof idl.address === "string" ? idl.address : "Fprb6jTLfjXfZ6yuWzS7LVXxwVvPbPgPZiEqDEL9bRfj";
 
 const backendUrl =
-  process.env.RENDER_BACKEND_URL ?? "https://remesa-tia-backend.onrender.com";
+  process.env.RENDER_BACKEND_URL ?? "https://remesa-tia-backend.vercel.app";
 
 const provaAgentPda = process.env.NEXT_PUBLIC_PROVA_AGENT_PDA ?? "";
 const acceslyAppId = process.env.NEXT_PUBLIC_ACCESLY_APP_ID ?? "";
@@ -19,7 +19,7 @@ export const dynamic = "force-dynamic";
 
 export const metadata: Metadata = {
   title: "Status",
-  description: "Estado de servicios TIA — data room Bridge Dev3pack.",
+  description: "Estado de servicios TIA — holatia.app.",
 };
 
 interface BackendHealth {
@@ -139,7 +139,7 @@ export default async function StatusPage() {
 
         <main id="contenido">
           <p className="text-label" style={{ margin: "0 0 8px", color: TIA.onDarkMuted }}>
-            Data room · Bridge Dev3pack
+            holatia.app
           </p>
           <h1 className="text-headline" style={{ margin: "0 0 28px", color: TIA.cream }}>
             Status

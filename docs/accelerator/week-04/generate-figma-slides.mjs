@@ -156,7 +156,7 @@ const slides = [
     cover: true,
     headline: "Send dollars. Cash out at your corner store.",
     sub: "Agentic US→MX remittances · WhatsApp · 2.25% all-in · 0.25% on-chain",
-    pills: ["WhatsApp", "Solana", "Bridge Dev3pack"],
+    pills: ["WhatsApp", "Solana", "holatia.app"],
   },
   {
     file: "02-problem.svg",
@@ -232,7 +232,7 @@ const slides = [
     headline: "How we recruit 10 users in 30 days.",
     headers: ["Channel", "How", "Target"],
     rows: [
-      ["Bridge / Dev3pack", "Warm intros US senders", "6 senders"],
+      ["holatia.app", "Warm intros US senders", "6 senders"],
       ["Laura network", "WhatsApp receivers CDMX", "6 receivers"],
       ["Founder onboarding", "15-min screenshare", "Guided W1–W2"],
       ["1 tiendita", "In-person pilot agreement", "1 merchant"],
@@ -260,7 +260,7 @@ const slides = [
     headline: "Borrowed credibility — labelled honestly.",
     headers: ["Partner", "Status", "Function"],
     rows: [
-      ["Dev3pack / Bridge", "Live", "GTM, legal, mentors"],
+      ["holatia.app", "Live", "GTM, legal, mentors"],
       ["Solana devnet", "Live", "Escrow + Blinks"],
       ["WhatsApp bot", "Live", "Receiver notifications"],
       ["ATM CDMX", "In discussion", "Urban cash-out"],
@@ -293,7 +293,7 @@ const slides = [
       ["[Co-founder]", "[if applicable]", "Anchor + Solana Actions"],
       ["Mentors", "Bridge cohort", "Leopold, Yarden, Sylvain"],
     ],
-    pills: ["Dev3pack", "Hackathon MX", "Solana"],
+    pills: ["holatia.app", "WhatsApp", "Solana"],
   },
   {
     file: "12-ask.svg",

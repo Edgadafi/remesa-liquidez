@@ -4,7 +4,7 @@
 
 ## Template (Twitter/X thread)
 
-**1/** 4 weeks in Bridge Dev3pack building Remesa TIA — remittances where your family only needs WhatsApp.
+**1/** 4 weeks in holatia.app building Remesa TIA — remittances where your family only needs WhatsApp.
 
 We placed 3rd in the Mexico hackathon. Here's what we learned 🧵
 
@@ -35,7 +35,7 @@ Demo: https://web-coral-pi-66.vercel.app
 
 ## LinkedIn version (shorter)
 
-After 4 weeks in Bridge Dev3pack, we shipped Remesa TIA: on-chain remittances with WhatsApp notifications for receivers who don't need a crypto wallet.
+After 4 weeks in holatia.app, we shipped Remesa TIA: on-chain remittances with WhatsApp notifications for receivers who don't need a crypto wallet.
 
 3rd place Mexico hackathon → 10-user pilot next.
 

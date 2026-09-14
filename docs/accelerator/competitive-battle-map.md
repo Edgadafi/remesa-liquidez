@@ -1,6 +1,6 @@
 # Competitive Battle Map — Remesa TIA
 
-> US → MX · @remesatia · Bridge Dev3pack  
+> US → MX · @remesatia · holatia.app  
 > Incumbents (WU, bancos) · FinTechs (Remitly, Wise) · Status quo · Crypto-native
 
 **Estado honesto:** items marcados *(live)* vs *(roadmap)* vs *(narrative Q3)*.

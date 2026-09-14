@@ -1,6 +1,6 @@
 # Blueprint — @remesatia
 
-> **Handle:** [@remesatia](https://x.com/remesatia) · Bridge Dev3pack · US → MX  
+> **Handle:** [@remesatia](https://x.com/remesatia) · holatia.app · US → MX  
 > **Tagline:** Time to build better.
 
 ---

@@ -18,12 +18,12 @@ Monetiza datos de corredor remittance (LI.FI bridge + Bitso FX) con micropagos U
 
 1. **Facilitator API key** (testnet, gratis): [channels.openzeppelin.com/testnet/gen](https://channels.openzeppelin.com/testnet/gen)
 2. **Cuenta Stellar testnet** (`STELLAR_PAY_TO`) — recibe USDC
-3. Backend Render con vars configuradas
+3. Backend TIA en Vercel (`remesa-tia-backend`) con vars de cobro — **no** `STELLAR_TESTNET_SECRET`
 
 ## Activación
 
 ```bash
-# .env (raíz del monorepo)
+# .env (raíz del monorepo) — STELLAR_TESTNET_SECRET solo aquí, nunca en Vercel
 NIRIUM_X402_ENABLED=true
 STELLAR_PAY_TO=GXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX
 X402_FACILITATOR_API_KEY=<key de OpenZeppelin testnet>
@@ -34,16 +34,18 @@ NIRIUM_X402_FX_PRICE=0.01
 npm run sync-env
 ```
 
-Redeploy `remesa-tia-backend` en Render.
+Redeploy `remesa-tia-backend` en Vercel. En el proyecto **web**: `RENDER_BACKEND_URL=https://remesa-tia-backend.vercel.app`.
 
 ## Verificar 402 (sin pago)
 
 ```bash
-curl -i "$RENDER_BACKEND_URL/premium/fx"
-# Esperado: HTTP 402 + JSON x402 payment requirements
+curl -i https://remesa-tia-backend.vercel.app/premium/fx
+# Esperado: HTTP 402 + header payment-required
 ```
 
 ## Smoke test (cliente paga y recibe datos)
+
+`STELLAR_TESTNET_SECRET` es la cuenta **pagadora** del script. Solo en tu máquina.
 
 ```bash
 # 1. Preparar pagador (XLM + trustline USDC)
@@ -51,9 +53,22 @@ npm run fund-x402-payer
 
 # 2. Si USDC = 0: https://faucet.circle.com/ → Stellar Testnet → pegar public key
 
-# 3. Backend local corriendo + smoke
-RENDER_BACKEND_URL=http://localhost:3000 npm run x402:smoke
+# 3. Smoke contra prod o local
+RENDER_BACKEND_URL=https://remesa-tia-backend.vercel.app npm run x402:smoke
+# o: RENDER_BACKEND_URL=http://localhost:3000 npm run x402:smoke
 ```
+
+## Mainnet / pubnet
+
+No es rotar `X402_FACILITATOR_API_KEY` y poner `STELLAR_NETWORK=pubnet`. Hace falta:
+
+| Pieza | Testnet | Mainnet |
+|-------|---------|---------|
+| `STELLAR_NETWORK` | `testnet` | `pubnet` o `mainnet` |
+| `STELLAR_PAY_TO` | `G…` testnet + trustline USDC | `G…` **mainnet** + trustline USDC (~1.5 XLM de reserva) |
+| Facilitator | [testnet/gen](https://channels.openzeppelin.com/testnet/gen) | [gen](https://channels.openzeppelin.com/gen) |
+
+Mezclar un `G` de testnet (p. ej. `GAAXQWE6…`) con `stellar:pubnet` no cobra.
 
 Verifica el pago en [Stellar Expert testnet](https://stellar.expert/explorer/testnet).
 

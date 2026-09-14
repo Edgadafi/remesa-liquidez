@@ -176,10 +176,10 @@ cd web && vercel deploy --prod --yes --scope <tu-scope>
 | Verify Action | `https://web-coral-pi-66.vercel.app/api/actions/verify?pda=<PDA>` |
 | Cashout Action | `https://web-coral-pi-66.vercel.app/api/actions/cashout?pda=<PDA>` |
 | Bridge quote (LI.FI, free) | `https://web-coral-pi-66.vercel.app/api/bridge/quote` |
-| Premium bridge quote (x402) | `https://remesa-tia-backend.onrender.com/premium/bridge-quote` |
-| Premium FX tick (x402) | `https://remesa-tia-backend.onrender.com/premium/fx` |
+| Premium bridge quote (x402) | `https://remesa-tia-backend.vercel.app/premium/bridge-quote` |
+| Premium FX tick (x402) | `https://remesa-tia-backend.vercel.app/premium/fx` |
 | Notify verified (ElevenLabs) | `https://web-coral-pi-66.vercel.app/api/notify/verified` |
-| Backend TIA | `https://remesa-tia-backend.onrender.com` |
+| Backend TIA | `https://remesa-tia-backend.vercel.app` |
 | Stores (liquidez) | `https://remesa-blink-backend.onrender.com/api/pricing/stores` |
 
 #### Bridge quote (free — UI TIA)
@@ -280,13 +280,13 @@ Copiar `.env.example` → `.env` y rellenar:
 | `SENDER_AUTHORITY_SECRET_KEY` | **solo backend** | Keypair JSON (64 bytes) que firma `mark_verified` |
 | `BLINK_BASE_URL` | backend | Base URL de Vercel para construir Blink URLs |
 | `NEXT_PUBLIC_BLINK_BASE_URL` | web | Igual que arriba, expuesta al browser |
-| `RENDER_BACKEND_URL` | web | URL del backend TIA en Render (`https://remesa-blink-backend.onrender.com`) |
+| `RENDER_BACKEND_URL` | **web** (proyecto Vercel `web` / web-coral-pi-66) | URL del backend TIA: `https://remesa-tia-backend.vercel.app` |
 | `ELEVENLABS_API_KEY` | **solo web (server-side)** | API key de ElevenLabs — nunca `NEXT_PUBLIC_` |
 | `ELEVENLABS_VOICE_ID` | web | Voice ID (default: `EXAVITQu4vr4xnSDxMaL` — Sarah ES) |
 | `WORLD_ID_APP_ID` | backend | App ID de World ID |
 | `NEXT_PUBLIC_USDC_MINT` | web | USDC mint devnet (default: `4zMMC9srt5Ri5X14GAgXhaHii3GnPAEERYPJgZJDncDU`) |
 
-> `SENDER_AUTHORITY_SECRET_KEY` y `ELEVENLABS_API_KEY` **nunca** deben estar en Vercel con prefijo `NEXT_PUBLIC_` ni commiteados en el repo.
+> `SENDER_AUTHORITY_SECRET_KEY`, `ELEVENLABS_API_KEY` y `STELLAR_TESTNET_SECRET` **nunca** van a Vercel con prefijo `NEXT_PUBLIC_` ni se commitean. `STELLAR_TESTNET_SECRET` es solo local (`x402:smoke`): en el dashboard cualquiera con acceso firma pagos.
 
 ---
 

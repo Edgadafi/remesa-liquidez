@@ -1,6 +1,6 @@
 # Positioning & Messaging — Remesa TIA
 
-> Leopold · 23 jun · Bridge Dev3pack  
+> Leopold · 23 jun · holatia.app  
 > **Estrategia:** [hybrid-routing-model.md](./hybrid-routing-model.md) · [narrative-pyramid.md](./narrative-pyramid.md)
 
 ## One-liner (memory test)
@@ -59,7 +59,7 @@
 
 ## Elevator pitch (30 seg)
 
-*"Enviar $100 a México cuesta $7 y tarda días. Remesa TIA bloquea USDC on-chain, TIA enruta al cajero o la tiendita con mejor liquidez, y avisa a tu familia por WhatsApp. Urbano: retiro sin tarjeta. Rural: efectivo en la tiendita del barrio. Fee 0.25%, auditable. Top 3 hackathon MX, Bridge Dev3pack."*
+*"Enviar $100 a México cuesta $7 y tarda días. Remesa TIA bloquea USDC on-chain, TIA enruta al cajero o la tiendita con mejor liquidez, y avisa a tu familia por WhatsApp. Urbano: retiro sin tarjeta. Rural: efectivo en la tiendita del barrio. Fee 0.25%, auditable. Top 3 hackathon MX, holatia.app."*
 
 ## Bridge demo script (2 min)
 

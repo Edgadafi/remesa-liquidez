@@ -1,5 +1,5 @@
 import express from "express";
-import niriumImport from "nirium";
+import * as niriumNs from "nirium";
 import tiaRouter from "./routes/tia.js";
 import premiumRouter from "./routes/premium.js";
 import { getProvaStatus } from "./services/prova.js";
@@ -9,10 +9,24 @@ import {
   isX402Enabled,
 } from "./services/x402Config.js";
 
-// tsx/Node ESM interop: named import of x402Serve can fail; module object carries it.
-const { x402Serve } = niriumImport as typeof niriumImport & {
-  x402Serve: (config: ReturnType<typeof getX402ServeConfig>) => express.RequestHandler;
-};
+type X402Serve = (
+  config: ReturnType<typeof getX402ServeConfig>
+) => express.RequestHandler;
+
+function resolveX402Serve(): X402Serve {
+  const bag = niriumNs as Record<string, unknown> & { default?: unknown };
+  const nested =
+    bag.default && typeof bag.default === "object"
+      ? (bag.default as Record<string, unknown>)
+      : undefined;
+  const fn = [bag.x402Serve, nested?.x402Serve].find(
+    (candidate) => typeof candidate === "function"
+  );
+  if (typeof fn !== "function") {
+    throw new Error("nirium x402Serve export not found");
+  }
+  return fn as X402Serve;
+}
 
 export function createApp() {
   const app = express();
@@ -51,10 +65,10 @@ export function createApp() {
 
   app.get("/", (_req, res) => {
     res.type("html").send(`<!DOCTYPE html>
-<html lang="es"><head><meta charset="utf-8"/><title>TIA Backend</title></head>
+<html lang="es"><head><meta charset="utf-8"/><title>holatia.app — TIA Backend</title></head>
 <body style="font-family:system-ui;background:#0b0d12;color:#e7e9ee;padding:2rem">
 <h1>Remesa <span style="color:#5eebc4">TIA</span> Backend</h1>
-<p>Agente de notificaciones — Bridge Dev3pack</p>
+<p>Agente de notificaciones — <a href="https://holatia.app" style="color:#5eebc4">holatia.app</a></p>
 <ul>
 <li><code>GET /health</code></li>
 <li><code>POST /api/tia/notify</code></li>
@@ -67,6 +81,7 @@ ${premiumEndpoints}
 
   if (isX402Enabled()) {
     try {
+      const x402Serve = resolveX402Serve();
       const x402Config = getX402ServeConfig();
       app.use("/premium", x402Serve(x402Config));
       app.use("/premium", premiumRouter);

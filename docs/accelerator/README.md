@@ -1,4 +1,4 @@
-# Accelerator — Remesa TIA · Bridge Dev3pack
+# Accelerator — Remesa TIA · holatia.app
 
 Índice de entregables por semana del programa (16 jun – 9 jul 2026).
 

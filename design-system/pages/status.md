@@ -1,6 +1,6 @@
 # Status — overrides
 
-Use MASTER. This page is the **Bridge data room**, forest full-bleed (not a green column on cream).
+Use MASTER. This page is the **holatia.app ops room**, forest full-bleed (not a green column on cream).
 
 - `SiteNav` variant dark; `aria-current` on Status
 - Service rows: name + human badge (En línea / En pausa / No configurado) + readable detail

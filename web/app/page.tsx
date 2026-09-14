@@ -171,7 +171,7 @@ export default function Home() {
               gap: "8px 16px",
             }}
           >
-            <span>TIA · Bridge Dev3pack</span>
+            <span>TIA · holatia.app</span>
             <Link href="/status" style={{ color: TIA.institution, fontWeight: 600, textDecoration: "none" }}>
               Ver status
             </Link>

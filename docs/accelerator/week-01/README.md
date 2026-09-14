@@ -1,4 +1,4 @@
-# Semana 1 — Founder Market Fit (Bridge Dev3pack)
+# Semana 1 — Founder Market Fit (holatia.app)
 
 Entregables para sesiones 16–18 jun con Solene, Matute y Laura.
 

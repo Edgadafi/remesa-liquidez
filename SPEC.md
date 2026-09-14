@@ -57,7 +57,7 @@ Check only when **working in prod/devnet**, not when scaffolded.
 ### Nirium x402 (premium API — fail-closed when disabled)
 
 - [ ] `X402_FACILITATOR_API_KEY` from [OpenZeppelin testnet](https://channels.openzeppelin.com/testnet/gen)
-- [ ] `STELLAR_PAY_TO` + `NIRIUM_X402_ENABLED=true` on Render backend
+- [ ] `STELLAR_PAY_TO` + `NIRIUM_X402_ENABLED=true` on Vercel `remesa-tia-backend`
 - [ ] `curl -i $BACKEND/premium/fx` returns **402** without payment
 - [ ] `npm run x402:smoke` returns **200** + Stellar testnet tx verifiable
 - [ ] `/status` shows TIA Premium API (x402) row with prices
@@ -133,7 +133,7 @@ npm run backend:dev
 npm run backend:smoke
 ```
 
-**Deploy vars:** `PROVA_ENABLED`, `PROVA_RPC_URL`, `PROVA_AGENT_SECRET_KEY`, `PROVA_OPERATOR_SECRET_KEY` (or `KEEPER_PRIVATE_KEY`) on Render; `NEXT_PUBLIC_PROVA_AGENT_PDA` on Vercel.
+**Deploy vars:** `PROVA_ENABLED`, `PROVA_RPC_URL`, `PROVA_AGENT_SECRET_KEY`, `PROVA_OPERATOR_SECRET_KEY` (or `KEEPER_PRIVATE_KEY`) on `remesa-tia-backend`; `NEXT_PUBLIC_PROVA_AGENT_PDA` on the **web** Vercel project.
 
 ---
 
@@ -141,21 +141,24 @@ npm run backend:smoke
 
 ```bash
 # 1. Facilitator key (testnet): channels.openzeppelin.com/testnet/gen
-# 2. Stellar G... address for STELLAR_PAY_TO
-# 3. Enable on Render backend:
+# 2. Stellar G... testnet con trustline USDC → STELLAR_PAY_TO
+# 3. Enable on Vercel proyecto remesa-tia-backend:
 NIRIUM_X402_ENABLED=true
+STELLAR_NETWORK=testnet
 STELLAR_PAY_TO=G...
 X402_FACILITATOR_API_KEY=...
 
 npm run sync-env
 
 # 4. Unpaid probe
-curl -i $RENDER_BACKEND_URL/premium/fx
+curl -i https://remesa-tia-backend.vercel.app/premium/fx
 
-# 5. Paid smoke (funded testnet secret)
+# 5. Paid smoke — STELLAR_TESTNET_SECRET solo en .env local, NUNCA en Vercel
 STELLAR_TESTNET_SECRET=S...
-npm run x402:smoke
+RENDER_BACKEND_URL=https://remesa-tia-backend.vercel.app npm run x402:smoke
 ```
+
+**Mainnet / pubnet:** no basta rotar la key y `STELLAR_NETWORK`. Necesitas (1) `STELLAR_PAY_TO` mainnet `G…` con trustline USDC (~1.5 XLM de reserva), (2) facilitator de [channels.openzeppelin.com/gen](https://channels.openzeppelin.com/gen) — no `/testnet/gen`. Un `G` de testnet + `stellar:pubnet` no cobra.
 
 See [docs/nirium-x402-integration.md](docs/nirium-x402-integration.md).
 

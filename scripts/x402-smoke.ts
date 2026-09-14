@@ -3,8 +3,8 @@
  *
  * Prereqs:
  *   - NIRIUM_X402_ENABLED=true on backend + valid STELLAR_PAY_TO + X402_FACILITATOR_API_KEY
- *   - STELLAR_TESTNET_SECRET in .env (funded testnet account)
- *   - RENDER_BACKEND_URL or local http://localhost:3000
+ *   - STELLAR_TESTNET_SECRET in local .env only (never Vercel — it signs payments)
+ *   - RENDER_BACKEND_URL (frontend env / local). Prod: https://remesa-tia-backend.vercel.app
  */
 import "dotenv/config";
 import { Agent } from "nirium";
@@ -18,7 +18,7 @@ const premiumUrl = `${backendUrl}${targetPath.startsWith("/") ? targetPath : `/$
 async function main() {
   if (!secretKey) {
     throw new Error(
-      "Set STELLAR_TESTNET_SECRET in .env (funded Stellar testnet secret key)."
+      "Set STELLAR_TESTNET_SECRET in local .env only (do not add it to Vercel)."
     );
   }
 

@@ -9,7 +9,7 @@
 npm run e2e:devnet
 
 # 2. Backend TIA
-curl https://remesa-tia-backend.onrender.com/health
+curl https://remesa-tia-backend.vercel.app/health
 
 # 3. Frontend
 curl -s https://web-coral-pi-66.vercel.app/actions.json | head -c 200
@@ -23,7 +23,7 @@ npm run backend:smoke -- 521234567890
 | Servicio | Trigger | Verificar |
 |----------|---------|-----------|
 | Vercel (web) | push `main` | Landing + Sender App |
-| Render (backend) | Blueprint / manual | `/health` |
+| Vercel (`remesa-tia-backend`) | push `backend/` o CLI | `/health` + `/premium/fx` 402 |
 | remesa-blink-bot | Shell QR si offline | `/internal/send` 200 |
 
 Ver [DEPLOY.md](../DEPLOY.md).

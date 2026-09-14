@@ -1,6 +1,6 @@
 # Value Proposition Canvas — Remesa TIA
 
-> Plantilla Strategyzer v2.1 — Bridge Dev3pack · Semana 1 · Validar con Laura (18 jun)
+> Plantilla Strategyzer v2.1 — holatia.app · Semana 1 · Validar con Laura (18 jun)
 
 ## Customer Segment
 

@@ -1,8 +1,8 @@
 /**
- * Cliente HTTP hacia el backend Render del agente TIA.
+ * Cliente HTTP hacia el backend TIA (holatia.app).
  *
  * Rutas:
- *   POST /api/tia/notify   — canónica (Bridge Dev3pack)
+ *   POST /api/tia/notify   — canónica
  *   POST /api/lidia/notify — alias legacy (remesa-blink en Render hasta migrar)
  */
 

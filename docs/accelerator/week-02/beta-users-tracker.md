@@ -12,7 +12,7 @@ Meta: **5 contactados · 1 reserva real** antes del 25 jun.
 
 ## Canales sugeridos
 
-- Comunidad Dev3pack / Bridge cohort
+- Comunidad holatia.app
 - WhatsApp grupos remesas LATAM
 - Familia/amigos sender US → MX
 - 1 comercio Oxxo/farmacia contacto directo

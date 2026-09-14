@@ -7,7 +7,7 @@
 **Remesa TIA**  
 *Remesas US→MX on-chain. Tu familia solo necesita WhatsApp.*
 
-Logo · Bridge Dev3pack · #43 LATAM Dev3pack
+Logo · holatia.app · #43 LATAM Dev3pack
 
 ## Slide 2 — Problem
 

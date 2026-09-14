@@ -1,6 +1,6 @@
 # Migración backend → agente TIA
 
-## Estado Semana 1 (Bridge Dev3pack)
+## Estado (holatia.app)
 
 **Implementado en monorepo:** `backend/` con `POST /api/tia/notify` + alias `/api/lidia/notify`.
 
@@ -8,9 +8,10 @@ El frontend Vercel ([web/lib/tia-backend.ts](../web/lib/tia-backend.ts)) llama p
 
 ## Deploy
 
-1. Render Blueprint → [render.yaml](../render.yaml) → servicio `remesa-tia-backend`
-2. Env vars: `BOT_INTERNAL_URL`, `BOT_INTERNAL_SECRET`
-3. Vercel: `RENDER_BACKEND_URL=https://remesa-tia-backend.onrender.com`
+1. Vercel proyecto `remesa-tia-backend` (Root Directory `backend`)
+2. Env en **ese** proyecto: `BOT_INTERNAL_URL` (HTTPS público, nunca localhost), `BOT_INTERNAL_SECRET`
+3. En el proyecto **frontend** `web` (web-coral-pi-66): `RENDER_BACKEND_URL=https://remesa-tia-backend.vercel.app`
+4. `STELLAR_TESTNET_SECRET` solo en `.env` local — no en Vercel
 
 ## WhatsApp
 
