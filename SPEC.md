@@ -30,12 +30,23 @@
 
 Check only when **working in prod/devnet**, not when scaffolded.
 
-### On-chain flow
+### On-chain flow — Solana (**PAUSED**, kept for reference)
 
 - [x] Sender creates reservation (`initialize_reservation`) via MWA
 - [x] Sender approves receiver (`mark_verified`)
 - [ ] Comercio liquidates (`validate_cashout` Blink) — E2E with beta user
 - [x] Merchant UI (`/merchant`) + Dial.to fallback
+
+### On-chain flow — Stellar (active rail)
+
+- [x] Soroban crate builds and tests clean (2.8 KB wasm)
+- [ ] `initialize_reservation` transfers USDC into contract custody
+- [ ] `validate_cashout` splits 99.75/0.25 to merchant + treasury
+- [ ] `register_merchant` registry + active/inactive status
+- [ ] Reservation expiry (`expires_at`) + `cancel_reservation` refund
+- [ ] Decide whether the receiver co-signs cash-out (merchant is sole signer today)
+- [ ] Deploy to testnet + `STELLAR_CONTRACT_ID` in `.env`
+- [ ] `NEXT_PUBLIC_DEFAULT_CHAIN=stellar` + Accesly onboarding live
 
 ### TIA / WhatsApp
 
@@ -45,7 +56,10 @@ Check only when **working in prod/devnet**, not when scaffolded.
 - [x] WhatsApp template includes Blink `preview_url` (text fallback; no ElevenLabs required)
 - [x] Manual override `POST /api/tia/manual-notify` (Do Things That Don't Scale)
 
-### Prova attestation (devnet — fail-open)
+### Prova attestation (devnet — fail-open) — **PAUSED, Solana only**
+
+Blocked by the 14 sep Stellar-only call; `PROVA_ENABLED=false` keeps the
+remesa flow unaffected. Do not work these items.
 
 - [ ] `npm run register-prova:devnet` → `NEXT_PUBLIC_PROVA_AGENT_PDA` in `.env`
 - [ ] `PROVA_ENABLED=true` on Render + Vercel (agent/operator keys server-side only)
@@ -54,13 +68,19 @@ Check only when **working in prod/devnet**, not when scaffolded.
 - [ ] Cashout attest: `/api/notify/cashout` after merchant `validate_cashout`
 - [ ] `/status` shows Prova explorer link for TIA agent
 
-### Nirium x402 (premium API — fail-closed when disabled)
+### Nirium x402 (premium API — **first revenue surface**)
+
+No custody and no escrow dependency, so this can bill real USDC while the
+Soroban contract is still on testnet.
 
 - [ ] `X402_FACILITATOR_API_KEY` from [OpenZeppelin testnet](https://channels.openzeppelin.com/testnet/gen)
 - [ ] `STELLAR_PAY_TO` + `NIRIUM_X402_ENABLED=true` on Render backend
 - [ ] `curl -i $BACKEND/premium/fx` returns **402** without payment
 - [ ] `npm run x402:smoke` returns **200** + Stellar testnet tx verifiable
 - [ ] `/status` shows TIA Premium API (x402) row with prices
+- [ ] Mainnet `STELLAR_PAY_TO` funded with USDC trustline (1.5 XLM) — required
+      to receive any real revenue
+- [ ] First paid call from a **non-founder** account (self-paying does not count)
 
 ### Users & GTM
 
@@ -166,7 +186,7 @@ See [docs/nirium-x402-integration.md](docs/nirium-x402-integration.md).
 | Date | Change | Reason (user **problem**, not feature) | Approved |
 |------|--------|----------------------------------------|----------|
 | 16 jun | Initial Bridge spec | Kick Off | Founder |
-| | | | |
+| 14 sep | **Stellar only; Solana paused** | Focus. Two rails split the effort while neither reached a real cash-out; Stellar carries the only working revenue surface (x402, no custody) and the onboarding receivers can actually use (Accesly). See [dual-chain-decision.md](docs/dual-chain-decision.md) | Founder |
 
 ---
 
