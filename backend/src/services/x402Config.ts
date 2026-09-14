@@ -14,8 +14,8 @@ function stellarNetworkId(): "stellar:testnet" | "stellar:pubnet" {
 
 export function getX402Prices() {
   return {
-    bridgeQuote: process.env.NIRIUM_X402_BRIDGE_PRICE ?? "0.02",
-    fx: process.env.NIRIUM_X402_FX_PRICE ?? "0.01",
+    bridgeQuote: process.env.NIRIUM_X402_BRIDGE_PRICE ?? "0.25",
+    fx: process.env.NIRIUM_X402_FX_PRICE ?? "0.10",
   };
 }
 
