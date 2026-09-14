@@ -1,10 +1,11 @@
 /**
- * Smoke test: paid x402 call to TIA premium API (Stellar testnet).
+ * Smoke test: paid x402 call to TIA premium API.
+ * Network follows the unpaid 402 (pubnet vs testnet). Do not hardcode testnet.
  *
  * Prereqs:
- *   - NIRIUM_X402_ENABLED=true on backend + valid STELLAR_PAY_TO + X402_FACILITATOR_API_KEY
+ *   - NIRIUM_X402_ENABLED=true on backend + STELLAR_PAY_TO + X402_FACILITATOR_API_KEY
  *   - STELLAR_TESTNET_SECRET in local .env only (never Vercel — it signs payments)
- *   - RENDER_BACKEND_URL (frontend env / local). Prod: https://remesa-tia-backend.vercel.app
+ *   - RENDER_BACKEND_URL. Prod: https://remesa-tia-backend.vercel.app
  */
 import "dotenv/config";
 import { Agent } from "nirium";
@@ -14,6 +15,33 @@ const backendUrl =
   process.env.RENDER_BACKEND_URL?.replace(/\/$/, "") ?? "http://localhost:3000";
 const targetPath = process.env.X402_SMOKE_PATH ?? "/premium/fx";
 const premiumUrl = `${backendUrl}${targetPath.startsWith("/") ? targetPath : `/${targetPath}`}`;
+
+type StellarX402Network = "stellar:testnet" | "stellar:pubnet";
+
+function redact(value: string): string {
+  return value.replace(/S[A-Z2-7]{54,}/g, "S…REDACTED");
+}
+
+function resolveNetwork(unpaid: Response): StellarX402Network {
+  const forced = process.env.X402_SMOKE_NETWORK?.trim();
+  if (forced === "stellar:pubnet" || forced === "stellar:testnet") {
+    return forced;
+  }
+  const header = [
+    unpaid.headers.get("payment-required"),
+    unpaid.headers.get("PAYMENT-REQUIRED"),
+  ]
+    .filter(Boolean)
+    .join(" ");
+  if (/stellar:pubnet|pubnet/i.test(header)) return "stellar:pubnet";
+  if (/stellar:testnet|testnet/i.test(header)) return "stellar:testnet";
+  const env = process.env.STELLAR_NETWORK?.trim();
+  if (env === "pubnet" || env === "mainnet") return "stellar:pubnet";
+  if (backendUrl.includes("remesa-tia-backend.vercel.app")) {
+    return "stellar:pubnet";
+  }
+  return "stellar:testnet";
+}
 
 async function main() {
   if (!secretKey) {
@@ -28,9 +56,12 @@ async function main() {
   if (unpaid.status !== 402) {
     const body = await unpaid.text();
     throw new Error(
-      `Expected 402 Payment Required, got ${unpaid.status}: ${body.slice(0, 200)}`
+      `Expected 402 Payment Required, got ${unpaid.status}: ${redact(body.slice(0, 200))}`
     );
   }
+
+  const network = resolveNetwork(unpaid);
+  console.log(`[x402-smoke] Paying on ${network}`);
 
   const agent = new Agent({
     apiKey: process.env.NIRIUM_API_KEY ?? "smoke-local",
@@ -38,7 +69,7 @@ async function main() {
   });
   agent.initX402({
     secretKey,
-    network: "stellar:testnet",
+    network,
   });
 
   console.log(`[x402-smoke] Paid fetch → ${premiumUrl}`);
@@ -46,31 +77,36 @@ async function main() {
   try {
     response = await agent.x402Fetch(premiumUrl);
   } catch (err: unknown) {
-    const msg = err instanceof Error ? err.message : String(err);
+    const msg = redact(err instanceof Error ? err.message : String(err));
     if (/balance|trustline|USDC/i.test(msg)) {
       console.error(
-        "\n[x402-smoke] Payer needs ≥0.01 USDC on Stellar testnet.\n" +
-          "Run: npm run fund-x402-payer\n" +
-          "Then request USDC at https://faucet.circle.com/ → Stellar Testnet\n"
+        network === "stellar:pubnet"
+          ? "\n[x402-smoke] Payer needs ≥0.01 USDC Circle on Stellar mainnet + trustline.\n"
+          : "\n[x402-smoke] Payer needs ≥0.01 USDC on Stellar testnet.\n" +
+              "Run: npm run fund-x402-payer\n" +
+              "Then request USDC at https://faucet.circle.com/ → Stellar Testnet\n"
       );
     }
-    throw err;
+    throw new Error(msg);
   }
 
   if (!response.ok) {
     const text = await response.text();
-    throw new Error(`Paid request failed: ${response.status} ${text}`);
+    throw new Error(`Paid request failed: ${response.status} ${redact(text)}`);
   }
 
   const payload = await response.json();
   console.log("[x402-smoke] OK — response:");
   console.log(JSON.stringify(payload, null, 2));
-  console.log(
-    "\nVerify payment on https://stellar.expert/explorer/testnet (source = your testnet account)."
-  );
+  const explorer =
+    network === "stellar:pubnet"
+      ? "https://stellar.expert/explorer/public"
+      : "https://stellar.expert/explorer/testnet";
+  console.log(`\nVerify payment on ${explorer} (source = Freighter payer).`);
 }
 
 main().catch((err) => {
-  console.error("[x402-smoke] FAILED:", err);
+  const msg = redact(err instanceof Error ? err.stack ?? err.message : String(err));
+  console.error("[x402-smoke] FAILED:", msg);
   process.exit(1);
 });

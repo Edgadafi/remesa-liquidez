@@ -27,9 +27,10 @@ No es remesa E2E (sender → cashout). Es el smoke de cobro TIA Premium.
 | Fecha | 14 sep 2026 |
 | Backend | `https://remesa-tia-backend.vercel.app` |
 | `GET /health` | 200 |
-| `GET /premium/fx` unpaid | **402** `payment-required` · `stellar:testnet` · payTo `GAAXQWE6MSE3L3HR2HW7B2H5ZCAUCKJIQL7KA3MXK65MBWHLZWOMHRN2` |
-| `/status` | TIA Premium API EN LÍNEA · $0.02 puente · $0.01 FX |
-| Paid `x402:smoke` | **200** + tx [e08479dc…f655](https://stellar.expert/explorer/testnet/tx/e08479dcbca161deb0886f8c0d738940704c923c468371c4ec60b6635af5f655) · `{ ok, pair: USD/MXN, rate: 17.111, isLive: true }` |
+| `GET /premium/fx` unpaid | **402** `payment-required` · `stellar:pubnet` · payTo `GBRMBOEGDTF72FP72D7OQLICBXVTSG25GYWZ3W7TNCLD47NEYVU7JUBS` |
+| `/status` | TIA Premium API EN LÍNEA · `stellar:pubnet` · $0.02 puente · $0.01 FX |
+| Paid `x402:smoke` | **200** pubnet + tx [f20a580a…d35bfd](https://stellar.expert/explorer/public/tx/f20a580aed9220201c48aabd26eaf2a99ae840afd063bfb85131879eded35bfd) · `{ ok, pair: USD/MXN, rate: 17.141, isLive: true }` · 0.01 USDC Circle Freighter → Lobstr |
+| Paid testnet (prior) | [e08479dc…f655](https://stellar.expert/explorer/testnet/tx/e08479dcbca161deb0886f8c0d738940704c923c468371c4ec60b6635af5f655) |
 | Log | [nirium-x402-integration.md](../../nirium-x402-integration.md#smoke-log-tracker) |
 
 ## Tx 0 — Referencia fundador (e2e script)
