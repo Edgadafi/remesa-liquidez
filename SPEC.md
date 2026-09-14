@@ -41,6 +41,8 @@ Check only when **working in prod/devnet**, not when scaffolded.
 
 - [x] Soroban crate builds and tests clean (2.8 KB wasm)
 - [ ] `initialize_reservation` transfers USDC into contract custody
+- [ ] Reject a `reservation_id` that already exists — `storage().set()` currently
+      overwrites the slot, which becomes a custody bug once funds are held
 - [ ] `validate_cashout` splits 99.75/0.25 to merchant + treasury
 - [ ] `register_merchant` registry + active/inactive status
 - [ ] Reservation expiry (`expires_at`) + `cancel_reservation` refund
