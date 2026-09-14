@@ -59,7 +59,7 @@ Check only when **working in prod/devnet**, not when scaffolded.
 - [x] `X402_FACILITATOR_API_KEY` from [OpenZeppelin testnet](https://channels.openzeppelin.com/testnet/gen) — set on `remesa-tia-backend` (14 sep 2026)
 - [x] `STELLAR_PAY_TO` + `NIRIUM_X402_ENABLED=true` on Vercel `remesa-tia-backend` (testnet `GAAXQWE6…`)
 - [x] `curl -i $BACKEND/premium/fx` returns **402** without payment — prod `https://remesa-tia-backend.vercel.app/premium/fx` (14 sep 2026, GitHub deploy `15981ab`)
-- [ ] `npm run x402:smoke` returns **200** + Stellar testnet tx verifiable — unpaid 402 only; paid smoke still needs local `STELLAR_TESTNET_SECRET` + USDC
+- [x] `npm run x402:smoke` returns **200** + Stellar testnet tx verifiable — `{ ok, pair: USD/MXN, rate: 17.111, isLive: true }` + [e08479dc…f655](https://stellar.expert/explorer/testnet/tx/e08479dcbca161deb0886f8c0d738940704c923c468371c4ec60b6635af5f655) (14 sep 2026; no cierra las 3 txs remesa E2E)
 - [x] `/status` shows TIA Premium API (x402) row with prices — `stellar:testnet · puente $0.02 · tipo de cambio $0.01` on `web-coral-pi-66`
 
 ### Users & GTM
@@ -170,6 +170,7 @@ See [docs/nirium-x402-integration.md](docs/nirium-x402-integration.md).
 |------|--------|----------------------------------------|----------|
 | 16 jun | Initial Bridge spec | Kick Off | Founder |
 | 14 sep | x402 unpaid smoke checked; Soroban USDC lock/cashout | Rail cobraba 402 pero el escrow Stellar no movía USDC | Founder |
+| 14 sep | x402 paid smoke 200 + tx e08479dc | Cobro FX live verificado; no sustituye 3 txs remesa E2E | Founder |
 
 ---
 

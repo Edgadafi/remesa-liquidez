@@ -29,7 +29,7 @@ No es remesa E2E (sender → cashout). Es el smoke de cobro TIA Premium.
 | `GET /health` | 200 |
 | `GET /premium/fx` unpaid | **402** `payment-required` · `stellar:testnet` · payTo `GAAXQWE6MSE3L3HR2HW7B2H5ZCAUCKJIQL7KA3MXK65MBWHLZWOMHRN2` |
 | `/status` | TIA Premium API EN LÍNEA · $0.02 puente · $0.01 FX |
-| Paid `x402:smoke` | **No** — falta tx hash (secret solo local) |
+| Paid `x402:smoke` | **200** + tx [e08479dc…f655](https://stellar.expert/explorer/testnet/tx/e08479dcbca161deb0886f8c0d738940704c923c468371c4ec60b6635af5f655) · `{ ok, pair: USD/MXN, rate: 17.111, isLive: true }` |
 | Log | [nirium-x402-integration.md](../../nirium-x402-integration.md#smoke-log-tracker) |
 
 ## Tx 0 — Referencia fundador (e2e script)
