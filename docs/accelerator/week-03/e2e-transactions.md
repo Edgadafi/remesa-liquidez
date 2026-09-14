@@ -18,6 +18,20 @@ Meta Sem 3: **3 txs E2E** sender → verify → WhatsApp → cashout.
 | Beta user (Y/N) | | | |
 | Notas | | | |
 
+## Tx x402 — Premium API (14 sep 2026)
+
+No es remesa E2E (sender → cashout). Es el smoke de cobro TIA Premium.
+
+| Campo | Valor |
+|-------|--------|
+| Fecha | 14 sep 2026 |
+| Backend | `https://remesa-tia-backend.vercel.app` |
+| `GET /health` | 200 |
+| `GET /premium/fx` unpaid | **402** `payment-required` · `stellar:testnet` · payTo `GAAXQWE6MSE3L3HR2HW7B2H5ZCAUCKJIQL7KA3MXK65MBWHLZWOMHRN2` |
+| `/status` | TIA Premium API EN LÍNEA · $0.02 puente · $0.01 FX |
+| Paid `x402:smoke` | **No** — falta tx hash (secret solo local) |
+| Log | [nirium-x402-integration.md](../../nirium-x402-integration.md#smoke-log-tracker) |
+
 ## Tx 0 — Referencia fundador (e2e script)
 
 Generar con:

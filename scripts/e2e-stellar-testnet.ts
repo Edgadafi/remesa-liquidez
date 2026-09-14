@@ -1,11 +1,13 @@
 #!/usr/bin/env npx ts-node
 /**
- * Stellar testnet E2E smoke — Accesly + Soroban Phase B.
+ * Stellar testnet E2E smoke — Accesly + Soroban USDC lock.
  *
  * Prerequisites:
- *   1. soroban contract build && deploy → STELLAR_CONTRACT_ID
- *   2. NEXT_PUBLIC_ACCESLY_APP_ID from dev.accesly.xyz
- *   3. Accesly wallet funded on testnet (via CreateWalletFlow in web UI)
+ *   1. cd contracts/remesa-tia-stellar && cargo test
+ *   2. soroban contract deploy with constructor: admin, USDC SAC, treasury
+ *      Testnet USDC SAC: CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUZ2BQN4WFRIE3USCIHMXQDAMAA
+ *   3. STELLAR_CONTRACT_ID + NEXT_PUBLIC_ACCESLY_APP_ID
+ *   4. Accesly wallet funded + USDC trustline on testnet
  *
  * Run: npm run e2e:stellar:testnet
  * @see docs/accesly-integration.md

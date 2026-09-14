@@ -1,8 +1,9 @@
 /**
- * Stellar remesa invoke helpers — Phase B.
+ * Stellar remesa invoke helpers — USDC SAC lock is on-chain in the contract.
  * Builds Soroban contract calls for remesa-tia-stellar escrow.
  *
  * Requires STELLAR_CONTRACT_ID / NEXT_PUBLIC_STELLAR_CONTRACT_ID after deploy.
+ * Constructor already binds Circle USDC SAC + treasury; invoke only passes parties + amount.
  * Signing via Accesly: useAccesly().tx.signRawXdr() after unlockForSigning.
  */
 import { getStellarContractId } from "@/lib/chain/stellar";

@@ -56,11 +56,11 @@ Check only when **working in prod/devnet**, not when scaffolded.
 
 ### Nirium x402 (premium API — fail-closed when disabled)
 
-- [ ] `X402_FACILITATOR_API_KEY` from [OpenZeppelin testnet](https://channels.openzeppelin.com/testnet/gen)
-- [ ] `STELLAR_PAY_TO` + `NIRIUM_X402_ENABLED=true` on Vercel `remesa-tia-backend`
-- [ ] `curl -i $BACKEND/premium/fx` returns **402** without payment
-- [ ] `npm run x402:smoke` returns **200** + Stellar testnet tx verifiable
-- [ ] `/status` shows TIA Premium API (x402) row with prices
+- [x] `X402_FACILITATOR_API_KEY` from [OpenZeppelin testnet](https://channels.openzeppelin.com/testnet/gen) — set on `remesa-tia-backend` (14 sep 2026)
+- [x] `STELLAR_PAY_TO` + `NIRIUM_X402_ENABLED=true` on Vercel `remesa-tia-backend` (testnet `GAAXQWE6…`)
+- [x] `curl -i $BACKEND/premium/fx` returns **402** without payment — prod `https://remesa-tia-backend.vercel.app/premium/fx` (14 sep 2026, GitHub deploy `15981ab`)
+- [ ] `npm run x402:smoke` returns **200** + Stellar testnet tx verifiable — unpaid 402 only; paid smoke still needs local `STELLAR_TESTNET_SECRET` + USDC
+- [x] `/status` shows TIA Premium API (x402) row with prices — `stellar:testnet · puente $0.02 · tipo de cambio $0.01` on `web-coral-pi-66`
 
 ### Users & GTM
 
@@ -82,7 +82,7 @@ Check only when **working in prod/devnet**, not when scaffolded.
 
 ## Post-MVP (do not build during Bridge unless spec change approved)
 
-- **Stellar Soroban escrow** — dual-chain PoC in `contracts/remesa-tia-stellar/` ([dual-chain-decision.md](docs/dual-chain-decision.md)); Solana wins pilot until metrics say otherwise
+- **Stellar Soroban escrow deploy** — USDC SAC lock/cashout is wired in `contracts/remesa-tia-stellar/` (testnet, not deployed); Solana wins pilot until metrics say otherwise ([dual-chain-decision.md](docs/dual-chain-decision.md))
 - Mainnet + formal audit
 - **Recurring / automated transfers** (keeper — set once, TIA runs every payday) — @remesatia blueprint
 - ElevenLabs real-time voice pipeline / WhatsApp PTT
@@ -169,7 +169,7 @@ See [docs/nirium-x402-integration.md](docs/nirium-x402-integration.md).
 | Date | Change | Reason (user **problem**, not feature) | Approved |
 |------|--------|----------------------------------------|----------|
 | 16 jun | Initial Bridge spec | Kick Off | Founder |
-| | | | |
+| 14 sep | x402 unpaid smoke checked; Soroban USDC lock/cashout | Rail cobraba 402 pero el escrow Stellar no movía USDC | Founder |
 
 ---
 

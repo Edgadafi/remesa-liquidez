@@ -72,6 +72,19 @@ Mezclar un `G` de testnet (p. ej. `GAAXQWE6…`) con `stellar:pubnet` no cobra.
 
 Verifica el pago en [Stellar Expert testnet](https://stellar.expert/explorer/testnet).
 
+## Smoke log (tracker)
+
+Checked only when observed on **prod**, not scaffold. Paid `x402:smoke` 200 stays open until a Stellar tx hash exists.
+
+| Fecha | Probe | Resultado | Evidencia |
+|-------|-------|-----------|-----------|
+| 14 sep 2026 | `GET /health` | **200** `ok:true` agent TIA | `https://remesa-tia-backend.vercel.app/health` — GitHub deploy `15981ab` / `dpl_2suARVcSE5D7Ma7buo5fh4G46nsa` |
+| 14 sep 2026 | `GET /premium/fx` unpaid | **402** + `payment-required` | `stellar:testnet` · asset SAC `CBIELTK6…` · payTo `GAAXQWE6…` |
+| 14 sep 2026 | `/status` Premium API | **EN LÍNEA** | `web-coral-pi-66` · puente $0.02 · FX $0.01 |
+| — | `npm run x402:smoke` paid | pendiente | Requiere `STELLAR_TESTNET_SECRET` local + USDC testnet; **nunca** en Vercel |
+
+Vars de cobro viven en Vercel `remesa-tia-backend`. `RENDER_BACKEND_URL` vive en el proyecto **web**.
+
 ## Archivos clave
 
 | Path | Rol |

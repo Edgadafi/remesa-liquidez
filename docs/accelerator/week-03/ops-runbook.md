@@ -5,18 +5,23 @@
 ## Smoke semanal (15 min)
 
 ```bash
-# 1. On-chain E2E
+# 1. On-chain E2E (Solana)
 npm run e2e:devnet
 
-# 2. Backend TIA
-curl https://remesa-tia-backend.vercel.app/health
+# 2. Backend TIA + x402 unpaid
+curl -sS https://remesa-tia-backend.vercel.app/health
+curl -sS -o /dev/null -w "%{http_code}\n" -D - https://remesa-tia-backend.vercel.app/premium/fx | head -20
+# Esperado: 200 health, 402 fx + header payment-required
 
 # 3. Frontend
 curl -s https://web-coral-pi-66.vercel.app/actions.json | head -c 200
+curl -s https://web-coral-pi-66.vercel.app/status | grep -o 'remesa-tia-backend.vercel.app' | head -1
 
 # 4. WhatsApp (opcional — número test)
 npm run backend:smoke -- 521234567890
 ```
+
+Último unpaid x402 en prod: **14 sep 2026** — ver [nirium-x402-integration.md](../../nirium-x402-integration.md#smoke-log-tracker) y casillas en [SPEC.md](../../../SPEC.md).
 
 ## Deploy checklist
 

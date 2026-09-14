@@ -56,7 +56,7 @@ export async function stellarHealthCheck(): Promise<{ ok: boolean; message: stri
   }
   return {
     ok: true,
-    message: "Contract ID configured — invoke via Accesly tx.signRawXdr (Phase B)",
+    message: "Contract ID configured — initialize_reservation locks USDC SAC",
   };
 }
 
