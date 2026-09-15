@@ -3,12 +3,10 @@ import idl from "@/idl/remesa_liquidez.json";
 import { TIA, TIA_FONT } from "@/lib/tia-brand";
 import { SiteNav } from "@/components/SiteNav";
 import { CopyValue } from "@/components/CopyValue";
+import { resolveBackendHealth } from "@/lib/tia-backend";
 
 const programId =
   typeof idl.address === "string" ? idl.address : "Fprb6jTLfjXfZ6yuWzS7LVXxwVvPbPgPZiEqDEL9bRfj";
-
-const backendUrl =
-  process.env.RENDER_BACKEND_URL ?? "https://remesa-tia-backend.vercel.app";
 
 const provaAgentPda = process.env.NEXT_PUBLIC_PROVA_AGENT_PDA ?? "";
 const acceslyAppId = process.env.NEXT_PUBLIC_ACCESLY_APP_ID ?? "";
@@ -22,45 +20,7 @@ export const metadata: Metadata = {
   description: "Estado de servicios TIA — holatia.app.",
 };
 
-interface BackendHealth {
-  ok: boolean;
-  detail: string;
-  prova?: {
-    enabled: boolean;
-    active: boolean;
-    agentPda: string | null;
-    attestationCount?: number;
-  };
-  x402?: {
-    enabled: boolean;
-    network: string;
-    payTo: string | null;
-    routes: Record<string, string>;
-  };
-}
-
 type ServiceTone = "live" | "wait";
-
-async function fetchHealth(url: string): Promise<BackendHealth> {
-  try {
-    const res = await fetch(`${url}/health`, { next: { revalidate: 60 } });
-    if (!res.ok) return { ok: false, detail: `HTTP ${res.status}` };
-    const data = (await res.json()) as {
-      status?: string;
-      agent?: string;
-      prova?: BackendHealth["prova"];
-      x402?: BackendHealth["x402"];
-    };
-    return {
-      ok: true,
-      detail: data.status ?? data.agent ?? "ok",
-      prova: data.prova,
-      x402: data.x402,
-    };
-  } catch {
-    return { ok: false, detail: "Sin respuesta" };
-  }
-}
 
 function provaExplorerUrl(agentPda: string): string {
   return `https://www.theprova.xyz/explorer?agent=${encodeURIComponent(agentPda)}`;
@@ -75,7 +35,7 @@ function humanBackendDetail(detail: string): string {
 }
 
 export default async function StatusPage() {
-  const tiaBackend = await fetchHealth(backendUrl);
+  const { backendUrl, health: tiaBackend } = await resolveBackendHealth();
   const provaPda = tiaBackend.prova?.agentPda || provaAgentPda || null;
 
   const prova: { tone: ServiceTone; badge: string; detail: string } =

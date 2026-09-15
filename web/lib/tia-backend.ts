@@ -4,6 +4,7 @@
  * Rutas:
  *   POST /api/tia/notify   — canónica
  *   POST /api/lidia/notify — alias legacy (remesa-blink en Render hasta migrar)
+ *   GET  /health           — status + x402 prices
  */
 
 const DEFAULT_PATHS = ["/api/tia/notify", "/api/lidia/notify"] as const;
@@ -61,7 +62,6 @@ export async function notifyTiaBackend(
       lastError = `${path} → ${res.status}: ${await res.text()}`;
       console.warn(`[TIA] notify falló en ${path}:`, lastError);
 
-      // 404 en ruta nueva → probar legacy
       if (res.status === 404) continue;
       return { ok: false, notified: false, path, status: res.status, error: lastError };
     } catch (err) {
@@ -71,4 +71,67 @@ export async function notifyTiaBackend(
   }
 
   return { ok: false, notified: false, error: lastError ?? "Sin respuesta del backend TIA" };
+}
+
+export const DEFAULT_TIA_BACKEND = "https://remesa-tia-backend.vercel.app";
+
+export function configuredBackendUrl(): string {
+  return (process.env.RENDER_BACKEND_URL ?? DEFAULT_TIA_BACKEND).replace(/\/$/, "");
+}
+
+export interface BackendHealth {
+  ok: boolean;
+  detail: string;
+  prova?: {
+    enabled: boolean;
+    active: boolean;
+    agentPda: string | null;
+    attestationCount?: number;
+  };
+  x402?: {
+    enabled: boolean;
+    network: string;
+    payTo: string | null;
+    routes: Record<string, string>;
+  };
+}
+
+async function fetchHealth(url: string): Promise<BackendHealth> {
+  try {
+    const res = await fetch(`${url}/health`, { next: { revalidate: 60 } });
+    if (!res.ok) return { ok: false, detail: `HTTP ${res.status}` };
+    const data = (await res.json()) as {
+      status?: string;
+      agent?: string;
+      prova?: BackendHealth["prova"];
+      x402?: BackendHealth["x402"];
+    };
+    return {
+      ok: true,
+      detail: data.status ?? data.agent ?? "ok",
+      prova: data.prova,
+      x402: data.x402,
+    };
+  } catch {
+    return { ok: false, detail: "Sin respuesta" };
+  }
+}
+
+/** Prefer configured URL; if it is down or x402 is off, fall back to the live Vercel API. */
+export async function resolveBackendHealth(): Promise<{
+  backendUrl: string;
+  health: BackendHealth;
+}> {
+  const configured = configuredBackendUrl();
+  const primary = await fetchHealth(configured);
+  if (primary.ok && primary.x402?.enabled) {
+    return { backendUrl: configured, health: primary };
+  }
+  if (configured !== DEFAULT_TIA_BACKEND) {
+    const fallback = await fetchHealth(DEFAULT_TIA_BACKEND);
+    if (fallback.ok) {
+      return { backendUrl: DEFAULT_TIA_BACKEND, health: fallback };
+    }
+  }
+  return { backendUrl: configured, health: primary };
 }

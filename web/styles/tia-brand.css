@@ -401,6 +401,26 @@ a[aria-disabled="true"] {
   background: transparent;
   color: inherit;
   cursor: pointer;
+  align-self: flex-start;
+}
+
+.copy-command {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.copy-command pre {
+  margin: 0;
+  width: 100%;
+  overflow-x: auto;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  line-height: 1.5;
+  color: inherit;
+  white-space: pre-wrap;
+  word-break: break-word;
 }
 
 @media (prefers-reduced-motion: reduce) {
