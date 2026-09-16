@@ -6,10 +6,18 @@ Backend TIA de holatia.app — notificaciones WhatsApp y API premium x402.
 
 | Método | Ruta | Descripción |
 |--------|------|-------------|
-| GET | `/health` | Health check |
+| GET | `/health` | Health check (incluye rutas x402 + precios) |
 | POST | `/api/tia/notify` | Notificación TIA → WhatsApp |
 | POST | `/api/tia/manual-notify` | Override manual (Bearer `TIA_MANUAL_OVERRIDE_SECRET`) |
 | POST | `/api/lidia/notify` | Alias legacy (mismo handler) |
+| GET | `/premium/fx` | x402 $0.10 — USD/MXN last (Bitso) |
+| GET | `/premium/bridge-quote` | x402 $0.25 — LI.FI EVM→Solana |
+| GET | `/v1/quote` | x402 $0.10 — USD/MXN + spread + volumen 24h |
+| GET | `/v1/route?amount=USD` | x402 $0.25 — mejor ruta USD→MXN + supuestos |
+| POST | `/v1/alert` | x402 $0.10 — alerta umbral con webhook (one-shot) |
+| POST | `/v1/alert/check` | Bearer `CRON_SECRET` — evalúa y dispara alertas (cron) |
+
+Smoke local del stack v1 (facilitador mock, sin pagos): `npm run smoke:v1`.
 
 ## Payload `POST /api/tia/notify`
 

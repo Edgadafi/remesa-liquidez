@@ -2,16 +2,20 @@ import express from "express";
 import * as niriumNs from "nirium";
 import tiaRouter from "./routes/tia.js";
 import premiumRouter from "./routes/premium.js";
+import v1Router from "./routes/v1.js";
 import { publicOrigin } from "./middleware/publicOrigin.js";
 import { getProvaStatus } from "./services/prova.js";
 import {
   getX402ServeConfig,
   getX402Status,
+  getX402V1ServeConfig,
   isX402Enabled,
 } from "./services/x402Config.js";
 
 type X402Serve = (
-  config: ReturnType<typeof getX402ServeConfig>
+  config:
+    | ReturnType<typeof getX402ServeConfig>
+    | ReturnType<typeof getX402V1ServeConfig>
 ) => express.RequestHandler;
 
 function resolveX402Serve(): X402Serve {
@@ -66,7 +70,11 @@ export function createApp() {
 
   const premiumEndpoints = isX402Enabled()
     ? `<li><code>GET /premium/bridge-quote</code> (x402)</li>
-<li><code>GET /premium/fx</code> (x402)</li>`
+<li><code>GET /premium/fx</code> (x402)</li>
+<li><code>GET /v1/quote</code> (x402)</li>
+<li><code>GET /v1/route?amount=USD</code> (x402)</li>
+<li><code>POST /v1/alert</code> (x402)</li>
+<li><code>POST /v1/alert/check</code> (Bearer cron)</li>`
     : "";
 
   app.get("/", (_req, res) => {
@@ -91,8 +99,19 @@ ${premiumEndpoints}
       const x402Config = getX402ServeConfig();
       app.use("/premium", publicOrigin(), x402Serve(x402Config));
       app.use("/premium", premiumRouter);
+
+      // Stack de valor v1 — mismo x402 exact + facilitador; solo cambian rutas
+      // y precios. /v1/alert/check no está en las rutas cobradas: pasa el
+      // middleware x402 sin pago y lo protege su propio Bearer (cron).
+      const v1Config = getX402V1ServeConfig();
+      app.use("/v1", publicOrigin(), x402Serve(v1Config));
+      app.use("/v1", v1Router);
+
       console.log(
-        `[TIA] x402 premium API enabled (${x402Config.network}) → ${Object.keys(x402Config.routes).join(", ")}`
+        `[TIA] x402 premium API enabled (${x402Config.network}) → ${[
+          ...Object.keys(x402Config.routes).map((r) => `/premium ${r}`),
+          ...Object.keys(v1Config.routes).map((r) => `/v1 ${r}`),
+        ].join(", ")}`
       );
     } catch (err) {
       console.error("[TIA] x402 setup failed:", err);
