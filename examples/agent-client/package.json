@@ -5,7 +5,8 @@
   "description": "Minimal agent client that pays for TIA Premium API calls with x402 on Stellar mainnet",
   "type": "module",
   "scripts": {
-    "quote": "tsx index.ts"
+    "quote": "tsx index.ts",
+    "dry-run": "tsx index.ts --dry-run"
   },
   "dependencies": {
     "dotenv": "^16.4.5",

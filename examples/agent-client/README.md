@@ -15,15 +15,34 @@ Pays for one call to the [TIA Premium API](../../docs/agents/README.md) with x40
 ```bash
 cd examples/agent-client
 npm install
+
+# 1) Inspect the payment terms WITHOUT paying (no secret key needed):
+npm run dry-run
+
+# 2) Pay and consume:
 cp .env.example .env      # set STELLAR_SECRET (never commit .env)
 npm run quote
 ```
 
-Expected output:
+`dry-run` output — prints the 402 terms and exits without signing anything:
 
 ```
-[probe] https://remesa-tia-backend.vercel.app/v1/quote → HTTP 402
-[probe] price: 0.1 USDC on stellar:pubnet → GBRMBOEG…
+[dry-run] https://remesa-tia-backend.vercel.app/v1/quote → HTTP 402
+[dry-run] payment terms offered:
+{
+  "resourceUrl": "https://remesa-tia-backend.vercel.app/v1/quote",
+  "network": "stellar:pubnet",
+  "asset": "CCW67TSZ…MI75",
+  "amountBaseUnits": "1000000",
+  "amountUsdc": 0.1,
+  "payTo": "GBRMBOEG…JUBS"
+}
+[dry-run] no payment was signed. Remove --dry-run to pay.
+```
+
+`quote` output — a **single** `x402Fetch` call (the SDK signs the terms of the same 402 it receives, so there is no probe/payment mismatch window):
+
+```
 [paid] HTTP 200 — payload:
 {
   "ok": true,
@@ -35,6 +54,8 @@ Expected output:
   "spread": 0.03,
   ...
 }
+
+Settled on-chain: https://stellar.expert/explorer/public/tx/<hash>
 ```
 
 Try the route estimator instead: set `TIA_TARGET_PATH=/v1/route?amount=250` in `.env`.
@@ -42,5 +63,5 @@ Try the route estimator instead: set `TIA_TARGET_PATH=/v1/route?amount=250` in `
 ## Notes
 
 - `STELLAR_SECRET` stays in your local `.env` — the repo only ships `.env.example` with empty values.
-- The unpaid probe shows you the exact price/asset/destination **before** any payment is signed.
-- Every payment is publicly verifiable on [stellar.expert](https://stellar.expert/explorer/public/account/GBRMBOEGDTF72FP72D7OQLICBXVTSG25GYWZ3W7TNCLD47NEYVU7JUBS).
+- `dry-run` never signs: it is read-only inspection of the offer. The paid path signs exactly the 402 that `x402Fetch` itself receives.
+- Verification comes from the settlement receipt of your own payment (`payment-response` header → tx on stellar.expert), with the expected receiving account documented in [docs/agents/README.md](../../docs/agents/README.md).
