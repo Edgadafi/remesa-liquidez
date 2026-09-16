@@ -11,7 +11,8 @@
     "start": "tsx src/index.ts",
     "typecheck": "tsc --noEmit",
     "smoke:notify": "tsx scripts/smoke-notify.ts",
-    "smoke:v1": "tsx scripts/v1-smoke.ts"
+    "smoke:v1": "tsx scripts/v1-smoke.ts",
+    "watch:payto": "tsx scripts/payto-watch.ts"
   },
   "dependencies": {
     "@lifi/sdk": "^4.4.0",
