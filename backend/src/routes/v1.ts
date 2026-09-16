@@ -59,7 +59,8 @@ router.get("/route", async (req: Request, res: Response) => {
 /** POST /v1/alert — registra alerta de umbral USD/MXN (x402 exact). */
 router.post("/alert", async (req: Request, res: Response) => {
   try {
-    const { status, payload } = await registerAlert(req.body);
+    // Cuota por cliente: IP (trust proxy ya configurado para Vercel).
+    const { status, payload } = await registerAlert(req.body, req.ip ?? "unknown");
     res.status(status).json(payload);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";

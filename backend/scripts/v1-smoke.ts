@@ -4,6 +4,9 @@
  *     mock — mismo wiring de producción vía X402_FACILITATOR_URL.
  *   - Shape del JSON de los handlers pagados (router montado sin x402).
  *   - Ciclo de alertas: registro → check dispara webhook local → one-shot.
+ *   - SSRF: bloqueo de IP decimal/metadata/privadas, reglas prod (https-only,
+ *     loopback), redirects nunca seguidos.
+ *   - Egress: max retries → drop, TTL → expiry, cuota por cliente → 429.
  *
  * Uso: npm run smoke:v1   (desde backend/)
  */
@@ -177,10 +180,22 @@ async function main() {
     fetch(`${bareBase}/v1/alert/check`, {
       method: "POST",
       headers: { Authorization: "Bearer smoke-cron-secret" },
-    }).then((r) => r.json() as Promise<{ fired: number; skipped?: string; rateIsLive: boolean }>);
+    }).then(
+      (r) =>
+        r.json() as Promise<{
+          fired: number;
+          expired: number;
+          dropped: number;
+          webhookErrors: number;
+          checked: number;
+          skipped?: string;
+        }>
+    );
 
   const c1 = await doCheck();
+  let fxLive = true;
   if (c1.skipped === "fx_not_live") {
+    fxLive = false;
     console.log("⚠ Bitso no accesible — disparo omitido (fail-safe correcto)");
     check("check fail-safe sin tasa viva", c1.fired === 0);
   } else {
@@ -194,6 +209,106 @@ async function main() {
     const c2 = await doCheck();
     check("one-shot: segundo check no re-dispara", c2.fired === 0, `fired=${c2.fired}`);
   }
+
+  // 6) SSRF: registros bloqueados (la exención dev es SOLO loopback literal)
+  const ssrfCases: Array<[string, string]> = [
+    ["IP decimal 2130706433", "https://2130706433/hook"],
+    ["IP hex 0x7f000001", "https://0x7f000001/hook"],
+    ["metadata 169.254.169.254", "https://169.254.169.254/hook"],
+    ["privada 10.0.0.8", "https://10.0.0.8/hook"],
+    ["credenciales embebidas", "https://user:pass@example.com/hook"],
+  ];
+  for (const [name, url] of ssrfCases) {
+    const r = await fetch(`${bareBase}/v1/alert`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ webhookUrl: url, threshold: 999, direction: "below" }),
+    });
+    check(`SSRF bloqueado: ${name} → 400`, r.status === 400, `HTTP ${r.status}`);
+  }
+
+  // Reglas de producción (sin exención loopback) directas al validador
+  const { checkWebhookTarget } = await import("../src/services/alerts.js");
+  const prodHttp = await checkWebhookTarget("http://example.com/hook", { allowLoopback: false });
+  check("prod: http:// rechazado", !prodHttp.ok, prodHttp.error);
+  const prodLocal = await checkWebhookTarget("https://localhost/hook", { allowLoopback: false });
+  check("prod: localhost rechazado (DNS→loopback)", !prodLocal.ok, prodLocal.error);
+  const prodOk = await checkWebhookTarget("https://api.bitso.com/hook", { allowLoopback: false });
+  check("prod: host público https aceptado", prodOk.ok === true, prodOk.error);
+
+  if (fxLive) {
+    // 7) Redirects nunca seguidos + max retries → drop
+    let redirectHits = 0;
+    hook.post("/redirect", (_req, res) => {
+      redirectHits++;
+      res.redirect(302, `http://127.0.0.1:${hookSrv.port}/hook`);
+    });
+    const regRedirect = await fetch(`${bareBase}/v1/alert`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        webhookUrl: `http://127.0.0.1:${hookSrv.port}/redirect`,
+        threshold: 999,
+        direction: "below",
+      }),
+    });
+    check("registro webhook redirector → 201", regRedirect.status === 201);
+
+    const hooksBefore = received.length;
+    const r1 = await doCheck();
+    check(
+      "redirect 302 no seguido → fallo, alerta retenida",
+      r1.fired === 0 && r1.webhookErrors === 1 && r1.dropped === 0,
+      `errors=${r1.webhookErrors} dropped=${r1.dropped}`
+    );
+    check("destino del redirect jamás recibió POST", received.length === hooksBefore);
+    const r2 = await doCheck();
+    const r3 = await doCheck();
+    check(
+      "max retries (3) → drop de la alerta",
+      r2.dropped === 0 && r3.dropped === 1 && redirectHits === 3,
+      `r3.dropped=${r3.dropped} hits=${redirectHits}`
+    );
+    const r4 = await doCheck();
+    check("alerta dropeada ya no se revisa", r4.checked === 0, `checked=${r4.checked}`);
+
+    // 8) TTL → expiry sin disparo
+    process.env.ALERTS_TTL_HOURS = "0";
+    const regTtl = await fetch(`${bareBase}/v1/alert`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        webhookUrl: `http://127.0.0.1:${hookSrv.port}/hook`,
+        threshold: 999,
+        direction: "below",
+      }),
+    });
+    delete process.env.ALERTS_TTL_HOURS;
+    check("registro con TTL 0 → 201", regTtl.status === 201);
+    await new Promise((r) => setTimeout(r, 50));
+    const e1 = await doCheck();
+    check("TTL vencido → expira sin disparar", e1.expired === 1 && e1.fired === 0, `expired=${e1.expired}`);
+  }
+
+  // 9) Cuota por cliente (default 5) → 429
+  const quotaReg = () =>
+    fetch(`${bareBase}/v1/alert`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        webhookUrl: `http://127.0.0.1:${hookSrv.port}/hook`,
+        threshold: 0.01, // nunca cruza: no se dispara entre registros
+        direction: "below",
+      }),
+    });
+  let quotaOk = true;
+  for (let i = 0; i < 5; i++) {
+    const r = await quotaReg();
+    if (r.status !== 201) quotaOk = false;
+  }
+  check("cuota: 5 registros del mismo cliente → 201", quotaOk);
+  const overQuota = await quotaReg();
+  check("cuota: 6º registro mismo cliente → 429", overQuota.status === 429, `HTTP ${overQuota.status}`);
 
   mockSrv.close();
   hookSrv.close();

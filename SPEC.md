@@ -79,7 +79,12 @@ Endpoints de inteligencia sobre el mismo x402 exact + facilitador OZ. Prefijo nu
 - [ ] Cron del check: Vercel Cron en plan hobby es 1×/día → cron externo (GitHub Actions schedule o cron-job.org) cada 5–15 min: `curl -X POST -H "Authorization: Bearer $CRON_SECRET" https://remesa-tia-backend.vercel.app/v1/alert/check`
 - [ ] Smoke pagado post-merge en pubnet: `curl -i https://remesa-tia-backend.vercel.app/v1/quote` → 402 con `resource.url` https, y pago real con el agente nirium → 200
 
-**Reglas de alertas:** one-shot (dispara y se borra); webhook fallido se conserva y reintenta; nunca dispara con tasa fallback (`skipped: fx_not_live`); `webhookUrl` solo https y sin hosts privados en prod; máx 100 activas.
+**Reglas de alertas (hardening post security-review PR #6):**
+
+- One-shot: dispara una vez y se borra; nunca dispara con tasa fallback (`skipped: fx_not_live`).
+- **SSRF:** `webhookUrl` solo `https://`; el hostname se resuelve por DNS y se rechaza toda IP privada/loopback/link-local/metadata (IPv4+IPv6, v4-mapped incluidas); formas decimal/octal/hex (`2130706433`, `0x7f000001`) quedan normalizadas por el parser de URL y bloqueadas; sin credenciales embebidas; revalidación del destino en cada disparo; `redirect: "manual"` — un 3xx cuenta como fallo, jamás se sigue; el body de la respuesta no se lee (0 bytes) y el timeout es 5 s. Única exención: loopback literal fuera de producción (harness local).
+- **Egress:** TTL default 48 h (`ALERTS_TTL_HOURS`) — expira sin disparar; máx 3 reintentos (`ALERTS_MAX_RETRIES`) y se elimina; cuota **por cliente (IP, con trust proxy)** default 5 activas (`ALERTS_MAX_PER_CLIENT`) además del cap global de 100. La identidad por IP es proxy del pagador: con el facilitador OZ los pagos van fee-sponsored, así que la cuenta origen de la tx no identifica al pagador de forma fiable.
+- **Follow-up explícito (no incluido):** ownership challenge del webhook (token de verificación eco/HMAC en el registro) antes de subir cuotas o abrir alertas a volumen.
 
 ### Users & GTM
 
