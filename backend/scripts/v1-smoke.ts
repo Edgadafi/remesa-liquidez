@@ -7,8 +7,9 @@
  *   - SSRF: bloqueo de IP decimal/metadata/privadas, reglas prod (https-only,
  *     loopback), redirects nunca seguidos.
  *   - Egress: max retries → drop, TTL → expiry, cuota por cliente → 429.
- *   - Blindaje: X-PAYMENT reusado → 409, header gigante → 400, rate limit
- *     sliding-window → 429 con Retry-After.
+ *   - Blindaje: replay guard (duplicado en vuelo → 409, replay tras 200 →
+ *     409, liberación tras fallo, scope por ruta, fail-closed sin store
+ *     durable → 503), header gigante → 400, rate limit sliding-window → 429.
  *
  * Uso: npm run smoke:v1   (desde backend/)
  */
@@ -109,7 +110,7 @@ async function main() {
   const fx = await fetch(`${base}/premium/fx`);
   check("GET /premium/fx sigue → 402", fx.status === 402, `HTTP ${fx.status}`);
 
-  // 2b) Guardas del X-PAYMENT (antes del middleware x402)
+  // 2b) Guardas del X-PAYMENT en la app real (antes del middleware x402)
   const fakePayment = Buffer.from(JSON.stringify({ smoke: "payload" })).toString("base64");
   const first = await fetch(`${base}/v1/quote`, { headers: { "X-PAYMENT": fakePayment } });
   check(
@@ -117,17 +118,74 @@ async function main() {
     first.status !== 409,
     `HTTP ${first.status}`
   );
-  const replayed = await fetch(`${base}/v1/quote`, { headers: { "X-PAYMENT": fakePayment } });
-  const replayedBody = (await replayed.json()) as { error?: string };
+  // El pago falló (mock sin /verify → no-2xx) → la claim se libera: el mismo
+  // proof puede reintentarse porque el pagador nunca recibió el recurso.
+  const retryAfterFail = await fetch(`${base}/v1/quote`, {
+    headers: { "X-PAYMENT": fakePayment },
+  });
   check(
-    "X-PAYMENT reusado → 409 payment_replayed",
-    replayed.status === 409 && replayedBody.error === "payment_replayed",
-    `HTTP ${replayed.status}`
+    "proof tras pago fallido se libera (reintento NO es 409)",
+    retryAfterFail.status !== 409,
+    `HTTP ${retryAfterFail.status}`
   );
   const huge = await fetch(`${base}/v1/quote`, {
     headers: { "X-PAYMENT": "A".repeat(9 * 1024) },
   });
   check("X-PAYMENT > 8KB → 400", huge.status === 400, `HTTP ${huge.status}`);
+
+  // 2c) Semántica del replay guard (handlers controlados: 200 lento y 402)
+  const { paymentHeaderLimits, paymentReplayGuard } = await import(
+    "../src/middleware/paymentGuard.js"
+  );
+  const guard = express();
+  guard.use(paymentHeaderLimits(), paymentReplayGuard());
+  guard.get("/slow", async (_req, res) => {
+    await new Promise((r) => setTimeout(r, 250));
+    res.json({ ok: true });
+  });
+  guard.get("/fail", (_req, res) => res.status(402).json({ ok: false }));
+  const guardSrv = await listen(guard);
+  const gBase = `http://127.0.0.1:${guardSrv.port}`;
+  const proof = { headers: { "X-PAYMENT": Buffer.from("guard-proof").toString("base64") } };
+
+  // Duplicado EN VUELO con el mismo proof → exactamente un 200 y un 409.
+  const [g1, g2] = await Promise.all([
+    fetch(`${gBase}/slow`, proof),
+    (async () => {
+      await new Promise((r) => setTimeout(r, 60));
+      return fetch(`${gBase}/slow`, proof);
+    })(),
+  ]);
+  const inflight = [g1.status, g2.status].sort();
+  check(
+    "duplicado en vuelo → un 200 y un 409",
+    inflight[0] === 200 && inflight[1] === 409,
+    `statuses=${inflight.join(",")}`
+  );
+  // Tras un 200 (recurso servido) la claim persiste el TTL completo.
+  const g3 = await fetch(`${gBase}/slow`, proof);
+  check("replay tras 200 → 409", g3.status === 409, `HTTP ${g3.status}`);
+  // Scope por ruta: el mismo proof en OTRA ruta tiene claim independiente.
+  const g4 = await fetch(`${gBase}/fail`, proof);
+  check(
+    "mismo proof en otra ruta → claim independiente (no 409)",
+    g4.status === 402,
+    `HTTP ${g4.status}`
+  );
+  // Tras un fallo (402) la claim se libera y el proof puede reintentarse.
+  const g5 = await fetch(`${gBase}/fail`, proof);
+  check("replay tras fallo → liberado (402 de nuevo, no 409)", g5.status === 402, `HTTP ${g5.status}`);
+  // Fail-closed: en modo estricto sin store durable, request pagado → 503.
+  process.env.X402_REPLAY_STRICT = "true";
+  const g6 = await fetch(`${gBase}/fail`, proof);
+  const g6Body = (await g6.json()) as { error?: string };
+  check(
+    "strict sin store durable → 503 replay_protection_unavailable",
+    g6.status === 503 && g6Body.error === "replay_protection_unavailable",
+    `HTTP ${g6.status}`
+  );
+  delete process.env.X402_REPLAY_STRICT;
+  guardSrv.close();
 
   // 3) /health lista las rutas nuevas con precio
   const health = (await (await fetch(`${base}/health`)).json()) as {

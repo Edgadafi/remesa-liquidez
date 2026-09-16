@@ -13,11 +13,21 @@ export interface KvBackend {
    * true → esta invocación ganó la clave (primera vez que se ve).
    */
   claimOnce(key: string, ttlMs: number): Promise<boolean>;
+  /** Libera una claim (p. ej. cuando el pago no terminó en recurso servido). */
+  del(key: string): Promise<void>;
   /**
    * Sliding window: registra un hit y devuelve cuántos hits vivos hay en la
    * ventana (incluido este).
    */
   slidingWindowHit(key: string, windowMs: number, member: string): Promise<number>;
+}
+
+/** true si hay store durable (Upstash) configurado — requerido en producción. */
+export function hasDurableKv(): boolean {
+  return Boolean(
+    process.env.UPSTASH_REDIS_REST_URL?.trim() &&
+      process.env.UPSTASH_REDIS_REST_TOKEN?.trim()
+  );
 }
 
 type UpstashResult<T> = { result: T };
@@ -50,6 +60,9 @@ function upstashBackend(url: string, token: string): KvBackend {
         ["SET", key, "1", "NX", "PX", ttlMs],
       ]);
       return result === "OK";
+    },
+    async del(key) {
+      await pipeline([["DEL", key]]);
     },
     async slidingWindowHit(key, windowMs, member) {
       const now = Date.now();
@@ -90,6 +103,9 @@ function memoryBackend(): KvBackend {
       if (existing !== undefined && existing > now) return false;
       claims.set(key, now + ttlMs);
       return true;
+    },
+    async del(key) {
+      claims.delete(key);
     },
     async slidingWindowHit(key, windowMs, _member) {
       const now = Date.now();

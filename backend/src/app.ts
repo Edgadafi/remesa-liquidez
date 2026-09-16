@@ -9,6 +9,7 @@ import {
   paymentHeaderLimits,
   paymentReplayGuard,
 } from "./middleware/paymentGuard.js";
+import { hasDurableKv } from "./services/kvStore.js";
 import { getProvaStatus } from "./services/prova.js";
 import {
   getX402ServeConfig,
@@ -131,6 +132,16 @@ ${premiumEndpoints}
 
       // Guardas del X-PAYMENT antes del middleware de cobro: tamaño acotado
       // y single-use (replay/free-shopping) — ver middleware/paymentGuard.ts.
+      // En producción el replay guard es fail-closed: sin Upstash, los
+      // requests pagados reciben 503. Avisar en el arranque, no al primer 503.
+      if (
+        !hasDurableKv() &&
+        (process.env.NODE_ENV === "production" || process.env.VERCEL)
+      ) {
+        console.error(
+          "[TIA] x402 SIN store durable: el replay guard rechazará requests pagados (503) hasta configurar UPSTASH_REDIS_REST_URL/TOKEN"
+        );
+      }
       app.use(["/premium", "/v1"], paymentHeaderLimits(), paymentReplayGuard());
 
       app.use("/premium", publicOrigin(), x402Serve(x402Config));

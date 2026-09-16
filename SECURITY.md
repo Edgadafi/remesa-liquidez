@@ -63,7 +63,7 @@ shopping, replay):
 
 | Vector | Mitigación en este repo |
 |---|---|
-| **Free shopping / replay** (misma prueba de pago en N requests concurrentes) | `middleware/paymentGuard.ts`: el sha256 del `X-PAYMENT` se consume **en el primer uso** con `SET NX` atómico (Upstash durable — resiste reinicios; memoria por instancia solo en dev). Requests 2..N → `409 payment_replayed` sin tocar `/verify` ni `/settle`. Defensa secundaria: los sequence numbers de Stellar impiden re-settlear la misma tx firmada. |
+| **Free shopping / replay** (misma prueba de pago en N requests concurrentes) | `middleware/paymentGuard.ts`: el sha256 de (`X-PAYMENT` + método + URL del recurso) se consume **en el primer uso** con `SET NX` atómico (Upstash durable — resiste reinicios). Duplicados en vuelo y replays tras un 200 → `409 payment_replayed` sin tocar `/verify` ni `/settle`. La clave tiene **scope por recurso** (quemar un proof contra otra ruta no bloquea la legítima) y se **libera si el pago no termina en 2xx** (el pagador nunca recibió nada y puede reintentar el mismo proof). En producción es **fail-closed**: sin store durable o con el store caído, los requests con `X-PAYMENT` reciben `503` (`X402_REPLAY_STRICT` lo controla; el 402 de descubrimiento sin pago no se ve afectado). Defensa secundaria: los sequence numbers de Stellar impiden re-settlear la misma tx firmada. |
 | **DoS por payloads de pago gigantes** | Cap de 8 KB al header `X-PAYMENT` y rechazo de headers duplicados, antes de cualquier parseo. |
 | **Asset theft vía metadata del cliente** | El vector ERC-6492 (`factoryCalldata`) es de EVM; en Stellar el cliente firma auth entries de un `transfer` SAC concreto. Aun así: el backend no reenvía **ningún** campo del cliente al facilitador — `x402Serve` construye los requirements desde la config del server (`payTo`, precio, red), nunca desde el request. |
 | **Blast radius de una clave del facilitador comprometida** | El facilitador patrocina fees pero el `payTo` es nuestro y es receive-only. El watcher de Capa 6 detecta patrones anómalos on-chain. |
@@ -106,7 +106,7 @@ shopping, replay):
 | # | Prioridad | Item | Estado |
 |---|---|---|---|
 | 1 | Alta | Clave privada del facilitador en gestor de secretos, nunca en código | ✅ No existe clave de facilitador propia; `X402_FACILITATOR_API_KEY` y todo secreto viven en Vercel env / `.env` local ignorado |
-| 2 | Alta | Nonce consumido en la primera verificación, store durable | ✅ `paymentReplayGuard` — SET NX en Upstash al primer uso del `X-PAYMENT` |
+| 2 | Alta | Nonce consumido en la primera verificación, store durable | ✅ `paymentReplayGuard` — SET NX en Upstash al primer uso, scope por recurso, liberación si el pago falla, fail-closed en producción sin store durable |
 | 3 | Alta | Re-verificación justo antes del settlement | ✅ `x402Serve` verifica y settlea con el facilitador dentro del mismo request que sirve el recurso; nada se sirve con una verificación vieja |
 | 4 | Alta | Rate limiting sliding-window en server | ✅ `rateLimit.ts` en `/premium`, `/v1`, `/api/tia`, `/api/lidia` (el facilitador OZ mantiene el suyo) |
 | 5 | Alta | Validación server-side de todos los parámetros | ✅ zod en notify, bridge-quote, route, alertas |
