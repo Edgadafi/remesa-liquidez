@@ -1,0 +1,19 @@
+{
+  "name": "tia-agent-client-example",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Minimal agent client that pays for TIA Premium API calls with x402 on Stellar mainnet",
+  "type": "module",
+  "scripts": {
+    "quote": "tsx index.ts",
+    "dry-run": "tsx index.ts --dry-run"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "nirium": "^0.11.0"
+  },
+  "devDependencies": {
+    "tsx": "^4.19.0",
+    "typescript": "^5.7.3"
+  }
+}
