@@ -4,6 +4,8 @@
 
 > **Building an AI agent?** The TIA backend sells live USD/MXN intelligence paid per request with x402 on Stellar mainnet — no API key, ~$0.10 USDC per call. Guide + copy-paste TypeScript client: [docs/agents/README.md](docs/agents/README.md) · runnable example: [examples/agent-client/](examples/agent-client/)
 
+> **Seguridad:** el blindaje por capas del rail x402 (claves, contrato, facilitador, servidor, agente cliente, monitoreo) está documentado en [SECURITY.md](SECURITY.md).
+
 ---
 
 ## El problema
