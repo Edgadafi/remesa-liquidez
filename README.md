@@ -2,6 +2,8 @@
 
 > Mesa LATAM por turnos en Solana (Anchor): escrow + whitelist de comercios + fee al tesoro. Frontend Next.js en Vercel con Solana Actions (devnet). Backend TIA en Render con World ID + ElevenLabs + WhatsApp.
 
+> **Building an AI agent?** The TIA backend sells live USD/MXN intelligence paid per request with x402 on Stellar mainnet — no API key, ~$0.10 USDC per call. Guide + copy-paste TypeScript client: [docs/agents/README.md](docs/agents/README.md) · runnable example: [examples/agent-client/](examples/agent-client/)
+
 ---
 
 ## El problema
