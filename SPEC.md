@@ -61,6 +61,7 @@ Check only when **working in prod/devnet**, not when scaffolded.
 - [x] `curl -i $BACKEND/premium/fx` returns **402** without payment — prod `https://remesa-tia-backend.vercel.app/premium/fx` (14 sep 2026, GitHub deploy `15981ab`; now `stellar:pubnet`)
 - [x] `npm run x402:smoke` returns **200** + Stellar **pubnet** tx verifiable — `{ ok, pair: USD/MXN, rate: 17.141, isLive: true }` + [f20a580a…d35bfd](https://stellar.expert/explorer/public/tx/f20a580aed9220201c48aabd26eaf2a99ae840afd063bfb85131879eded35bfd) · 0.01 USDC Circle Freighter `GB3RZCIA…` → Lobstr `GBRMBOE…` (14 sep 2026; no cierra las 3 txs remesa E2E). Testnet prior: [e08479dc…f655](https://stellar.expert/explorer/testnet/tx/e08479dcbca161deb0886f8c0d738940704c923c468371c4ec60b6635af5f655)
 - [x] `/status` shows TIA Premium API (x402) row with prices — `stellar:pubnet · puente $0.25 · tipo de cambio $0.10` on `web-coral-pi-66` (14 sep 2026, after price bump)
+- [ ] `PUBLIC_BASE_URL=https://remesa-tia-backend.vercel.app` en Vercel `remesa-tia-backend` (Production) + redeploy — el `resource.url` del 402 salía `http://` por TLS termination; verificar con `curl -i …/premium/fx` y decodificar `payment-required`
 
 ### Users & GTM
 
@@ -147,6 +148,8 @@ NIRIUM_X402_ENABLED=true
 STELLAR_NETWORK=testnet
 STELLAR_PAY_TO=G...
 X402_FACILITATOR_API_KEY=...
+# resource.url https en el 402 (TLS termina en Vercel)
+PUBLIC_BASE_URL=https://remesa-tia-backend.vercel.app
 
 npm run sync-env
 

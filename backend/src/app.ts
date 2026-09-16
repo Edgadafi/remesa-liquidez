@@ -2,6 +2,7 @@ import express from "express";
 import * as niriumNs from "nirium";
 import tiaRouter from "./routes/tia.js";
 import premiumRouter from "./routes/premium.js";
+import { publicOrigin } from "./middleware/publicOrigin.js";
 import { getProvaStatus } from "./services/prova.js";
 import {
   getX402ServeConfig,
@@ -30,6 +31,11 @@ function resolveX402Serve(): X402Serve {
 
 export function createApp() {
   const app = express();
+
+  // Vercel termina TLS antes de Express: sin esto req.protocol es "http".
+  // Es solo el fallback del resource.url del 402 — el mecanismo principal
+  // es PUBLIC_BASE_URL (middleware/publicOrigin.ts).
+  app.set("trust proxy", 1);
 
   app.use(express.json({ limit: "12mb" }));
 
@@ -83,7 +89,7 @@ ${premiumEndpoints}
     try {
       const x402Serve = resolveX402Serve();
       const x402Config = getX402ServeConfig();
-      app.use("/premium", x402Serve(x402Config));
+      app.use("/premium", publicOrigin(), x402Serve(x402Config));
       app.use("/premium", premiumRouter);
       console.log(
         `[TIA] x402 premium API enabled (${x402Config.network}) → ${Object.keys(x402Config.routes).join(", ")}`
