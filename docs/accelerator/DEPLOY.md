@@ -18,6 +18,7 @@ Root Directory = `backend`. Adapter: `backend/api/index.ts` (`export default cre
 | `STELLAR_PAY_TO` | `G…` **de la misma red** que `STELLAR_NETWORK`, con trustline USDC |
 | `X402_FACILITATOR_API_KEY` | Testnet: [channels.openzeppelin.com/testnet/gen](https://channels.openzeppelin.com/testnet/gen) |
 | `STELLAR_NETWORK` | `testnet` (o `pubnet` / `mainnet` solo con payTo + facilitator de mainnet) |
+| `PUBLIC_BASE_URL` | `https://remesa-tia-backend.vercel.app` — origen canónico del `resource.url` en el 402; sin esto sale `http://` (TLS termina en Vercel) |
 
 Producción: `https://remesa-tia-backend.vercel.app`
 
