@@ -326,6 +326,21 @@
     buffer "^6.0.3"
     sha.js "^2.4.12"
 
+"@stellar/stellar-sdk@^14.0.0 || ^15.0.0", "@stellar/stellar-sdk@^15.1.0":
+  version "15.1.0"
+  resolved "https://registry.npmjs.org/@stellar/stellar-sdk/-/stellar-sdk-15.1.0.tgz"
+  integrity sha512-GsJUcWx2yboVzYdhTe/LHS3V1wVLSHkUkglC5bBoYWGJt31vzIhbSGno60NP9CdCTNkLJdnrsLJ63oA58Zvh5A==
+  dependencies:
+    "@stellar/stellar-base" "^15.0.0"
+    axios "1.15.0"
+    bignumber.js "^9.3.1"
+    commander "^14.0.3"
+    eventsource "^2.0.2"
+    feaxios "^0.0.23"
+    randombytes "^2.1.0"
+    toml "^3.0.0"
+    urijs "^1.19.11"
+
 "@stellar/stellar-sdk@^14.5.0":
   version "14.6.1"
   resolved "https://registry.npmjs.org/@stellar/stellar-sdk/-/stellar-sdk-14.6.1.tgz"
@@ -340,21 +355,6 @@
     randombytes "^2.1.0"
     toml "^3.0.0"
     urijs "^1.19.1"
-
-"@stellar/stellar-sdk@^15.1.0":
-  version "15.1.0"
-  resolved "https://registry.npmjs.org/@stellar/stellar-sdk/-/stellar-sdk-15.1.0.tgz"
-  integrity sha512-GsJUcWx2yboVzYdhTe/LHS3V1wVLSHkUkglC5bBoYWGJt31vzIhbSGno60NP9CdCTNkLJdnrsLJ63oA58Zvh5A==
-  dependencies:
-    "@stellar/stellar-base" "^15.0.0"
-    axios "1.15.0"
-    bignumber.js "^9.3.1"
-    commander "^14.0.3"
-    eventsource "^2.0.2"
-    feaxios "^0.0.23"
-    randombytes "^2.1.0"
-    toml "^3.0.0"
-    urijs "^1.19.11"
 
 "@stellar/stellar-sdk@^16.0.1":
   version "16.2.0"
@@ -458,7 +458,7 @@
   resolved "https://registry.npmjs.org/@ungap/promise-all-settled/-/promise-all-settled-1.1.2.tgz"
   integrity sha512-sL/cEvJWAnClXw0wHk85/2L0G6Sj8UB0Ctc1TEMbKSsmpRosqhwj9gWgFRZSrBr2f9tiXISwNhCPmlfqUqyb9Q==
 
-"@x402/core@~2.22.0":
+"@x402/core@^2.8.0", "@x402/core@~2.22.0":
   version "2.22.0"
   resolved "https://registry.npmjs.org/@x402/core/-/core-2.22.0.tgz"
   integrity sha512-hYySs/PvukqRipC2mKqrsn/jx2U/p5EGnN3clQ2CIcApwtoFuG77CqpC3Wy7Fdp/juW8t8quiPVnqGuIkfix1Q==
@@ -1922,6 +1922,11 @@ ws@8.21.0:
   version "8.21.0"
   resolved "https://registry.npmjs.org/ws/-/ws-8.21.0.tgz"
   integrity sha512-Vsp28b7DRcimFQvrqu2Wek3z1iYxDCWqHYB8Qsnk/S4RfaCQzPGPyBNuVjJV3cd6UiKtUtp6sNM77gWvzcCH+g==
+
+x402-sessions@^0.2.0:
+  version "0.2.0"
+  resolved "https://registry.npmjs.org/x402-sessions/-/x402-sessions-0.2.0.tgz"
+  integrity sha512-7evmK6zm/JGSYk6xnmYWwQ/RSJAEQSZGhtjcKiQ75qfskZqm13mN7zsGvSeBoewSZcOjVieIEmJE9jjrjpQ7Ww==
 
 y18n@^5.0.5:
   version "5.0.8"

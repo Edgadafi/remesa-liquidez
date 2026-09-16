@@ -10,6 +10,7 @@
     "e2e:stellar:testnet": "node_modules/.bin/ts-node scripts/e2e-stellar-testnet.ts",
     "register-prova:devnet": "SOLANA_CLUSTER=devnet node_modules/.bin/ts-node scripts/register-prova-agent.ts",
     "x402:smoke": "node_modules/.bin/ts-node scripts/x402-smoke.ts",
+    "x402:session-smoke": "node_modules/.bin/ts-node scripts/x402-session-smoke.ts",
     "fund-x402-payer": "node_modules/.bin/ts-node scripts/fund-x402-payer.ts",
     "sync-env": "cp .env ./web/.env && ([ -d ./backend ] && cp .env ./backend/.env || echo '[sync-env] backend/ no existe todavía — solo web/.env actualizado')",
     "backend:install": "cd backend && npm install",
@@ -19,8 +20,10 @@
   "dependencies": {
     "@coral-xyz/anchor": "^0.32.1",
     "@solana/spl-token": "^0.4.9",
+    "@stellar/stellar-sdk": "^15.1.0",
     "dotenv": "^16.4.5",
-    "nirium": "^0.11.0"
+    "nirium": "^0.11.0",
+    "x402-sessions": "^0.2.0"
   },
   "devDependencies": {
     "@solana/web3.js": "^1.98.4",
