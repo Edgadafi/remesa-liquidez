@@ -63,6 +63,24 @@ Check only when **working in prod/devnet**, not when scaffolded.
 - [x] `/status` shows TIA Premium API (x402) row with prices — `stellar:pubnet · puente $0.25 · tipo de cambio $0.10` on `web-coral-pi-66` (14 sep 2026, after price bump)
 - [ ] `PUBLIC_BASE_URL=https://remesa-tia-backend.vercel.app` en Vercel `remesa-tia-backend` (Production) + redeploy — el `resource.url` del 402 salía `http://` por TLS termination; verificar con `curl -i …/premium/fx` y decodificar `payment-required`
 
+### Stack de valor v1 (Paso 3 — x402 exact mainnet)
+
+Endpoints de inteligencia sobre el mismo x402 exact + facilitador OZ. Prefijo nuevo `/v1`; `/premium/fx` y `/premium/bridge-quote` quedan intactos (sin mapping legacy).
+
+| Ruta | Precio (env) | Qué da |
+|------|--------------|--------|
+| `GET /v1/quote` | $0.10 (`NIRIUM_X402_QUOTE_PRICE`) | USD/MXN Bitso: last, bid/ask, spread, spread%, volumen 24h, vwap |
+| `GET /v1/route?amount=USD` | $0.25 (`NIRIUM_X402_ROUTE_PRICE`) | Mejor ruta USD→MXN (Bitso directo / USDC Stellar / SPEI) con costo total y supuestos publicados — monto de entrada en USD |
+| `POST /v1/alert` | $0.10 (`NIRIUM_X402_ALERT_PRICE`) | Alerta one-shot `{webhookUrl, threshold, direction}` — umbral en MXN por USD |
+| `POST /v1/alert/check` | Bearer, sin x402 | Evalúa umbrales y dispara webhooks — `CRON_SECRET` o `TIA_MANUAL_OVERRIDE_SECRET` |
+
+- [x] Smoke local `npm run smoke:v1` (backend/): 402 sin pago en `/v1/*`, no-regresión `/premium/fx`, shapes JSON, ciclo de alertas registro→webhook→one-shot — PASS 20/20 (16 sep 2026, facilitador mock + Bitso vivo)
+- [ ] `CRON_SECRET` + `UPSTASH_REDIS_REST_URL/TOKEN` en Vercel `remesa-tia-backend` — sin Upstash las alertas viven en memoria efímera (registro funciona y es fail-safe, pero se pierden entre invocaciones; no anunciar alertas como durables hasta esto)
+- [ ] Cron del check: Vercel Cron en plan hobby es 1×/día → cron externo (GitHub Actions schedule o cron-job.org) cada 5–15 min: `curl -X POST -H "Authorization: Bearer $CRON_SECRET" https://remesa-tia-backend.vercel.app/v1/alert/check`
+- [ ] Smoke pagado post-merge en pubnet: `curl -i https://remesa-tia-backend.vercel.app/v1/quote` → 402 con `resource.url` https, y pago real con el agente nirium → 200
+
+**Reglas de alertas:** one-shot (dispara y se borra); webhook fallido se conserva y reintenta; nunca dispara con tasa fallback (`skipped: fx_not_live`); `webhookUrl` solo https y sin hosts privados en prod; máx 100 activas.
+
 ### Users & GTM
 
 - [ ] 3 user interviews logged ([interview-tracker.md](docs/accelerator/week-01/interview-tracker.md))
