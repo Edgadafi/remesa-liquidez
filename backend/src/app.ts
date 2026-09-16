@@ -4,6 +4,11 @@ import tiaRouter from "./routes/tia.js";
 import premiumRouter from "./routes/premium.js";
 import v1Router from "./routes/v1.js";
 import { publicOrigin } from "./middleware/publicOrigin.js";
+import { envInt, rateLimit } from "./middleware/rateLimit.js";
+import {
+  paymentHeaderLimits,
+  paymentReplayGuard,
+} from "./middleware/paymentGuard.js";
 import { getProvaStatus } from "./services/prova.js";
 import {
   getX402ServeConfig,
@@ -36,12 +41,12 @@ function resolveX402Serve(): X402Serve {
 export function createApp() {
   const app = express();
 
+  app.disable("x-powered-by");
+
   // Vercel termina TLS antes de Express: sin esto req.protocol es "http".
   // Es solo el fallback del resource.url del 402 — el mecanismo principal
   // es PUBLIC_BASE_URL (middleware/publicOrigin.ts).
   app.set("trust proxy", 1);
-
-  app.use(express.json({ limit: "12mb" }));
 
   app.use((_req, res, next) => {
     res.setHeader("Access-Control-Allow-Origin", "*");
@@ -50,10 +55,36 @@ export function createApp() {
       "Access-Control-Allow-Headers",
       "Content-Type, Authorization, X-PAYMENT"
     );
+    res.setHeader("X-Content-Type-Options", "nosniff");
     next();
   });
 
   app.options("*", (_req, res) => res.sendStatus(204));
+
+  // Rate limiting sliding-window por IP, ANTES de parsear body (rechazo
+  // barato). Durable con Upstash; en memoria por instancia sin él.
+  const rlWindowMs = envInt("RATE_LIMIT_WINDOW_SECONDS", 60) * 1000;
+  app.use(
+    ["/premium", "/v1"],
+    rateLimit({
+      max: envInt("RATE_LIMIT_MAX", 30),
+      windowMs: rlWindowMs,
+      keyPrefix: "paid",
+    })
+  );
+  app.use(
+    ["/api/tia", "/api/lidia"],
+    rateLimit({
+      max: envInt("RATE_LIMIT_NOTIFY_MAX", 60),
+      windowMs: rlWindowMs,
+      keyPrefix: "notify",
+    })
+  );
+
+  // Límites de body por superficie: 12mb SOLO para notify (audioBase64 TTS);
+  // el resto de la API opera con payloads chicos — 100kb es de sobra.
+  app.use(["/api/tia", "/api/lidia"], express.json({ limit: "12mb" }));
+  app.use(express.json({ limit: "100kb" }));
 
   app.get("/health", async (_req, res) => {
     const prova = await getProvaStatus();
@@ -97,6 +128,11 @@ ${premiumEndpoints}
     try {
       const x402Serve = resolveX402Serve();
       const x402Config = getX402ServeConfig();
+
+      // Guardas del X-PAYMENT antes del middleware de cobro: tamaño acotado
+      // y single-use (replay/free-shopping) — ver middleware/paymentGuard.ts.
+      app.use(["/premium", "/v1"], paymentHeaderLimits(), paymentReplayGuard());
+
       app.use("/premium", publicOrigin(), x402Serve(x402Config));
       app.use("/premium", premiumRouter);
 
@@ -124,13 +160,27 @@ ${premiumEndpoints}
 
   app.use(
     (
-      err: Error,
+      err: Error & { status?: number; type?: string },
       _req: express.Request,
       res: express.Response,
       _next: express.NextFunction
     ) => {
-      console.error("[TIA] unhandled:", err);
-      res.status(500).json({ ok: false, agent: "TIA", error: err.message });
+      // Solo message + stack: volcar el objeto entero puede arrastrar el
+      // request adjunto en errores de fetch/SDK — y con él los headers
+      // X-PAYMENT / Authorization, que nunca deben tocar logs.
+      console.error("[TIA] unhandled:", err.stack ?? err.message ?? String(err));
+
+      // Errores del body-parser (413 payload too large, 400 JSON inválido)
+      // conservan su status; el resto es 500 genérico sin detalles internos.
+      const status =
+        typeof err.status === "number" && err.status >= 400 && err.status < 500
+          ? err.status
+          : 500;
+      res.status(status).json({
+        ok: false,
+        agent: "TIA",
+        error: status === 500 ? "Internal error" : err.message,
+      });
     }
   );
 

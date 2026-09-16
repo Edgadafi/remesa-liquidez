@@ -7,6 +7,8 @@
  *   - SSRF: bloqueo de IP decimal/metadata/privadas, reglas prod (https-only,
  *     loopback), redirects nunca seguidos.
  *   - Egress: max retries → drop, TTL → expiry, cuota por cliente → 429.
+ *   - Blindaje: X-PAYMENT reusado → 409, header gigante → 400, rate limit
+ *     sliding-window → 429 con Retry-After.
  *
  * Uso: npm run smoke:v1   (desde backend/)
  */
@@ -106,6 +108,26 @@ async function main() {
   // 2) No-regresión /premium/fx
   const fx = await fetch(`${base}/premium/fx`);
   check("GET /premium/fx sigue → 402", fx.status === 402, `HTTP ${fx.status}`);
+
+  // 2b) Guardas del X-PAYMENT (antes del middleware x402)
+  const fakePayment = Buffer.from(JSON.stringify({ smoke: "payload" })).toString("base64");
+  const first = await fetch(`${base}/v1/quote`, { headers: { "X-PAYMENT": fakePayment } });
+  check(
+    "X-PAYMENT nuevo NO es 409 (pasa al x402 middleware)",
+    first.status !== 409,
+    `HTTP ${first.status}`
+  );
+  const replayed = await fetch(`${base}/v1/quote`, { headers: { "X-PAYMENT": fakePayment } });
+  const replayedBody = (await replayed.json()) as { error?: string };
+  check(
+    "X-PAYMENT reusado → 409 payment_replayed",
+    replayed.status === 409 && replayedBody.error === "payment_replayed",
+    `HTTP ${replayed.status}`
+  );
+  const huge = await fetch(`${base}/v1/quote`, {
+    headers: { "X-PAYMENT": "A".repeat(9 * 1024) },
+  });
+  check("X-PAYMENT > 8KB → 400", huge.status === 400, `HTTP ${huge.status}`);
 
   // 3) /health lista las rutas nuevas con precio
   const health = (await (await fetch(`${base}/health`)).json()) as {
@@ -309,6 +331,31 @@ async function main() {
   check("cuota: 5 registros del mismo cliente → 201", quotaOk);
   const overQuota = await quotaReg();
   check("cuota: 6º registro mismo cliente → 429", overQuota.status === 429, `HTTP ${overQuota.status}`);
+
+  // 10) Rate limit sliding-window → 429 con Retry-After.
+  // App nueva con límite bajo; el store en memoria es singleton compartido,
+  // así que basta con insistir hasta cruzar el umbral.
+  process.env.RATE_LIMIT_MAX = "3";
+  const rlSrv = await listen(createApp());
+  const rlBase = `http://127.0.0.1:${rlSrv.port}`;
+  delete process.env.RATE_LIMIT_MAX;
+  let limited: Response | null = null;
+  for (let i = 0; i < 10; i++) {
+    const r = await fetch(`${rlBase}/v1/quote`);
+    if (r.status === 429) {
+      limited = r;
+      break;
+    }
+  }
+  const limitedBody = limited ? ((await limited.json()) as { error?: string }) : null;
+  check(
+    "rate limit: exceso → 429 rate_limited + Retry-After",
+    limited !== null &&
+      limitedBody?.error === "rate_limited" &&
+      Number(limited.headers.get("retry-after")) > 0,
+    limited ? `Retry-After=${limited.headers.get("retry-after")}` : "nunca llegó el 429"
+  );
+  rlSrv.close();
 
   mockSrv.close();
   hookSrv.close();
