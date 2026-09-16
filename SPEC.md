@@ -165,6 +165,24 @@ RENDER_BACKEND_URL=https://remesa-tia-backend.vercel.app npm run x402:smoke
 
 See [docs/nirium-x402-integration.md](docs/nirium-x402-integration.md).
 
+## x402-sessions — Paso 2 (spike testnet, mainnet bloqueado)
+
+Deposita una vez (SAC `approve` con cap+expiry), liquida N veces con `transfer_from` — sin firmar por request. Decisión y diseño en [docs/adr-0001-x402-sessions.md](docs/adr-0001-x402-sessions.md). **No toca `/premium/*` en prod**; el facilitador OZ solo soporta `exact` y `nirium` no admite schemes extra, así que mainnet requiere operar nuestro propio facilitador de sesiones (decisión de custodia pendiente — bloqueante).
+
+- [x] Auditoría de soporte en repo + nirium 0.11–0.14 + `@x402/*` 2.25–2.26 + facilitador OZ (16 sep 2026 — nadie soporta `session`; existe `x402-sessions@0.2.0` comunitario)
+- [x] Spike testnet `npm run x402:session-smoke`: 1 `approve` → N `transfer_from` → over-cap rechazado → `spent` verificado (16 sep 2026, facilitador de referencia local, XLM SAC)
+- [ ] Decisión de producto: operar facilitador de sesiones mainnet (spender key caliente, store durable, `MAX_PER_CALL`) — **sin esto no hay pubnet**
+- [ ] Integración `/premium/*` detrás de `NIRIUM_X402_SESSIONS_ENABLED` (fail-closed) con `exact` + `session` en paralelo
+- [ ] E2E testnet contra `/premium/fx` real antes de cualquier pubnet
+
+```bash
+# Probar en testnet (una sola cuenta friendbot; sin faucet de Circle):
+git clone https://github.com/x402-sessions/x402-session-facilitator && cd x402-session-facilitator
+npm install && FACILITATOR_SECRET=S… USDC_CONTRACT_ID=<XLM_SAC_TESTNET> npm run dev  # :4021
+# En este repo (.env local): STELLAR_TESTNET_SECRET=S… + X402_SESSION_ASSET=native
+npm run x402:session-smoke
+```
+
 ---
 
 ## Spec change log
