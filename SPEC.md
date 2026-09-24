@@ -199,6 +199,7 @@ See [docs/nirium-x402-integration.md](docs/nirium-x402-integration.md).
 | 14 sep | x402 paid smoke 200 + tx e08479dc | Cobro FX live verificado; no sustituye 3 txs remesa E2E | Founder |
 | 14 sep | x402 paid smoke pubnet 200 + tx f20a580a | Cobro USDC real Circle; no sustituye 3 txs remesa E2E | Founder |
 | 14 sep | Soroban escrow mainnet CBCWBOZB | Founder pidió deploy; lock USDC on-chain | Founder |
+| 16 sep | Blindaje por capas x402 (SECURITY.md): replay guard X-PAYMENT, rate limit sliding-window, validación zod, allowlist payTo en cliente, watcher payTo | Un fallo de seguridad en el rail de cobro = pérdida de fondos y confianza | Founder |
 
 ---
 
