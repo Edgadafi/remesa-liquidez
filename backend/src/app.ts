@@ -54,7 +54,7 @@ export function createApp() {
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.setHeader(
       "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, X-PAYMENT"
+      "Content-Type, Authorization, X-PAYMENT, Payment-Signature"
     );
     res.setHeader("X-Content-Type-Options", "nosniff");
     next();

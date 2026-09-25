@@ -4,13 +4,14 @@ import { getKvBackend } from "../services/kvStore.js";
 import { envInt } from "./rateLimit.js";
 
 /**
- * Guardas del header X-PAYMENT, montadas ANTES de x402Serve (Capa 3/4).
+ * Guardas del header de pago (payment-signature x402v2 / x-payment x402v1),
+ * montadas ANTES de x402Serve (Capa 3/4).
  *
  * 1. Límite de tamaño: un payload de pago legítimo (JSON base64 con auth
  *    entries Soroban) cabe de sobra en 8 KB; headers gigantes solo sirven
  *    para gastar CPU/memoria antes de llegar al facilitador.
  *
- * 2. Replay guard single-use: el hash de (X-PAYMENT + método + URL del
+ * 2. Replay guard single-use: el hash de (proof efectivo + método + URL del
  *    recurso) se marca como consumido en el PRIMER uso (SET NX atómico,
  *    store durable). Cierra la ventana "free shopping": N requests
  *    concurrentes con la misma prueba de pago → 1 sola pasa al facilitador,
@@ -25,34 +26,88 @@ import { envInt } from "./rateLimit.js";
  *      recibió nada y puede reintentar con el mismo proof. El 409 aplica a
  *      duplicados en vuelo y a replays después de un 200.
  *
+ * Precedencia de headers (nirium PR #93): @x402/express 2.22.0 lee
+ * `payment-signature` primero (x402v2), cayendo a `x-payment` (x402v1).
+ * Proteger solo x-payment dejaba bypass vía payment-signature. Ahora ambos
+ * guards usan la MISMA precedencia que el middleware de cobro downstream.
+ *
  * Fallos del store: fail-open SOLO fuera de producción (dev). En producción
  * (NODE_ENV=production / VERCEL, u override X402_REPLAY_STRICT=true|false)
  * el guard es fail-closed: sin store durable o con el store caído, los
- * requests CON X-PAYMENT reciben 503 — nunca se sirve un recurso pagado sin
- * protección anti-replay. Los requests sin pago no se ven afectados (el 402
- * de descubrimiento sigue funcionando).
+ * requests CON prueba de pago reciben 503 — nunca se sirve un recurso pagado
+ * sin protección anti-replay. Los requests sin pago no se ven afectados (el
+ * 402 de descubrimiento sigue funcionando).
  */
 
 const MAX_PAYMENT_HEADER_BYTES = 8 * 1024;
 
+/**
+ * Extrae el header de pago efectivo con la MISMA precedencia que
+ * @x402/express: payment-signature (v2) primero, fallback a x-payment (v1).
+ * Devuelve { header: nombre-del-header, value: string } o null si no hay pago.
+ */
+function getEffectivePaymentHeader(req: Request): {
+  header: "payment-signature" | "x-payment";
+  value: string;
+} | null {
+  const v2 = req.headers["payment-signature"];
+  if (typeof v2 === "string" && v2.length > 0) {
+    return { header: "payment-signature", value: v2 };
+  }
+
+  const v1 = req.headers["x-payment"];
+  if (typeof v1 === "string" && v1.length > 0) {
+    return { header: "x-payment", value: v1 };
+  }
+
+  return null;
+}
+
 export function paymentHeaderLimits(): RequestHandler {
   return (req: Request, res: Response, next: NextFunction) => {
-    const raw = req.headers["x-payment"];
+    const v2 = req.headers["payment-signature"];
+    const v1 = req.headers["x-payment"];
 
-    if (Array.isArray(raw)) {
+    // Rechazar duplicados (cliente envió array en lugar de string único).
+    if (Array.isArray(v2)) {
       res.status(400).json({
         ok: false,
         error: "invalid_payment_header",
-        message: "Se recibió más de un header X-PAYMENT.",
+        message: "Se recibió más de un header payment-signature.",
+      });
+      return;
+    }
+    if (Array.isArray(v1)) {
+      res.status(400).json({
+        ok: false,
+        error: "invalid_payment_header",
+        message: "Se recibió más de un header x-payment.",
       });
       return;
     }
 
-    if (raw && Buffer.byteLength(raw, "utf8") > MAX_PAYMENT_HEADER_BYTES) {
+    // Rechazar requests que envían AMBOS headers con valores diferentes
+    // (cliente confundido o intento de bypass). Si ambos son idénticos,
+    // es redundante pero no malicioso — permitir para compatibilidad.
+    const hasV2 = typeof v2 === "string" && v2.length > 0;
+    const hasV1 = typeof v1 === "string" && v1.length > 0;
+    if (hasV2 && hasV1 && v2 !== v1) {
+      res.status(400).json({
+        ok: false,
+        error: "conflicting_payment_headers",
+        message:
+          "Se recibieron payment-signature y x-payment con valores diferentes. Envía solo uno.",
+      });
+      return;
+    }
+
+    // El header efectivo es el que @x402/express leerá (precedencia v2 → v1).
+    const effective = getEffectivePaymentHeader(req);
+    if (effective && Buffer.byteLength(effective.value, "utf8") > MAX_PAYMENT_HEADER_BYTES) {
       res.status(400).json({
         ok: false,
         error: "payment_header_too_large",
-        message: `X-PAYMENT supera el máximo de ${MAX_PAYMENT_HEADER_BYTES} bytes.`,
+        message: `El header de pago supera el máximo de ${MAX_PAYMENT_HEADER_BYTES} bytes.`,
       });
       return;
     }
@@ -74,8 +129,9 @@ function replayStrict(): boolean {
 
 export function paymentReplayGuard(): RequestHandler {
   return async (req: Request, res: Response, next: NextFunction) => {
-    const raw = req.headers["x-payment"];
-    if (typeof raw !== "string" || raw.length === 0) {
+    // Leer el header efectivo con la misma precedencia que @x402/express.
+    const effective = getEffectivePaymentHeader(req);
+    if (!effective) {
       // Sin pago: que x402Serve responda el 402 con los términos.
       next();
       return;
@@ -99,9 +155,11 @@ export function paymentReplayGuard(): RequestHandler {
 
     // La clave liga el proof al recurso concreto (método + URL con query),
     // igual que el binding del scheme exact — un proof quemado en otra ruta
-    // no bloquea esta.
+    // no bloquea esta. Usamos el header efectivo (payment-signature si está
+    // presente, sino x-payment) para que el digest coincida con el que el
+    // cliente realmente envió y el facilitador verificará.
     const digest = createHash("sha256")
-      .update(raw)
+      .update(effective.value)
       .update("\n")
       .update(`${req.method} ${req.originalUrl}`)
       .digest("hex");
@@ -133,7 +191,9 @@ export function paymentReplayGuard(): RequestHandler {
 
     if (!first) {
       // Nunca loguear el header: contiene la autorización de pago firmada.
-      console.warn(`[TIA] X-PAYMENT reusado bloqueado (sha256=${digest.slice(0, 16)}…)`);
+      console.warn(
+        `[TIA] prueba de pago reusada bloqueada (header=${effective.header}, sha256=${digest.slice(0, 16)}…)`
+      );
       res.status(409).json({
         ok: false,
         error: "payment_replayed",
