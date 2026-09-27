@@ -2,6 +2,23 @@
 
 > Mesa LATAM por turnos en Solana (Anchor): escrow + whitelist de comercios + fee al tesoro. Frontend Next.js en Vercel con Solana Actions (devnet). Backend TIA en Render con World ID + ElevenLabs + WhatsApp.
 
+## TIA on Stellar — live links (verifiable)
+
+- **Live site:** https://tia-stellar.vercel.app (source: [`site/`](site/))
+- **API:** https://remesa-tia-backend.vercel.app — x402 `exact` scheme, paid in USDC on `stellar:pubnet`
+
+  | Endpoint | Price |
+  |---|---|
+  | `GET /v1/quote` | $0.10 USDC |
+  | `GET /v1/route?amount=USD` | $0.25 USDC |
+  | `POST /v1/alert` | $0.10 USDC |
+  | `GET /health` | free |
+
+- **Soroban escrow contract (mainnet):** `CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTSAELKESPY6D7DUA22M5MP` — [stellar.expert](https://stellar.expert/explorer/public/contract/CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTSAELKESPY6D7DUA22M5MP)
+- **First paid mainnet call (tx):** [b5fc310f…5695e0d](https://stellar.expert/explorer/public/tx/b5fc310f086d3e4e170384fec0ccd1485c9b348559a12f61aa1ec9f2b5695e0d) — replaying the same payment returned `409` (replay protection).
+
+---
+
 > **Building an AI agent?** The TIA backend sells live USD/MXN intelligence paid per request with x402 on Stellar mainnet — no API key, ~$0.10 USDC per call. Guide + copy-paste TypeScript client: [docs/agents/README.md](docs/agents/README.md) · runnable example: [examples/agent-client/](examples/agent-client/)
 
 > **Seguridad:** el blindaje por capas del rail x402 (claves, contrato, facilitador, servidor, agente cliente, monitoreo) está documentado en [SECURITY.md](SECURITY.md).
