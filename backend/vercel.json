@@ -1,5 +1,6 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "npx --yes esbuild api/index.ts --bundle --platform=node --format=esm --outfile=api/index.js --packages=external && rm -f api/index.ts",
   "rewrites": [
     {
       "source": "/(.*)",
@@ -7,9 +8,9 @@
     }
   ],
   "functions": {
-    "api/index.ts": {
+    "api/index.js": {
       "maxDuration": 30,
-      "includeFiles": "node_modules/{@x402,@stellar,zod}/**"
+      "includeFiles": "node_modules/{zod,@x402,@stellar,express,nirium,prova-agent-sdk,@solana,@lifi,dotenv}/**"
     }
   }
 }
