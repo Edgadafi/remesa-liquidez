@@ -9,7 +9,7 @@
   "functions": {
     "api/index.ts": {
       "maxDuration": 30,
-      "includeFiles": "{src/app.mjs,node_modules/{zod,@x402,@stellar,express,nirium,prova-agent-sdk,@solana,@lifi}/**}"
+      "includeFiles": "{src/app.cjs,node_modules/{zod,@x402,@stellar,express,nirium,prova-agent-sdk,@solana,@lifi}/**}"
     }
   }
 }
