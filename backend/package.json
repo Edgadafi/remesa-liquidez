@@ -4,7 +4,7 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "20.x"
+    "node": "22.x"
   },
   "scripts": {
     "dev": "tsx watch src/index.ts",
@@ -18,12 +18,12 @@
   "dependencies": {
     "@lifi/sdk": "^4.4.0",
     "@solana/web3.js": "^1.98.4",
-    "@x402/core": "^2.22.0",
-    "@x402/express": "^2.22.0",
-    "@x402/stellar": "^2.22.0",
+    "@x402/core": "^2.28.0",
+    "@x402/express": "^2.28.0",
+    "@x402/stellar": "^2.28.0",
     "dotenv": "^16.4.5",
     "express": "^4.21.0",
-    "nirium": "0.11.0",
+    "nirium": "0.16.0",
     "prova-agent-sdk": "^0.1.7",
     "tsx": "^4.19.2",
     "zod": "^3.24.0"
