@@ -5,7 +5,7 @@ export default async function handler(req: Request, res: Response) {
     await import("@x402/express");
     await import("@x402/core/server");
     await import("@x402/stellar/exact/server");
-    const { createApp } = await import("../src/app.js");
+    const { createApp } = await import("../src/app.mjs");
     const app = createApp();
     return app(req, res);
   } catch (err) {
