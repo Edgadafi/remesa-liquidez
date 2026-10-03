@@ -26,7 +26,7 @@ import { envInt } from "./rateLimit.js";
  *      recibió nada y puede reintentar con el mismo proof. El 409 aplica a
  *      duplicados en vuelo y a replays después de un 200.
  *
- * Precedencia de headers (nirium PR #93): @x402/express 2.22.0 lee
+ * Precedencia de headers (nirium PR #93): @x402/express 2.28.0 lee
  * `payment-signature` primero (x402v2), cayendo a `x-payment` (x402v1).
  * Proteger solo x-payment dejaba bypass vía payment-signature. Ahora ambos
  * guards usan la MISMA precedencia que el middleware de cobro downstream.

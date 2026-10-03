@@ -20,7 +20,7 @@
     "@coral-xyz/anchor": "^0.32.1",
     "@solana/spl-token": "^0.4.9",
     "dotenv": "^16.4.5",
-    "nirium": "^0.11.0"
+    "nirium": "0.16.0"
   },
   "devDependencies": {
     "@solana/web3.js": "^1.98.4",
