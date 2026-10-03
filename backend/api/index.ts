@@ -1,20 +1,22 @@
 import type { Request, Response } from "express";
 
-export default async function handler(req: Request, res: Response) {
-  try {
-    await import("@x402/express");
-    await import("@x402/core/server");
-    await import("@x402/stellar/exact/server");
-    const { createApp } = await import("../src/app.js");
-    const app = createApp();
-    return app(req, res);
-  } catch (err) {
-    const error = err instanceof Error ? err : new Error(String(err));
-    console.error("[TIA] boot failed:", error.stack ?? error.message);
-    res.status(500).json({
-      ok: false,
-      boot: error.name,
-      message: error.message,
-    });
+const specs = [
+  "@x402/express",
+  "@x402/core/server",
+  "@x402/stellar/exact/server",
+  "../src/app.js",
+];
+
+export default async function handler(_req: Request, res: Response) {
+  const results: { spec: string; ok: boolean; message?: string }[] = [];
+  for (const spec of specs) {
+    try {
+      await import(spec);
+      results.push({ spec, ok: true });
+    } catch (err) {
+      const error = err instanceof Error ? err : new Error(String(err));
+      results.push({ spec, ok: false, message: error.message });
+    }
   }
+  res.status(200).json({ ok: true, results });
 }
