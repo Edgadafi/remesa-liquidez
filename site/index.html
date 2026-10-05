@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>TIA Remittance API — Pay-per-call USD/MXN data on Stellar via x402</title>
+<meta name="description" content="Pay-per-call USD/MXN remittance data for AI agents, settled in USDC on Stellar via x402.">
+<meta name="theme-color" content="#0f2a1e">
+<meta property="og:type" content="website">
+<meta property="og:title" content="TIA Remittance API">
+<meta property="og:description" content="Pay-per-call USD/MXN remittance data for AI agents, settled in USDC on Stellar via x402.">
+<meta property="og:site_name" content="TIA Remittance API">
+<meta property="og:url" content="https://tia-stellar.vercel.app/">
+<meta property="og:image" content="https://tia-stellar.vercel.app/logo.png">
+<meta property="og:image:width" content="400">
+<meta property="og:image:height" content="400">
+<meta property="og:image:alt" content="TIA logo">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://tia-stellar.vercel.app/logo.png">
+<meta name="twitter:title" content="TIA Remittance API">
+<meta name="twitter:description" content="Pay-per-call USD/MXN remittance data for AI agents, settled in USDC on Stellar via x402.">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<link rel="icon" type="image/png" sizes="48x48" href="/favicon-48.png">
+<link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+<style>
+:root{--bg:#0f2a1e;--bg2:#143a28;--card:#173f2c;--line:#2b5641;--text:#f4efe8;--muted:#c4bdae;--accent:#c9a44a;--accent2:#e2c57a;--ok:#9fd8b2;--warn:#e8a36b;--deep:#0b2017}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;background:var(--bg);color:var(--text);line-height:1.6;-webkit-font-smoothing:antialiased}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+code,pre,.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+.wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+nav{position:sticky;top:0;z-index:10;background:rgba(15,42,30,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+nav .wrap{display:flex;align-items:center;justify-content:space-between;height:60px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--text)}
+.brand img{width:34px;height:34px;border-radius:50%;display:block}
+nav .links a{color:var(--muted);margin-left:22px;font-size:.92rem}
+nav .links a:hover{color:var(--text);text-decoration:none}
+header.hero{position:relative;overflow:hidden;padding:96px 0 80px;border-bottom:1px solid var(--line)}
+header.hero:before{content:"";position:absolute;inset:-40% -20% auto -20%;height:520px;background:radial-gradient(closest-side,rgba(40,110,75,.45),transparent),radial-gradient(closest-side at 75% 40%,rgba(201,164,74,.14),transparent);pointer-events:none}
+.badge{display:inline-flex;align-items:center;gap:8px;border:1px solid var(--line);background:var(--bg2);padding:6px 12px;border-radius:999px;font-size:.82rem;color:var(--muted)}
+.badge .dot{width:8px;height:8px;border-radius:50%;background:var(--ok);box-shadow:0 0 10px var(--ok)}
+h1{font-size:clamp(2.4rem,6vw,4rem);line-height:1.08;letter-spacing:-.02em;margin:22px 0 18px;position:relative}
+h1 span{background:linear-gradient(90deg,var(--accent2),var(--accent));-webkit-background-clip:text;background-clip:text;color:transparent}
+.tagline{font-size:clamp(1.05rem,2.2vw,1.3rem);color:var(--muted);max-width:720px;position:relative}
+.cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:34px;position:relative}
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 22px;border-radius:10px;font-weight:600;font-size:.98rem;transition:transform .15s,box-shadow .15s}
+.btn:hover{text-decoration:none;transform:translateY(-1px)}
+.btn.primary:hover{background:var(--accent2)}
+.btn.primary{background:var(--accent);color:#0f2a1e;box-shadow:0 6px 24px rgba(201,164,74,.28)}
+.btn.ghost{border:1px solid var(--line);color:var(--text);background:var(--bg2)}
+.stellar-mark{display:inline-flex;align-items:center;gap:8px;margin-top:36px;color:var(--accent2);font-size:.82rem;font-weight:600;letter-spacing:.06em;text-transform:uppercase;border:1px solid rgba(201,164,74,.45);border-radius:999px;padding:6px 14px;position:relative}
+.stellar-mark svg{width:14px;height:14px}
+.hero-grid{display:grid;grid-template-columns:1.35fr 1fr;gap:48px;align-items:center;position:relative}
+.hero-logo{justify-self:center;width:min(340px,80%);aspect-ratio:1;border-radius:50%;box-shadow:0 30px 80px rgba(0,0,0,.45),0 0 0 1px rgba(201,164,74,.25),0 0 60px rgba(201,164,74,.12)}
+.hero-logo img{width:100%;height:100%;display:block;border-radius:50%}
+section{padding:80px 0;border-bottom:1px solid var(--line)}
+.eyebrow{color:var(--accent);font-size:.8rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase}
+h2{font-size:clamp(1.7rem,3.4vw,2.3rem);letter-spacing:-.01em;margin:10px 0 18px}
+.lead{color:var(--muted);max-width:760px;font-size:1.05rem}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;margin-top:34px}
+.grid4{display:grid;grid-template-columns:repeat(4,1fr);gap:18px;margin-top:34px}
+.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px}
+.card h3{font-size:1.05rem;margin-bottom:8px}
+.card p{color:var(--muted);font-size:.95rem}
+.step-n{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:9px;background:rgba(201,164,74,.16);color:var(--accent2);font-weight:700;margin-bottom:14px}
+.note{margin-top:22px;color:var(--muted);font-size:.95rem}
+.note code,.card code,td code,.lead code{background:var(--bg2);border:1px solid var(--line);padding:1px 6px;border-radius:6px;font-size:.86em;color:var(--text)}
+.table-wrap{overflow-x:auto;margin-top:30px;border:1px solid var(--line);border-radius:14px}
+table{width:100%;border-collapse:collapse;min-width:640px}
+th,td{text-align:left;padding:16px 18px;border-bottom:1px solid var(--line);font-size:.95rem;vertical-align:top}
+th{background:var(--bg2);color:var(--muted);font-weight:600;font-size:.82rem;text-transform:uppercase;letter-spacing:.08em}
+tr:last-child td{border-bottom:0}
+.m{font-family:ui-monospace,Menlo,monospace;font-size:.78rem;font-weight:700;padding:3px 8px;border-radius:6px;margin-right:8px}
+.get{background:rgba(61,220,151,.14);color:var(--ok)}
+.post{background:rgba(201,164,74,.18);color:var(--accent2)}
+.price{font-weight:700;color:var(--accent);white-space:nowrap}
+.free{color:var(--ok);font-weight:700}
+pre{background:var(--deep);border:1px solid var(--line);border-radius:14px;padding:22px;overflow-x:auto;font-size:.86rem;line-height:1.7;margin-top:28px;color:#e6e0d4}
+pre .c{color:#86a493}.k{color:var(--accent)}.s{color:var(--ok)}.e{color:var(--warn)}
+.proof{display:grid;gap:16px;margin-top:30px}
+.proof .card{display:flex;flex-direction:column;gap:6px}
+.proof .label{color:var(--muted);font-size:.8rem;text-transform:uppercase;letter-spacing:.1em;font-weight:600}
+.proof .val{font-family:ui-monospace,Menlo,monospace;font-size:.9rem;word-break:break-all;color:var(--text)}
+.proof ul{color:var(--muted);font-size:.92rem;margin:6px 0 0 18px}
+.tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
+.tag{border:1px solid var(--line);background:var(--card);padding:9px 16px;border-radius:999px;font-size:.92rem}
+footer{padding:40px 0 56px;color:var(--muted);font-size:.9rem}
+footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;align-items:center}
+@media (max-width:860px){.hero-grid{grid-template-columns:1fr;gap:36px}.hero-logo{grid-row:1;width:200px}.grid3,.grid4{grid-template-columns:1fr 1fr}nav .links{display:none}}
+@media (max-width:560px){.grid3,.grid4{grid-template-columns:1fr}header.hero{padding:64px 0 56px}section{padding:60px 0}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+<symbol id="star" viewBox="0 0 64 64"><path d="M32 6l6.2 18.2H57l-15 11 5.6 18.8L32 42.6 16.4 54l5.6-18.8-15-11h18.8z" fill="#c9a44a"/></symbol>
+</defs></svg>
+
+<nav><div class="wrap">
+  <a class="brand" href="#"><img src="/favicon-48.png" alt="TIA logo" width="34" height="34">TIA Remittance API</a>
+  <div class="links"><a href="#problem">Problem</a><a href="#how">How it works</a><a href="#endpoints">Endpoints</a><a href="#proof">On-chain proof</a><a href="https://github.com/Edgadafi/remesa-liquidez">GitHub</a></div>
+</div></nav>
+
+<header class="hero"><div class="wrap hero-grid">
+<div>
+  <span class="badge"><span class="dot"></span>Live on Stellar mainnet · x402</span>
+  <h1><span>TIA</span> Remittance API</h1>
+  <p class="tagline">Pay-per-call USD/MXN remittance data for AI agents, settled in USDC on Stellar via x402.</p>
+  <div class="cta">
+    <a class="btn primary" href="https://x402.holatia.app" target="_blank" rel="noopener">Try the API →</a>
+    <a class="btn ghost" href="https://stellar.expert/explorer/public/contract/CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTSAELKESPY6D7DUA22M5MP" target="_blank" rel="noopener">View on Stellar Expert</a>
+  </div>
+  <div class="stellar-mark"><svg><use href="#star"/></svg>Built on Stellar</div>
+</div>
+<div class="hero-logo"><img src="/logo.png" alt="TIA logo" width="400" height="400"></div>
+</div></header>
+
+<section id="problem"><div class="wrap">
+  <div class="eyebrow">The problem</div>
+  <h2>Remittances are expensive and opaque</h2>
+  <p class="lead">US-to-Mexico remittances are costly and hard to compare, yet families depend on these transfers. At the same time, AI agents have no simple way to fetch live USD/MXN rates and compare remittance rails.</p>
+  <div class="grid3">
+    <div class="card"><h3>Opaque pricing</h3><p>Fees and exchange-rate spreads make it hard to know what a transfer really costs.</p></div>
+    <div class="card"><h3>Families depend on it</h3><p>Every cent lost to fees is money that doesn't reach a household in Mexico.</p></div>
+    <div class="card"><h3>No agent-native access</h3><p>AI agents lack a simple, pay-as-you-go way to get live rates and compare rails — no accounts, no API keys.</p></div>
+  </div>
+</div></section>
+
+<section id="how"><div class="wrap">
+  <div class="eyebrow">How it works</div>
+  <h2>HTTP 402, paid in USDC on Stellar</h2>
+  <p class="lead">TIA uses the x402 protocol with the <code>exact</code> scheme on Stellar mainnet (<code>stellar:pubnet</code>). No sign-up, no API keys — each call is paid individually in USDC.</p>
+  <div class="grid4">
+    <div class="card"><div class="step-n">1</div><h3>Call</h3><p>The agent requests a paid endpoint such as <code>GET /v1/quote</code>.</p></div>
+    <div class="card"><div class="step-n">2</div><h3>Get 402</h3><p>The API replies <code>402 Payment Required</code> with payment requirements (amount, USDC asset, pay-to account, network) in the <code>PAYMENT-REQUIRED</code> header.</p></div>
+    <div class="card"><div class="step-n">3</div><h3>Sign &amp; retry</h3><p>The agent signs a USDC payment on Stellar and retries the request with the <code>PAYMENT-SIGNATURE</code> header (x402 v2).</p></div>
+    <div class="card"><div class="step-n">4</div><h3>Get data</h3><p>Payment is settled via the OpenZeppelin x402 facilitator and the API returns the data, with the settlement receipt in the <code>PAYMENT-RESPONSE</code> header.</p></div>
+  </div>
+  <p class="note">Each payment is single-use: replaying the same payment returns <code>409 payment_replayed</code>.</p>
+</div></section>
+
+<section id="endpoints"><div class="wrap">
+  <div class="eyebrow">Endpoints &amp; pricing</div>
+  <h2>Simple per-call pricing</h2>
+  <p class="lead">Base URL: <a href="https://x402.holatia.app" class="mono">https://x402.holatia.app</a> · Prices in USDC on Stellar.</p>
+  <div class="table-wrap"><table>
+    <thead><tr><th>Endpoint</th><th>Description</th><th>Price</th></tr></thead>
+    <tbody>
+      <tr><td><span class="m get">GET</span><code>/v1/quote</code></td><td>USD/MXN remittance quote</td><td class="price">$0.10 USDC</td></tr>
+      <tr><td><span class="m get">GET</span><code>/v1/route?amount=USD</code></td><td>Compare remittance routes / rails for a given USD amount</td><td class="price">$0.25 USDC</td></tr>
+      <tr><td><span class="m post">POST</span><code>/v1/alert</code></td><td>Create a USD/MXN rate alert</td><td class="price">$0.10 USDC</td></tr>
+      <tr><td><span class="m get">GET</span><code>/health</code></td><td>Service status and x402 configuration</td><td class="free">Free</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2 style="margin-top:56px;font-size:1.4rem">Try it: an unpaid call returns 402</h2>
+<pre><span class="c"># Request a quote without paying</span>
+<span class="k">$</span> curl -i https://x402.holatia.app/v1/quote
+
+<span class="e">HTTP/2 402</span>
+content-type: application/json; charset=utf-8
+payment-required: eyJ4NDAyVmVyc2lvbiI6Mi...  <span class="c"># base64-encoded JSON</span>
+
+<span class="c"># Decoded PAYMENT-REQUIRED header:</span>
+{
+  <span class="s">"x402Version"</span>: 2,
+  <span class="s">"error"</span>: <span class="s">"Payment required"</span>,
+  <span class="s">"accepts"</span>: [{
+    <span class="s">"scheme"</span>: <span class="s">"exact"</span>,
+    <span class="s">"network"</span>: <span class="s">"stellar:pubnet"</span>,
+    <span class="s">"amount"</span>: <span class="s">"1000000"</span>,        <span class="c">// 0.10 USDC (7 decimals)</span>
+    <span class="s">"asset"</span>: <span class="s">"CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75"</span>,
+    <span class="s">"payTo"</span>: <span class="s">"GBRMBOEGDTF72FP72D7OQLICBXVTSG25GYWZ3W7TNCLD47NEYVU7JUBS"</span>,
+    <span class="s">"maxTimeoutSeconds"</span>: 300,
+    <span class="s">"extra"</span>: { <span class="s">"areFeesSponsored"</span>: true }
+  }]
+}</pre>
+</div></section>
+
+<section id="proof"><div class="wrap">
+  <div class="eyebrow">On-chain proof</div>
+  <h2>Verifiable on Stellar mainnet</h2>
+  <div class="proof">
+    <div class="card"><span class="label">Soroban escrow contract</span>
+      <a class="val" href="https://stellar.expert/explorer/public/contract/CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTSAELKESPY6D7DUA22M5MP" target="_blank" rel="noopener">CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTSAELKESPY6D7DUA22M5MP</a>
+      <ul><li>Bound to the Circle USDC Stellar Asset Contract (SAC)</li><li>25 bps treasury fee on cashout</li><li>Functions: <code>initialize_reservation</code>, <code>mark_verified</code>, <code>validate_cashout</code>, <code>cancel_reservation</code>, <code>register_merchant</code></li></ul>
+    </div>
+    <div class="card"><span class="label">Pay-to (treasury) account</span>
+      <a class="val" href="https://stellar.expert/explorer/public/account/GBRMBOEGDTF72FP72D7OQLICBXVTSG25GYWZ3W7TNCLD47NEYVU7JUBS" target="_blank" rel="noopener">GBRMBOEGDTF72FP72D7OQLICBXVTSG25GYWZ3W7TNCLD47NEYVU7JUBS</a>
+    </div>
+    <div class="card"><span class="label">First verified paid mainnet call · Sept 25, 2026</span>
+      <a class="val" href="https://stellar.expert/explorer/public/tx/b5fc310f086d3e4e170384fec0ccd1485c9b348559a12f61aa1ec9f2b5695e0d" target="_blank" rel="noopener">b5fc310f086d3e4e170384fec0ccd1485c9b348559a12f61aa1ec9f2b5695e0d</a>
+      <ul><li>Replaying the same payment returned <code>409 payment_replayed</code></li></ul>
+    </div>
+  </div>
+</div></section>
+
+<section id="stack"><div class="wrap">
+  <div class="eyebrow">Built with</div>
+  <h2>Stack</h2>
+  <div class="tags">
+    <span class="tag">TypeScript</span><span class="tag">Node / Express</span><span class="tag">x402 (@x402/stellar)</span><span class="tag">Rust / Soroban</span><span class="tag">USDC on Stellar</span><span class="tag">Upstash Redis</span><span class="tag">Vercel</span>
+  </div>
+</div></section>
+
+<footer><div class="wrap">
+  <div class="brand"><img src="/favicon-48.png" alt="" width="34" height="34">TIA Remittance API · Built on Stellar</div>
+  <div><a href="https://github.com/Edgadafi/remesa-liquidez" target="_blank" rel="noopener">GitHub: Edgadafi/remesa-liquidez</a> · <a href="https://x402.holatia.app" target="_blank" rel="noopener">API</a></div>
+</div></footer>
+</body>
+</html>

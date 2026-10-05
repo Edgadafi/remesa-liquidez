@@ -4,13 +4,17 @@
   "private": true,
   "type": "module",
   "engines": {
-    "node": "20.x"
+    "node": "24.x"
   },
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "tsx src/index.ts",
+    "test": "node --import tsx --test 'src/**/*.test.ts'",
     "typecheck": "tsc --noEmit",
-    "smoke:notify": "tsx scripts/smoke-notify.ts"
+    "bundle:api": "esbuild src/app.ts --bundle --platform=node --format=cjs --outfile=api/app.cjs --external:express --external:prova-agent-sdk --external:@solana/web3.js --external:@solana/*",
+    "smoke:notify": "tsx scripts/smoke-notify.ts",
+    "smoke:v1": "tsx scripts/v1-smoke.ts",
+    "watch:payto": "tsx scripts/payto-watch.ts"
   },
   "dependencies": {
     "@lifi/sdk": "^4.4.0",
@@ -28,6 +32,8 @@
   "devDependencies": {
     "@types/express": "^4.17.21",
     "@types/node": "^20.0.0",
+    "@types/supertest": "^7.2.1",
+    "supertest": "^7.3.0",
     "typescript": "^5.7.3"
   },
   "overrides": {

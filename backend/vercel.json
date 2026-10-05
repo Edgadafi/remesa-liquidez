@@ -9,7 +9,7 @@
   "functions": {
     "api/index.ts": {
       "maxDuration": 30,
-      "includeFiles": "node_modules/@x402/**"
+      "includeFiles": "{api/app.cjs,node_modules/{@x402,@stellar,express,nirium,prova-agent-sdk,@solana}/**}"
     }
   }
 }
