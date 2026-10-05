@@ -1,0 +1,985 @@
+openapi: 3.1.0
+info:
+  title: TIA Remittance API
+  version: "1"
+  license:
+    name: MIT
+    url: https://github.com/Edgadafi/remesa-liquidez/blob/main/LICENSE
+  description: |
+    Pay-per-call USD/MXN remittance data for AI agents. Paid routes use x402
+    v2 `exact` (USDC on Stellar). An unpaid call returns **402** with the
+    terms in the `PAYMENT-REQUIRED` header (base64 JSON). The retry sends
+    `PAYMENT-SIGNATURE`. A settled **200** (or **201** for alerts) includes
+    `PAYMENT-RESPONSE`.
+
+    Default prices come from `getX402Prices()` in
+    `backend/src/services/x402Config.ts` (`$` strings). Stellar USDC has 7
+    decimals, so `$0.10` is amount `1000000` and `$0.25` is `2500000` in
+    `accepts[].amount`. Env overrides (`NIRIUM_X402_*`) change the advertised
+    price; read the 402 header rather than assuming the default.
+
+    The mainnet server advertises `stellar:pubnet`. The testnet server
+    advertises `stellar:testnet`. Asset and `payTo` are whatever that host
+    puts in `PAYMENT-REQUIRED`.
+servers:
+  - url: https://x402.holatia.app
+    description: Mainnet — stellar:pubnet
+  - url: https://remesa-tia-testnet.vercel.app
+    description: Testnet — stellar:testnet (handshake)
+
+tags:
+  - name: health
+  - name: v1
+  - name: premium
+
+paths:
+  /health:
+    get:
+      tags: [health]
+      operationId: getHealth
+      summary: Service status and x402 configuration
+      description: Free. Not behind the x402 middleware.
+      responses:
+        "200":
+          description: Service is up.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Health"
+
+  /v1/quote:
+    get:
+      tags: [v1]
+      operationId: getQuote
+      summary: USD/MXN ticker
+      description: |
+        Default price `$0.10` USDC. Returns Bitso `usd_mxn` last, bid/ask,
+        spread, and 24h volume. `generatedAt` is the ticker         `fetchedAt`.
+      parameters:
+        - $ref: "#/components/parameters/PaymentSignature"
+      responses:
+        "200":
+          description: Paid quote. `PAYMENT-RESPONSE` carries the settlement receipt.
+          headers:
+            PAYMENT-RESPONSE:
+              $ref: "#/components/headers/PAYMENT-RESPONSE"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Quote"
+        "402":
+          $ref: "#/components/responses/PaymentRequired"
+        "400":
+          $ref: "#/components/responses/PaymentHeaderError"
+        "409":
+          $ref: "#/components/responses/PaymentReplayed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/ReplayProtectionUnavailable"
+        "500":
+          $ref: "#/components/responses/HandlerError"
+
+  /v1/route:
+    get:
+      tags: [v1]
+      operationId: getRoute
+      summary: Compare USD to MXN rails
+      description: |
+        Default price `$0.25` USDC. `amount` is USD. The handler rejects
+        values that are not finite or are outside 1..50000 before estimating.
+      parameters:
+        - $ref: "#/components/parameters/PaymentSignature"
+        - name: amount
+          in: query
+          required: true
+          description: USD amount, inclusive range 1 to 50000.
+          schema:
+            type: number
+            minimum: 1
+            maximum: 50000
+          example: 100
+      responses:
+        "200":
+          description: Paid estimate. `PAYMENT-RESPONSE` carries the settlement receipt.
+          headers:
+            PAYMENT-RESPONSE:
+              $ref: "#/components/headers/PAYMENT-RESPONSE"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/RouteEstimateResponse"
+        "400":
+          description: |
+            Missing or out-of-range `amount`, or a rejected payment header.
+            Amount failures use `error` only. Header failures also include `message`.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/RouteAmountError"
+                  - $ref: "#/components/schemas/PaymentHeaderError"
+        "402":
+          $ref: "#/components/responses/PaymentRequired"
+        "409":
+          $ref: "#/components/responses/PaymentReplayed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/ReplayProtectionUnavailable"
+        "500":
+          $ref: "#/components/responses/HandlerError"
+
+  /v1/alert:
+    post:
+      tags: [v1]
+      operationId: createAlert
+      summary: Register a one-shot USD/MXN threshold alert
+      description: |
+        Experimental. Default price `$0.10` USDC. Success is **201**, not 200.
+        The alert fires once when a later cron calls `POST /v1/alert/check`
+        (Bearer `CRON_SECRET` or `TIA_MANUAL_OVERRIDE_SECRET`, not x402) and
+        then it is deleted. This path does not document that operator route.
+
+        In production `webhookUrl` must be `https`, without embedded
+        credentials, and must not resolve to a private, loopback, or
+        link-local address. Outside production, a literal loopback URL is
+        allowed.
+      parameters:
+        - $ref: "#/components/parameters/PaymentSignature"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AlertRequest"
+      callbacks:
+        thresholdCrossed:
+          "{$request.body#/webhookUrl}":
+            post:
+              summary: One-shot webhook this server sends when the threshold is crossed
+              requestBody:
+                required: true
+                content:
+                  application/json:
+                    schema:
+                      $ref: "#/components/schemas/AlertWebhook"
+              responses:
+                "200":
+                  description: |
+                    Any HTTP 2xx counts as delivered and the alert is deleted.
+                    Redirects are not followed.
+      responses:
+        "201":
+          description: Alert stored. `PAYMENT-RESPONSE` carries the settlement receipt.
+          headers:
+            PAYMENT-RESPONSE:
+              $ref: "#/components/headers/PAYMENT-RESPONSE"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlertCreated"
+        "400":
+          description: Invalid body, or a rejected payment header.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/ErrorString"
+                  - $ref: "#/components/schemas/PaymentHeaderError"
+        "402":
+          $ref: "#/components/responses/PaymentRequired"
+        "409":
+          $ref: "#/components/responses/PaymentReplayed"
+        "429":
+          description: |
+            Sliding-window rate limit, or the alert store cap (100 global, or
+            `ALERTS_MAX_PER_CLIENT`, default 5, for this client IP).
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/RateLimited"
+                  - $ref: "#/components/schemas/ErrorString"
+        "503":
+          $ref: "#/components/responses/ReplayProtectionUnavailable"
+        "500":
+          $ref: "#/components/responses/HandlerError"
+
+  /premium/fx:
+    get:
+      tags: [premium]
+      operationId: getPremiumFx
+      summary: USD/MXN last price
+      description: |
+        Optional legacy quote. Default price `$0.10` USDC. Only `rate` and
+        `isLive` from the ticker, plus a fixed note.
+      parameters:
+        - $ref: "#/components/parameters/PaymentSignature"
+      responses:
+        "200":
+          description: Paid FX tick.
+          headers:
+            PAYMENT-RESPONSE:
+              $ref: "#/components/headers/PAYMENT-RESPONSE"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PremiumFx"
+        "402":
+          $ref: "#/components/responses/PaymentRequired"
+        "400":
+          $ref: "#/components/responses/PaymentHeaderError"
+        "409":
+          $ref: "#/components/responses/PaymentReplayed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/ReplayProtectionUnavailable"
+        "500":
+          $ref: "#/components/responses/HandlerError"
+
+  /premium/bridge-quote:
+    get:
+      tags: [premium]
+      operationId: getBridgeQuote
+      summary: LI.FI USDC quote from EVM to Solana
+      description: |
+        Optional. Default price `$0.25` USDC. Query values are validated
+        before they reach LI.FI.
+      parameters:
+        - $ref: "#/components/parameters/PaymentSignature"
+        - name: fromAddress
+          in: query
+          required: true
+          description: EVM address, `0x` plus 40 hex characters.
+          schema:
+            type: string
+            pattern: "^0x[a-fA-F0-9]{40}$"
+        - name: toAddress
+          in: query
+          required: true
+          description: Solana public key, base58, 32 to 44 characters.
+          schema:
+            type: string
+            pattern: "^[1-9A-HJ-NP-Za-km-z]{32,44}$"
+        - name: fromAmount
+          in: query
+          required: true
+          description: Positive integer in EVM USDC base units (6 decimals). At most 13 digits.
+          schema:
+            type: string
+            pattern: "^[1-9]\\d{0,12}$"
+        - name: fromChain
+          in: query
+          required: false
+          description: Defaults to `ARB` when omitted.
+          schema:
+            type: string
+            enum: [ARB, BASE, POL]
+            default: ARB
+      responses:
+        "200":
+          description: Paid bridge quote.
+          headers:
+            PAYMENT-RESPONSE:
+              $ref: "#/components/headers/PAYMENT-RESPONSE"
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/BridgeQuote"
+        "400":
+          description: Invalid query, or a rejected payment header.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/BridgeQuoteError"
+                  - $ref: "#/components/schemas/PaymentHeaderError"
+        "402":
+          $ref: "#/components/responses/PaymentRequired"
+        "409":
+          $ref: "#/components/responses/PaymentReplayed"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+        "503":
+          $ref: "#/components/responses/ReplayProtectionUnavailable"
+        "500":
+          $ref: "#/components/responses/HandlerError"
+
+components:
+  headers:
+    PAYMENT-REQUIRED:
+      description: |
+        x402 v2. Standard base64 of a `PaymentRequired` JSON object.
+        Sent on 402. `Cache-Control` is `no-store`.
+      schema:
+        type: string
+        contentEncoding: base64
+        contentMediaType: application/json
+    PAYMENT-RESPONSE:
+      description: |
+        x402 v2 settlement receipt. Standard base64 of a `SettleResponse`
+        JSON object. `extensionResponses` is removed before encoding.
+        Also accepted by clients as `X-PAYMENT-RESPONSE` (v1).
+      schema:
+        type: string
+        contentEncoding: base64
+        contentMediaType: application/json
+    PAYMENT-SIGNATURE:
+      description: |
+        x402 v2 payment. Standard base64 JSON `PaymentPayload`. The server
+        reads `payment-signature` first and falls back to `x-payment` (v1)
+        when the v2 header is absent. Sending both with different values is
+        `400 conflicting_payment_headers`. A single header may be at most
+        8192 bytes.
+      schema:
+        type: string
+        contentEncoding: base64
+        contentMediaType: application/json
+
+  parameters:
+    PaymentSignature:
+      name: PAYMENT-SIGNATURE
+      in: header
+      required: false
+      description: |
+        Present on the paid retry. Absent on the unpaid probe that receives 402.
+      schema:
+        type: string
+
+  responses:
+    PaymentRequired:
+      description: |
+        No usable payment header. x402 v2 leaves the JSON body empty (`{}`)
+        and puts the declaration in `PAYMENT-REQUIRED`.
+      headers:
+        PAYMENT-REQUIRED:
+          $ref: "#/components/headers/PAYMENT-REQUIRED"
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/EmptyObject"
+    PaymentReplayed:
+      description: |
+        This payment proof was already consumed for this method and URL
+        after a 2xx, or a duplicate is in flight. The body `error` is
+        `payment_replayed`.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PaymentReplayed"
+    PaymentHeaderError:
+      description: Rejected `PAYMENT-SIGNATURE` or `x-payment` header.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/PaymentHeaderError"
+    RateLimited:
+      description: |
+        More than `RATE_LIMIT_MAX` requests (default 30) per
+        `RATE_LIMIT_WINDOW_SECONDS` (default 60) from this IP on `/v1` or
+        `/premium`. `Retry-After` is the window in seconds.
+      headers:
+        Retry-After:
+          schema:
+            type: integer
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/RateLimited"
+    ReplayProtectionUnavailable:
+      description: |
+        Production (or `X402_REPLAY_STRICT=true`) has no durable replay
+        store, or the store failed. Requests without a payment header still
+        receive 402.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ReplayProtectionUnavailable"
+    HandlerError:
+      description: Handler caught an exception.
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/HandlerError"
+
+  schemas:
+    EmptyObject:
+      type: object
+      additionalProperties: false
+
+    PaymentRequired:
+      description: JSON inside the `PAYMENT-REQUIRED` header (`@x402/core` `PaymentRequired`).
+      type: object
+      required: [x402Version, resource, accepts]
+      properties:
+        x402Version:
+          type: number
+        error:
+          type: string
+        resource:
+          $ref: "#/components/schemas/ResourceInfo"
+        accepts:
+          type: array
+          items:
+            $ref: "#/components/schemas/PaymentRequirements"
+        extensions:
+          type: object
+          additionalProperties: true
+
+    ResourceInfo:
+      type: object
+      required: [url]
+      properties:
+        url:
+          type: string
+        description:
+          type: string
+        mimeType:
+          type: string
+        serviceName:
+          type: string
+        tags:
+          type: array
+          items:
+            type: string
+        iconUrl:
+          type: string
+
+    PaymentRequirements:
+      type: object
+      required: [scheme, network, asset, amount, payTo, maxTimeoutSeconds, extra]
+      properties:
+        scheme:
+          type: string
+          description: '`exact` for this API.'
+        network:
+          type: string
+          description: '`stellar:pubnet` on the mainnet server, `stellar:testnet` on the testnet server.'
+        asset:
+          type: string
+          description: Stellar asset contract id advertised by that server.
+        amount:
+          type: string
+          description: Atomic USDC units (7 decimals on Stellar).
+        payTo:
+          type: string
+          description: Stellar G-account that receives the payment.
+        maxTimeoutSeconds:
+          type: number
+        extra:
+          type: object
+          additionalProperties: true
+          description: |
+            Scheme extras. The Stellar facilitator sets `areFeesSponsored`
+            when it pays the network fee.
+
+    PaymentPayload:
+      description: JSON inside `PAYMENT-SIGNATURE` (`@x402/core` `PaymentPayload`).
+      type: object
+      required: [x402Version, accepted, payload]
+      properties:
+        x402Version:
+          type: number
+        resource:
+          $ref: "#/components/schemas/ResourceInfo"
+        accepted:
+          $ref: "#/components/schemas/PaymentRequirements"
+        payload:
+          type: object
+          additionalProperties: true
+        extensions:
+          type: object
+          additionalProperties: true
+
+    SettleResponse:
+      description: |
+        JSON inside `PAYMENT-RESPONSE`. `extensionResponses` is stripped
+        before the header is encoded.
+      type: object
+      required: [success, transaction, network]
+      properties:
+        success:
+          type: boolean
+        errorReason:
+          type: string
+        errorMessage:
+          type: string
+        payer:
+          type: string
+        transaction:
+          type: string
+        network:
+          type: string
+        amount:
+          type: string
+          description: Atomic units actually settled, when the scheme reports them.
+        extensions:
+          type: object
+          additionalProperties: true
+        extra:
+          type: object
+          additionalProperties: true
+
+    Health:
+      type: object
+      required: [ok, agent, service, timestamp, prova, x402]
+      properties:
+        ok:
+          type: boolean
+          const: true
+        agent:
+          type: string
+          const: TIA
+        service:
+          type: string
+          const: remesa-tia-backend
+        timestamp:
+          type: string
+          format: date-time
+        prova:
+          $ref: "#/components/schemas/ProvaStatus"
+        x402:
+          $ref: "#/components/schemas/X402Status"
+
+    ProvaStatus:
+      type: object
+      required: [enabled, active, agentPda]
+      properties:
+        enabled:
+          type: boolean
+        active:
+          type: boolean
+        agentPda:
+          type: ["string", "null"]
+        attestationCount:
+          type: integer
+
+    X402Status:
+      type: object
+      required: [enabled, network, payTo, routes]
+      properties:
+        enabled:
+          type: boolean
+        network:
+          type: string
+          enum: ["stellar:pubnet", "stellar:testnet"]
+        payTo:
+          type: ["string", "null"]
+        routes:
+          type: object
+          additionalProperties:
+            type: string
+          description: |
+            Map of `METHOD /path` to a `$` price string. Defaults:
+            `GET /premium/bridge-quote` `$0.25`, `GET /premium/fx` `$0.10`,
+            `GET /v1/quote` `$0.10`, `GET /v1/route` `$0.25`,
+            `POST /v1/alert` `$0.10`.
+
+    Quote:
+      type: object
+      required:
+        - ok
+        - apiVersion
+        - pair
+        - rate
+        - bid
+        - ask
+        - spread
+        - spreadPct
+        - volume24hUsd
+        - vwap24h
+        - high24h
+        - low24h
+        - source
+        - isLive
+        - generatedAt
+      properties:
+        ok:
+          type: boolean
+          const: true
+        apiVersion:
+          type: string
+          const: "1"
+        pair:
+          type: string
+          const: USD/MXN
+        rate:
+          type: number
+          description: Last traded price.
+        bid:
+          type: number
+        ask:
+          type: number
+        spread:
+          type: number
+          description: ask minus bid, in MXN.
+        spreadPct:
+          type: number
+          description: spread / mid, in percent.
+        volume24hUsd:
+          type: number
+        vwap24h:
+          type: number
+        high24h:
+          type: number
+        low24h:
+          type: number
+        source:
+          type: string
+          const: bitso
+        isLive:
+          type: boolean
+          description: False when the Bitso fetch failed and the fallback ticker was used.
+        generatedAt:
+          type: string
+          format: date-time
+
+    RouteOption:
+      type: object
+      required:
+        - route
+        - label
+        - mxnOut
+        - effectiveRate
+        - totalCostUsd
+        - totalCostPct
+        - etaMinutes
+        - assumptions
+      properties:
+        route:
+          type: string
+          enum: [bitso_directo, stablecoin_usdc, spei_tradicional]
+        label:
+          type: string
+        mxnOut:
+          type: number
+        effectiveRate:
+          type: number
+        totalCostUsd:
+          type: number
+        totalCostPct:
+          type: number
+        etaMinutes:
+          type: number
+        assumptions:
+          type: array
+          items:
+            type: string
+
+    RouteEstimateResponse:
+      type: object
+      required:
+        - ok
+        - apiVersion
+        - amountUsd
+        - midRate
+        - rateIsLive
+        - rateSource
+        - best
+        - options
+        - disclaimer
+        - generatedAt
+      properties:
+        ok:
+          type: boolean
+          const: true
+        apiVersion:
+          type: string
+          const: "1"
+        amountUsd:
+          type: number
+        midRate:
+          type: number
+        rateIsLive:
+          type: boolean
+        rateSource:
+          type: string
+          const: bitso
+        best:
+          type: string
+          enum: [bitso_directo, stablecoin_usdc, spei_tradicional]
+        options:
+          type: array
+          items:
+            $ref: "#/components/schemas/RouteOption"
+        disclaimer:
+          type: string
+          const: "Estimación con supuestos publicados por opción; no es una cotización ejecutable."
+        generatedAt:
+          type: string
+          format: date-time
+
+    RouteAmountError:
+      type: object
+      required: [ok, error, example]
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          const: "amount requerido en USD, entre 1 y 50000"
+        example:
+          type: string
+          const: "/v1/route?amount=100"
+
+    AlertRequest:
+      type: object
+      required: [threshold, direction, webhookUrl]
+      properties:
+        threshold:
+          type: number
+          exclusiveMinimum: 0
+          exclusiveMaximum: 1000
+          description: MXN per USD. Must be finite.
+        direction:
+          type: string
+          enum: [above, below]
+        webhookUrl:
+          type: string
+          maxLength: 500
+
+    AlertCreated:
+      type: object
+      required:
+        - ok
+        - apiVersion
+        - alertId
+        - status
+        - pair
+        - direction
+        - threshold
+        - webhookUrl
+        - createdAt
+        - expiresAt
+        - maxRetries
+        - store
+        - note
+      properties:
+        ok:
+          type: boolean
+          const: true
+        apiVersion:
+          type: string
+          const: "1"
+        alertId:
+          type: string
+          format: uuid
+        status:
+          type: string
+          const: active
+        pair:
+          type: string
+          const: USD/MXN
+        direction:
+          type: string
+          enum: [above, below]
+        threshold:
+          type: number
+        webhookUrl:
+          type: string
+        createdAt:
+          type: string
+          format: date-time
+        expiresAt:
+          type: string
+          format: date-time
+        maxRetries:
+          type: number
+          description: Default 3 (`ALERTS_MAX_RETRIES`).
+        store:
+          type: string
+          enum: [upstash, memory]
+        note:
+          type: string
+
+    AlertWebhook:
+      description: |
+        JSON this server POSTs to `webhookUrl` when the threshold is crossed.
+        Not an inbound path.
+      type: object
+      required: [type, alertId, pair, direction, threshold, rate, source, firedAt]
+      properties:
+        type:
+          type: string
+          const: fx-alert
+        alertId:
+          type: string
+        pair:
+          type: string
+          const: USD/MXN
+        direction:
+          type: string
+          enum: [above, below]
+        threshold:
+          type: number
+        rate:
+          type: number
+        source:
+          type: string
+          const: bitso
+        firedAt:
+          type: string
+          format: date-time
+
+    PremiumFx:
+      type: object
+      required: [ok, pair, rate, isLive, source, note]
+      properties:
+        ok:
+          type: boolean
+          const: true
+        pair:
+          type: string
+          const: USD/MXN
+        rate:
+          type: number
+        isLive:
+          type: boolean
+        source:
+          type: string
+          const: bitso
+        note:
+          type: string
+          const: "Premium FX tick — pago x402 verificado on-chain."
+
+    BridgeQuote:
+      type: object
+      required:
+        - ok
+        - fromChain
+        - fromAmount
+        - toChain
+        - toAmount
+        - toAmountMin
+        - toAmountHuman
+        - estimatedSeconds
+        - bridge
+        - feeCostUsd
+        - note
+      properties:
+        ok:
+          type: boolean
+          const: true
+        fromChain:
+          type: string
+          enum: [ARB, BASE, POL]
+        fromAmount:
+          type: string
+        toChain:
+          type: string
+          const: SOL
+        toAmount:
+          type: string
+        toAmountMin:
+          type: string
+        toAmountHuman:
+          type: string
+          description: toAmount divided by 1e6, fixed to 2 decimal places.
+        estimatedSeconds:
+          type: number
+        bridge:
+          type: string
+        feeCostUsd:
+          type: string
+        note:
+          type: string
+          const: "Premium LI.FI quote — pago x402 verificado on-chain."
+
+    BridgeQuoteError:
+      type: object
+      required: [ok, message, details, example]
+      properties:
+        ok:
+          type: boolean
+          const: false
+        message:
+          type: string
+        details:
+          type: object
+          additionalProperties:
+            type: array
+            items:
+              type: string
+          description: Zod `flatten().fieldErrors`.
+        example:
+          type: string
+
+    ErrorString:
+      type: object
+      required: [ok, error]
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+
+    PaymentHeaderError:
+      type: object
+      required: [ok, error, message]
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum:
+            - invalid_payment_header
+            - conflicting_payment_headers
+            - payment_header_too_large
+        message:
+          type: string
+
+    PaymentReplayed:
+      type: object
+      required: [ok, error, message]
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          const: payment_replayed
+        message:
+          type: string
+          const: "Esta prueba de pago ya fue usada. Cada request requiere un pago firmado nuevo."
+
+    RateLimited:
+      type: object
+      required: [ok, error, message]
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          const: rate_limited
+        message:
+          type: string
+
+    ReplayProtectionUnavailable:
+      type: object
+      required: [ok, error, message]
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          const: replay_protection_unavailable
+        message:
+          type: string
+          const: "El servidor no puede garantizar protección anti-replay ahora mismo. Reintenta más tarde."
+
+    HandlerError:
+      type: object
+      required: [ok, message]
+      properties:
+        ok:
+          type: boolean
+          const: false
+        message:
+          type: string
