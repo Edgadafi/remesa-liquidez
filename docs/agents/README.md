@@ -2,7 +2,11 @@
 
 Live USD/MXN market intelligence your agent can buy per request — no API key, no signup, no subscription. Payment is a ~$0.10 USDC micro-transaction on Stellar mainnet, negotiated automatically over HTTP with the [x402 protocol](https://x402.org).
 
-**Base URL:** `https://remesa-tia-backend.vercel.app`
+**Base URL (mainnet):** `https://x402.holatia.app` (`stellar:pubnet`)
+
+**Testnet handshake:** `https://remesa-tia-testnet.vercel.app` (`stellar:testnet`) — same paths; the unpaid `402` announces that host's network, asset, and payTo.
+
+**OpenAPI:** [docs/tia-openapi.yaml](../tia-openapi.yaml)
 
 ## What you're buying (not just a number)
 
@@ -12,7 +16,7 @@ Live USD/MXN market intelligence your agent can buy per request — no API key, 
 | `GET /v1/route?amount=USD` | $0.25 | Best USD→MXN rail for a given amount: Bitso spot / USDC via Stellar / traditional SPEI wire — total cost, effective rate, ETA, and **published assumptions per option** |
 | `GET /premium/fx` | $0.10 | Legacy: USD/MXN last price only |
 
-Discovery: [`GET /health`](https://remesa-tia-backend.vercel.app/health) lists every paid route and its current price (no payment needed).
+Discovery: [`GET /health`](https://x402.holatia.app/health) lists every paid route and its current price (no payment needed).
 
 > `POST /v1/alert` (threshold alerts with webhook delivery) exists in the API but its production scheduling/persistence setup is still being finalized — don't build on it yet. Quote and route are fully live.
 
@@ -52,7 +56,7 @@ import { Agent } from "nirium"; // npm install nirium
 
 const agent = new Agent({
   apiKey: "unused-for-x402",
-  baseUrl: "https://remesa-tia-backend.vercel.app",
+  baseUrl: "https://x402.holatia.app",
 });
 
 agent.initX402({
@@ -62,7 +66,7 @@ agent.initX402({
 
 // One call: unpaid probe → 402 → sign USDC payment → retry → 200
 const res = await agent.x402Fetch(
-  "https://remesa-tia-backend.vercel.app/v1/quote"
+  "https://x402.holatia.app/v1/quote"
 );
 const quote = await res.json();
 
@@ -83,11 +87,11 @@ A runnable version with `.env` handling lives in [`examples/agent-client/`](../.
 
 1. Run the client — the paid response is HTTP 200 with the JSON above.
 2. Open the [receiving account on stellar.expert](https://stellar.expert/explorer/public/account/GBRMBOEGDTF72FP72D7OQLICBXVTSG25GYWZ3W7TNCLD47NEYVU7JUBS) — your USDC payment appears within seconds.
-3. Inspect the unpaid 402 yourself: `curl -i https://remesa-tia-backend.vercel.app/v1/quote` and base64-decode the `payment-required` header to see the exact amount, asset, and payTo before spending anything.
+3. Inspect the unpaid 402 yourself: `curl -i https://x402.holatia.app/v1/quote` and base64-decode the `payment-required` header to see the exact amount, asset, and payTo before spending anything.
 
 ## FAQ
 
 - **Data source?** Bitso (`usd_mxn` book), 60 s cache, `isLive` flag in every response. If the upstream feed is down the API says so instead of silently serving stale data.
 - **Do I need an account with you?** No. The payment is the authentication.
-- **Testnet?** The live deployment is mainnet-only. Prices are cents precisely so you can test against production.
+- **Testnet?** Handshake on `https://remesa-tia-testnet.vercel.app` (`stellar:testnet`) in addition to mainnet `https://x402.holatia.app` (`stellar:pubnet`). Read `PAYMENT-REQUIRED` on the host you call before signing. Prices stay in cents on both.
 - **Rate limits?** None beyond payment — every paid request is served.

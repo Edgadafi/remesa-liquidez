@@ -5,7 +5,8 @@
 ## TIA on Stellar — live links (verifiable)
 
 - **Live site:** https://tia-stellar.vercel.app (source: [`site/`](site/))
-- **API:** https://remesa-tia-backend.vercel.app — x402 `exact` scheme, paid in USDC on `stellar:pubnet`
+- **API (primary):** https://x402.holatia.app — x402 `exact` on `stellar:pubnet`. Contract: [docs/tia-openapi.yaml](docs/tia-openapi.yaml). License: [MIT](LICENSE).
+- **Testnet host (handshake):** https://remesa-tia-testnet.vercel.app — `stellar:testnet`
 
   | Endpoint | Price |
   |---|---|
@@ -313,4 +314,4 @@ Copiar `.env.example` → `.env` y rellenar:
 
 ## Licencia
 
-ISC
+[MIT](LICENSE) — Copyright (c) 2026 Edgadafi.
