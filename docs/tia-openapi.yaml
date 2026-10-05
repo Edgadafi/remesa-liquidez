@@ -398,11 +398,17 @@ components:
           schema:
             $ref: "#/components/schemas/ReplayProtectionUnavailable"
     HandlerError:
-      description: Handler caught an exception.
+      description: |
+        A route `catch` returns `{ ok: false, message }`. The app-level
+        error middleware (invalid JSON, body over the limit, or an
+        unhandled exception) returns `{ ok: false, agent, error }` instead.
+        On status 500 that `error` is the string `Internal error`.
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/HandlerError"
+            oneOf:
+              - $ref: "#/components/schemas/HandlerError"
+              - $ref: "#/components/schemas/UnhandledError"
 
   schemas:
     EmptyObject:
@@ -982,4 +988,18 @@ components:
           type: boolean
           const: false
         message:
+          type: string
+
+    UnhandledError:
+      description: JSON from the Express error middleware in `createApp()`.
+      type: object
+      required: [ok, agent, error]
+      properties:
+        ok:
+          type: boolean
+          const: false
+        agent:
+          type: string
+          const: TIA
+        error:
           type: string
