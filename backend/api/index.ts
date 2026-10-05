@@ -22,7 +22,8 @@ export default async function handler(req: Request, res: Response) {
       ok: false,
       loaded,
       boot: error.name,
-      message: error.message.slice(0, 500),
+      message: error.message.slice(0, 300),
+      stack: (error.stack ?? "").split("\n").slice(0, 8),
     });
   }
 }
