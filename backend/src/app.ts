@@ -1,5 +1,5 @@
 import express from "express";
-import * as niriumNs from "nirium";
+import { x402Serve } from "nirium";
 import tiaRouter from "./routes/tia.js";
 import premiumRouter from "./routes/premium.js";
 import v1Router from "./routes/v1.js";
@@ -16,27 +16,18 @@ import {
   getX402Status,
   getX402V1ServeConfig,
   isX402Enabled,
+  type X402MountState,
 } from "./services/x402Config.js";
 
-type X402Serve = (
-  config:
-    | ReturnType<typeof getX402ServeConfig>
-    | ReturnType<typeof getX402V1ServeConfig>
-) => express.RequestHandler;
-
-function resolveX402Serve(): X402Serve {
-  const bag = niriumNs as Record<string, unknown> & { default?: unknown };
-  const nested =
-    bag.default && typeof bag.default === "object"
-      ? (bag.default as Record<string, unknown>)
-      : undefined;
-  const fn = [bag.x402Serve, nested?.x402Serve].find(
-    (candidate) => typeof candidate === "function"
-  );
-  if (typeof fn !== "function") {
-    throw new Error("nirium x402Serve export not found");
+/** Motivo de /health. No usa el mensaje del SDK: puede arrastrar config. */
+function x402MountFailureReason(): string {
+  const missing: string[] = [];
+  if (!process.env.STELLAR_PAY_TO?.trim()) missing.push("STELLAR_PAY_TO");
+  if (!process.env.X402_FACILITATOR_API_KEY?.trim()) {
+    missing.push("X402_FACILITATOR_API_KEY");
   }
-  return fn as X402Serve;
+  if (missing.length > 0) return `no montado: falta ${missing.join(" y ")}`;
+  return "no montado";
 }
 
 export function createApp() {
@@ -87,9 +78,11 @@ export function createApp() {
   app.use(["/api/tia", "/api/lidia"], express.json({ limit: "12mb" }));
   app.use(express.json({ limit: "100kb" }));
 
+  const x402Mount: X402MountState = { mounted: false, reason: null };
+
   app.get("/health", async (_req, res) => {
     const prova = await getProvaStatus();
-    const x402 = getX402Status();
+    const x402 = getX402Status(x402Mount);
     res.json({
       ok: true,
       agent: "TIA",
@@ -127,7 +120,6 @@ ${premiumEndpoints}
 
   if (isX402Enabled()) {
     try {
-      const x402Serve = resolveX402Serve();
       const x402Config = getX402ServeConfig();
 
       // Guardas del X-PAYMENT antes del middleware de cobro: tamaño acotado
@@ -154,14 +146,18 @@ ${premiumEndpoints}
       app.use("/v1", publicOrigin(), x402Serve(v1Config));
       app.use("/v1", v1Router);
 
+      x402Mount.mounted = true;
+      x402Mount.reason = null;
       console.log(
         `[TIA] x402 premium API enabled (${x402Config.network}) → ${[
           ...Object.keys(x402Config.routes).map((r) => `/premium ${r}`),
           ...Object.keys(v1Config.routes).map((r) => `/v1 ${r}`),
         ].join(", ")}`
       );
-    } catch (err) {
-      console.error("[TIA] x402 setup failed:", err);
+    } catch {
+      x402Mount.mounted = false;
+      x402Mount.reason = x402MountFailureReason();
+      console.error("[TIA] x402 setup failed:", x402Mount.reason);
     }
   }
 

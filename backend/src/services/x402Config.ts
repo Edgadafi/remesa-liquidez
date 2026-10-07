@@ -1,5 +1,14 @@
+export interface X402MountState {
+  mounted: boolean;
+  /** Motivo corto y sin secretos cuando las rutas de pago no quedaron montadas. */
+  reason: string | null;
+}
+
 export interface X402Status {
+  /** True solo si las rutas de pago quedaron montadas. El flag de entorno no basta. */
   enabled: boolean;
+  mounted: boolean;
+  reason: string | null;
   network: string;
   payTo: string | null;
   routes: Record<string, string>;
@@ -26,13 +35,17 @@ export function isX402Enabled(): boolean {
   return process.env.NIRIUM_X402_ENABLED === "true";
 }
 
-export function getX402Status(): X402Status {
+export function getX402Status(mount?: X402MountState): X402Status {
   const prices = getX402Prices();
   const network = stellarNetworkId();
   const payTo = process.env.STELLAR_PAY_TO?.trim() || null;
+  const configured = isX402Enabled();
+  const mounted = Boolean(configured && mount?.mounted);
 
   return {
-    enabled: isX402Enabled(),
+    enabled: mounted,
+    mounted,
+    reason: configured && !mounted ? mount?.reason ?? "no montado" : null,
     network,
     payTo,
     routes: {
