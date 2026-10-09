@@ -47,6 +47,13 @@ export function createApp() {
       "Access-Control-Allow-Headers",
       "Content-Type, Authorization, X-PAYMENT, Payment-Signature"
     );
+    // El browser solo puede leer PAYMENT-REQUIRED (el 402) y PAYMENT-RESPONSE
+    // (el recibo del 200) si la respuesta misma los expone. El preflight no
+    // cuenta: Access-Control-Expose-Headers va en el recurso, no en el OPTIONS.
+    res.setHeader(
+      "Access-Control-Expose-Headers",
+      "PAYMENT-REQUIRED, PAYMENT-RESPONSE"
+    );
     res.setHeader("X-Content-Type-Options", "nosniff");
     next();
   });
