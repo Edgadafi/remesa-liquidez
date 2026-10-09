@@ -785,6 +785,55 @@ var require_permessage_deflate = __commonJS({
   }
 });
 
+// node_modules/utf-8-validate/fallback.js
+var require_fallback2 = __commonJS({
+  "node_modules/utf-8-validate/fallback.js"(exports2, module2) {
+    "use strict";
+    function isValidUTF8(buf) {
+      const len = buf.length;
+      let i = 0;
+      while (i < len) {
+        if ((buf[i] & 128) === 0) {
+          i++;
+        } else if ((buf[i] & 224) === 192) {
+          if (i + 1 === len || (buf[i + 1] & 192) !== 128 || (buf[i] & 254) === 192) {
+            return false;
+          }
+          i += 2;
+        } else if ((buf[i] & 240) === 224) {
+          if (i + 2 >= len || (buf[i + 1] & 192) !== 128 || (buf[i + 2] & 192) !== 128 || buf[i] === 224 && (buf[i + 1] & 224) === 128 || // overlong
+          buf[i] === 237 && (buf[i + 1] & 224) === 160) {
+            return false;
+          }
+          i += 3;
+        } else if ((buf[i] & 248) === 240) {
+          if (i + 3 >= len || (buf[i + 1] & 192) !== 128 || (buf[i + 2] & 192) !== 128 || (buf[i + 3] & 192) !== 128 || buf[i] === 240 && (buf[i + 1] & 240) === 128 || // overlong
+          buf[i] === 244 && buf[i + 1] > 143 || buf[i] > 244) {
+            return false;
+          }
+          i += 4;
+        } else {
+          return false;
+        }
+      }
+      return true;
+    }
+    module2.exports = isValidUTF8;
+  }
+});
+
+// node_modules/utf-8-validate/index.js
+var require_utf_8_validate = __commonJS({
+  "node_modules/utf-8-validate/index.js"(exports2, module2) {
+    "use strict";
+    try {
+      module2.exports = require_node_gyp_build2()(__dirname);
+    } catch (e) {
+      module2.exports = require_fallback2();
+    }
+  }
+});
+
 // node_modules/nirium/node_modules/ws/lib/validation.js
 var require_validation = __commonJS({
   "node_modules/nirium/node_modules/ws/lib/validation.js"(exports2, module2) {
@@ -976,7 +1025,7 @@ var require_validation = __commonJS({
       };
     } else if (!process.env.WS_NO_UTF_8_VALIDATE) {
       try {
-        const isValidUTF8 = require("utf-8-validate");
+        const isValidUTF8 = require_utf_8_validate();
         module2.exports.isValidUTF8 = function(buf) {
           return buf.length < 32 ? _isValidUTF8(buf) : isValidUTF8(buf);
         };
@@ -145692,6 +145741,10 @@ function createApp() {
     res.setHeader(
       "Access-Control-Allow-Headers",
       "Content-Type, Authorization, X-PAYMENT, Payment-Signature"
+    );
+    res.setHeader(
+      "Access-Control-Expose-Headers",
+      "PAYMENT-REQUIRED, PAYMENT-RESPONSE"
     );
     res.setHeader("X-Content-Type-Options", "nosniff");
     next();

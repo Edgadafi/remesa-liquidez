@@ -134,6 +134,9 @@ describe("GET /health x402 mount", () => {
           paymentNetwork(res.headers["payment-required"]),
           "stellar:testnet"
         );
+        const exposed = String(res.headers["access-control-expose-headers"] ?? "");
+        assert.match(exposed, /(?:^|,\s*)PAYMENT-REQUIRED(?:\s*,|$)/i);
+        assert.match(exposed, /(?:^|,\s*)PAYMENT-RESPONSE(?:\s*,|$)/i);
         assert.strictEqual(JSON.stringify(res.body).includes(DUMMY_KEY), false);
       }
     } finally {
