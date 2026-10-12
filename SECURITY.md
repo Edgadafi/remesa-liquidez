@@ -120,7 +120,8 @@ facilitador quedan intactos.
 | Superficie mínima | Solo las 3 rutas cobradas de `/v1`; `/premium` y `/v1/alert/check` quedan fuera. `X-TIA-Free-Remaining` expuesto vía CORS para que el cliente vea su saldo. |
 
 Rollout: primero en testnet (`remesa-tia-testnet`); después en producción. Los
-pagos existentes no cambian.
+pagos existentes no cambian. Guía para el partner:
+[`docs/merktop-channel.md`](docs/merktop-channel.md).
 
 ---
 
