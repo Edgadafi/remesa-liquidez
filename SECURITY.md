@@ -112,7 +112,7 @@ facilitador quedan intactos.
 |---|---|
 | La llave nunca existe en el server | Solo se guarda su sha256 (`MERKTOP_CHANNEL_KEY_HASH`); la llave se genera fuera (`openssl rand -hex 32`) y jamás toca logs — ni válida ni inválida. |
 | Comparación en tiempo constante | `timingSafeEqual` sobre el sha256 de lo presentado (longitud fija 32 bytes) — sin early-exit que filtre prefijos. |
-| Identidad del agente verificada | `X-TIA-Agent` se valida con `StrKey.isValidEd25519PublicKey` (checksum real, no regex). Inválido o ausente → `400 invalid_agent`. |
+| Identidad del agente verificada | `X-TIA-Agent` se valida con `StrKey.isValidEd25519PublicKey` (checksum real, no regex). Inválido o ausente → **402 uniforme** (pasa al x402, mismo status que una llave inválida): un 400 distinto sería un oráculo que confirma la validez de la llave sin gastar cupo. En `usage` (ya autenticado con la llave) el `?agent=` inválido sí responde 400. |
 | Cupo atómico entre instancias | `INCR` en Upstash con patrón increment-check-revert: nunca se sub-cuenta y un overshoot concurrente se revierte. Verificado en smoke: 6 llamadas simultáneas con cap 3 → exactamente 3 concedidas. |
 | Fail-safe, no fail-open | Config incompleta, llave inválida, plazo vencido, cupo agotado, store caído o producción sin Upstash → `next()` y el x402 normal **cobra** (402). Nunca se regala por error. |
 | 5xx no consume cupo | Si la llamada concedida termina ≥ 500, el incremento se revierte en `res.on("finish")`. |

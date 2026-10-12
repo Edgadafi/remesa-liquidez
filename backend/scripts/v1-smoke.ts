@@ -12,8 +12,9 @@
  *     durable → 503), header gigante → 400, rate limit sliding-window → 429.
  *   - Cupo gratis Merktop: sin llave → 402, llave+cupo → 200 con
  *     X-TIA-Free-Remaining, cap por agente → 402, total agotado → 402,
- *     vencido → 402, llave inválida → 402, agente inválido → 400, revert en
- *     5xx, incremento concurrente atómico, usage+report con la misma llave.
+ *     vencido → 402, llave inválida → 402, agente inválido → 402 uniforme
+ *     (anti-oráculo), revert en 5xx, incremento concurrente atómico,
+ *     usage+report con la misma llave.
  *
  * Uso: npm run smoke:v1   (desde backend/)
  */
@@ -510,11 +511,21 @@ async function main() {
   const mBadKey = await freeCall(AGENT_C, "llave-equivocada");
   check("merktop: llave inválida → 402", mBadKey.status === 402, `HTTP ${mBadKey.status}`);
 
-  // Agente inválido (checksum StrKey roto) o ausente → 400.
+  // Agente inválido (checksum roto) o ausente → 402 UNIFORME, igual que una
+  // llave inválida: un 400 distinto sería un oráculo que confirma la validez
+  // de la llave sin gastar cupo (hallazgo Medium del security review).
   const mBadAgent = await freeCall(AGENT_BAD);
-  check("merktop: agente con checksum roto → 400", mBadAgent.status === 400, `HTTP ${mBadAgent.status}`);
+  check(
+    "merktop: agente con checksum roto → 402 uniforme (anti-oráculo)",
+    mBadAgent.status === 402,
+    `HTTP ${mBadAgent.status}`
+  );
   const mNoAgent = await freeCall(undefined);
-  check("merktop: sin X-TIA-Agent → 400", mNoAgent.status === 400, `HTTP ${mNoAgent.status}`);
+  check(
+    "merktop: sin X-TIA-Agent → 402 uniforme (anti-oráculo)",
+    mNoAgent.status === 402,
+    `HTTP ${mNoAgent.status}`
+  );
 
   // Usage: misma llave, constant-time; sin/mala llave → 401.
   const mUsageNoKey = await usage("", null);
