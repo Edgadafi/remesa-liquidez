@@ -200,6 +200,7 @@ See [docs/nirium-x402-integration.md](docs/nirium-x402-integration.md).
 | 14 sep | x402 paid smoke pubnet 200 + tx f20a580a | Cobro USDC real Circle; no sustituye 3 txs remesa E2E | Founder |
 | 14 sep | Soroban escrow mainnet CBCWBOZB | Founder pidió deploy; lock USDC on-chain | Founder |
 | 16 sep | Blindaje por capas x402 (SECURITY.md): replay guard X-PAYMENT, rate limit sliding-window, validación zod, allowlist payTo en cliente, watcher payTo | Un fallo de seguridad en el rail de cobro = pérdida de fondos y confianza | Founder |
+| 12 oct | Cupo gratis canal Merktop: 100 llamadas/30 días (20 por agente) en `/v1/*` vía `X-TIA-Channel-Key` (sha256 constant-time) + `X-TIA-Agent` (StrKey); cupo atómico en Upstash, revert en 5xx, usage+report. Rollout testnet → prod; el flujo x402 no cambia | Merktop necesita probar el stack de valor sin fricción de pago antes de integrarse; regalar sin control = fuga de ingresos | Founder |
 
 ---
 
