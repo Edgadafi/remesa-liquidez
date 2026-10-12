@@ -3,8 +3,17 @@ import { getUsdMxnTicker } from "../services/fxRate.js";
 import { estimateRoutes } from "../services/routeEstimator.js";
 import { checkAndFireAlerts, registerAlert } from "../services/alerts.js";
 import { requireCronSecret } from "../middleware/overrideAuth.js";
+import { merktopUsageHandler } from "../middleware/merktopFreeTier.js";
 
 const router = Router();
+
+/**
+ * GET /v1/channel/merktop/usage — restante por agente y del canal + venci-
+ * miento (+?report=1 exporta el registro de llamadas gratis). Protegido con
+ * X-TIA-Channel-Key (constant-time); no está en la tabla x402, así que no
+ * se cobra — mismo mecanismo que /v1/alert/check.
+ */
+router.get("/channel/merktop/usage", merktopUsageHandler);
 
 /** GET /v1/quote — USD/MXN + spread + volumen 24h (x402 exact). */
 router.get("/quote", async (_req: Request, res: Response) => {
