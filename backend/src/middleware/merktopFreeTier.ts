@@ -13,7 +13,9 @@ import { envInt } from "./rateLimit.js";
  *     el sha256 guardado en MERKTOP_CHANNEL_KEY_HASH. La llave en claro no
  *     existe en el server ni toca ningún log.
  *   - X-TIA-Agent debe ser una cuenta Stellar válida (StrKey ed25519 con
- *     checksum, no solo regex). Inválida o ausente → 400.
+ *     checksum, no solo regex). Inválida o ausente → 402 uniforme (next() al
+ *     x402): un status distinto sería un oráculo que confirma la validez de
+ *     la llave sin gastar cupo.
  *   - Cupo durable en Upstash con INCR atómico: total del canal
  *     (MERKTOP_FREE_TOTAL, default 100) y por agente (MERKTOP_FREE_PER_AGENT,
  *     default 20). Patrón increment-check-revert: nunca se sub-cuenta; un
@@ -119,11 +121,13 @@ export function merktopFreeTier(): RequestHandler {
     const agentRaw = req.headers["x-tia-agent"];
     const agent = typeof agentRaw === "string" ? agentRaw.trim() : "";
     if (!StrKey.isValidEd25519PublicKey(agent)) {
-      res.status(400).json({
-        ok: false,
-        error: "invalid_agent",
-        message: "X-TIA-Agent debe ser una cuenta pública Stellar válida (G…, StrKey).",
-      });
+      // Mismo 402 que una llave inválida (vía x402): responder 400 aquí
+      // sería un oráculo — confirmaría que la llave es válida sin gastar
+      // cupo ni pagar. El valor del header nunca se loguea.
+      console.warn(
+        "[TIA] merktop: X-TIA-Agent inválido o ausente — sigue el cobro x402 normal"
+      );
+      next();
       return;
     }
 
