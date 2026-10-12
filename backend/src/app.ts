@@ -9,6 +9,7 @@ import {
   paymentHeaderLimits,
   paymentReplayGuard,
 } from "./middleware/paymentGuard.js";
+import { merktopFreeTier } from "./middleware/merktopFreeTier.js";
 import { hasDurableKv } from "./services/kvStore.js";
 import { getProvaStatus } from "./services/prova.js";
 import {
@@ -54,8 +55,9 @@ export function createApp() {
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.setHeader(
       "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, X-PAYMENT"
+      "Content-Type, Authorization, X-PAYMENT, X-TIA-Channel-Key, X-TIA-Agent"
     );
+    res.setHeader("Access-Control-Expose-Headers", "X-TIA-Free-Remaining");
     res.setHeader("X-Content-Type-Options", "nosniff");
     next();
   });
@@ -150,8 +152,26 @@ ${premiumEndpoints}
       // Stack de valor v1 — mismo x402 exact + facilitador; solo cambian rutas
       // y precios. /v1/alert/check no está en las rutas cobradas: pasa el
       // middleware x402 sin pago y lo protege su propio Bearer (cron).
+      //
+      // Cupo gratis Merktop: merktopFreeTier corre ANTES del cobro y, si
+      // concede la llamada (llave válida + cupo + vigencia), marca
+      // res.locals.merktopFree y el wrapper salta el middleware x402 para
+      // ese request. Para todo lo demás el flujo de pago es EXACTAMENTE el
+      // mismo de siempre (precios, payTo y facilitador intactos).
       const v1Config = getX402V1ServeConfig();
-      app.use("/v1", publicOrigin(), x402Serve(v1Config));
+      const v1Payment = x402Serve(v1Config);
+      app.use(
+        "/v1",
+        publicOrigin(),
+        merktopFreeTier(),
+        (req: express.Request, res: express.Response, next: express.NextFunction) => {
+          if (res.locals.merktopFree === true) {
+            next();
+            return;
+          }
+          v1Payment(req, res, next);
+        }
+      );
       app.use("/v1", v1Router);
 
       console.log(

@@ -20,6 +20,16 @@ export interface KvBackend {
    * ventana (incluido este).
    */
   slidingWindowHit(key: string, windowMs: number, member: string): Promise<number>;
+  /** INCR atómico; devuelve el valor resultante. */
+  incr(key: string): Promise<number>;
+  /** DECRBY atómico (revertir incrementos). */
+  decrBy(key: string, n: number): Promise<void>;
+  /** Lee un contador (0 si no existe). */
+  getNum(key: string): Promise<number>;
+  /** RPUSH + LTRIM a maxLen (listas de reporte/auditoría). */
+  listPush(key: string, value: string, maxLen: number): Promise<void>;
+  /** Lista completa (para export de reportes acotados). */
+  listAll(key: string): Promise<string[]>;
 }
 
 /** true si hay store durable (Upstash) configurado — requerido en producción. */
@@ -74,12 +84,36 @@ function upstashBackend(url: string, token: string): KvBackend {
       ]);
       return count;
     },
+    async incr(key) {
+      const [n] = await pipeline<[number]>([["INCR", key]]);
+      return n;
+    },
+    async decrBy(key, n) {
+      await pipeline([["DECRBY", key, n]]);
+    },
+    async getNum(key) {
+      const [v] = await pipeline<[string | null]>([["GET", key]]);
+      const n = Number(v);
+      return Number.isFinite(n) ? n : 0;
+    },
+    async listPush(key, value, maxLen) {
+      await pipeline([
+        ["RPUSH", key, value],
+        ["LTRIM", key, -maxLen, -1],
+      ]);
+    },
+    async listAll(key) {
+      const [items] = await pipeline<[string[]]>([["LRANGE", key, 0, -1]]);
+      return items ?? [];
+    },
   };
 }
 
 function memoryBackend(): KvBackend {
   const claims = new Map<string, number>(); // key → expiresAt
   const windows = new Map<string, number[]>(); // key → timestamps
+  const counters = new Map<string, number>();
+  const lists = new Map<string, string[]>();
 
   function gc(now: number) {
     if (claims.size > 10_000) {
@@ -114,6 +148,26 @@ function memoryBackend(): KvBackend {
       hits.push(now);
       windows.set(key, hits);
       return hits.length;
+    },
+    async incr(key) {
+      const n = (counters.get(key) ?? 0) + 1;
+      counters.set(key, n);
+      return n;
+    },
+    async decrBy(key, n) {
+      counters.set(key, (counters.get(key) ?? 0) - n);
+    },
+    async getNum(key) {
+      return counters.get(key) ?? 0;
+    },
+    async listPush(key, value, maxLen) {
+      const list = lists.get(key) ?? [];
+      list.push(value);
+      if (list.length > maxLen) list.splice(0, list.length - maxLen);
+      lists.set(key, list);
+    },
+    async listAll(key) {
+      return [...(lists.get(key) ?? [])];
     },
   };
 }

@@ -101,6 +101,30 @@ shopping, replay):
 
 ---
 
+## Cupo gratis del canal Merktop (`middleware/merktopFreeTier.ts`)
+
+100 llamadas sin pago a `/v1/quote` `/v1/route` `/v1/alert` (30 días, 20 por
+agente) para el canal Merktop, **sin tocar el flujo x402**: el middleware corre
+antes del cobro y solo lo salta cuando concede la llamada; precios, `payTo` y
+facilitador quedan intactos.
+
+| Propiedad | Implementación |
+|---|---|
+| La llave nunca existe en el server | Solo se guarda su sha256 (`MERKTOP_CHANNEL_KEY_HASH`); la llave se genera fuera (`openssl rand -hex 32`) y jamás toca logs — ni válida ni inválida. |
+| Comparación en tiempo constante | `timingSafeEqual` sobre el sha256 de lo presentado (longitud fija 32 bytes) — sin early-exit que filtre prefijos. |
+| Identidad del agente verificada | `X-TIA-Agent` se valida con `StrKey.isValidEd25519PublicKey` (checksum real, no regex). Inválido o ausente → **402 uniforme** (pasa al x402, mismo status que una llave inválida): un 400 distinto sería un oráculo que confirma la validez de la llave sin gastar cupo. En `usage` (ya autenticado con la llave) el `?agent=` inválido sí responde 400. |
+| Cupo atómico entre instancias | `INCR` en Upstash con patrón increment-check-revert: nunca se sub-cuenta y un overshoot concurrente se revierte. Verificado en smoke: 6 llamadas simultáneas con cap 3 → exactamente 3 concedidas. |
+| Fail-safe, no fail-open | Config incompleta, llave inválida, plazo vencido, cupo agotado, store caído o producción sin Upstash → `next()` y el x402 normal **cobra** (402). Nunca se regala por error. |
+| 5xx no consume cupo | Si la llamada concedida termina ≥ 500, el incremento se revierte en `res.on("finish")`. |
+| Registro auditable | Una línea por llamada gratis (fecha, endpoint, agente, sha256 de la respuesta) en consola + lista durable (`tia:merktop:log`, cap 500) exportable vía `GET /v1/channel/merktop/usage?report=1` — protegido con la misma llave (401 sin ella). |
+| Superficie mínima | Solo las 3 rutas cobradas de `/v1`; `/premium` y `/v1/alert/check` quedan fuera. `X-TIA-Free-Remaining` expuesto vía CORS para que el cliente vea su saldo. |
+
+Rollout: primero en testnet (`remesa-tia-testnet`); después en producción. Los
+pagos existentes no cambian. Guía para el partner:
+[`docs/merktop-channel.md`](docs/merktop-channel.md).
+
+---
+
 ## Checklist de blindaje — estado
 
 | # | Prioridad | Item | Estado |

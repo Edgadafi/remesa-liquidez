@@ -10,14 +10,23 @@
  *   - Blindaje: replay guard (duplicado en vuelo → 409, replay tras 200 →
  *     409, liberación tras fallo, scope por ruta, fail-closed sin store
  *     durable → 503), header gigante → 400, rate limit sliding-window → 429.
+ *   - Cupo gratis Merktop: sin llave → 402, llave+cupo → 200 con
+ *     X-TIA-Free-Remaining, cap por agente → 402, total agotado → 402,
+ *     vencido → 402, llave inválida → 402, agente inválido → 402 uniforme
+ *     (anti-oráculo), revert en 5xx, incremento concurrente atómico,
+ *     usage+report con la misma llave.
  *
  * Uso: npm run smoke:v1   (desde backend/)
  */
 import express from "express";
+import { createHash } from "node:crypto";
 import type { AddressInfo } from "node:net";
 
 // Env ANTES de importar la app (x402Config/alerts leen process.env).
 process.env.NIRIUM_X402_ENABLED = "true";
+// Headroom para el propio smoke (la app principal lee esto al crearse); el
+// test de rate limit usa su propia app con límite bajo.
+process.env.RATE_LIMIT_MAX = "500";
 process.env.STELLAR_NETWORK = "pubnet";
 process.env.STELLAR_PAY_TO =
   "GBRMBOEGDTF72FP72D7OQLICBXVTSG25GYWZ3W7TNCLD47NEYVU7JUBS";
@@ -414,6 +423,195 @@ async function main() {
     limited ? `Retry-After=${limited.headers.get("retry-after")}` : "nunca llegó el 429"
   );
   rlSrv.close();
+
+  // 11) Cupo gratis del canal Merktop (middleware ANTES del x402 en /v1).
+  // La config se lee por request, así que basta setear env aquí; las
+  // secciones 1–10 corrieron sin canal configurado (cfg null → next()).
+  const MERKTOP_KEY = "merktop-smoke-key";
+  process.env.MERKTOP_CHANNEL_KEY_HASH = createHash("sha256")
+    .update(MERKTOP_KEY)
+    .digest("hex");
+  process.env.MERKTOP_FREE_EXPIRES_AT = new Date(
+    Date.now() + 30 * 24 * 60 * 60 * 1000
+  ).toISOString();
+  process.env.MERKTOP_FREE_TOTAL = "100";
+  // Cap bajo para probar rápido el tope por agente (la lógica del "llamada
+  // 21" del spec es idéntica con cualquier N).
+  process.env.MERKTOP_FREE_PER_AGENT = "2";
+
+  const AGENT_A = "GBRMBOEGDTF72FP72D7OQLICBXVTSG25GYWZ3W7TNCLD47NEYVU7JUBS";
+  const AGENT_B = "GB3RZCIAUDTUDLQZTJ3OFVZPS3VNTYKJST3M66NMOXUQFKYFPEN4OII4";
+  const AGENT_C = "GA4UK3ODRFEMINSJKAU3Z5QBDVBYCNPBUD5SAKMJ4QWR2NCP54WVEZG5";
+  const AGENT_D = "GB5SCLXLPIEY4X6SKYCNPPVOS7YOY27FNV7HTYMWEIKI7JUKEV676UX5";
+  const AGENT_E = "GAKPQTQOKFN6PLPLBOYSPZ2K52FGK5VVTSFIFAYJXDJ5WUHEWZR6DCXR";
+  // Mismos bytes que AGENT_A con el último carácter cambiado → checksum roto.
+  const AGENT_BAD = "GBRMBOEGDTF72FP72D7OQLICBXVTSG25GYWZ3W7TNCLD47NEYVU7JUBX";
+
+  const freeCall = (agent?: string, key: string | null = MERKTOP_KEY) =>
+    fetch(`${base}/v1/quote`, {
+      headers: {
+        ...(key !== null ? { "X-TIA-Channel-Key": key } : {}),
+        ...(agent !== undefined ? { "X-TIA-Agent": agent } : {}),
+      },
+    });
+  const usage = (query = "", key: string | null = MERKTOP_KEY) =>
+    fetch(`${base}/v1/channel/merktop/usage${query}`, {
+      headers: key !== null ? { "X-TIA-Channel-Key": key } : {},
+    });
+
+  // Sin llave → el x402 normal cobra (402), aun con el canal configurado.
+  const mNoKey = await freeCall(AGENT_A, null);
+  check("merktop: sin llave → 402", mNoKey.status === 402, `HTTP ${mNoKey.status}`);
+
+  // Con llave y cupo → 200 sin pago + X-TIA-Free-Remaining.
+  const mA1 = await freeCall(AGENT_A);
+  const mA1Body = (await mA1.json()) as { ok?: boolean };
+  check(
+    "merktop: llave + cupo → 200 sin pago",
+    mA1.status === 200 && mA1Body.ok === true,
+    `HTTP ${mA1.status}`
+  );
+  check(
+    "merktop: header X-TIA-Free-Remaining=1 (min de ambos topes)",
+    mA1.headers.get("x-tia-free-remaining") === "1",
+    `valor=${mA1.headers.get("x-tia-free-remaining")}`
+  );
+  const mA2 = await freeCall(AGENT_A);
+  check(
+    "merktop: segunda llamada del agente → 200, remaining=0",
+    mA2.status === 200 && mA2.headers.get("x-tia-free-remaining") === "0",
+    `HTTP ${mA2.status} remaining=${mA2.headers.get("x-tia-free-remaining")}`
+  );
+
+  // Tope por agente (cap 2 en este smoke; misma lógica que el "21" con 20).
+  const mA3 = await freeCall(AGENT_A);
+  check(
+    "merktop: llamada N+1 del mismo agente → 402 (cap por agente)",
+    mA3.status === 402,
+    `HTTP ${mA3.status}`
+  );
+
+  // Tope total del canal: con el total en el límite, otro agente recibe 402.
+  process.env.MERKTOP_FREE_TOTAL = "3";
+  const mB1 = await freeCall(AGENT_B);
+  check("merktop: agente B llena el total (3) → 200", mB1.status === 200, `HTTP ${mB1.status}`);
+  const mC1 = await freeCall(AGENT_C);
+  check("merktop: total agotado → 402 para agente C", mC1.status === 402, `HTTP ${mC1.status}`);
+  process.env.MERKTOP_FREE_TOTAL = "100";
+
+  // Plazo vencido → 402 aunque la llave sea válida y haya cupo.
+  process.env.MERKTOP_FREE_EXPIRES_AT = new Date(Date.now() - 1000).toISOString();
+  const mExp = await freeCall(AGENT_C);
+  check("merktop: plazo vencido → 402", mExp.status === 402, `HTTP ${mExp.status}`);
+  process.env.MERKTOP_FREE_EXPIRES_AT = new Date(
+    Date.now() + 30 * 24 * 60 * 60 * 1000
+  ).toISOString();
+
+  // Llave inválida → 402 (se cobra; el valor jamás se loguea).
+  const mBadKey = await freeCall(AGENT_C, "llave-equivocada");
+  check("merktop: llave inválida → 402", mBadKey.status === 402, `HTTP ${mBadKey.status}`);
+
+  // Agente inválido (checksum roto) o ausente → 402 UNIFORME, igual que una
+  // llave inválida: un 400 distinto sería un oráculo que confirma la validez
+  // de la llave sin gastar cupo (hallazgo Medium del security review).
+  const mBadAgent = await freeCall(AGENT_BAD);
+  check(
+    "merktop: agente con checksum roto → 402 uniforme (anti-oráculo)",
+    mBadAgent.status === 402,
+    `HTTP ${mBadAgent.status}`
+  );
+  const mNoAgent = await freeCall(undefined);
+  check(
+    "merktop: sin X-TIA-Agent → 402 uniforme (anti-oráculo)",
+    mNoAgent.status === 402,
+    `HTTP ${mNoAgent.status}`
+  );
+
+  // Usage: misma llave, constant-time; sin/mala llave → 401.
+  const mUsageNoKey = await usage("", null);
+  check("merktop: usage sin llave → 401", mUsageNoKey.status === 401, `HTTP ${mUsageNoKey.status}`);
+  const mUsage = await usage(`?agent=${AGENT_A}&report=1`);
+  const mUsageBody = (await mUsage.json()) as {
+    ok?: boolean;
+    total?: { limit?: number; used?: number; remaining?: number };
+    agent?: { used?: number; remaining?: number };
+    report?: Array<{ agent?: string; endpoint?: string; quoteSha256?: string | null }>;
+  };
+  check(
+    "merktop: usage → total used=3 (A×2 + B×1), agente A used=2/remaining=0",
+    mUsage.status === 200 &&
+      mUsageBody.total?.used === 3 &&
+      mUsageBody.total?.remaining === 97 &&
+      mUsageBody.agent?.used === 2 &&
+      mUsageBody.agent?.remaining === 0,
+    `total=${JSON.stringify(mUsageBody.total)} agent=${JSON.stringify(mUsageBody.agent)}`
+  );
+  check(
+    "merktop: report con 3 líneas (agente, endpoint, sha256 de la respuesta)",
+    mUsageBody.report?.length === 3 &&
+      mUsageBody.report.every(
+        (l) =>
+          typeof l.agent === "string" &&
+          l.endpoint?.endsWith("/quote") === true &&
+          typeof l.quoteSha256 === "string"
+      ),
+    `report=${mUsageBody.report?.length ?? "ausente"} líneas`
+  );
+
+  // Revert en 5xx: mini-app con handler que falla (comparte el kv en memoria
+  // singleton del proceso) — la llamada NO debe consumir cupo.
+  const { merktopFreeTier } = await import("../src/middleware/merktopFreeTier.js");
+  const mk = express();
+  mk.use(merktopFreeTier());
+  mk.get("/quote", (_req, res) => res.status(500).json({ ok: false }));
+  const mkSrv = await listen(mk);
+  const mFail = await fetch(`http://127.0.0.1:${mkSrv.port}/quote`, {
+    headers: { "X-TIA-Channel-Key": MERKTOP_KEY, "X-TIA-Agent": AGENT_D },
+  });
+  mkSrv.close();
+  check("merktop: handler 5xx responde 500", mFail.status === 500, `HTTP ${mFail.status}`);
+  await new Promise((r) => setTimeout(r, 150)); // el revert corre en res.finish
+  const mAfterFail = await usage(`?agent=${AGENT_D}`);
+  const mAfterFailBody = (await mAfterFail.json()) as {
+    total?: { used?: number };
+    agent?: { used?: number };
+  };
+  check(
+    "merktop: 5xx revierte el incremento (total sigue en 3, agente D en 0)",
+    mAfterFailBody.total?.used === 3 && mAfterFailBody.agent?.used === 0,
+    `total.used=${mAfterFailBody.total?.used} D.used=${mAfterFailBody.agent?.used}`
+  );
+
+  // Incremento concurrente atómico: 6 llamadas simultáneas de un agente
+  // fresco con cap 3 → exactamente 3×200 y 3×402 (increment-check-revert:
+  // nunca más de 3 concedidas, los overshoots se revierten).
+  process.env.MERKTOP_FREE_PER_AGENT = "3";
+  const concurrent = await Promise.all(
+    Array.from({ length: 6 }, () => freeCall(AGENT_E))
+  );
+  const granted = concurrent.filter((r) => r.status === 200).length;
+  const charged = concurrent.filter((r) => r.status === 402).length;
+  check(
+    "merktop: 6 llamadas concurrentes, cap 3 → exactamente 3×200 + 3×402",
+    granted === 3 && charged === 3,
+    `200×${granted} 402×${charged}`
+  );
+  await new Promise((r) => setTimeout(r, 150));
+  const mFinal = await usage(`?agent=${AGENT_E}`);
+  const mFinalBody = (await mFinal.json()) as {
+    total?: { used?: number };
+    agent?: { used?: number };
+  };
+  check(
+    "merktop: contadores exactos tras concurrencia (total=6, E=3)",
+    mFinalBody.total?.used === 6 && mFinalBody.agent?.used === 3,
+    `total.used=${mFinalBody.total?.used} E.used=${mFinalBody.agent?.used}`
+  );
+
+  delete process.env.MERKTOP_CHANNEL_KEY_HASH;
+  delete process.env.MERKTOP_FREE_EXPIRES_AT;
+  delete process.env.MERKTOP_FREE_TOTAL;
+  delete process.env.MERKTOP_FREE_PER_AGENT;
 
   mockSrv.close();
   hookSrv.close();
