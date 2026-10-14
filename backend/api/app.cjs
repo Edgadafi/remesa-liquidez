@@ -2542,7 +2542,7 @@ var require_websocket = __commonJS({
     var http4 = require("http");
     var net = require("net");
     var tls = require("tls");
-    var { randomBytes: randomBytes3, createHash: createHash2 } = require("crypto");
+    var { randomBytes: randomBytes3, createHash: createHash3 } = require("crypto");
     var { Duplex, Readable } = require("stream");
     var { URL: URL2 } = require("url");
     var PerMessageDeflate = require_permessage_deflate();
@@ -3210,7 +3210,7 @@ var require_websocket = __commonJS({
           abortHandshake(websocket, socket, "Invalid Upgrade header");
           return;
         }
-        const digest = createHash2("sha1").update(key + GUID).digest("base64");
+        const digest = createHash3("sha1").update(key + GUID).digest("base64");
         if (res.headers["sec-websocket-accept"] !== digest) {
           abortHandshake(websocket, socket, "Invalid Sec-WebSocket-Accept header");
           return;
@@ -3579,7 +3579,7 @@ var require_websocket_server = __commonJS({
     var EventEmitter3 = require("events");
     var http4 = require("http");
     var { Duplex } = require("stream");
-    var { createHash: createHash2 } = require("crypto");
+    var { createHash: createHash3 } = require("crypto");
     var extension = require_extension();
     var PerMessageDeflate = require_permessage_deflate();
     var subprotocol = require_subprotocol();
@@ -3886,7 +3886,7 @@ var require_websocket_server = __commonJS({
           );
         }
         if (this._state > RUNNING) return abortHandshake(socket, 503);
-        const digest = createHash2("sha1").update(key + GUID).digest("base64");
+        const digest = createHash3("sha1").update(key + GUID).digest("base64");
         const headers = [
           "HTTP/1.1 101 Switching Protocols",
           "Upgrade: websocket",
@@ -21816,7 +21816,10 @@ var require_asset = __commonJS({
         if (issuerA === void 0 || issuerB === void 0) {
           throw new Error("Issuer is undefined for non-native asset");
         }
-        return asciiCompare2(issuerA, issuerB);
+        return buffer2.Buffer.compare(
+          strkey.StrKey.decodeEd25519PublicKey(issuerA),
+          strkey.StrKey.decodeEd25519PublicKey(issuerB)
+        );
       }
     };
     exports2.Asset = Asset2;
@@ -30601,7 +30604,7 @@ var require_horizon_axios_client = __commonJS({
   "node_modules/@stellar/stellar-sdk/lib/cjs/horizon/horizon_axios_client.js"(exports2) {
     "use strict";
     var fetchClient2 = require_fetch_client();
-    var version10 = "16.3.0";
+    var version10 = "16.3.1";
     var SERVER_TIME_MAP = {};
     function toSeconds(ms) {
       return Math.floor(ms / 1e3);
@@ -32759,7 +32762,7 @@ var require_axios = __commonJS({
   "node_modules/@stellar/stellar-sdk/lib/cjs/rpc/axios.js"(exports2) {
     "use strict";
     var fetchClient2 = require_fetch_client();
-    var version10 = "16.3.0";
+    var version10 = "16.3.1";
     function createHttpClient2(headers) {
       return fetchClient2.create({
         headers: {
@@ -38343,7 +38346,7 @@ var require_config3 = __commonJS({
             build: "tsc"
           },
           dependencies: {
-            "@stellar/stellar-sdk": `^${"16.3.0"}`,
+            "@stellar/stellar-sdk": `^${"16.3.1"}`,
             buffer: "6.0.3"
           },
           devDependencies: {
@@ -40205,7 +40208,7 @@ var require_cjs3 = __commonJS({
       }
       return assets.find((entry) => entry.asset === asset);
     };
-    var import_stellar_sdk5 = require_cjs2();
+    var import_stellar_sdk6 = require_cjs2();
     var import_rpc5 = require_rpc();
     function handleSimulationResult(simulation) {
       if (!simulation) {
@@ -40223,10 +40226,10 @@ var require_cjs3 = __commonJS({
     }
     function getAddressCredentials2(credentials) {
       const credentialsType = credentials.switch();
-      if (credentialsType === import_stellar_sdk5.xdr.SorobanCredentialsType.sorobanCredentialsAddress()) {
+      if (credentialsType === import_stellar_sdk6.xdr.SorobanCredentialsType.sorobanCredentialsAddress()) {
         return credentials.address();
       }
-      if (credentialsType === import_stellar_sdk5.xdr.SorobanCredentialsType.sorobanCredentialsAddressV2()) {
+      if (credentialsType === import_stellar_sdk6.xdr.SorobanCredentialsType.sorobanCredentialsAddressV2()) {
         return credentials.addressV2();
       }
       return void 0;
@@ -40257,7 +40260,7 @@ var require_cjs3 = __commonJS({
       for (const entry of invokeOp.auth ?? []) {
         const addressCredentials = getAddressCredentials2(entry.credentials());
         if (addressCredentials) {
-          const address4 = import_stellar_sdk5.Address.fromScAddress(addressCredentials.address()).toString();
+          const address4 = import_stellar_sdk6.Address.fromScAddress(addressCredentials.address()).toString();
           const signature2 = addressCredentials.signature();
           const isSigned = signature2.switch().name !== "scvVoid";
           if (isSigned) {
@@ -40533,7 +40536,7 @@ var require_client4 = __commonJS({
       }
       return assets.find((entry) => entry.asset === asset);
     };
-    var import_stellar_sdk5 = require_cjs2();
+    var import_stellar_sdk6 = require_cjs2();
     var import_rpc5 = require_rpc();
     function handleSimulationResult(simulation) {
       if (!simulation) {
@@ -125830,7 +125833,10 @@ var init_asset = __esm({
         if (issuerA === void 0 || issuerB === void 0) {
           throw new Error("Issuer is undefined for non-native asset");
         }
-        return asciiCompare(issuerA, issuerB);
+        return import_buffer12.Buffer.compare(
+          StrKey.decodeEd25519PublicKey(issuerA),
+          StrKey.decodeEd25519PublicKey(issuerB)
+        );
       }
     };
   }
@@ -131939,7 +131945,7 @@ var version8;
 var init_axios = __esm({
   "node_modules/@stellar/stellar-sdk/lib/esm/rpc/axios.js"() {
     init_fetch_client();
-    version8 = "16.3.0";
+    version8 = "16.3.1";
   }
 });
 
@@ -137209,6 +137215,7 @@ var init_esm5 = __esm({
     init_hyper();
     init_keypair();
     init_network();
+    init_strkey();
     init_unsigned_hyper();
     init_auth();
     init_scval();
@@ -145263,8 +145270,417 @@ async function checkAndFireAlerts() {
   return result;
 }
 
+// src/middleware/merktopFreeTier.ts
+var import_node_crypto2 = require("node:crypto");
+init_esm5();
+
+// src/services/kvStore.ts
+function hasDurableKv() {
+  return Boolean(
+    process.env.UPSTASH_REDIS_REST_URL?.trim() && process.env.UPSTASH_REDIS_REST_TOKEN?.trim()
+  );
+}
+function upstashBackend(url2, token) {
+  const base3 = url2.replace(/\/$/, "");
+  const headers = {
+    Authorization: `Bearer ${token}`,
+    "Content-Type": "application/json"
+  };
+  async function pipeline(commands) {
+    const res = await fetch(`${base3}/pipeline`, {
+      method: "POST",
+      headers,
+      body: JSON.stringify(commands),
+      signal: AbortSignal.timeout(3e3)
+    });
+    if (!res.ok) throw new Error(`Upstash pipeline respondi\xF3 ${res.status}`);
+    const data = await res.json();
+    return data.map((d) => d.result);
+  }
+  return {
+    kind: "upstash",
+    async claimOnce(key, ttlMs) {
+      const [result] = await pipeline([
+        ["SET", key, "1", "NX", "PX", ttlMs]
+      ]);
+      return result === "OK";
+    },
+    async del(key) {
+      await pipeline([["DEL", key]]);
+    },
+    async slidingWindowHit(key, windowMs, member) {
+      const now = Date.now();
+      const [, , count] = await pipeline([
+        ["ZREMRANGEBYSCORE", key, 0, now - windowMs],
+        ["ZADD", key, now, member],
+        ["ZCARD", key],
+        ["PEXPIRE", key, windowMs]
+      ]);
+      return count;
+    },
+    async incr(key) {
+      const [n] = await pipeline([["INCR", key]]);
+      return n;
+    },
+    async decrBy(key, n) {
+      await pipeline([["DECRBY", key, n]]);
+    },
+    async getNum(key) {
+      const [v] = await pipeline([["GET", key]]);
+      const n = Number(v);
+      return Number.isFinite(n) ? n : 0;
+    },
+    async listPush(key, value, maxLen) {
+      await pipeline([
+        ["RPUSH", key, value],
+        ["LTRIM", key, -maxLen, -1]
+      ]);
+    },
+    async listAll(key) {
+      const [items] = await pipeline([["LRANGE", key, 0, -1]]);
+      return items ?? [];
+    }
+  };
+}
+function memoryBackend() {
+  const claims = /* @__PURE__ */ new Map();
+  const windows = /* @__PURE__ */ new Map();
+  const counters = /* @__PURE__ */ new Map();
+  const lists = /* @__PURE__ */ new Map();
+  function gc(now) {
+    if (claims.size > 1e4) {
+      for (const [k, exp] of claims) if (exp <= now) claims.delete(k);
+    }
+    if (windows.size > 1e4) {
+      for (const [k, hits] of windows) {
+        if (hits.length === 0 || hits[hits.length - 1] < now - 3e5) {
+          windows.delete(k);
+        }
+      }
+    }
+  }
+  return {
+    kind: "memory",
+    async claimOnce(key, ttlMs) {
+      const now = Date.now();
+      gc(now);
+      const existing = claims.get(key);
+      if (existing !== void 0 && existing > now) return false;
+      claims.set(key, now + ttlMs);
+      return true;
+    },
+    async del(key) {
+      claims.delete(key);
+    },
+    async slidingWindowHit(key, windowMs, _member) {
+      const now = Date.now();
+      gc(now);
+      const hits = (windows.get(key) ?? []).filter((t) => t > now - windowMs);
+      hits.push(now);
+      windows.set(key, hits);
+      return hits.length;
+    },
+    async incr(key) {
+      const n = (counters.get(key) ?? 0) + 1;
+      counters.set(key, n);
+      return n;
+    },
+    async decrBy(key, n) {
+      counters.set(key, (counters.get(key) ?? 0) - n);
+    },
+    async getNum(key) {
+      return counters.get(key) ?? 0;
+    },
+    async listPush(key, value, maxLen) {
+      const list2 = lists.get(key) ?? [];
+      list2.push(value);
+      if (list2.length > maxLen) list2.splice(0, list2.length - maxLen);
+      lists.set(key, list2);
+    },
+    async listAll(key) {
+      return [...lists.get(key) ?? []];
+    }
+  };
+}
+var backend = null;
+function getKvBackend() {
+  if (backend) return backend;
+  const url2 = process.env.UPSTASH_REDIS_REST_URL?.trim();
+  const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
+  if (url2 && token) {
+    backend = upstashBackend(url2, token);
+  } else {
+    console.warn(
+      "[TIA] kvStore: sin UPSTASH_REDIS_REST_URL/TOKEN \u2014 rate limit y replay guard en memoria POR INSTANCIA (en Vercel cada invocaci\xF3n puede ser una instancia distinta; configura Upstash para que los l\xEDmites sean durables)"
+    );
+    backend = memoryBackend();
+  }
+  return backend;
+}
+
+// src/middleware/rateLimit.ts
+function envInt(name2, fallback) {
+  const n = Number(process.env[name2]);
+  return Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
+}
+function rateLimit(opts) {
+  return async (req, res, next) => {
+    const ip = req.ip ?? "unknown";
+    const key = `tia:rl:${opts.keyPrefix}:${ip}`;
+    let count;
+    try {
+      const kv = getKvBackend();
+      count = await kv.slidingWindowHit(
+        key,
+        opts.windowMs,
+        `${Date.now()}:${Math.random().toString(36).slice(2, 10)}`
+      );
+    } catch (err) {
+      console.warn(
+        `[TIA] rateLimit(${opts.keyPrefix}): store fall\xF3 \u2014 request pasa sin contar:`,
+        err instanceof Error ? err.message : err
+      );
+      next();
+      return;
+    }
+    if (count > opts.max) {
+      res.setHeader("Retry-After", Math.ceil(opts.windowMs / 1e3));
+      res.status(429).json({
+        ok: false,
+        error: "rate_limited",
+        message: `M\xE1ximo ${opts.max} requests por ${Math.ceil(opts.windowMs / 1e3)}s por cliente. Reintenta m\xE1s tarde.`
+      });
+      return;
+    }
+    next();
+  };
+}
+
+// src/middleware/merktopFreeTier.ts
+var KEY_TOTAL = "tia:merktop:total";
+var KEY_LOG = "tia:merktop:log";
+var LOG_MAX = 500;
+function agentKey(agent) {
+  return `tia:merktop:agent:${agent}`;
+}
+var FREE_ROUTES = /* @__PURE__ */ new Set(["GET /quote", "GET /route", "POST /alert"]);
+function getMerktopConfig() {
+  const hashHex = process.env.MERKTOP_CHANNEL_KEY_HASH?.trim().toLowerCase();
+  if (!hashHex || !/^[0-9a-f]{64}$/.test(hashHex)) return null;
+  const expiresAtMs = Date.parse(process.env.MERKTOP_FREE_EXPIRES_AT?.trim() ?? "");
+  if (!Number.isFinite(expiresAtMs)) return null;
+  return {
+    hashHex,
+    expiresAtMs,
+    total: envInt("MERKTOP_FREE_TOTAL", 100),
+    perAgent: envInt("MERKTOP_FREE_PER_AGENT", 20)
+  };
+}
+function channelKeyMatches(presented, hashHex) {
+  if (typeof presented !== "string" || presented.length === 0 || presented.length > 256) {
+    return false;
+  }
+  const expected = Buffer.from(hashHex, "hex");
+  if (expected.length !== 32) return false;
+  const presentedHash = (0, import_node_crypto2.createHash)("sha256").update(presented).digest();
+  return (0, import_node_crypto2.timingSafeEqual)(presentedHash, expected);
+}
+function productionLike() {
+  return process.env.NODE_ENV === "production" || Boolean(process.env.VERCEL);
+}
+function merktopFreeTier() {
+  let warnedNoDurable = false;
+  return async (req, res, next) => {
+    if (!FREE_ROUTES.has(`${req.method} ${req.path}`)) {
+      next();
+      return;
+    }
+    const cfg = getMerktopConfig();
+    if (!cfg) {
+      next();
+      return;
+    }
+    const presentedKey = req.headers["x-tia-channel-key"];
+    if (presentedKey === void 0) {
+      next();
+      return;
+    }
+    if (!channelKeyMatches(presentedKey, cfg.hashHex)) {
+      console.warn("[TIA] merktop: X-TIA-Channel-Key inv\xE1lida \u2014 sigue el cobro x402 normal");
+      next();
+      return;
+    }
+    if (Date.now() >= cfg.expiresAtMs) {
+      next();
+      return;
+    }
+    const agentRaw = req.headers["x-tia-agent"];
+    const agent = typeof agentRaw === "string" ? agentRaw.trim() : "";
+    if (!StrKey.isValidEd25519PublicKey(agent)) {
+      console.warn(
+        "[TIA] merktop: X-TIA-Agent inv\xE1lido o ausente \u2014 sigue el cobro x402 normal"
+      );
+      next();
+      return;
+    }
+    const kv = getKvBackend();
+    if (productionLike() && kv.kind !== "upstash") {
+      if (!warnedNoDurable) {
+        warnedNoDurable = true;
+        console.error(
+          "[TIA] merktop: producci\xF3n sin UPSTASH_REDIS_REST_URL/TOKEN \u2014 cupo gratis deshabilitado, se cobra x402"
+        );
+      }
+      next();
+      return;
+    }
+    let total = 0;
+    let agentCount = 0;
+    let totalIncremented = false;
+    let agentIncremented = false;
+    try {
+      total = await kv.incr(KEY_TOTAL);
+      totalIncremented = true;
+      agentCount = await kv.incr(agentKey(agent));
+      agentIncremented = true;
+    } catch (err) {
+      console.warn(
+        "[TIA] merktop: store fall\xF3 \u2014 se cobra x402:",
+        err instanceof Error ? err.message : err
+      );
+      if (totalIncremented) {
+        kv.decrBy(KEY_TOTAL, 1).catch(() => void 0);
+      }
+      if (agentIncremented) {
+        kv.decrBy(agentKey(agent), 1).catch(() => void 0);
+      }
+      next();
+      return;
+    }
+    if (total > cfg.total || agentCount > cfg.perAgent) {
+      try {
+        await kv.decrBy(KEY_TOTAL, 1);
+        await kv.decrBy(agentKey(agent), 1);
+      } catch (err) {
+        console.warn(
+          "[TIA] merktop: no se pudo revertir el overshoot:",
+          err instanceof Error ? err.message : err
+        );
+      }
+      next();
+      return;
+    }
+    const remaining = Math.max(0, Math.min(cfg.total - total, cfg.perAgent - agentCount));
+    res.setHeader("X-TIA-Free-Remaining", String(remaining));
+    res.locals.merktopFree = true;
+    let bodySha256 = null;
+    const originalJson = res.json.bind(res);
+    res.json = ((body) => {
+      try {
+        bodySha256 = (0, import_node_crypto2.createHash)("sha256").update(JSON.stringify(body)).digest("hex");
+      } catch {
+        bodySha256 = null;
+      }
+      return originalJson(body);
+    });
+    const endpoint = `${req.method} ${req.baseUrl}${req.path}`;
+    res.on("finish", () => {
+      if (res.statusCode >= 500) {
+        kv.decrBy(KEY_TOTAL, 1).catch(() => void 0);
+        kv.decrBy(agentKey(agent), 1).catch(() => void 0);
+        return;
+      }
+      const entry = {
+        at: (/* @__PURE__ */ new Date()).toISOString(),
+        channel: "merktop",
+        endpoint,
+        agent,
+        status: res.statusCode,
+        quoteSha256: bodySha256,
+        remaining
+      };
+      console.log(
+        `[TIA] merktop free-call ${entry.at} | ${endpoint} | ${agent} | status=${entry.status} | sha256=${bodySha256 ? `${bodySha256.slice(0, 16)}\u2026` : "n/a"} | remaining=${remaining}`
+      );
+      kv.listPush(KEY_LOG, JSON.stringify(entry), LOG_MAX).catch(
+        (err) => console.warn(
+          "[TIA] merktop: no se pudo persistir la l\xEDnea de registro:",
+          err instanceof Error ? err.message : err
+        )
+      );
+    });
+    next();
+  };
+}
+var merktopUsageHandler = async (req, res) => {
+  const cfg = getMerktopConfig();
+  if (!cfg) {
+    res.status(503).json({ ok: false, error: "channel_not_configured" });
+    return;
+  }
+  if (!channelKeyMatches(req.headers["x-tia-channel-key"], cfg.hashHex)) {
+    res.status(401).json({ ok: false, error: "unauthorized" });
+    return;
+  }
+  try {
+    const kv = getKvBackend();
+    const usedTotal = await kv.getNum(KEY_TOTAL);
+    let agentInfo;
+    if (req.query.agent !== void 0) {
+      const agent = String(req.query.agent).trim();
+      if (!StrKey.isValidEd25519PublicKey(agent)) {
+        res.status(400).json({
+          ok: false,
+          error: "invalid_agent",
+          message: "agent debe ser una cuenta p\xFAblica Stellar v\xE1lida (G\u2026, StrKey)."
+        });
+        return;
+      }
+      const usedAgent = await kv.getNum(agentKey(agent));
+      agentInfo = {
+        address: agent,
+        limit: cfg.perAgent,
+        used: usedAgent,
+        remaining: Math.max(0, cfg.perAgent - usedAgent)
+      };
+    }
+    const payload = {
+      ok: true,
+      channel: "merktop",
+      expiresAt: new Date(cfg.expiresAtMs).toISOString(),
+      expired: Date.now() >= cfg.expiresAtMs,
+      total: {
+        limit: cfg.total,
+        used: usedTotal,
+        remaining: Math.max(0, cfg.total - usedTotal)
+      },
+      perAgentLimit: cfg.perAgent,
+      store: kv.kind,
+      ...agentInfo ? { agent: agentInfo } : {}
+    };
+    if (req.query.report !== void 0) {
+      const lines = await kv.listAll(KEY_LOG);
+      payload.report = lines.flatMap((line) => {
+        try {
+          return [JSON.parse(line)];
+        } catch {
+          return [];
+        }
+      });
+    }
+    res.json(payload);
+  } catch (err) {
+    console.error(
+      "[GET /v1/channel/merktop/usage] error:",
+      err instanceof Error ? err.message : err
+    );
+    res.status(500).json({ ok: false, error: "internal_error" });
+  }
+};
+
 // src/routes/v1.ts
 var router3 = (0, import_express3.Router)();
+router3.get("/channel/merktop/usage", merktopUsageHandler);
 router3.get("/quote", async (_req, res) => {
   try {
     const t = await getUsdMxnTicker();
@@ -145357,146 +145773,8 @@ function publicOrigin() {
   };
 }
 
-// src/services/kvStore.ts
-function hasDurableKv() {
-  return Boolean(
-    process.env.UPSTASH_REDIS_REST_URL?.trim() && process.env.UPSTASH_REDIS_REST_TOKEN?.trim()
-  );
-}
-function upstashBackend(url2, token) {
-  const base3 = url2.replace(/\/$/, "");
-  const headers = {
-    Authorization: `Bearer ${token}`,
-    "Content-Type": "application/json"
-  };
-  async function pipeline(commands) {
-    const res = await fetch(`${base3}/pipeline`, {
-      method: "POST",
-      headers,
-      body: JSON.stringify(commands),
-      signal: AbortSignal.timeout(3e3)
-    });
-    if (!res.ok) throw new Error(`Upstash pipeline respondi\xF3 ${res.status}`);
-    const data = await res.json();
-    return data.map((d) => d.result);
-  }
-  return {
-    kind: "upstash",
-    async claimOnce(key, ttlMs) {
-      const [result] = await pipeline([
-        ["SET", key, "1", "NX", "PX", ttlMs]
-      ]);
-      return result === "OK";
-    },
-    async del(key) {
-      await pipeline([["DEL", key]]);
-    },
-    async slidingWindowHit(key, windowMs, member) {
-      const now = Date.now();
-      const [, , count] = await pipeline([
-        ["ZREMRANGEBYSCORE", key, 0, now - windowMs],
-        ["ZADD", key, now, member],
-        ["ZCARD", key],
-        ["PEXPIRE", key, windowMs]
-      ]);
-      return count;
-    }
-  };
-}
-function memoryBackend() {
-  const claims = /* @__PURE__ */ new Map();
-  const windows = /* @__PURE__ */ new Map();
-  function gc(now) {
-    if (claims.size > 1e4) {
-      for (const [k, exp] of claims) if (exp <= now) claims.delete(k);
-    }
-    if (windows.size > 1e4) {
-      for (const [k, hits] of windows) {
-        if (hits.length === 0 || hits[hits.length - 1] < now - 3e5) {
-          windows.delete(k);
-        }
-      }
-    }
-  }
-  return {
-    kind: "memory",
-    async claimOnce(key, ttlMs) {
-      const now = Date.now();
-      gc(now);
-      const existing = claims.get(key);
-      if (existing !== void 0 && existing > now) return false;
-      claims.set(key, now + ttlMs);
-      return true;
-    },
-    async del(key) {
-      claims.delete(key);
-    },
-    async slidingWindowHit(key, windowMs, _member) {
-      const now = Date.now();
-      gc(now);
-      const hits = (windows.get(key) ?? []).filter((t) => t > now - windowMs);
-      hits.push(now);
-      windows.set(key, hits);
-      return hits.length;
-    }
-  };
-}
-var backend = null;
-function getKvBackend() {
-  if (backend) return backend;
-  const url2 = process.env.UPSTASH_REDIS_REST_URL?.trim();
-  const token = process.env.UPSTASH_REDIS_REST_TOKEN?.trim();
-  if (url2 && token) {
-    backend = upstashBackend(url2, token);
-  } else {
-    console.warn(
-      "[TIA] kvStore: sin UPSTASH_REDIS_REST_URL/TOKEN \u2014 rate limit y replay guard en memoria POR INSTANCIA (en Vercel cada invocaci\xF3n puede ser una instancia distinta; configura Upstash para que los l\xEDmites sean durables)"
-    );
-    backend = memoryBackend();
-  }
-  return backend;
-}
-
-// src/middleware/rateLimit.ts
-function envInt(name2, fallback) {
-  const n = Number(process.env[name2]);
-  return Number.isFinite(n) && n > 0 ? Math.floor(n) : fallback;
-}
-function rateLimit(opts) {
-  return async (req, res, next) => {
-    const ip = req.ip ?? "unknown";
-    const key = `tia:rl:${opts.keyPrefix}:${ip}`;
-    let count;
-    try {
-      const kv = getKvBackend();
-      count = await kv.slidingWindowHit(
-        key,
-        opts.windowMs,
-        `${Date.now()}:${Math.random().toString(36).slice(2, 10)}`
-      );
-    } catch (err) {
-      console.warn(
-        `[TIA] rateLimit(${opts.keyPrefix}): store fall\xF3 \u2014 request pasa sin contar:`,
-        err instanceof Error ? err.message : err
-      );
-      next();
-      return;
-    }
-    if (count > opts.max) {
-      res.setHeader("Retry-After", Math.ceil(opts.windowMs / 1e3));
-      res.status(429).json({
-        ok: false,
-        error: "rate_limited",
-        message: `M\xE1ximo ${opts.max} requests por ${Math.ceil(opts.windowMs / 1e3)}s por cliente. Reintenta m\xE1s tarde.`
-      });
-      return;
-    }
-    next();
-  };
-}
-
 // src/middleware/paymentGuard.ts
-var import_node_crypto2 = require("node:crypto");
+var import_node_crypto3 = require("node:crypto");
 var MAX_PAYMENT_HEADER_BYTES = 8 * 1024;
 function getEffectivePaymentHeader(req) {
   const v2 = req.headers["payment-signature"];
@@ -145577,7 +145855,7 @@ function paymentReplayGuard() {
       });
       return;
     }
-    const digest = (0, import_node_crypto2.createHash)("sha256").update(effective.value).update("\n").update(`${req.method} ${req.originalUrl}`).digest("hex");
+    const digest = (0, import_node_crypto3.createHash)("sha256").update(effective.value).update("\n").update(`${req.method} ${req.originalUrl}`).digest("hex");
     const key = `tia:xpay:${digest}`;
     const ttlMs = envInt("X402_REPLAY_TTL_SECONDS", 900) * 1e3;
     let first;
@@ -145740,11 +146018,11 @@ function createApp() {
     res.setHeader("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
     res.setHeader(
       "Access-Control-Allow-Headers",
-      "Content-Type, Authorization, X-PAYMENT, Payment-Signature"
+      "Content-Type, Authorization, X-PAYMENT, Payment-Signature, X-TIA-Channel-Key, X-TIA-Agent"
     );
     res.setHeader(
       "Access-Control-Expose-Headers",
-      "PAYMENT-REQUIRED, PAYMENT-RESPONSE"
+      "PAYMENT-REQUIRED, PAYMENT-RESPONSE, X-TIA-Free-Remaining"
     );
     res.setHeader("X-Content-Type-Options", "nosniff");
     next();
@@ -145815,7 +146093,19 @@ ${premiumEndpoints}
       app.use("/premium", publicOrigin(), (0, import_nirium.x402Serve)(x402Config));
       app.use("/premium", premium_default);
       const v1Config = getX402V1ServeConfig();
-      app.use("/v1", publicOrigin(), (0, import_nirium.x402Serve)(v1Config));
+      const v1Payment = (0, import_nirium.x402Serve)(v1Config);
+      app.use(
+        "/v1",
+        publicOrigin(),
+        merktopFreeTier(),
+        (req, res, next) => {
+          if (res.locals.merktopFree === true) {
+            next();
+            return;
+          }
+          v1Payment(req, res, next);
+        }
+      );
       app.use("/v1", v1_default);
       x402Mount.mounted = true;
       x402Mount.reason = null;
