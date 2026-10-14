@@ -19,6 +19,7 @@
   "dependencies": {
     "@lifi/sdk": "^4.4.0",
     "@solana/web3.js": "^1.98.4",
+    "@stellar/stellar-sdk": "^16.3.1",
     "@x402/core": "^2.28.0",
     "@x402/express": "^2.28.0",
     "@x402/stellar": "^2.28.0",
