@@ -6,8 +6,8 @@
  * minúsculas y SIN el prefijo `sha-256:`. En modo solo-hash el nodo no
  * recalcula nada: contentSha256 es ese mismo hex.
  *
- * Apagado salvo AUDIT_ENABLED=true y AUDIT_URL. Nunca loguea el secreto
- * ni la firma completa.
+ * Apagado salvo AUDIT_ENABLED=true, AUDIT_URL y una firma válida.
+ * Nunca loguea el secreto ni la firma completa.
  */
 import { createHash } from "node:crypto";
 import { Keypair } from "@stellar/stellar-sdk";
@@ -206,12 +206,8 @@ export function isAuditEnabled(): boolean {
     return false;
   }
   if (signer === "missing" || signer === "invalid") {
-    warnOnce(
-      "signer",
-      signer === "missing"
-        ? "[TIA audit] sin AUDIT_SIGNER_SECRET — se ancla sin agent"
-        : "[TIA audit] AUDIT_SIGNER_SECRET inválido — se ancla sin agent"
-    );
+    warnOnce("signer", "[TIA audit] sin firma válida — auditoría desactivada");
+    return false;
   }
   return true;
 }
@@ -269,13 +265,12 @@ async function ownRateAllows(): Promise<boolean> {
   return n <= maxPerMin();
 }
 
-function tagFor(endpoint: string, mode: "paid" | "free"): string {
-  const base = endpoint.includes("/route")
-    ? "tia-route"
-    : endpoint.includes("/alert")
-      ? "tia-alert"
-      : "tia-quote";
-  return mode === "free" ? `${base}-free` : base;
+function tagFor(endpoint: string, _mode: "paid" | "free"): string {
+  // El mode queda en el envelope hasheado y en Upstash. El tag público
+  // es el mismo para una llamada gratis y una pagada.
+  if (endpoint.includes("/route")) return "tia-route";
+  if (endpoint.includes("/alert")) return "tia-alert";
+  return "tia-quote";
 }
 
 export function auditTag(endpoint: string, mode: "paid" | "free"): string {
@@ -379,13 +374,13 @@ export async function anchor(hex: string, tag: string, endpoint: string, mode: "
   const kv = getKvBackend();
   await kv.set(`audit:pending:${hex}`, endpoint, PENDING_TTL_SECONDS);
 
-  let agent: AuditAgent | undefined;
-  if (signerState() === "ok") {
-    try {
-      agent = signAudit(hex);
-    } catch {
-      warnOnce("signer", "[TIA audit] no se pudo firmar — se ancla sin agent");
-    }
+  let agent: AuditAgent;
+  try {
+    agent = signAudit(hex);
+  } catch {
+    warnOnce("signer", "[TIA audit] sin firma válida — auditoría desactivada");
+    await kv.del(`audit:pending:${hex}`).catch(() => undefined);
+    return;
   }
 
   const send = () => postOnce(hex, tag, agent);

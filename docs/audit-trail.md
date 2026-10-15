@@ -21,7 +21,7 @@ El header `X-TIA-Audit-Hash` es `sha-256:<hex>` del JSON canónico (llaves orden
 }
 ```
 
-`mode` es `free` cuando la llamada salió del cupo Merktop (`res.locals.merktopFree`).
+`mode` es `free` cuando la llamada salió del cupo Merktop (`res.locals.merktopFree`) y `paid` en el resto. Ese campo va dentro del sobre hasheado y en el registro local de Upstash. No se manda a Nirium en claro.
 
 `bodySha256` cubre el body JSON de la respuesta. En quote y route es el body completo (datos de mercado; el `amount` de route queda adentro del hash, no como campo suelto). En `POST /v1/alert` se quita `webhookUrl` antes de hashear. El hash no se puede revertir en la práctica, pero un valor de baja entropía (por ejemplo `amount=100`) sí se puede adivinar: por eso el sobre incluye `generatedAt` y el hash del body completo, con la tasa en vivo, y no campos sueltos.
 
@@ -31,7 +31,7 @@ El POST al nodo es uno por llamada, a `${AUDIT_URL}/api/audit/log`:
 { "hash": "sha-256:<hex>", "tag": "tia-quote", "agent": { "key": "G…", "signature": "<base64>", "id": "tia-api" } }
 ```
 
-No va `txHash` ni `record`. La firma es ed25519 sobre el texto utf8 `nirium-audit-v1:<hex>`, con `<hex>` en minúsculas y **sin** el prefijo `sha-256:`. `AUDIT_SIGNER_SECRET` es una cuenta nueva, solo para firmar. Si esa cuenta es la misma que `STELLAR_PAY_TO`, la auditoría no arranca.
+No va `txHash`, `record` ni `mode`. El tag es `tia-quote`, `tia-route` o `tia-alert`, el mismo para una llamada del cupo Merktop y una pagada del mismo endpoint. La firma es ed25519 sobre el texto utf8 `nirium-audit-v1:<hex>`, con `<hex>` en minúsculas y **sin** el prefijo `sha-256:`. `AUDIT_SIGNER_SECRET` es una cuenta nueva, solo para firmar. Si falta, no es una llave válida, o es la misma cuenta que `STELLAR_PAY_TO`, la auditoría se desactiva y no se ancla.
 
 ## Cómo lo verifica un cliente
 

@@ -4,7 +4,9 @@ import { Keypair } from "@stellar/stellar-sdk";
 import {
   buildAuditEnvelope,
   canonicalJson,
+  auditTag,
   envelopeHash,
+  isAuditEnabled,
   parseAuditHash,
   resetAuditForTests,
   sha256Hex,
@@ -87,13 +89,23 @@ describe("auditTrail service", { concurrency: 1 }, () => {
     const left = buildAuditEnvelope({
       endpoint: "POST /v1/alert",
       status: 201,
-      body: { ok: true, alertId: "a", webhookUrl: "https://a.example/h" },
+      body: {
+        ok: true,
+        alertId: "a",
+        generatedAt: "2026-10-15T00:00:00.000Z",
+        webhookUrl: "https://a.example/h",
+      },
       paid: false,
     });
     const right = buildAuditEnvelope({
       endpoint: "POST /v1/alert",
       status: 201,
-      body: { webhookUrl: "https://b.example/h", ok: true, alertId: "a" },
+      body: {
+        webhookUrl: "https://b.example/h",
+        ok: true,
+        alertId: "a",
+        generatedAt: "2026-10-15T00:00:00.000Z",
+      },
       paid: false,
     });
     assert.strictEqual(left.bodySha256, right.bodySha256);
@@ -132,6 +144,59 @@ describe("auditTrail service", { concurrency: 1 }, () => {
     );
     assert.throws(() => signAudit(`sha-256:${hex}`), /sin prefijo/);
     assert.throws(() => signAudit(hex.toUpperCase()), /sin prefijo/);
+  });
+
+  it("el tag público es el mismo para gratis y pagado", () => {
+    const cases = [
+      ["GET /v1/quote", "tia-quote"],
+      ["GET /v1/route", "tia-route"],
+      ["POST /v1/alert", "tia-alert"],
+    ] as const;
+    for (const [endpoint, tag] of cases) {
+      assert.strictEqual(auditTag(endpoint, "paid"), tag);
+      assert.strictEqual(auditTag(endpoint, "free"), tag);
+      assert.strictEqual(auditTag(endpoint, "free").includes("-free"), false);
+    }
+  });
+
+  it("sin AUDIT_SIGNER_SECRET desactiva la auditoría", () => {
+    process.env.AUDIT_ENABLED = "true";
+    process.env.AUDIT_URL = "https://nirium-agent.fly.dev";
+    process.env.STELLAR_NETWORK = "testnet";
+    delete process.env.AUDIT_SIGNER_SECRET;
+    const warnings: string[] = [];
+    const original = console.warn;
+    console.warn = (message?: unknown) => {
+      warnings.push(String(message));
+    };
+    try {
+      assert.strictEqual(isAuditEnabled(), false);
+    } finally {
+      console.warn = original;
+    }
+    assert.deepStrictEqual(warnings, [
+      "[TIA audit] sin firma válida — auditoría desactivada",
+    ]);
+  });
+
+  it("AUDIT_SIGNER_SECRET inválido desactiva la auditoría", () => {
+    process.env.AUDIT_ENABLED = "true";
+    process.env.AUDIT_URL = "https://nirium-agent.fly.dev";
+    process.env.STELLAR_NETWORK = "testnet";
+    process.env.AUDIT_SIGNER_SECRET = "no-es-una-llave";
+    const warnings: string[] = [];
+    const original = console.warn;
+    console.warn = (message?: unknown) => {
+      warnings.push(String(message));
+    };
+    try {
+      assert.strictEqual(isAuditEnabled(), false);
+    } finally {
+      console.warn = original;
+    }
+    assert.deepStrictEqual(warnings, [
+      "[TIA audit] sin firma válida — auditoría desactivada",
+    ]);
   });
 
   it("verifyAnchor acepta un doc firmado y rechaza hash, llave o txHash/record", async () => {

@@ -349,6 +349,71 @@ describe("auditTrail middleware", { concurrency: 1 }, () => {
     assert.strictEqual(seen.length, 1);
   });
 
+  it("una llamada gratis de Merktop y una pagada mandan el mismo tag", async () => {
+    enable();
+    const app = express();
+    app.use(express.json());
+    app.use("/v1", auditTrail());
+    app.get("/v1/quote", (req, res) => {
+      if (req.query.free === "1") res.locals.merktopFree = true;
+      res.json({
+        ok: true,
+        source: "bitso",
+        generatedAt: "2026-10-15T00:00:00.000Z",
+        rate: 18.25,
+      });
+    });
+    armFetch();
+    okScript();
+    clientReceived = false;
+    const free = await request(app).get("/v1/quote?free=1");
+    clientReceived = true;
+    await flushAuditForTests();
+    clientReceived = false;
+    const paid = await request(app).get("/v1/quote");
+    clientReceived = true;
+    await flushAuditForTests();
+
+    assert.strictEqual(free.status, 200);
+    assert.strictEqual(paid.status, 200);
+    assert.notStrictEqual(free.headers["x-tia-audit-hash"], paid.headers["x-tia-audit-hash"]);
+    assert.strictEqual(seen.length, 2);
+    assert.strictEqual(seen[0].body.tag, "tia-quote");
+    assert.strictEqual(seen[1].body.tag, "tia-quote");
+    assert.strictEqual(seen[0].body.mode, undefined);
+    assert.strictEqual(seen[1].body.mode, undefined);
+    const freeHex = String(free.headers["x-tia-audit-hash"]).slice("sha-256:".length);
+    const paidHex = String(paid.headers["x-tia-audit-hash"]).slice("sha-256:".length);
+    const freeStored = JSON.parse(
+      (await getKvBackend().get(`audit:cid:${freeHex}`)) ?? "{}"
+    ) as { mode?: string };
+    const paidStored = JSON.parse(
+      (await getKvBackend().get(`audit:cid:${paidHex}`)) ?? "{}"
+    ) as { mode?: string };
+    assert.strictEqual(freeStored.mode, "free");
+    assert.strictEqual(paidStored.mode, "paid");
+  });
+
+  it("sin AUDIT_SIGNER_SECRET no hace ningún POST", async () => {
+    enable();
+    delete process.env.AUDIT_SIGNER_SECRET;
+    resetAuditForTests();
+    const missing = await hit(quoteApp(), "/v1/quote");
+    assert.strictEqual(missing.status, 200);
+    assert.strictEqual(missing.headers["x-tia-audit-hash"], undefined);
+    assert.strictEqual(seen.length, 0);
+  });
+
+  it("AUDIT_SIGNER_SECRET inválido no hace ningún POST", async () => {
+    enable();
+    process.env.AUDIT_SIGNER_SECRET = "no-es-una-llave";
+    resetAuditForTests();
+    const invalid = await hit(quoteApp(), "/v1/quote");
+    assert.strictEqual(invalid.status, 200);
+    assert.strictEqual(invalid.headers["x-tia-audit-hash"], undefined);
+    assert.strictEqual(seen.length, 0);
+  });
+
   it("si el signer es payTo la auditoría queda apagada", async () => {
     const signer = Keypair.random();
     enable();

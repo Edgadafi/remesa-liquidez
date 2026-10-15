@@ -150181,10 +150181,8 @@ function isAuditEnabled() {
     return false;
   }
   if (signer === "missing" || signer === "invalid") {
-    warnOnce(
-      "signer",
-      signer === "missing" ? "[TIA audit] sin AUDIT_SIGNER_SECRET \u2014 se ancla sin agent" : "[TIA audit] AUDIT_SIGNER_SECRET inv\xE1lido \u2014 se ancla sin agent"
-    );
+    warnOnce("signer", "[TIA audit] sin firma v\xE1lida \u2014 auditor\xEDa desactivada");
+    return false;
   }
   return true;
 }
@@ -150231,9 +150229,10 @@ async function ownRateAllows() {
   if (n === 1) await kv.expire(key, 120);
   return n <= maxPerMin();
 }
-function tagFor(endpoint, mode) {
-  const base3 = endpoint.includes("/route") ? "tia-route" : endpoint.includes("/alert") ? "tia-alert" : "tia-quote";
-  return mode === "free" ? `${base3}-free` : base3;
+function tagFor(endpoint, _mode) {
+  if (endpoint.includes("/route")) return "tia-route";
+  if (endpoint.includes("/alert")) return "tia-alert";
+  return "tia-quote";
 }
 function auditTag(endpoint, mode) {
   return tagFor(endpoint, mode);
@@ -150320,12 +150319,12 @@ async function anchor2(hex3, tag2, endpoint, mode) {
   const kv = getKvBackend();
   await kv.set(`audit:pending:${hex3}`, endpoint, PENDING_TTL_SECONDS);
   let agent;
-  if (signerState() === "ok") {
-    try {
-      agent = signAudit(hex3);
-    } catch {
-      warnOnce("signer", "[TIA audit] no se pudo firmar \u2014 se ancla sin agent");
-    }
+  try {
+    agent = signAudit(hex3);
+  } catch {
+    warnOnce("signer", "[TIA audit] sin firma v\xE1lida \u2014 auditor\xEDa desactivada");
+    await kv.del(`audit:pending:${hex3}`).catch(() => void 0);
+    return;
   }
   const send = () => postOnce(hex3, tag2, agent);
   let result = await send();
