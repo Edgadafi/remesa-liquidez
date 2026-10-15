@@ -30,6 +30,12 @@ export interface KvBackend {
   listPush(key: string, value: string, maxLen: number): Promise<void>;
   /** Lista completa (para export de reportes acotados). */
   listAll(key: string): Promise<string[]>;
+  /** GET. null si no existe. */
+  get(key: string): Promise<string | null>;
+  /** SET con TTL en segundos (EX). */
+  set(key: string, value: string, ttlSeconds: number): Promise<void>;
+  /** EXPIRE en segundos. */
+  expire(key: string, ttlSeconds: number): Promise<void>;
 }
 
 /** true si hay store durable (Upstash) configurado — requerido en producción. */
@@ -106,14 +112,25 @@ function upstashBackend(url: string, token: string): KvBackend {
       const [items] = await pipeline<[string[]]>([["LRANGE", key, 0, -1]]);
       return items ?? [];
     },
+    async get(key) {
+      const [value] = await pipeline<[string | number | null]>([["GET", key]]);
+      return value === null || value === undefined ? null : String(value);
+    },
+    async set(key, value, ttlSeconds) {
+      await pipeline([["SET", key, value, "EX", ttlSeconds]]);
+    },
+    async expire(key, ttlSeconds) {
+      await pipeline([["EXPIRE", key, ttlSeconds]]);
+    },
   };
 }
 
 function memoryBackend(): KvBackend {
   const claims = new Map<string, number>(); // key → expiresAt
   const windows = new Map<string, number[]>(); // key → timestamps
-  const counters = new Map<string, number>();
+  const counters = new Map<string, { n: number; exp: number }>();
   const lists = new Map<string, string[]>();
+  const strings = new Map<string, { value: string; exp: number }>();
 
   function gc(now: number) {
     if (claims.size > 10_000) {
@@ -140,6 +157,8 @@ function memoryBackend(): KvBackend {
     },
     async del(key) {
       claims.delete(key);
+      strings.delete(key);
+      counters.delete(key);
     },
     async slidingWindowHit(key, windowMs, _member) {
       const now = Date.now();
@@ -150,15 +169,28 @@ function memoryBackend(): KvBackend {
       return hits.length;
     },
     async incr(key) {
-      const n = (counters.get(key) ?? 0) + 1;
-      counters.set(key, n);
+      const now = Date.now();
+      const current = counters.get(key);
+      const n = current && current.exp > now ? current.n + 1 : 1;
+      counters.set(key, {
+        n,
+        exp: current && current.exp > now ? current.exp : Number.POSITIVE_INFINITY,
+      });
       return n;
     },
     async decrBy(key, n) {
-      counters.set(key, (counters.get(key) ?? 0) - n);
+      const now = Date.now();
+      const current = counters.get(key);
+      const base = current && current.exp > now ? current.n : 0;
+      counters.set(key, {
+        n: base - n,
+        exp: current?.exp ?? Number.POSITIVE_INFINITY,
+      });
     },
     async getNum(key) {
-      return counters.get(key) ?? 0;
+      const current = counters.get(key);
+      if (!current || current.exp <= Date.now()) return 0;
+      return current.n;
     },
     async listPush(key, value, maxLen) {
       const list = lists.get(key) ?? [];
@@ -169,7 +201,30 @@ function memoryBackend(): KvBackend {
     async listAll(key) {
       return [...(lists.get(key) ?? [])];
     },
+    async get(key) {
+      const entry = strings.get(key);
+      if (!entry || entry.exp <= Date.now()) {
+        strings.delete(key);
+        return null;
+      }
+      return entry.value;
+    },
+    async set(key, value, ttlSeconds) {
+      strings.set(key, { value, exp: Date.now() + ttlSeconds * 1000 });
+    },
+    async expire(key, ttlSeconds) {
+      const exp = Date.now() + ttlSeconds * 1000;
+      const counter = counters.get(key);
+      if (counter) counters.set(key, { n: counter.n, exp });
+      const entry = strings.get(key);
+      if (entry) strings.set(key, { value: entry.value, exp });
+    },
   };
+}
+
+/** Tests: el backend en memoria es un singleton. */
+export function resetKvBackendForTests(): void {
+  backend = null;
 }
 
 let backend: KvBackend | null = null;

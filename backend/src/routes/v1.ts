@@ -4,6 +4,7 @@ import { estimateRoutes } from "../services/routeEstimator.js";
 import { checkAndFireAlerts, registerAlert } from "../services/alerts.js";
 import { requireCronSecret } from "../middleware/overrideAuth.js";
 import { merktopUsageHandler } from "../middleware/merktopFreeTier.js";
+import { lookupAudit, parseAuditHash } from "../services/auditTrail.js";
 
 const router = Router();
 
@@ -14,6 +15,47 @@ const router = Router();
  * se cobra — mismo mecanismo que /v1/alert/check.
  */
 router.get("/channel/merktop/usage", merktopUsageHandler);
+
+/**
+ * GET /v1/audit/:hash — CID de un anclaje ya guardado. No está en la tabla
+ * x402 (no se cobra) y merktopFreeTier no lo cuenta. Acepta sha-256:<hex>
+ * o <hex>. No sugiere nirium-cli verify (bug #139 en modo solo hash).
+ */
+router.get("/audit/:hash", async (req: Request, res: Response) => {
+  const hex = parseAuditHash(req.params.hash ?? "");
+  if (!hex) {
+    res.status(400).json({ ok: false, error: "hash inválido" });
+    return;
+  }
+  try {
+    const found = await lookupAudit(hex);
+    if (!found) {
+      res.status(404).json({ ok: false, status: "unknown" });
+      return;
+    }
+    if ("pending" in found) {
+      res.status(404).json({ ok: false, status: "pending" });
+      return;
+    }
+    const { record } = found;
+    res.json({
+      ok: true,
+      hash: `sha-256:${hex}`,
+      cid: record.cid,
+      gatewayUrl:
+        record.gatewayUrl ?? `https://gateway.pinata.cloud/ipfs/${record.cid}`,
+      anchoredAt: record.anchoredAt,
+      attestedBy: record.attestedBy ?? null,
+      signatureStatement: `nirium-audit-v1:${hex}`,
+    });
+  } catch (err: unknown) {
+    console.error(
+      "[GET /v1/audit] error:",
+      err instanceof Error ? err.message : "lookup failed"
+    );
+    res.status(500).json({ ok: false, error: "internal_error" });
+  }
+});
 
 /** GET /v1/quote — USD/MXN + spread + volumen 24h (x402 exact). */
 router.get("/quote", async (_req: Request, res: Response) => {
