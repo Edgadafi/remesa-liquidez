@@ -10,6 +10,7 @@ import {
   paymentReplayGuard,
 } from "./middleware/paymentGuard.js";
 import { merktopFreeTier } from "./middleware/merktopFreeTier.js";
+import { auditTrail } from "./middleware/auditTrail.js";
 import { hasDurableKv } from "./services/kvStore.js";
 import { getProvaStatus } from "./services/prova.js";
 import {
@@ -54,7 +55,7 @@ export function createApp() {
     // recurso, no en el OPTIONS.
     res.setHeader(
       "Access-Control-Expose-Headers",
-      "PAYMENT-REQUIRED, PAYMENT-RESPONSE, X-TIA-Free-Remaining"
+      "PAYMENT-REQUIRED, PAYMENT-RESPONSE, X-TIA-Free-Remaining, X-TIA-Audit-Hash"
     );
     res.setHeader("X-Content-Type-Options", "nosniff");
     next();
@@ -171,6 +172,7 @@ ${premiumEndpoints}
           v1Payment(req, res, next);
         }
       );
+      app.use("/v1", auditTrail());
       app.use("/v1", v1Router);
 
       x402Mount.mounted = true;
