@@ -33191,10 +33191,10 @@ var require_utils4 = __commonJS({
       let count = 0;
       attempts.push(await fn());
       if (!keepWaitingIf(attempts[attempts.length - 1])) return attempts;
-      const waitUntil2 = new Date(Date.now() + timeoutInSeconds * 1e3).valueOf();
+      const waitUntil4 = new Date(Date.now() + timeoutInSeconds * 1e3).valueOf();
       let waitTime = 1e3;
       let totalWaitTime = waitTime;
-      while (Date.now() < waitUntil2 && keepWaitingIf(attempts[attempts.length - 1])) {
+      while (Date.now() < waitUntil4 && keepWaitingIf(attempts[attempts.length - 1])) {
         count += 1;
         if (verbose) {
           console.info(
@@ -33203,8 +33203,8 @@ var require_utils4 = __commonJS({
         }
         await new Promise((res) => setTimeout(res, waitTime));
         waitTime *= exponentialFactor;
-        if (new Date(Date.now() + waitTime).valueOf() > waitUntil2) {
-          waitTime = waitUntil2 - Date.now();
+        if (new Date(Date.now() + waitTime).valueOf() > waitUntil4) {
+          waitTime = waitUntil4 - Date.now();
           if (verbose) {
             console.info(`was gonna wait too long; new waitTime: ${waitTime}ms`);
           }
@@ -132304,10 +132304,10 @@ async function withExponentialBackoff(fn, keepWaitingIf, timeoutInSeconds, expon
   let count = 0;
   attempts.push(await fn());
   if (!keepWaitingIf(attempts[attempts.length - 1])) return attempts;
-  const waitUntil2 = new Date(Date.now() + timeoutInSeconds * 1e3).valueOf();
+  const waitUntil4 = new Date(Date.now() + timeoutInSeconds * 1e3).valueOf();
   let waitTime = 1e3;
   let totalWaitTime = waitTime;
-  while (Date.now() < waitUntil2 && keepWaitingIf(attempts[attempts.length - 1])) {
+  while (Date.now() < waitUntil4 && keepWaitingIf(attempts[attempts.length - 1])) {
     count += 1;
     if (verbose) {
       console.info(
@@ -132316,8 +132316,8 @@ async function withExponentialBackoff(fn, keepWaitingIf, timeoutInSeconds, expon
     }
     await new Promise((res) => setTimeout(res, waitTime));
     waitTime *= exponentialFactor;
-    if (new Date(Date.now() + waitTime).valueOf() > waitUntil2) {
-      waitTime = waitUntil2 - Date.now();
+    if (new Date(Date.now() + waitTime).valueOf() > waitUntil4) {
+      waitTime = waitUntil4 - Date.now();
       if (verbose) {
         console.info(`was gonna wait too long; new waitTime: ${waitTime}ms`);
       }
@@ -140032,11 +140032,11 @@ var require_wait_until = __commonJS({
     var __toCommonJS2 = (mod5) => __copyProps2(__defProp2({}, "__esModule", { value: true }), mod5);
     var wait_until_exports = {};
     __export2(wait_until_exports, {
-      waitUntil: () => waitUntil2
+      waitUntil: () => waitUntil4
     });
     module2.exports = __toCommonJS2(wait_until_exports);
     var import_get_context = require_get_context();
-    var waitUntil2 = (promise2) => {
+    var waitUntil4 = (promise2) => {
       if (promise2 === null || typeof promise2 !== "object" || typeof promise2.then !== "function") {
         throw new TypeError(
           `waitUntil can only be called with a Promise, got ${typeof promise2}`
@@ -150074,6 +150074,7 @@ var merktopUsageHandler = async (req, res) => {
 // src/services/auditTrail.ts
 var import_node_crypto3 = require("node:crypto");
 init_esm5();
+var import_functions = __toESM(require_functions(), 1);
 var STATEMENT_PREFIX = "nirium-audit-v1:";
 var CID_TTL_SECONDS = 90 * 24 * 60 * 60;
 var PENDING_TTL_SECONDS = 10 * 60;
@@ -150283,7 +150284,7 @@ function readAuditLogBody(payload) {
 async function postOnce(hex3, tag2, agent) {
   const url2 = auditUrl();
   if (!url2) return { status: 0, remaining: null };
-  const controller = AbortSignal.timeout(8e3);
+  const controller = AbortSignal.timeout(15e3);
   let response;
   try {
     response = await fetch(`${url2}/api/audit/log`, {
@@ -150401,6 +150402,9 @@ async function anchor2(hex3, tag2, endpoint, mode) {
   }
   if (result.remaining === "0") await setBackoff(60);
   await remember(hex3, endpoint, mode, result);
+  if (result.cid && result.contentSha256 === hex3) {
+    console.info("[TIA audit] anchored", { cid: result.cid, tag: tag2 });
+  }
 }
 function scheduleAnchor(hex3, tag2, endpoint, mode) {
   const task = anchor2(hex3, tag2, endpoint, mode).catch((err) => {
@@ -150408,9 +150412,8 @@ function scheduleAnchor(hex3, tag2, endpoint, mode) {
     console.warn(`[TIA audit] ${message2}`);
   });
   track(task);
-  if (process.env.VERCEL) {
-    void Promise.resolve().then(() => __toESM(require_functions(), 1)).then(({ waitUntil: waitUntil2 }) => waitUntil2(task)).catch(() => void 0);
-  }
+  (0, import_functions.waitUntil)(task);
+  return task;
 }
 function parseAuditHash(raw) {
   const text = raw.trim().toLowerCase().replace(/^sha-256:/, "");
@@ -150689,6 +150692,7 @@ function paymentReplayGuard() {
 }
 
 // src/middleware/auditTrail.ts
+var import_functions2 = __toESM(require_functions(), 1);
 var AUDITED = /* @__PURE__ */ new Set(["GET /quote", "GET /route", "POST /alert"]);
 function audited(req) {
   return AUDITED.has(`${req.method} ${req.path}`);
@@ -150731,7 +150735,8 @@ function auditTrail() {
       if (!pending) return;
       if (res.statusCode < 200 || res.statusCode >= 300) return;
       const { hex: hex3, mode } = pending;
-      scheduleAnchor(hex3, auditTag(endpoint, mode), endpoint, mode);
+      const task = scheduleAnchor(hex3, auditTag(endpoint, mode), endpoint, mode);
+      (0, import_functions2.waitUntil)(task);
     });
     next2();
   };

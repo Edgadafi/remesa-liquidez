@@ -11,6 +11,7 @@ import {
   readAuditLogBody,
   responseKeyTree,
   resetAuditForTests,
+  scheduleAnchor,
   sha256Hex,
   signAudit,
   verifyAnchor,
@@ -345,6 +346,34 @@ describe("auditTrail service", { concurrency: 1 }, () => {
     assert.strictEqual(parseAuditHash(`SHA-256:${hex.toUpperCase()}`), hex);
     assert.strictEqual(parseAuditHash("abc"), null);
     assert.strictEqual(parseAuditHash(`sha-256:${hex}ff`), null);
+  });
+
+  it("scheduleAnchor llama a waitUntil con la promesa del anclaje", async () => {
+    const symbol = Symbol.for("@vercel/request-context");
+    const holder = globalThis as typeof globalThis & {
+      [symbol]?: { get?: () => { waitUntil?: (promise: Promise<unknown>) => void } };
+    };
+    const previous = holder[symbol];
+    const received: Promise<unknown>[] = [];
+    holder[symbol] = {
+      get() {
+        return {
+          waitUntil(promise: Promise<unknown>) {
+            received.push(promise);
+          },
+        };
+      },
+    };
+    try {
+      delete process.env.AUDIT_ENABLED;
+      const task = scheduleAnchor("ab".repeat(32), "tia-quote", "GET /v1/quote", "paid");
+      assert.strictEqual(received.length, 1);
+      assert.strictEqual(received[0], task);
+      await task;
+    } finally {
+      if (previous === undefined) delete holder[symbol];
+      else holder[symbol] = previous;
+    }
   });
 
   it("getX402V1ServeConfig conserva rutas y precios", () => {

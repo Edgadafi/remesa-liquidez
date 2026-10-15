@@ -4,6 +4,7 @@
  * middleware. 4xx/5xx no se anclan. El trabajo es fire-and-forget.
  */
 import type { NextFunction, Request, RequestHandler, Response } from "express";
+import { waitUntil } from "@vercel/functions";
 import {
   auditTag,
   buildAuditEnvelope,
@@ -63,7 +64,8 @@ export function auditTrail(): RequestHandler {
       if (!pending) return;
       if (res.statusCode < 200 || res.statusCode >= 300) return;
       const { hex, mode } = pending;
-      scheduleAnchor(hex, auditTag(endpoint, mode), endpoint, mode);
+      const task = scheduleAnchor(hex, auditTag(endpoint, mode), endpoint, mode);
+      waitUntil(task);
     });
 
     next();

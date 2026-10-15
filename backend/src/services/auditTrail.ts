@@ -11,6 +11,7 @@
  */
 import { createHash } from "node:crypto";
 import { Keypair } from "@stellar/stellar-sdk";
+import { waitUntil } from "@vercel/functions";
 import { getKvBackend, resetKvBackendForTests } from "./kvStore.js";
 
 const STATEMENT_PREFIX = "nirium-audit-v1:";
@@ -344,7 +345,7 @@ export function readAuditLogBody(payload: unknown): AuditLogFields {
 async function postOnce(hex: string, tag: string, agent?: AuditAgent): Promise<AnchorPostResult> {
   const url = auditUrl();
   if (!url) return { status: 0, remaining: null };
-  const controller = AbortSignal.timeout(8_000);
+  const controller = AbortSignal.timeout(15_000);
   let response: Response;
   try {
     response = await fetch(`${url}/api/audit/log`, {
@@ -478,6 +479,9 @@ export async function anchor(hex: string, tag: string, endpoint: string, mode: "
   }
   if (result.remaining === "0") await setBackoff(60);
   await remember(hex, endpoint, mode, result);
+  if (result.cid && result.contentSha256 === hex) {
+    console.info("[TIA audit] anchored", { cid: result.cid, tag });
+  }
 }
 
 export function scheduleAnchor(
@@ -485,17 +489,16 @@ export function scheduleAnchor(
   tag: string,
   endpoint: string,
   mode: "paid" | "free"
-): void {
+): Promise<void> {
   const task = anchor(hex, tag, endpoint, mode).catch((err: unknown) => {
     const message = err instanceof Error ? err.message : "anchor failed";
     console.warn(`[TIA audit] ${message}`);
   });
   track(task);
-  if (process.env.VERCEL) {
-    void import("@vercel/functions")
-      .then(({ waitUntil }) => waitUntil(task))
-      .catch(() => undefined);
-  }
+  // Síncrono: en Vercel el isolate se congela al salir de `finish`. Un
+  // import() dinámico llega tarde y el POST se aborta.
+  waitUntil(task);
+  return task;
 }
 
 export function parseAuditHash(raw: string): string | null {
