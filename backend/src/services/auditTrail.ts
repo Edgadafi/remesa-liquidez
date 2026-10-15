@@ -55,6 +55,16 @@ export interface AnchorPostResult {
   gatewayUrl?: string;
   anchoredAt?: string;
   attestedBy?: string;
+  /** Árbol de llaves de la respuesta, sin valores. Solo para el smoke. */
+  bodyKeys?: unknown;
+}
+
+export interface AuditLogFields {
+  contentSha256?: string;
+  cid?: string;
+  gatewayUrl?: string;
+  anchoredAt?: string;
+  attestedBy?: string;
 }
 
 const warned = new Set<string>();
@@ -277,6 +287,60 @@ export function auditTag(endpoint: string, mode: "paid" | "free"): string {
   return tagFor(endpoint, mode);
 }
 
+function asRecord(value: unknown): Record<string, unknown> | null {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  return value as Record<string, unknown>;
+}
+
+/** Llaves a cualquier profundidad. Las hojas quedan en null: no hay valores ni firmas. */
+export function responseKeyTree(value: unknown): unknown {
+  if (Array.isArray(value)) return value.map((item) => responseKeyTree(item));
+  const record = asRecord(value);
+  if (!record) return null;
+  const out: Record<string, unknown> = {};
+  for (const key of Object.keys(record)) out[key] = responseKeyTree(record[key]);
+  return out;
+}
+
+function auditLogContainers(payload: Record<string, unknown>): Record<string, unknown>[] {
+  const containers = [payload];
+  for (const key of ["anchor", "data", "record"] as const) {
+    const nested = asRecord(payload[key]);
+    if (nested) containers.push(nested);
+  }
+  return containers;
+}
+
+function pickString(payload: Record<string, unknown>, names: string[]): string | undefined {
+  for (const container of auditLogContainers(payload)) {
+    for (const name of names) {
+      const value = container[name];
+      if (typeof value === "string" && value.trim()) return value.trim();
+    }
+  }
+  return undefined;
+}
+
+function stripSha256Prefix(value: string): string {
+  return value.trim().toLowerCase().replace(/^sha-256:/, "");
+}
+
+/**
+ * El nodo de testnet puede responder en la raíz o dentro de anchor/data/record,
+ * en camelCase o snake_case. La raíz gana si el campo está ahí.
+ */
+export function readAuditLogBody(payload: unknown): AuditLogFields {
+  const record = asRecord(payload) ?? {};
+  const hash = pickString(record, ["contentSha256", "content_sha256"]);
+  return {
+    contentSha256: hash ? stripSha256Prefix(hash) : undefined,
+    cid: pickString(record, ["cid", "ipfsCid", "ipfs_cid"]),
+    gatewayUrl: pickString(record, ["gatewayUrl", "gateway_url"]),
+    anchoredAt: pickString(record, ["anchoredAt", "anchored_at"]),
+    attestedBy: pickString(record, ["attestedBy", "attested_by"]),
+  };
+}
+
 async function postOnce(hex: string, tag: string, agent?: AuditAgent): Promise<AnchorPostResult> {
   const url = auditUrl();
   if (!url) return { status: 0, remaining: null };
@@ -312,12 +376,8 @@ async function postOnce(hex: string, tag: string, agent?: AuditAgent): Promise<A
     retryAfter:
       response.status === 429 ? clampRetryAfter(payload.retryAfter) : undefined,
     remaining,
-    contentSha256:
-      typeof payload.contentSha256 === "string" ? payload.contentSha256 : undefined,
-    cid: typeof payload.cid === "string" ? payload.cid : undefined,
-    gatewayUrl: typeof payload.gatewayUrl === "string" ? payload.gatewayUrl : undefined,
-    anchoredAt: typeof payload.anchoredAt === "string" ? payload.anchoredAt : undefined,
-    attestedBy: typeof payload.attestedBy === "string" ? payload.attestedBy : undefined,
+    ...readAuditLogBody(payload),
+    bodyKeys: responseKeyTree(payload),
   };
 }
 

@@ -150237,6 +150237,49 @@ function tagFor(endpoint, _mode) {
 function auditTag(endpoint, mode) {
   return tagFor(endpoint, mode);
 }
+function asRecord(value) {
+  if (!value || typeof value !== "object" || Array.isArray(value)) return null;
+  return value;
+}
+function responseKeyTree(value) {
+  if (Array.isArray(value)) return value.map((item) => responseKeyTree(item));
+  const record2 = asRecord(value);
+  if (!record2) return null;
+  const out = {};
+  for (const key of Object.keys(record2)) out[key] = responseKeyTree(record2[key]);
+  return out;
+}
+function auditLogContainers(payload) {
+  const containers = [payload];
+  for (const key of ["anchor", "data", "record"]) {
+    const nested = asRecord(payload[key]);
+    if (nested) containers.push(nested);
+  }
+  return containers;
+}
+function pickString(payload, names) {
+  for (const container of auditLogContainers(payload)) {
+    for (const name2 of names) {
+      const value = container[name2];
+      if (typeof value === "string" && value.trim()) return value.trim();
+    }
+  }
+  return void 0;
+}
+function stripSha256Prefix(value) {
+  return value.trim().toLowerCase().replace(/^sha-256:/, "");
+}
+function readAuditLogBody(payload) {
+  const record2 = asRecord(payload) ?? {};
+  const hash11 = pickString(record2, ["contentSha256", "content_sha256"]);
+  return {
+    contentSha256: hash11 ? stripSha256Prefix(hash11) : void 0,
+    cid: pickString(record2, ["cid", "ipfsCid", "ipfs_cid"]),
+    gatewayUrl: pickString(record2, ["gatewayUrl", "gateway_url"]),
+    anchoredAt: pickString(record2, ["anchoredAt", "anchored_at"]),
+    attestedBy: pickString(record2, ["attestedBy", "attested_by"])
+  };
+}
 async function postOnce(hex3, tag2, agent) {
   const url2 = auditUrl();
   if (!url2) return { status: 0, remaining: null };
@@ -150271,11 +150314,8 @@ async function postOnce(hex3, tag2, agent) {
     status: response.status,
     retryAfter: response.status === 429 ? clampRetryAfter(payload.retryAfter) : void 0,
     remaining,
-    contentSha256: typeof payload.contentSha256 === "string" ? payload.contentSha256 : void 0,
-    cid: typeof payload.cid === "string" ? payload.cid : void 0,
-    gatewayUrl: typeof payload.gatewayUrl === "string" ? payload.gatewayUrl : void 0,
-    anchoredAt: typeof payload.anchoredAt === "string" ? payload.anchoredAt : void 0,
-    attestedBy: typeof payload.attestedBy === "string" ? payload.attestedBy : void 0
+    ...readAuditLogBody(payload),
+    bodyKeys: responseKeyTree(payload)
   };
 }
 function retryDelayMs() {

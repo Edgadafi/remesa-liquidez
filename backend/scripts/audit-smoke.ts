@@ -71,6 +71,10 @@ async function main(): Promise<number> {
     console.error(
       `[audit-smoke] contentSha256 !== hex (${attempt.contentSha256 ?? "ausente"})`
     );
+    console.error(
+      "[audit-smoke] llaves:",
+      JSON.stringify(attempt.bodyKeys ?? {}, null, 2)
+    );
     return 1;
   }
   const gatewayUrl =

@@ -8,6 +8,8 @@ import {
   envelopeHash,
   isAuditEnabled,
   parseAuditHash,
+  readAuditLogBody,
+  responseKeyTree,
   resetAuditForTests,
   sha256Hex,
   signAudit,
@@ -254,6 +256,86 @@ describe("auditTrail service", { concurrency: 1 }, () => {
       });
       assert.deepStrictEqual(failed, { ok: false, step: extra });
     }
+  });
+
+  it("lee /api/audit/log en camelCase plano", () => {
+    const hex = "ab".repeat(32);
+    const read = readAuditLogBody({
+      cid: "bafycamel",
+      contentSha256: `sha-256:${hex}`,
+      gatewayUrl: "https://gateway.pinata.cloud/ipfs/bafycamel",
+      anchoredAt: "2026-10-15T00:00:00.000Z",
+      attestedBy: "nirium-test",
+    });
+    assert.strictEqual(read.contentSha256, hex);
+    assert.strictEqual(read.cid, "bafycamel");
+    assert.strictEqual(read.gatewayUrl, "https://gateway.pinata.cloud/ipfs/bafycamel");
+    assert.strictEqual(read.anchoredAt, "2026-10-15T00:00:00.000Z");
+    assert.strictEqual(read.attestedBy, "nirium-test");
+  });
+
+  it("lee /api/audit/log en snake_case plano", () => {
+    const hex = "cd".repeat(32);
+    const read = readAuditLogBody({
+      ipfs_cid: "bafysnake",
+      content_sha256: hex.toUpperCase(),
+      gateway_url: "https://gateway.pinata.cloud/ipfs/bafysnake",
+      anchored_at: "2026-10-15T00:00:01.000Z",
+      attested_by: "nirium-test",
+    });
+    assert.strictEqual(read.contentSha256, hex);
+    assert.strictEqual(read.cid, "bafysnake");
+    assert.strictEqual(read.gatewayUrl, "https://gateway.pinata.cloud/ipfs/bafysnake");
+    assert.strictEqual(read.anchoredAt, "2026-10-15T00:00:01.000Z");
+    assert.strictEqual(read.attestedBy, "nirium-test");
+  });
+
+  it("lee /api/audit/log anidada en anchor y no copia la firma", () => {
+    const hex = "ef".repeat(32);
+    const payload = {
+      ok: true,
+      anchor: {
+        ipfsCid: "bafynested",
+        content_sha256: `SHA-256:${hex}`,
+        gateway_url: "https://gateway.pinata.cloud/ipfs/bafynested",
+        anchored_at: "2026-10-15T00:00:02.000Z",
+        attested_by: "nirium-test",
+        agent: { key: "GABC", signature: "firma-secreta" },
+      },
+    };
+    const read = readAuditLogBody(payload);
+    assert.strictEqual(read.contentSha256, hex);
+    assert.strictEqual(read.cid, "bafynested");
+    assert.strictEqual(read.gatewayUrl, "https://gateway.pinata.cloud/ipfs/bafynested");
+    assert.strictEqual(read.anchoredAt, "2026-10-15T00:00:02.000Z");
+    assert.strictEqual(read.attestedBy, "nirium-test");
+    const keys = responseKeyTree(payload);
+    assert.deepStrictEqual(keys, {
+      ok: null,
+      anchor: {
+        ipfsCid: null,
+        content_sha256: null,
+        gateway_url: null,
+        anchored_at: null,
+        attested_by: null,
+        agent: { key: null, signature: null },
+      },
+    });
+    assert.strictEqual(JSON.stringify(keys).includes("firma-secreta"), false);
+    const rootWins = readAuditLogBody({
+      contentSha256: "ab".repeat(32),
+      anchor: { content_sha256: "cd".repeat(32), cid: "desde-anchor" },
+    });
+    assert.strictEqual(rootWins.contentSha256, "ab".repeat(32));
+    assert.strictEqual(rootWins.cid, "desde-anchor");
+    const fromData = readAuditLogBody({ data: { cid: "bafydata", content_sha256: "12".repeat(32) } });
+    assert.strictEqual(fromData.cid, "bafydata");
+    assert.strictEqual(fromData.contentSha256, "12".repeat(32));
+    const fromRecord = readAuditLogBody({
+      record: { ipfsCid: "bafyrecord", contentSha256: "34".repeat(32) },
+    });
+    assert.strictEqual(fromRecord.cid, "bafyrecord");
+    assert.strictEqual(fromRecord.contentSha256, "34".repeat(32));
   });
 
   it("parseAuditHash acepta prefijo y rechaza basura", () => {
