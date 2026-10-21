@@ -245,7 +245,14 @@ payment-required: eyJ4NDAyVmVyc2lvbiI6Mi...  <span class="c"># base64-encoded JS
 </div></footer>
 <script>
 (function () {
-  var API = "https://x402.holatia.app";
+  // Producción: x402.holatia.app. Override: ?api=https://… (smoke de preview).
+  var API = (function () {
+    try {
+      var q = new URLSearchParams(location.search).get("api");
+      if (q && /^https:\/\//i.test(q)) return q.replace(/\/$/, "");
+    } catch (e) {}
+    return "https://x402.holatia.app";
+  })();
   var channel = "whatsapp";
   var btnWa = document.getElementById("report-ch-whatsapp");
   var btnEm = document.getElementById("report-ch-email");

@@ -147559,6 +147559,14 @@ function publicBaseUrl() {
 
 // src/routes/leads.ts
 var router4 = (0, import_express4.Router)();
+function downloadOrigin(req) {
+  const host = (req.get("x-forwarded-host") || req.get("host") || "").split(",")[0].trim();
+  if (host) {
+    const proto = (req.get("x-forwarded-proto") || req.protocol || "https").split(",")[0].trim();
+    return `${proto}://${host}`;
+  }
+  return publicBaseUrl();
+}
 router4.post("/report", async (req, res) => {
   const body = req.body;
   const channel = typeof body.channel === "string" ? body.channel : "";
@@ -147574,7 +147582,7 @@ router4.post("/report", async (req, res) => {
       res.status(result.status).json({ ok: false, error: result.error });
       return;
     }
-    const downloadUrl = `${publicBaseUrl()}/v1/leads/report/download?token=${encodeURIComponent(result.token)}`;
+    const downloadUrl = `${downloadOrigin(req)}/v1/leads/report/download?token=${encodeURIComponent(result.token)}`;
     res.json({ ok: true, downloadUrl });
   } catch (err) {
     console.error(

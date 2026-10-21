@@ -11,6 +11,24 @@ import {
 const router = Router();
 
 /**
+ * Origen del request (preview Vercel) o PUBLIC_BASE_URL. No usar solo el env:
+ * en previews PUBLIC_BASE_URL suele ser x402.holatia.app y el token quedaría
+ * apuntando a prod, donde la ruta aún no existe.
+ */
+function downloadOrigin(req: Request): string {
+  const host = (req.get("x-forwarded-host") || req.get("host") || "")
+    .split(",")[0]
+    .trim();
+  if (host) {
+    const proto = (req.get("x-forwarded-proto") || req.protocol || "https")
+      .split(",")[0]
+      .trim();
+    return `${proto}://${host}`;
+  }
+  return publicBaseUrl();
+}
+
+/**
  * POST /v1/leads/report — guarda WhatsApp o email y devuelve URL de descarga
  * con token one-shot (TTL 15 min). Fuera de x402.
  */
@@ -35,7 +53,7 @@ router.post("/report", async (req: Request, res: Response) => {
       return;
     }
 
-    const downloadUrl = `${publicBaseUrl()}/v1/leads/report/download?token=${encodeURIComponent(result.token)}`;
+    const downloadUrl = `${downloadOrigin(req)}/v1/leads/report/download?token=${encodeURIComponent(result.token)}`;
     res.json({ ok: true, downloadUrl });
   } catch (err: unknown) {
     console.error(

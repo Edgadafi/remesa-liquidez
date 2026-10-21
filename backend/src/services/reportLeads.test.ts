@@ -111,6 +111,8 @@ describe("reportLeads store + download", () => {
 
     assert.strictEqual(post.body.ok, true);
     assert.match(String(post.body.downloadUrl), /\/v1\/leads\/report\/download\?token=/);
+    // El origen debe seguir el Host del request (no forzar solo PUBLIC_BASE_URL).
+    assert.match(String(post.body.downloadUrl), /^http:\/\/127\.0\.0\.1:\d+\//);
 
     const url = new URL(post.body.downloadUrl as string);
     const token = url.searchParams.get("token")!;
