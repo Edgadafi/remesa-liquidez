@@ -86,6 +86,20 @@ pre .c{color:#86a493}.k{color:var(--accent)}.s{color:var(--ok)}.e{color:var(--wa
 .proof ul{color:var(--muted);font-size:.92rem;margin:6px 0 0 18px}
 .tags{display:flex;flex-wrap:wrap;gap:10px;margin-top:28px}
 .tag{border:1px solid var(--line);background:var(--card);padding:9px 16px;border-radius:999px;font-size:.92rem}
+.report-box{margin-top:30px;max-width:520px}
+.report-toggle{display:flex;gap:8px;margin:18px 0 14px}
+.report-toggle button{flex:1;border:1px solid var(--line);background:var(--bg2);color:var(--muted);padding:10px 14px;border-radius:10px;font-weight:600;font-size:.92rem;cursor:pointer}
+.report-toggle button[aria-pressed="true"]{background:rgba(201,164,74,.16);border-color:var(--accent);color:var(--accent2)}
+.report-form{display:flex;flex-direction:column;gap:12px}
+.report-form label{font-size:.82rem;color:var(--muted);font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.report-form input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--line);background:var(--deep);color:var(--text);font-size:1rem}
+.report-form input:focus{outline:2px solid rgba(201,164,74,.45);outline-offset:1px}
+.report-form .btn{justify-content:center;border:0;cursor:pointer;width:100%}
+.report-form .btn:disabled{opacity:.55;cursor:wait;transform:none}
+.report-note{margin-top:14px;font-size:.88rem;color:var(--muted)}
+.report-status{margin-top:12px;font-size:.92rem;min-height:1.4em}
+.report-status.ok{color:var(--ok)}
+.report-status.err{color:var(--warn)}
 footer{padding:40px 0 56px;color:var(--muted);font-size:.9rem}
 footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;align-items:center}
 @media (max-width:860px){.hero-grid{grid-template-columns:1fr;gap:36px}.hero-logo{grid-row:1;width:200px}.grid3,.grid4{grid-template-columns:1fr 1fr}nav .links{display:none}}
@@ -99,7 +113,7 @@ footer .wrap{display:flex;flex-wrap:wrap;justify-content:space-between;gap:16px;
 
 <nav><div class="wrap">
   <a class="brand" href="#"><img src="/favicon-48.png" alt="TIA logo" width="34" height="34">TIA Remittance API</a>
-  <div class="links"><a href="#problem">Problem</a><a href="#how">How it works</a><a href="#endpoints">Endpoints</a><a href="#proof">On-chain proof</a><a href="https://github.com/Edgadafi/remesa-liquidez">GitHub</a></div>
+  <div class="links"><a href="#problem">Problem</a><a href="#how">How it works</a><a href="#endpoints">Endpoints</a><a href="#proof">On-chain proof</a><a href="#report">Report</a><a href="https://github.com/Edgadafi/remesa-liquidez">GitHub</a></div>
 </div></nav>
 
 <header class="hero"><div class="wrap hero-grid">
@@ -196,6 +210,27 @@ payment-required: eyJ4NDAyVmVyc2lvbiI6Mi...  <span class="c"># base64-encoded JS
   </div>
 </div></section>
 
+<section id="report"><div class="wrap">
+  <div class="eyebrow">Reporte</div>
+  <h2>Remesas agénticas 2026–2031</h2>
+  <p class="lead">Primer reporte de holatia.app sobre el corredor E.U.→México: costos, digitalización y el rol de TIA. Corte de datos: 19 oct 2026.</p>
+  <div class="report-box">
+    <div class="report-toggle" role="group" aria-label="Canal de contacto">
+      <button type="button" id="report-ch-whatsapp" aria-pressed="true">WhatsApp</button>
+      <button type="button" id="report-ch-email" aria-pressed="false">Correo</button>
+    </div>
+    <form class="report-form" id="report-form" novalidate>
+      <div>
+        <label id="report-label" for="report-value">Número de WhatsApp</label>
+        <input id="report-value" name="value" type="tel" inputmode="tel" autocomplete="tel" placeholder="+52 55 1234 5678" required>
+      </div>
+      <button class="btn primary" type="submit" id="report-submit">Descargar reporte</button>
+    </form>
+    <p class="report-status" id="report-status" role="status" aria-live="polite"></p>
+    <p class="report-note">Usamos tu WhatsApp o correo solo para entregarte el PDF y dar seguimiento sobre el reporte. No lo compartimos.</p>
+  </div>
+</div></section>
+
 <section id="stack"><div class="wrap">
   <div class="eyebrow">Built with</div>
   <h2>Stack</h2>
@@ -208,5 +243,98 @@ payment-required: eyJ4NDAyVmVyc2lvbiI6Mi...  <span class="c"># base64-encoded JS
   <div class="brand"><img src="/favicon-48.png" alt="" width="34" height="34">TIA Remittance API · Built on Stellar</div>
   <div><a href="https://github.com/Edgadafi/remesa-liquidez" target="_blank" rel="noopener">GitHub: Edgadafi/remesa-liquidez</a> · <a href="https://x402.holatia.app" target="_blank" rel="noopener">API</a></div>
 </div></footer>
+<script>
+(function () {
+  // Producción: x402.holatia.app. Override: ?api=https://… (smoke de preview).
+  var API = (function () {
+    try {
+      var q = new URLSearchParams(location.search).get("api");
+      if (q && /^https:\/\//i.test(q)) return q.replace(/\/$/, "");
+    } catch (e) {}
+    return "https://x402.holatia.app";
+  })();
+  var channel = "whatsapp";
+  var btnWa = document.getElementById("report-ch-whatsapp");
+  var btnEm = document.getElementById("report-ch-email");
+  var label = document.getElementById("report-label");
+  var input = document.getElementById("report-value");
+  var form = document.getElementById("report-form");
+  var submit = document.getElementById("report-submit");
+  var statusEl = document.getElementById("report-status");
+  if (!form || !input || !btnWa || !btnEm) return;
+
+  function setChannel(next) {
+    channel = next;
+    var isWa = next === "whatsapp";
+    btnWa.setAttribute("aria-pressed", isWa ? "true" : "false");
+    btnEm.setAttribute("aria-pressed", isWa ? "false" : "true");
+    label.textContent = isWa ? "Número de WhatsApp" : "Correo electrónico";
+    input.type = isWa ? "tel" : "email";
+    input.inputMode = isWa ? "tel" : "email";
+    input.autocomplete = isWa ? "tel" : "email";
+    input.placeholder = isWa ? "+52 55 1234 5678" : "tu@correo.com";
+    input.value = "";
+    statusEl.textContent = "";
+    statusEl.className = "report-status";
+  }
+  btnWa.addEventListener("click", function () { setChannel("whatsapp"); });
+  btnEm.addEventListener("click", function () { setChannel("email"); });
+
+  form.addEventListener("submit", function (ev) {
+    ev.preventDefault();
+    var value = (input.value || "").trim();
+    if (!value) {
+      statusEl.textContent = "Escribe tu WhatsApp o correo.";
+      statusEl.className = "report-status err";
+      return;
+    }
+    submit.disabled = true;
+    statusEl.textContent = "Generando enlace…";
+    statusEl.className = "report-status";
+    fetch(API + "/v1/leads/report", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ channel: channel, value: value })
+    })
+      .then(function (res) {
+        return res.json().then(function (body) {
+          return { res: res, body: body };
+        });
+      })
+      .then(function (_ref) {
+        var res = _ref.res, body = _ref.body;
+        if (!res.ok || !body || !body.downloadUrl) {
+          var err = (body && body.error) || "error";
+          var msg = {
+            email_invalid: "Correo no válido.",
+            whatsapp_invalid: "Usa un WhatsApp con código de país (ej. +52…).",
+            channel_invalid: "Elige WhatsApp o correo.",
+            store_unavailable: "Servicio temporalmente no disponible. Intenta más tarde.",
+            rate_limited: "Demasiados intentos. Espera un minuto."
+          }[err] || "No se pudo generar la descarga. Intenta de nuevo.";
+          statusEl.textContent = msg;
+          statusEl.className = "report-status err";
+          return;
+        }
+        statusEl.textContent = "Descarga lista.";
+        statusEl.className = "report-status ok";
+        var a = document.createElement("a");
+        a.href = body.downloadUrl;
+        a.rel = "noopener";
+        a.download = "reporte-remesas-agenticas-2026.pdf";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      })
+      .catch(function () {
+        statusEl.textContent = "Error de red. Revisa tu conexión e intenta de nuevo.";
+        statusEl.className = "report-status err";
+      })
+      .finally(function () {
+        submit.disabled = false;
+      });
+  });
+})();
+</script>
 </body>
 </html>

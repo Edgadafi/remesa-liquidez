@@ -3,6 +3,7 @@ import { x402Serve } from "nirium";
 import tiaRouter from "./routes/tia.js";
 import premiumRouter from "./routes/premium.js";
 import v1Router from "./routes/v1.js";
+import leadsRouter from "./routes/leads.js";
 import { publicOrigin } from "./middleware/publicOrigin.js";
 import { envInt, rateLimit } from "./middleware/rateLimit.js";
 import {
@@ -82,6 +83,15 @@ export function createApp() {
       keyPrefix: "notify",
     })
   );
+  // Lead-gate del reporte: más estricto que /v1 de pago; fuera de x402.
+  app.use(
+    "/v1/leads",
+    rateLimit({
+      max: envInt("RATE_LIMIT_LEADS_MAX", 10),
+      windowMs: rlWindowMs,
+      keyPrefix: "leads",
+    })
+  );
 
   // Límites de body por superficie: 12mb SOLO para notify (audioBase64 TTS);
   // el resto de la API opera con payloads chicos — 100kb es de sobra.
@@ -89,6 +99,10 @@ export function createApp() {
   app.use(express.json({ limit: "100kb" }));
 
   const x402Mount: X402MountState = { mounted: false, reason: null };
+
+  // Lead-gate del PDF: montado ANTES de x402 para que /v1/leads/* no
+  // entre al middleware de cobro ni al replay guard de pagos.
+  app.use("/v1/leads", leadsRouter);
 
   app.get("/health", async (_req, res) => {
     const prova = await getProvaStatus();
