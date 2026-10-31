@@ -290,6 +290,92 @@ Fprb6jTLfjXfZ6yuWzS7LVXxwVvPbPgPZiEqDEL9bRfj
 
 ---
 
+## Verifiable Receipts (Niriumtober)
+
+Starting with the Niriumtober integration, `/v1/route` responses include a **verifiable receipt** anchored to IPFS via [Nirium Audit Trail](https://nirium.xyz). Each receipt proves the quote data was delivered at a specific time, signed by TIA's dedicated receipt key.
+
+### What gets anchored
+
+Only the quote/route data, timestamp, and request ID — **no personal data, no IP addresses, no payment proofs**. The payload is:
+
+```json
+{
+  "v": "tia-receipt-v1",
+  "endpoint": "GET /v1/route",
+  "requestId": "uuid",
+  "timestamp": "2026-10-31T12:00:00.000Z",
+  "data": { /* full route estimate */ }
+}
+```
+
+The canonical JSON (sorted keys, no whitespace) is hashed (SHA-256), signed (ed25519 over `nirium-audit-v1:<hex>`), and anchored. The response includes:
+
+```json
+{
+  "ok": true,
+  "requestId": "...",
+  "receipt": {
+    "cid": "bafy...",
+    "sha256": "abc123...",
+    "signer": "GABC...",
+    "anchoredAt": "2026-10-31T12:00:01.123Z"
+  },
+  /* ...route estimate */
+}
+```
+
+If anchoring fails (network timeout, rate limit), `receipt` is `null` — the paid response is **never** broken.
+
+### Verifying a receipt
+
+1. **GET /v1/receipt/:cid** (free, no x402 charge):
+
+```bash
+curl https://x402.holatia.app/v1/receipt/bafy...
+```
+
+Returns:
+
+```json
+{
+  "ok": true,
+  "cid": "bafy...",
+  "hash": "sha-256:abc123...",
+  "gatewayUrl": "https://gateway.pinata.cloud/ipfs/bafy...",
+  "verified": true,
+  "verificationError": null,
+  "document": { /* full IPFS doc */ }
+}
+```
+
+2. **Manual verification**:
+
+   - Fetch the IPFS document from the gateway URL
+   - Check `content_sha256` matches the receipt hash
+   - Verify the ed25519 signature in `agent.signature` against `agent.key` and `nirium-audit-v1:<hash>`
+   - Confirm `agent.key` matches the `signer` from the receipt
+
+### Environment setup
+
+```bash
+# Generate a NEW Stellar keypair for signing (never reuse STELLAR_PAY_TO)
+npm install -g @stellar/stellar-cli
+stellar keys generate receipt --network testnet
+
+# Set in .env (backend/)
+TIA_RECEIPT_SECRET=S...        # Stellar secret key from above
+NIRIUM_NETWORK=testnet          # or mainnet/pubnet
+NIRIUM_API_KEY=                 # optional, defaults to "demo"
+```
+
+**First mainnet anchor**: Set `NIRIUM_NETWORK=mainnet` and restart. The first `/v1/route` call after that will anchor to mainnet Nirium.
+
+### Tag: niriumtober
+
+All receipts are tagged `niriumtober` for the Nirium Mainnet Builder category. This tag is visible in the IPFS document but does not appear in the `/v1/route` response.
+
+---
+
 ## Variables de entorno
 
 Copiar `.env.example` → `.env` y rellenar:
