@@ -4,10 +4,11 @@
  */
 
 import { receipt } from "../src/lib/receipt.js";
+import { Keypair } from "@stellar/stellar-sdk";
 
 // Throwaway testnet keypair (safe to include in code - for testing only)
-const THROWAWAY_SECRET = "SDJMRZ32I2JCD3YMC5HMCUNYVSCL7HNWHOPQ7WBQK7YSNIGMGXGQAGWR";
-const THROWAWAY_PUBLIC = "GCSVP4X2M222VKUL4AQJC3KFYK772JZ4ZAI5Q5ITC7HGKDQYJLNZX5NM";
+const THROWAWAY_SECRET = process.env.TIA_RECEIPT_SECRET ?? Keypair.random().secret();
+const THROWAWAY_PUBLIC = Keypair.fromSecret(THROWAWAY_SECRET).publicKey();
 
 // Set up environment for this test
 process.env.TIA_RECEIPT_SECRET = THROWAWAY_SECRET;
