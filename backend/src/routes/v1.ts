@@ -197,7 +197,7 @@ router.get("/route", async (req: Request, res: Response) => {
     // Wait for receipt with timeout
     const receiptData = await Promise.race([
       receiptPromise,
-      new Promise<null>((resolve) => setTimeout(() => resolve(null), 2000)),
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000)),
     ]);
 
     if (receiptData) {
