@@ -2493,7 +2493,7 @@ var require_websocket = __commonJS({
     var http4 = require("http");
     var net = require("net");
     var tls = require("tls");
-    var { randomBytes: randomBytes4, createHash: createHash5 } = require("crypto");
+    var { randomBytes: randomBytes4, createHash: createHash6 } = require("crypto");
     var { Duplex, Readable } = require("stream");
     var { URL: URL2 } = require("url");
     var PerMessageDeflate2 = require_permessage_deflate();
@@ -3174,7 +3174,7 @@ var require_websocket = __commonJS({
           abortHandshake(websocket, socket, "Invalid Upgrade header");
           return;
         }
-        const digest = createHash5("sha1").update(key + GUID).digest("base64");
+        const digest = createHash6("sha1").update(key + GUID).digest("base64");
         if (res.headers["sec-websocket-accept"] !== digest) {
           abortHandshake(websocket, socket, "Invalid Sec-WebSocket-Accept header");
           return;
@@ -3543,7 +3543,7 @@ var require_websocket_server = __commonJS({
     var EventEmitter3 = require("events");
     var http4 = require("http");
     var { Duplex } = require("stream");
-    var { createHash: createHash5 } = require("crypto");
+    var { createHash: createHash6 } = require("crypto");
     var extension2 = require_extension();
     var PerMessageDeflate2 = require_permessage_deflate();
     var subprotocol2 = require_subprotocol();
@@ -3850,7 +3850,7 @@ var require_websocket_server = __commonJS({
           );
         }
         if (this._state > RUNNING) return abortHandshake(socket, 503);
-        const digest = createHash5("sha1").update(key + GUID).digest("base64");
+        const digest = createHash6("sha1").update(key + GUID).digest("base64");
         const headers = [
           "HTTP/1.1 101 Switching Protocols",
           "Upgrade: websocket",
@@ -10512,16 +10512,16 @@ ${errors.map((e) => `  - ${e.message}`).join("\n")}`;
        * @returns PAYMENT-RESPONSE and Cache-Control headers, or undefined when neither receipt applies
        */
       createFailurePathSettlementHeaders(cancelSettlement, beforeHandlerSettlement, paymentPayload, existingCacheControl) {
-        const receipt = resolveFailurePathSettlement(
+        const receipt2 = resolveFailurePathSettlement(
           cancelSettlement,
           beforeHandlerSettlement,
           paymentPayload
         );
-        if (!receipt) {
+        if (!receipt2) {
           return void 0;
         }
         return {
-          ...this.createSettlementHeaders(receipt),
+          ...this.createSettlementHeaders(receipt2),
           "Cache-Control": withPrivateCacheControl(existingCacheControl ?? null)
         };
       }
@@ -40172,7 +40172,7 @@ var require_cjs3 = __commonJS({
       }
       return assets.find((entry) => entry.asset === asset);
     };
-    var import_stellar_sdk7 = require_cjs2();
+    var import_stellar_sdk8 = require_cjs2();
     var import_rpc5 = require_rpc();
     function handleSimulationResult(simulation) {
       if (!simulation) {
@@ -40190,10 +40190,10 @@ var require_cjs3 = __commonJS({
     }
     function getAddressCredentials2(credentials) {
       const credentialsType = credentials.switch();
-      if (credentialsType === import_stellar_sdk7.xdr.SorobanCredentialsType.sorobanCredentialsAddress()) {
+      if (credentialsType === import_stellar_sdk8.xdr.SorobanCredentialsType.sorobanCredentialsAddress()) {
         return credentials.address();
       }
-      if (credentialsType === import_stellar_sdk7.xdr.SorobanCredentialsType.sorobanCredentialsAddressV2()) {
+      if (credentialsType === import_stellar_sdk8.xdr.SorobanCredentialsType.sorobanCredentialsAddressV2()) {
         return credentials.addressV2();
       }
       return void 0;
@@ -40224,7 +40224,7 @@ var require_cjs3 = __commonJS({
       for (const entry of invokeOp.auth ?? []) {
         const addressCredentials = getAddressCredentials2(entry.credentials());
         if (addressCredentials) {
-          const address4 = import_stellar_sdk7.Address.fromScAddress(addressCredentials.address()).toString();
+          const address4 = import_stellar_sdk8.Address.fromScAddress(addressCredentials.address()).toString();
           const signature2 = addressCredentials.signature();
           const isSigned = signature2.switch().name !== "scvVoid";
           if (isSigned) {
@@ -40500,7 +40500,7 @@ var require_client4 = __commonJS({
       }
       return assets.find((entry) => entry.asset === asset);
     };
-    var import_stellar_sdk7 = require_cjs2();
+    var import_stellar_sdk8 = require_cjs2();
     var import_rpc5 = require_rpc();
     function handleSimulationResult(simulation) {
       if (!simulation) {
@@ -72540,8 +72540,8 @@ var init_transaction = __esm({
       }
     };
     TransactionReceiptRevertedError = class extends BaseError4 {
-      constructor({ receipt }) {
-        super(`Transaction with hash "${receipt.transactionHash}" reverted.`, {
+      constructor({ receipt: receipt2 }) {
+        super(`Transaction with hash "${receipt2.transactionHash}" reverted.`, {
           metaMessages: [
             'The receipt marked the transaction as "reverted". This could mean that the function on the contract you are trying to call threw an error.',
             " ",
@@ -72557,7 +72557,7 @@ var init_transaction = __esm({
           writable: true,
           value: void 0
         });
-        this.receipt = receipt;
+        this.receipt = receipt2;
       }
     };
     WaitForTransactionReceiptTimeoutError = class extends BaseError4 {
@@ -81206,7 +81206,7 @@ var init_withRetry = __esm({
 
 // node_modules/viem/_esm/utils/formatters/transactionReceipt.js
 function formatTransactionReceipt(transactionReceipt, _) {
-  const receipt = {
+  const receipt2 = {
     ...transactionReceipt,
     blockNumber: transactionReceipt.blockNumber ? BigInt(transactionReceipt.blockNumber) : null,
     contractAddress: transactionReceipt.contractAddress ? transactionReceipt.contractAddress : null,
@@ -81220,10 +81220,10 @@ function formatTransactionReceipt(transactionReceipt, _) {
     type: transactionReceipt.type ? transactionType[transactionReceipt.type] || transactionReceipt.type : null
   };
   if (transactionReceipt.blobGasPrice)
-    receipt.blobGasPrice = BigInt(transactionReceipt.blobGasPrice);
+    receipt2.blobGasPrice = BigInt(transactionReceipt.blobGasPrice);
   if (transactionReceipt.blobGasUsed)
-    receipt.blobGasUsed = BigInt(transactionReceipt.blobGasUsed);
-  return receipt;
+    receipt2.blobGasUsed = BigInt(transactionReceipt.blobGasUsed);
+  return receipt2;
 }
 var receiptStatuses, defineTransactionReceipt;
 var init_transactionReceipt = __esm({
@@ -81422,11 +81422,11 @@ async function getCallsStatus(client2, parameters) {
     atomic,
     // @ts-expect-error: for backwards compatibility
     chainId: chainId2 ? hexToNumber2(chainId2) : void 0,
-    receipts: receipts?.map((receipt) => ({
-      ...receipt,
-      blockNumber: hexToBigInt(receipt.blockNumber),
-      gasUsed: hexToBigInt(receipt.gasUsed),
-      status: receiptStatuses[receipt.status]
+    receipts: receipts?.map((receipt2) => ({
+      ...receipt2,
+      blockNumber: hexToBigInt(receipt2.blockNumber),
+      gasUsed: hexToBigInt(receipt2.gasUsed),
+      status: receiptStatuses[receipt2.status]
     })) ?? [],
     statusCode,
     status,
@@ -86692,14 +86692,14 @@ var init_getTransaction = __esm({
 
 // node_modules/viem/_esm/actions/public/getTransactionReceipt.js
 async function getTransactionReceipt(client2, { hash: hash11 }) {
-  const receipt = await client2.request({
+  const receipt2 = await client2.request({
     method: "eth_getTransactionReceipt",
     params: [hash11]
   }, { dedupe: true });
-  if (!receipt)
+  if (!receipt2)
     throw new TransactionReceiptNotFoundError({ hash: hash11 });
   const format5 = client2.chain?.formatters?.transactionReceipt?.format || formatTransactionReceipt;
-  return format5(receipt, "getTransactionReceipt");
+  return format5(receipt2, "getTransactionReceipt");
 }
 var init_getTransactionReceipt = __esm({
   "node_modules/viem/_esm/actions/public/getTransactionReceipt.js"() {
@@ -87669,7 +87669,7 @@ async function waitForTransactionReceipt(client2, parameters) {
   })();
   let transaction;
   let replacedTransaction;
-  let receipt;
+  let receipt2;
   let retrying = false;
   let _unobserve;
   let _unwatch;
@@ -87680,10 +87680,10 @@ async function waitForTransactionReceipt(client2, parameters) {
     reject(new WaitForTransactionReceiptTimeoutError({ hash: hash11 }));
   }, timeout) : void 0;
   _unobserve = observe(observerId, { onReplaced, resolve: resolve6, reject }, async (emit) => {
-    receipt = await getAction(client2, getTransactionReceipt, "getTransactionReceipt")({ hash: hash11 }).catch(() => void 0);
-    if (receipt && confirmations <= 1) {
+    receipt2 = await getAction(client2, getTransactionReceipt, "getTransactionReceipt")({ hash: hash11 }).catch(() => void 0);
+    if (receipt2 && confirmations <= 1) {
       clearTimeout(timer);
-      emit.resolve(receipt);
+      emit.resolve(receipt2);
       _unobserve?.();
       return;
     }
@@ -87703,10 +87703,10 @@ async function waitForTransactionReceipt(client2, parameters) {
         if (retrying)
           return;
         try {
-          if (receipt) {
-            if (confirmations > 1 && (!receipt.blockNumber || blockNumber - receipt.blockNumber + 1n < confirmations))
+          if (receipt2) {
+            if (confirmations > 1 && (!receipt2.blockNumber || blockNumber - receipt2.blockNumber + 1n < confirmations))
               return;
-            done(() => emit.resolve(receipt));
+            done(() => emit.resolve(receipt2));
             return;
           }
           if (checkReplacement && !transaction) {
@@ -87721,10 +87721,10 @@ async function waitForTransactionReceipt(client2, parameters) {
             });
             retrying = false;
           }
-          receipt = await getAction(client2, getTransactionReceipt, "getTransactionReceipt")({ hash: hash11 });
-          if (confirmations > 1 && (!receipt.blockNumber || blockNumber - receipt.blockNumber + 1n < confirmations))
+          receipt2 = await getAction(client2, getTransactionReceipt, "getTransactionReceipt")({ hash: hash11 });
+          if (confirmations > 1 && (!receipt2.blockNumber || blockNumber - receipt2.blockNumber + 1n < confirmations))
             return;
-          done(() => emit.resolve(receipt));
+          done(() => emit.resolve(receipt2));
         } catch (err) {
           if (err instanceof TransactionNotFoundError || err instanceof TransactionReceiptNotFoundError) {
             if (!transaction) {
@@ -87746,10 +87746,10 @@ async function waitForTransactionReceipt(client2, parameters) {
               const replacementTransaction = block.transactions.find(({ from: from43, nonce: nonce3 }) => from43 === replacedTransaction.from && nonce3 === replacedTransaction.nonce);
               if (!replacementTransaction)
                 return;
-              receipt = await getAction(client2, getTransactionReceipt, "getTransactionReceipt")({
+              receipt2 = await getAction(client2, getTransactionReceipt, "getTransactionReceipt")({
                 hash: replacementTransaction.hash
               });
-              if (confirmations > 1 && (!receipt.blockNumber || blockNumber - receipt.blockNumber + 1n < confirmations))
+              if (confirmations > 1 && (!receipt2.blockNumber || blockNumber - receipt2.blockNumber + 1n < confirmations))
                 return;
               let reason = "replaced";
               if (replacementTransaction.to === replacedTransaction.to && replacementTransaction.value === replacedTransaction.value && replacementTransaction.input === replacedTransaction.input) {
@@ -87762,9 +87762,9 @@ async function waitForTransactionReceipt(client2, parameters) {
                   reason,
                   replacedTransaction,
                   transaction: replacementTransaction,
-                  transactionReceipt: receipt
+                  transactionReceipt: receipt2
                 });
-                emit.resolve(receipt);
+                emit.resolve(receipt2);
               });
             } catch (err_) {
               done(() => emit.reject(err_));
@@ -87823,12 +87823,12 @@ var init_internal = __esm({
 
 // node_modules/viem/_esm/actions/wallet/sendRawTransactionSync.js
 async function sendRawTransactionSync(client2, { serializedTransaction, throwOnReceiptRevert, timeout }) {
-  const receipt = await client2.request({
+  const receipt2 = await client2.request({
     method: "eth_sendRawTransactionSync",
     params: timeout ? [serializedTransaction, timeout] : [serializedTransaction]
   }, { retryCount: 0 });
   const format5 = client2.chain?.formatters?.transactionReceipt?.format || formatTransactionReceipt;
-  const formatted = format5(receipt);
+  const formatted = format5(receipt2);
   if (formatted.status === "reverted" && throwOnReceiptRevert)
     throw new TransactionReceiptRevertedError({ receipt: formatted });
   return formatted;
@@ -87927,15 +87927,15 @@ async function sendTransactionSync(client2, parameters) {
           throw error62;
         }
       })();
-      const receipt = await getAction(client2, waitForTransactionReceipt, "waitForTransactionReceipt")({
+      const receipt2 = await getAction(client2, waitForTransactionReceipt, "waitForTransactionReceipt")({
         checkReplacement: false,
         hash: hash11,
         pollingInterval,
         timeout
       });
-      if (throwOnReceiptRevert && receipt.status === "reverted")
-        throw new TransactionReceiptRevertedError({ receipt });
-      return receipt;
+      if (throwOnReceiptRevert && receipt2.status === "reverted")
+        throw new TransactionReceiptRevertedError({ receipt: receipt2 });
+      return receipt2;
     }
     if (account?.type === "local") {
       const nonceManager2 = (() => {
@@ -103473,13 +103473,13 @@ async function updateConfig(client2, parameters) {
 }
 async function updateConfigSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await updateConfig.inner(writeContractSync, client2, {
+  const receipt2 = await updateConfig.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = updateConfig.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = updateConfig.extractEvent(receipt2.logs);
   return {
     account: args.account,
     config: MultisigConfig_exports.from({
@@ -103488,7 +103488,7 @@ async function updateConfigSync(client2, parameters) {
       threshold: args.threshold,
       version: args.version
     }),
-    receipt
+    receipt: receipt2
   };
 }
 var init_multisig = __esm({
@@ -103623,16 +103623,16 @@ async function authorize(client2, parameters) {
 }
 async function authorizeSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await authorize.inner(sendTransactionSync, client2, {
+  const receipt2 = await authorize.inner(sendTransactionSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = authorize.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = authorize.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function burnWitness(client2, parameters) {
@@ -103640,16 +103640,16 @@ async function burnWitness(client2, parameters) {
 }
 async function burnWitnessSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await burnWitness.inner(writeContractSync, client2, {
+  const receipt2 = await burnWitness.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = burnWitness.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = burnWitness.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function getMetadata(client2, parameters) {
@@ -103720,16 +103720,16 @@ async function revoke(client2, parameters) {
 }
 async function revokeSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await revoke.inner(writeContractSync, client2, {
+  const receipt2 = await revoke.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = revoke.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = revoke.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function prepareAuthorization(client2, parameters) {
@@ -103867,19 +103867,19 @@ async function updateLimit(client2, parameters) {
 }
 async function updateLimitSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await updateLimit.inner(writeContractSync, client2, {
+  const receipt2 = await updateLimit.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = updateLimit.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = updateLimit.extractEvent(receipt2.logs);
   return {
     account: args.account,
     publicKey: args.publicKey,
     token: args.token,
     limit: args.newLimit,
-    receipt
+    receipt: receipt2
   };
 }
 function watchAdminAuthorized(client2, parameters) {
@@ -104196,12 +104196,12 @@ function formatTransaction2(transaction) {
     type: tx.type
   };
 }
-function formatTransactionReceipt2(receipt) {
-  const transactionReceipt = formatTransactionReceipt(receipt);
+function formatTransactionReceipt2(receipt2) {
+  const transactionReceipt = formatTransactionReceipt(receipt2);
   return {
     ...transactionReceipt,
-    multisig: formatMultisig(receipt.multisig),
-    ...receipt.status === "pending" ? { status: "pending", type: "tempo" } : {}
+    multisig: formatMultisig(receipt2.multisig),
+    ...receipt2.status === "pending" ? { status: "pending", type: "tempo" } : {}
   };
 }
 function formatMultisig(value) {
@@ -105958,16 +105958,16 @@ async function rebalanceSwap(client2, parameters) {
 }
 async function rebalanceSwapSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await rebalanceSwap.inner(writeContractSync, client2, {
+  const receipt2 = await rebalanceSwap.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = rebalanceSwap.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = rebalanceSwap.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function mint(client2, parameters) {
@@ -105975,16 +105975,16 @@ async function mint(client2, parameters) {
 }
 async function mintSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await mint.inner(writeContractSync, client2, {
+  const receipt2 = await mint.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = mint.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = mint.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function burn(client2, parameters) {
@@ -105992,16 +105992,16 @@ async function burn(client2, parameters) {
 }
 async function burnSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await burn.inner(writeContractSync, client2, {
+  const receipt2 = await burn.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = burn.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = burn.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 function watchRebalanceSwap(client2, parameters) {
@@ -106267,14 +106267,14 @@ async function close(client2, parameters) {
 }
 async function closeSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await close.inner(writeContractSync, client2, {
+  const receipt2 = await close.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = close.extractEvent(receipt.logs);
-  return { ...args, receipt };
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = close.extractEvent(receipt2.logs);
+  return { ...args, receipt: receipt2 };
 }
 async function getStates(client2, parameters) {
   const chainId2 = client2.chain?.id;
@@ -106289,42 +106289,42 @@ async function open2(client2, parameters) {
 }
 async function openSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await open2.inner(writeContractSync, client2, {
+  const receipt2 = await open2.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = open2.extractEvent(receipt.logs);
-  return { ...args, receipt };
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = open2.extractEvent(receipt2.logs);
+  return { ...args, receipt: receipt2 };
 }
 async function requestClose(client2, parameters) {
   return requestClose.inner(writeContract, client2, parameters);
 }
 async function requestCloseSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await requestClose.inner(writeContractSync, client2, {
+  const receipt2 = await requestClose.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = requestClose.extractEvent(receipt.logs);
-  return { ...args, receipt };
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = requestClose.extractEvent(receipt2.logs);
+  return { ...args, receipt: receipt2 };
 }
 async function settle2(client2, parameters) {
   return settle2.inner(writeContract, client2, parameters);
 }
 async function settleSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await settle2.inner(writeContractSync, client2, {
+  const receipt2 = await settle2.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = settle2.extractEvent(receipt.logs);
-  return { ...args, receipt };
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = settle2.extractEvent(receipt2.logs);
+  return { ...args, receipt: receipt2 };
 }
 async function signVoucher2(client2, parameters) {
   const { account: account_ = client2.account, chainId: chainId2 = client2.chain?.id, channel, cumulativeAmount } = parameters;
@@ -106346,28 +106346,28 @@ async function topUp(client2, parameters) {
 }
 async function topUpSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await topUp.inner(writeContractSync, client2, {
+  const receipt2 = await topUp.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = topUp.extractEvent(receipt.logs);
-  return { ...args, receipt };
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = topUp.extractEvent(receipt2.logs);
+  return { ...args, receipt: receipt2 };
 }
 async function withdraw(client2, parameters) {
   return withdraw.inner(writeContract, client2, parameters);
 }
 async function withdrawSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await withdraw.inner(writeContractSync, client2, {
+  const receipt2 = await withdraw.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = withdraw.extractEvent(receipt.logs);
-  return { ...args, receipt };
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = withdraw.extractEvent(receipt2.logs);
+  return { ...args, receipt: receipt2 };
 }
 var init_channel = __esm({
   "node_modules/viem/_esm/tempo/actions/channel.js"() {
@@ -106674,27 +106674,27 @@ async function buy(client2, parameters) {
 }
 async function buySync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await buy.inner(writeContractSync, client2, {
+  const receipt2 = await buy.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  return { receipt };
+  return { receipt: receipt2 };
 }
 async function cancel(client2, parameters) {
   return cancel.inner(writeContract, client2, parameters);
 }
 async function cancelSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await cancel.inner(writeContractSync, client2, {
+  const receipt2 = await cancel.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = cancel.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = cancel.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function cancelStale(client2, parameters) {
@@ -106702,16 +106702,16 @@ async function cancelStale(client2, parameters) {
 }
 async function cancelStaleSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await cancelStale.inner(writeContractSync, client2, {
+  const receipt2 = await cancelStale.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = cancelStale.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = cancelStale.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function createPair(client2, parameters) {
@@ -106719,16 +106719,16 @@ async function createPair(client2, parameters) {
 }
 async function createPairSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await createPair.inner(writeContractSync, client2, {
+  const receipt2 = await createPair.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = createPair.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = createPair.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function getBalance(client2, parameters) {
@@ -106785,30 +106785,30 @@ async function placeFlip(client2, parameters) {
 }
 async function placeFlipSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await placeFlip.inner(writeContractSync, client2, {
+  const receipt2 = await placeFlip.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = placeFlip.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = placeFlip.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function placeSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await place.inner(writeContractSync, client2, {
+  const receipt2 = await place.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = place.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = place.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function sell(client2, parameters) {
@@ -106816,11 +106816,11 @@ async function sell(client2, parameters) {
 }
 async function sellSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await sell.inner(writeContractSync, client2, {
+  const receipt2 = await sell.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  return { receipt };
+  return { receipt: receipt2 };
 }
 function watchFlipOrderPlaced(client2, parameters) {
   const { onFlipOrderPlaced, maker, token, ...rest } = parameters;
@@ -106899,11 +106899,11 @@ async function withdraw2(client2, parameters) {
 }
 async function withdrawSync2(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await withdraw2.inner(writeContractSync, client2, {
+  const receipt2 = await withdraw2.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  return { receipt };
+  return { receipt: receipt2 };
 }
 function getPairKey(base3, quote) {
   return keccak2563(concat5(base3, quote));
@@ -107334,16 +107334,16 @@ async function create3(client2, parameters) {
 }
 async function createSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await create3.inner(writeContractSync, client2, {
+  const receipt2 = await create3.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = create3.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = create3.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function setAdmin(client2, parameters) {
@@ -107351,16 +107351,16 @@ async function setAdmin(client2, parameters) {
 }
 async function setAdminSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await setAdmin.inner(writeContractSync, client2, {
+  const receipt2 = await setAdmin.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = setAdmin.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = setAdmin.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function modifyWhitelist(client2, parameters) {
@@ -107368,16 +107368,16 @@ async function modifyWhitelist(client2, parameters) {
 }
 async function modifyWhitelistSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await modifyWhitelist.inner(writeContractSync, client2, {
+  const receipt2 = await modifyWhitelist.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = modifyWhitelist.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = modifyWhitelist.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function modifyBlacklist(client2, parameters) {
@@ -107385,16 +107385,16 @@ async function modifyBlacklist(client2, parameters) {
 }
 async function modifyBlacklistSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await modifyBlacklist.inner(writeContractSync, client2, {
+  const receipt2 = await modifyBlacklist.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = modifyBlacklist.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = modifyBlacklist.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function getData(client2, parameters) {
@@ -107729,17 +107729,17 @@ async function approveSync(client2, parameters) {
   const { amount: amount2, token, throwOnReceiptRevert = true } = parameters;
   const { decimals: decimals2 } = resolveToken(client2, { token });
   const resolved = resolveAmountDecimals(amount2, decimals2);
-  const receipt = await approve.inner(writeContractSync, client2, {
+  const receipt2 = await approve.inner(writeContractSync, client2, {
     ...parameters,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = approve.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = approve.extractEvent(receipt2.logs);
   return {
     ...args,
     ...resolved === void 0 ? {} : { decimals: resolved, formatted: formatUnits(args.amount, resolved) },
-    receipt
+    receipt: receipt2
   };
 }
 async function burnBlocked(client2, parameters) {
@@ -107747,16 +107747,16 @@ async function burnBlocked(client2, parameters) {
 }
 async function burnBlockedSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await burnBlocked.inner(writeContractSync, client2, {
+  const receipt2 = await burnBlocked.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = burnBlocked.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = burnBlocked.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function burn2(client2, parameters) {
@@ -107764,16 +107764,16 @@ async function burn2(client2, parameters) {
 }
 async function burnSync2(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await burn2.inner(writeContractSync, client2, {
+  const receipt2 = await burn2.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = burn2.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = burn2.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function changeTransferPolicy(client2, parameters) {
@@ -107781,16 +107781,16 @@ async function changeTransferPolicy(client2, parameters) {
 }
 async function changeTransferPolicySync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await changeTransferPolicy.inner(writeContractSync, client2, {
+  const receipt2 = await changeTransferPolicy.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = changeTransferPolicy.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = changeTransferPolicy.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function create4(client2, parameters) {
@@ -107798,17 +107798,17 @@ async function create4(client2, parameters) {
 }
 async function createSync2(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await create4.inner(writeContractSync, client2, {
+  const receipt2 = await create4.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = create4.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = create4.extractEvent(receipt2.logs);
   const tokenId = TokenId_exports2.fromAddress(args.token);
   return {
     ...args,
-    receipt,
+    receipt: receipt2,
     tokenId
   };
 }
@@ -108022,16 +108022,16 @@ async function grantRoles(client2, parameters) {
 }
 async function grantRolesSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await grantRoles.inner(sendTransactionSync, client2, {
+  const receipt2 = await grantRoles.inner(sendTransactionSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const events2 = grantRoles.extractEvents(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const events2 = grantRoles.extractEvents(receipt2.logs);
   const value = events2.map((event) => event.args);
   return {
-    receipt,
+    receipt: receipt2,
     value
   };
 }
@@ -108040,16 +108040,16 @@ async function mint2(client2, parameters) {
 }
 async function mintSync2(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await mint2.inner(writeContractSync, client2, {
+  const receipt2 = await mint2.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = mint2.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = mint2.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function pause(client2, parameters) {
@@ -108057,16 +108057,16 @@ async function pause(client2, parameters) {
 }
 async function pauseSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await pause.inner(writeContractSync, client2, {
+  const receipt2 = await pause.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = pause.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = pause.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function renounceRoles(client2, parameters) {
@@ -108074,16 +108074,16 @@ async function renounceRoles(client2, parameters) {
 }
 async function renounceRolesSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await renounceRoles.inner(sendTransactionSync, client2, {
+  const receipt2 = await renounceRoles.inner(sendTransactionSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const events2 = renounceRoles.extractEvents(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const events2 = renounceRoles.extractEvents(receipt2.logs);
   const value = events2.map((event) => event.args);
   return {
-    receipt,
+    receipt: receipt2,
     value
   };
 }
@@ -108092,16 +108092,16 @@ async function revokeRoles(client2, parameters) {
 }
 async function revokeRolesSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await revokeRoles.inner(sendTransactionSync, client2, {
+  const receipt2 = await revokeRoles.inner(sendTransactionSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const events2 = revokeRoles.extractEvents(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const events2 = revokeRoles.extractEvents(receipt2.logs);
   const value = events2.map((event) => event.args);
   return {
-    receipt,
+    receipt: receipt2,
     value
   };
 }
@@ -108110,16 +108110,16 @@ async function setSupplyCap(client2, parameters) {
 }
 async function setSupplyCapSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await setSupplyCap.inner(writeContractSync, client2, {
+  const receipt2 = await setSupplyCap.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = setSupplyCap.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = setSupplyCap.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function setRoleAdmin(client2, parameters) {
@@ -108127,16 +108127,16 @@ async function setRoleAdmin(client2, parameters) {
 }
 async function setRoleAdminSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await setRoleAdmin.inner(writeContractSync, client2, {
+  const receipt2 = await setRoleAdmin.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = setRoleAdmin.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = setRoleAdmin.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function transfer(client2, parameters) {
@@ -108146,17 +108146,17 @@ async function transferSync(client2, parameters) {
   const { amount: amount2, token, throwOnReceiptRevert = true } = parameters;
   const { decimals: decimals2 } = resolveToken(client2, { token });
   const resolved = resolveAmountDecimals(amount2, decimals2);
-  const receipt = await transfer.inner(writeContractSync, client2, {
+  const receipt2 = await transfer.inner(writeContractSync, client2, {
     ...parameters,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = transfer.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = transfer.extractEvent(receipt2.logs);
   return {
     ...args,
     ...resolved === void 0 ? {} : { decimals: resolved, formatted: formatUnits(args.amount, resolved) },
-    receipt
+    receipt: receipt2
   };
 }
 async function unpause(client2, parameters) {
@@ -108164,42 +108164,42 @@ async function unpause(client2, parameters) {
 }
 async function unpauseSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await unpause.inner(writeContractSync, client2, {
+  const receipt2 = await unpause.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = unpause.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = unpause.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function prepareUpdateQuoteToken(client2, parameters) {
   return prepareUpdateQuoteToken.inner(writeContract, client2, parameters);
 }
 async function prepareUpdateQuoteTokenSync(client2, parameters) {
-  const receipt = await prepareUpdateQuoteToken.inner(writeContractSync, client2, parameters);
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = prepareUpdateQuoteToken.extractEvent(receipt.logs);
+  const receipt2 = await prepareUpdateQuoteToken.inner(writeContractSync, client2, parameters);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = prepareUpdateQuoteToken.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function updateQuoteToken(client2, parameters) {
   return updateQuoteToken.inner(writeContract, client2, parameters);
 }
 async function updateQuoteTokenSync(client2, parameters) {
-  const receipt = await updateQuoteToken.inner(writeContractSync, client2, parameters);
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = updateQuoteToken.extractEvent(receipt.logs);
+  const receipt2 = await updateQuoteToken.inner(writeContractSync, client2, parameters);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = updateQuoteToken.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 function watchApprove(client2, parameters) {
@@ -109203,13 +109203,13 @@ async function depositSync(client2, parameters) {
     recipient,
     tempoRefundRecipient
   };
-  const receipt = await sendTransactionSync(client2, {
+  const receipt2 = await sendTransactionSync(client2, {
     ...rest,
     account,
     throwOnReceiptRevert,
     calls: deposit.calls(args)
   });
-  return { receipt };
+  return { receipt: receipt2 };
 }
 async function getEncryptionKey(client2, parameters) {
   const { account, portalAddress: portalAddress_, zoneId, ...rest } = parameters;
@@ -109321,7 +109321,7 @@ async function encryptedDepositSync(client2, parameters) {
     if (parameters.chainId !== chainId2) {
       throw new Error("Prepared encrypted deposit chain ID does not match client chain.");
     }
-    const receipt2 = await sendTransactionSync(client2, {
+    const receipt3 = await sendTransactionSync(client2, {
       ...pickWriteParameters(parameters),
       ...pickWriteSyncParameters(parameters),
       throwOnReceiptRevert,
@@ -109330,7 +109330,7 @@ async function encryptedDepositSync(client2, parameters) {
         tempoRefundRecipient
       })
     });
-    return { receipt: receipt2 };
+    return { receipt: receipt3 };
   }
   const recipient = parameters.recipient ?? account_.address;
   const prepared = await encryptedDeposit.prepare(client2, {
@@ -109343,13 +109343,13 @@ async function encryptedDepositSync(client2, parameters) {
     token: parameters.token,
     zoneId: parameters.zoneId
   });
-  const receipt = await sendTransactionSync(client2, {
+  const receipt2 = await sendTransactionSync(client2, {
     ...rest,
     account,
     throwOnReceiptRevert,
     calls: encryptedDeposit.calls(prepared)
   });
-  return { receipt };
+  return { receipt: receipt2 };
 }
 async function getAuthorizationTokenInfo(client2) {
   const info = await client2.request({
@@ -109449,18 +109449,18 @@ async function requestWithdrawalSync(client2, parameters) {
   if (!to3)
     throw new Error("`to` is required.");
   const args = { ...parameters, to: to3 };
-  const receipt = await sendTransactionSync(client2, {
+  const receipt2 = await sendTransactionSync(client2, {
     ...pickWriteParameters(parameters),
     ...pickWriteSyncParameters(parameters),
     calls: requestWithdrawal.calls(args),
     gas: parameters.gas ?? defaultWithdrawalGas,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
   const [event] = parseEventLogs({
     abi: zoneOutbox,
-    logs: receipt.logs,
+    logs: receipt2.logs,
     eventName: "WithdrawalRequested",
     strict: true
   });
@@ -109469,9 +109469,9 @@ async function requestWithdrawalSync(client2, parameters) {
   const senderTag = from41({
     fallbackNonce: event.args.fallbackNonce,
     sender: event.args.sender,
-    transactionHash: receipt.transactionHash
+    transactionHash: receipt2.transactionHash
   });
-  return { receipt, senderTag };
+  return { receipt: receipt2, senderTag };
 }
 async function requestVerifiableWithdrawal(client2, parameters) {
   const { account = client2.account } = parameters;
@@ -109497,14 +109497,14 @@ async function requestVerifiableWithdrawalSync(client2, parameters) {
   if (!to3)
     throw new Error("`to` is required.");
   const args = { ...parameters, to: to3 };
-  const receipt = await sendTransactionSync(client2, {
+  const receipt2 = await sendTransactionSync(client2, {
     ...pickWriteParameters(parameters),
     ...pickWriteSyncParameters(parameters),
     calls: requestVerifiableWithdrawal.calls(args),
     gas: parameters.gas ?? defaultWithdrawalGas,
     throwOnReceiptRevert
   });
-  return { receipt };
+  return { receipt: receipt2 };
 }
 async function signAuthorizationToken(client2, parameters = {}) {
   const { account = client2.account, issuedAt = Math.floor(Date.now() / 1e3), expiresAt = issuedAt + 86400, store: store2 = defaultStore() } = parameters;
@@ -109841,42 +109841,42 @@ async function createErc4626Engine(client2, parameters) {
 }
 async function createErc4626EngineSync(client2, parameters) {
   const { factory, throwOnReceiptRevert = true } = parameters;
-  const receipt = await createErc4626Engine.inner(writeContractSync, client2, {
+  const receipt2 = await createErc4626Engine.inner(writeContractSync, client2, {
     ...parameters,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = createErc4626Engine.extractEvent(receipt.logs, { factory });
-  return { ...args, receipt };
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = createErc4626Engine.extractEvent(receipt2.logs, { factory });
+  return { ...args, receipt: receipt2 };
 }
 async function createStack(client2, parameters) {
   return createStack.inner(writeContract, client2, parameters);
 }
 async function createStackSync(client2, parameters) {
   const { factory, throwOnReceiptRevert = true } = parameters;
-  const receipt = await createStack.inner(writeContractSync, client2, {
+  const receipt2 = await createStack.inner(writeContractSync, client2, {
     ...parameters,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = createStack.extractEvent(receipt.logs, { factory });
-  return { ...args, receipt };
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = createStack.extractEvent(receipt2.logs, { factory });
+  return { ...args, receipt: receipt2 };
 }
 async function bindEngine(client2, parameters) {
   return bindEngine.inner(writeContract, client2, parameters);
 }
 async function bindEngineSync(client2, parameters) {
   const { engine, throwOnReceiptRevert = true } = parameters;
-  const receipt = await bindEngine.inner(writeContractSync, client2, {
+  const receipt2 = await bindEngine.inner(writeContractSync, client2, {
     ...parameters,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = bindEngine.extractEvent(receipt.logs, { engine });
-  return { engine, vault: args.earnVault, receipt };
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = bindEngine.extractEvent(receipt2.logs, { engine });
+  return { engine, vault: args.earnVault, receipt: receipt2 };
 }
 async function deployErc4626StackSync(client2, parameters) {
   const deployer = parameters.account ?? client2.account;
@@ -109962,14 +109962,14 @@ async function deployErc4626StackSync(client2, parameters) {
         account: deployer,
         ...createErc4626Engine.call(engineArgs)
       });
-      const receipt = await createErc4626Engine.inner(writeContractSync, client2, {
+      const receipt2 = await createErc4626Engine.inner(writeContractSync, client2, {
         ...writeParameters,
         ...engineArgs
       });
-      receipts.engine = receipt;
-      if (receipt.status === "pending")
-        return { receipt };
-      createErc4626Engine.extractEvent(receipt.logs, {
+      receipts.engine = receipt2;
+      if (receipt2.status === "pending")
+        return { receipt: receipt2 };
+      createErc4626Engine.extractEvent(receipt2.logs, {
         factory: factories.erc4626Engine
       });
     }
@@ -110003,14 +110003,14 @@ async function deployErc4626StackSync(client2, parameters) {
         account: deployer,
         ...createStack.call(stackArgs)
       });
-      const receipt = await createStack.inner(writeContractSync, client2, {
+      const receipt2 = await createStack.inner(writeContractSync, client2, {
         ...writeParameters,
         ...stackArgs
       });
-      receipts.stack = receipt;
-      if (receipt.status === "pending")
-        return { receipt };
-      const { args } = createStack.extractEvent(receipt.logs, {
+      receipts.stack = receipt2;
+      if (receipt2.status === "pending")
+        return { receipt: receipt2 };
+      const { args } = createStack.extractEvent(receipt2.logs, {
         factory: factories.earn
       });
       state.vault = args.earnVault;
@@ -110069,11 +110069,11 @@ async function deployErc4626StackSync(client2, parameters) {
           vault
         })
       });
-      const receipt = await bindEngine.inner(writeContractSync, client2, bindingParameters);
-      receipts.binding = receipt;
-      if (receipt.status === "pending")
-        return { receipt };
-      bindEngine.extractEvent(receipt.logs, { engine: predictedEngine });
+      const receipt2 = await bindEngine.inner(writeContractSync, client2, bindingParameters);
+      receipts.binding = receipt2;
+      if (receipt2.status === "pending")
+        return { receipt: receipt2 };
+      bindEngine.extractEvent(receipt2.logs, { engine: predictedEngine });
     } else if (!isAddressEqual(boundVault, vault)) {
       throw new Error(`Engine is already bound to ${boundVault}.`);
     }
@@ -110702,17 +110702,17 @@ async function deposit2(client2, parameters) {
 }
 async function depositSync2(client2, parameters) {
   const { throwOnReceiptRevert = true, vault } = parameters;
-  const receipt = await deposit2.inner(sendTransactionSync, client2, {
+  const receipt2 = await deposit2.inner(sendTransactionSync, client2, {
     ...parameters,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = deposit2.extractEvent(receipt.logs, { vault });
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = deposit2.extractEvent(receipt2.logs, { vault });
   return {
     assetAmount: args.assets,
     caller: args.caller,
-    receipt,
+    receipt: receipt2,
     recipient: args.receiver,
     shareAmount: args.earnShares
   };
@@ -110722,17 +110722,17 @@ async function depositShares(client2, parameters) {
 }
 async function depositSharesSync(client2, parameters) {
   const { throwOnReceiptRevert = true, vault } = parameters;
-  const receipt = await depositShares.inner(sendTransactionSync, client2, {
+  const receipt2 = await depositShares.inner(sendTransactionSync, client2, {
     ...parameters,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = depositShares.extractEvent(receipt.logs, { vault });
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = depositShares.extractEvent(receipt2.logs, { vault });
   return {
     caller: args.caller,
     earnShareAmount: args.earnShares,
-    receipt,
+    receipt: receipt2,
     receivedVenueShareAmount: args.receivedEngineShares,
     recipient: args.receiver,
     venueShareAmount: args.requestedVenueShares
@@ -111023,17 +111023,17 @@ async function redeem(client2, parameters) {
 }
 async function redeemSync(client2, parameters) {
   const { throwOnReceiptRevert = true, vault } = parameters;
-  const receipt = await redeem.inner(sendTransactionSync, client2, {
+  const receipt2 = await redeem.inner(sendTransactionSync, client2, {
     ...parameters,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = redeem.extractEvent(receipt.logs, { vault });
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = redeem.extractEvent(receipt2.logs, { vault });
   return {
     assetAmount: args.assets,
     caller: args.caller,
-    receipt,
+    receipt: receipt2,
     recipient: args.receiver,
     shareAmount: args.earnShares
   };
@@ -111115,17 +111115,17 @@ async function withdrawExact(client2, parameters) {
 }
 async function withdrawExactSync(client2, parameters) {
   const { throwOnReceiptRevert = true, vault } = parameters;
-  const receipt = await withdrawExact.inner(sendTransactionSync, client2, {
+  const receipt2 = await withdrawExact.inner(sendTransactionSync, client2, {
     ...parameters,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = withdrawExact.extractEvent(receipt.logs, { vault });
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = withdrawExact.extractEvent(receipt2.logs, { vault });
   return {
     assetAmount: args.assets,
     caller: args.caller,
-    receipt,
+    receipt: receipt2,
     recipient: args.receiver,
     shareAmount: args.earnSharesBurned
   };
@@ -112120,16 +112120,16 @@ async function setUserToken(client2, parameters) {
 }
 async function setUserTokenSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await setUserToken.inner(writeContractSync, client2, {
+  const receipt2 = await setUserToken.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = setUserToken.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = setUserToken.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 function watchSetUserToken(client2, parameters) {
@@ -112164,16 +112164,16 @@ async function setValidatorToken(client2, parameters) {
 }
 async function setValidatorTokenSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await setValidatorToken.inner(writeContractSync, client2, {
+  const receipt2 = await setValidatorToken.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = setValidatorToken.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = setValidatorToken.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 function watchSetValidatorToken(client2, parameters) {
@@ -112371,16 +112371,16 @@ async function burn3(client2, parameters) {
 }
 async function burnSync3(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await burn3.inner(writeContractSync, client2, {
+  const receipt2 = await burn3.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = burn3.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = burn3.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function claim2(client2, parameters) {
@@ -112388,16 +112388,16 @@ async function claim2(client2, parameters) {
 }
 async function claimSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await claim2.inner(writeContractSync, client2, {
+  const receipt2 = await claim2.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = claim2.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = claim2.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function get(client2, parameters) {
@@ -112421,10 +112421,10 @@ async function get(client2, parameters) {
   };
 }
 async function getBlockedBalance(client2, parameters) {
-  const { receipt, ...rest } = parameters;
+  const { receipt: receipt2, ...rest } = parameters;
   return readContract(client2, {
     ...rest,
-    ...getBlockedBalance.call({ receipt })
+    ...getBlockedBalance.call({ receipt: receipt2 })
   });
 }
 async function set2(client2, parameters) {
@@ -112432,19 +112432,19 @@ async function set2(client2, parameters) {
 }
 async function setSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await set2.inner(writeContractSync, client2, {
+  const receipt2 = await set2.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { tokenFilterId, ...args } = set2.extractEvent(receipt.logs).args;
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { tokenFilterId, ...args } = set2.extractEvent(receipt2.logs).args;
   return {
     ...args,
     senderPolicyId: toPolicyRef(args.senderPolicyId),
     tokenPolicyId: toPolicyRef(tokenFilterId),
     claimer: toClaimer(args.recoveryAuthority, args.account),
-    receipt
+    receipt: receipt2
   };
 }
 async function validate18(client2, parameters) {
@@ -112467,8 +112467,8 @@ function watchBlocked(client2, parameters) {
     eventName: "TransferBlocked",
     onLogs: (logs) => {
       for (const log of logs) {
-        const { receipt, ...args } = log.args;
-        onBlocked({ ...args, claimReceipt: receipt }, log);
+        const { receipt: receipt2, ...args } = log.args;
+        onBlocked({ ...args, claimReceipt: receipt2 }, log);
       }
     },
     strict: true
@@ -112595,10 +112595,10 @@ var init_receivePolicy = __esm({
     ];
     (function(burn4) {
       async function inner(action, client2, parameters) {
-        const { account = client2.account, chain = client2.chain, receipt, ...rest } = parameters;
+        const { account = client2.account, chain = client2.chain, receipt: receipt2, ...rest } = parameters;
         if (!account)
           throw new Error("`account` is required");
-        const call3 = burn4.call({ receipt });
+        const call3 = burn4.call({ receipt: receipt2 });
         return action(client2, {
           ...rest,
           account,
@@ -112608,12 +112608,12 @@ var init_receivePolicy = __esm({
       }
       burn4.inner = inner;
       function call2(args) {
-        const { receipt } = args;
+        const { receipt: receipt2 } = args;
         return defineCall({
           address: receivePolicyGuard2,
           abi: receivePolicyGuard,
           functionName: "burnBlockedReceipt",
-          args: [receipt]
+          args: [receipt2]
         });
       }
       burn4.call = call2;
@@ -112632,10 +112632,10 @@ var init_receivePolicy = __esm({
     })(burn3 || (burn3 = {}));
     (function(claim4) {
       async function inner(action, client2, parameters) {
-        const { account = client2.account, chain = client2.chain, to: to3, receipt, ...rest } = parameters;
+        const { account = client2.account, chain = client2.chain, to: to3, receipt: receipt2, ...rest } = parameters;
         if (!account)
           throw new Error("`account` is required");
-        const call3 = claim4.call({ to: to3, receipt });
+        const call3 = claim4.call({ to: to3, receipt: receipt2 });
         return action(client2, {
           ...rest,
           account,
@@ -112645,12 +112645,12 @@ var init_receivePolicy = __esm({
       }
       claim4.inner = inner;
       function call2(args) {
-        const { to: to3, receipt } = args;
+        const { to: to3, receipt: receipt2 } = args;
         return defineCall({
           address: receivePolicyGuard2,
           abi: receivePolicyGuard,
           functionName: "claim",
-          args: [to3, receipt]
+          args: [to3, receipt2]
         });
       }
       claim4.call = call2;
@@ -112681,12 +112681,12 @@ var init_receivePolicy = __esm({
     })(get || (get = {}));
     (function(getBlockedBalance2) {
       function call2(args) {
-        const { receipt } = args;
+        const { receipt: receipt2 } = args;
         return defineCall({
           address: receivePolicyGuard2,
           abi: receivePolicyGuard,
           functionName: "balanceOf",
-          args: [receipt]
+          args: [receipt2]
         });
       }
       getBlockedBalance2.call = call2;
@@ -112769,12 +112769,12 @@ async function claim3(client2, parameters) {
 }
 async function claimSync2(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await claim3.inner(writeContractSync, client2, {
+  const receipt2 = await claim3.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
   return {
-    receipt
+    receipt: receipt2
   };
 }
 async function distribute(client2, parameters) {
@@ -112782,16 +112782,16 @@ async function distribute(client2, parameters) {
 }
 async function distributeSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await distribute.inner(writeContractSync, client2, {
+  const receipt2 = await distribute.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = distribute.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = distribute.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 async function getGlobalRewardPerToken(client2, parameters) {
@@ -112817,16 +112817,16 @@ async function setRecipient(client2, parameters) {
 }
 async function setRecipientSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await setRecipient.inner(writeContractSync, client2, {
+  const receipt2 = await setRecipient.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = setRecipient.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = setRecipient.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 function watchRewardDistributed(client2, parameters) {
@@ -113163,33 +113163,33 @@ async function add3(client2, parameters) {
 }
 async function addSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await add3.inner(writeContractSync, client2, {
+  const receipt2 = await add3.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  return { receipt };
+  return { receipt: receipt2 };
 }
 async function changeOwner(client2, parameters) {
   return changeOwner.inner(writeContract, client2, parameters);
 }
 async function changeOwnerSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await changeOwner.inner(writeContractSync, client2, {
+  const receipt2 = await changeOwner.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  return { receipt };
+  return { receipt: receipt2 };
 }
 async function changeStatus(client2, parameters) {
   return changeStatus.inner(writeContract, client2, parameters);
 }
 async function changeStatusSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await changeStatus.inner(writeContractSync, client2, {
+  const receipt2 = await changeStatus.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  return { receipt };
+  return { receipt: receipt2 };
 }
 async function getNextFullDkgCeremony(client2, parameters = {}) {
   return readContract(client2, {
@@ -113234,22 +113234,22 @@ async function setNextFullDkgCeremony(client2, parameters) {
 }
 async function setNextFullDkgCeremonySync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await setNextFullDkgCeremony.inner(writeContractSync, client2, {
+  const receipt2 = await setNextFullDkgCeremony.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  return { receipt };
+  return { receipt: receipt2 };
 }
 async function update(client2, parameters) {
   return update.inner(writeContract, client2, parameters);
 }
 async function updateSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await update.inner(writeContractSync, client2, {
+  const receipt2 = await update.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  return { receipt };
+  return { receipt: receipt2 };
 }
 var init_validator = __esm({
   "node_modules/viem/_esm/tempo/actions/validator.js"() {
@@ -113480,16 +113480,16 @@ async function registerMaster(client2, parameters) {
 }
 async function registerMasterSync(client2, parameters) {
   const { throwOnReceiptRevert = true, ...rest } = parameters;
-  const receipt = await registerMaster.inner(writeContractSync, client2, {
+  const receipt2 = await registerMaster.inner(writeContractSync, client2, {
     ...rest,
     throwOnReceiptRevert
   });
-  if (receipt.status === "pending")
-    return { receipt };
-  const { args } = registerMaster.extractEvent(receipt.logs);
+  if (receipt2.status === "pending")
+    return { receipt: receipt2 };
+  const { args } = registerMaster.extractEvent(receipt2.logs);
   return {
     ...args,
-    receipt
+    receipt: receipt2
   };
 }
 var init_virtualAddress = __esm({
@@ -116141,18 +116141,18 @@ function sessionManager(parameters) {
     },
     orderChallenges: parameters.orderChallenges
   });
-  function updateSpentFromReceipt(receipt) {
-    if (!receipt || receipt.channelId !== channel?.channelId)
+  function updateSpentFromReceipt(receipt2) {
+    if (!receipt2 || receipt2.channelId !== channel?.channelId)
       return;
-    assertReceiptWithinLocalState(receipt);
-    const next2 = BigInt(receipt.spent);
+    assertReceiptWithinLocalState(receipt2);
+    const next2 = BigInt(receipt2.spent);
     spent = spent > next2 ? spent : next2;
   }
-  function assertReceiptWithinLocalState(receipt) {
-    if (!channel || receipt.channelId !== channel.channelId)
+  function assertReceiptWithinLocalState(receipt2) {
+    if (!channel || receipt2.channelId !== channel.channelId)
       return;
-    const acceptedCumulative = BigInt(receipt.acceptedCumulative);
-    const receiptSpent = BigInt(receipt.spent);
+    const acceptedCumulative = BigInt(receipt2.acceptedCumulative);
+    const receiptSpent = BigInt(receipt2.spent);
     if (receiptSpent > acceptedCumulative) {
       throw new Error("receipt spent exceeds accepted cumulative voucher amount");
     }
@@ -116181,22 +116181,22 @@ function sessionManager(parameters) {
       closeReadyWaiter = { resolve: resolve6, reject };
     });
   }
-  function settleReceipt(receipt) {
+  function settleReceipt(receipt2) {
     if (!receiptWaiter)
       return;
-    if (!receiptWaiter.predicate(receipt))
+    if (!receiptWaiter.predicate(receipt2))
       return;
     const waiter = receiptWaiter;
     receiptWaiter = null;
-    waiter.resolve(receipt);
+    waiter.resolve(receipt2);
   }
-  function settleCloseReady(receipt) {
-    closeReadyReceipt = receipt;
+  function settleCloseReady(receipt2) {
+    closeReadyReceipt = receipt2;
     if (!closeReadyWaiter)
       return;
     const waiter = closeReadyWaiter;
     closeReadyWaiter = null;
-    waiter.resolve(receipt);
+    waiter.resolve(receipt2);
   }
   function rejectReceipt(error62) {
     if (!receiptWaiter)
@@ -116233,10 +116233,10 @@ function sessionManager(parameters) {
   }
   function toPaymentResponse(response) {
     const receiptHeader = response.headers.get("Payment-Receipt");
-    const receipt = receiptHeader ? deserializeSessionReceipt(receiptHeader) : null;
-    updateSpentFromReceipt(receipt);
+    const receipt2 = receiptHeader ? deserializeSessionReceipt(receiptHeader) : null;
+    updateSpentFromReceipt(receipt2);
     return Object.assign(response, {
-      receipt,
+      receipt: receipt2,
       challenge: lastChallenge,
       channelId: channel?.channelId ?? null,
       cumulative: channel?.cumulativeAmount ?? 0n
@@ -116512,7 +116512,7 @@ function sessionManager(parameters) {
           rawSocket.close(ClientWebSocketProtocolErrorCloseCode, message2);
         }
       };
-      const isExpectedReceipt = (receipt) => receipt.challengeId === challenge2.id && receipt.channelId === activeSocketChannelId;
+      const isExpectedReceipt = (receipt2) => receipt2.challengeId === challenge2.id && receipt2.channelId === activeSocketChannelId;
       const socketOpened = new Promise((resolve6, reject) => {
         const onOpen = () => {
           rawSocket.removeEventListener("error", onError);
@@ -116664,12 +116664,12 @@ function sessionManager(parameters) {
         const expectedCloseAmount = readySpent.toString();
         expectedSocketCloseAmount = expectedCloseAmount;
         try {
-          const pendingReceipt = waitForReceipt((receipt3) => Boolean(receipt3.txHash) && receipt3.challengeId === closeChallenge.id && receipt3.channelId === closeChannelId && receipt3.acceptedCumulative === expectedCloseAmount && receipt3.spent === expectedCloseAmount);
+          const pendingReceipt = waitForReceipt((receipt4) => Boolean(receipt4.txHash) && receipt4.challengeId === closeChallenge.id && receipt4.channelId === closeChannelId && receipt4.acceptedCumulative === expectedCloseAmount && receipt4.spent === expectedCloseAmount);
           activeSocket.send(formatAuthorizationMessage(credential2));
-          const receipt2 = await pendingReceipt;
+          const receipt3 = await pendingReceipt;
           activeSocket.close();
           closeReadyReceipt = null;
-          return receipt2;
+          return receipt3;
         } finally {
           expectedSocketCloseAmount = null;
         }
@@ -116715,8 +116715,8 @@ function sessionManager(parameters) {
         throw new Error(`Close request failed with status ${response.status}${detail ? `: ${detail}` : ""}${wwwAuth ? ` [WWW-Authenticate: ${wwwAuth}]` : ""}`);
       }
       const receiptHeader = response.headers.get("Payment-Receipt");
-      const receipt = receiptHeader ? deserializeSessionReceipt(receiptHeader) : void 0;
-      return receipt;
+      const receipt2 = receiptHeader ? deserializeSessionReceipt(receiptHeader) : void 0;
+      return receipt2;
     }
   };
   return self;
@@ -138936,7 +138936,7 @@ var require_dist5 = __commonJS({
       const pairs = Object.entries(params).filter(([, v]) => v !== void 0 && v !== null);
       return pairs.length ? `?${new URLSearchParams(pairs.map(([k, v]) => [k, String(v)])).toString()}` : "";
     }
-    var Agent = class {
+    var Agent2 = class {
       apiKey;
       baseUrl;
       wsUrl;
@@ -139492,7 +139492,7 @@ var require_dist5 = __commonJS({
         this.logCallbacks = [];
       }
     };
-    exports2.Agent = Agent;
+    exports2.Agent = Agent2;
     var X402SERVE_TELEMETRY_URL = "https://nirium-agent-mainnet.fly.dev/api/x402serve/telemetry";
     var X402SERVE_TELEMETRY_ENABLED = process.env.NIRIUM_X402SERVE_TELEMETRY === "true";
     var pingX402ServeTelemetry = (body) => {
@@ -139686,7 +139686,7 @@ var require_dist5 = __commonJS({
     Object.defineProperty(exports2, "createUpstashX402GuardStore", { enumerable: true, get: function() {
       return x402_guard_upstash_1.createUpstashX402GuardStore;
     } });
-    exports2.default = Agent;
+    exports2.default = Agent2;
     var resilient_ws_1 = require_resilient_ws();
     Object.defineProperty(exports2, "ResilientSignalClient", { enumerable: true, get: function() {
       return resilient_ws_1.ResilientSignalClient;
@@ -140995,7 +140995,7 @@ __export(app_exports, {
 });
 module.exports = __toCommonJS(app_exports);
 var import_express5 = __toESM(require("express"), 1);
-var import_nirium = __toESM(require_dist5(), 1);
+var import_nirium2 = __toESM(require_dist5(), 1);
 
 // src/routes/tia.ts
 var import_express = require("express");
@@ -147342,7 +147342,163 @@ async function lookupAudit(hex3) {
   return pending ? { pending: true } : null;
 }
 
+// src/lib/receipt.ts
+var import_node_crypto4 = require("node:crypto");
+init_esm5();
+var import_nirium = __toESM(require_dist5(), 1);
+var STATEMENT_PREFIX2 = "nirium-audit-v1:";
+var HEX_642 = /^[0-9a-f]{64}$/;
+function canonicalJson2(value) {
+  return JSON.stringify(sortValue2(value));
+}
+function sortValue2(value) {
+  if (Array.isArray(value)) return value.map(sortValue2);
+  if (value && typeof value === "object") {
+    const source = value;
+    const sorted = {};
+    for (const key of Object.keys(source).sort()) {
+      sorted[key] = sortValue2(source[key]);
+    }
+    return sorted;
+  }
+  return value;
+}
+function sha256Hex2(text) {
+  return (0, import_node_crypto4.createHash)("sha256").update(text, "utf8").digest("hex");
+}
+function receiptSigner() {
+  const secret = process.env.TIA_RECEIPT_SECRET?.trim();
+  if (!secret) {
+    console.warn("[receipt] TIA_RECEIPT_SECRET not configured");
+    return null;
+  }
+  try {
+    return Keypair.fromSecret(secret);
+  } catch (err) {
+    console.error("[receipt] Invalid TIA_RECEIPT_SECRET:", err instanceof Error ? err.message : "invalid");
+    return null;
+  }
+}
+function niriumNetwork() {
+  const env = process.env.NIRIUM_NETWORK?.trim()?.toLowerCase();
+  return env === "mainnet" || env === "pubnet" ? "stellar:pubnet" : "stellar:testnet";
+}
+function niriumBaseUrl() {
+  const network = niriumNetwork();
+  return network === "stellar:pubnet" ? "https://nirium-agent-mainnet.fly.dev" : "https://nirium-agent.fly.dev";
+}
+function signHash(hex3, signer) {
+  if (!HEX_642.test(hex3)) {
+    throw new Error("signHash: hex must be 64 lowercase hex chars");
+  }
+  const message2 = `${STATEMENT_PREFIX2}${hex3}`;
+  const signature2 = Buffer.from(signer.sign(Buffer.from(message2, "utf8"))).toString("base64");
+  return signature2;
+}
+async function anchorReceipt(payload) {
+  const signer = receiptSigner();
+  if (!signer) {
+    return null;
+  }
+  const canonical = canonicalJson2(payload);
+  const hash11 = sha256Hex2(canonical);
+  let signature2;
+  try {
+    signature2 = signHash(hash11, signer);
+  } catch (err) {
+    console.error("[receipt] Failed to sign:", err instanceof Error ? err.message : "unknown");
+    return null;
+  }
+  const agent = new import_nirium.Agent({
+    apiKey: process.env.NIRIUM_API_KEY || "demo",
+    baseUrl: niriumBaseUrl()
+  });
+  try {
+    const anchor3 = await agent.anchorAuditRecord({
+      hash: `sha-256:${hash11}`,
+      tag: "niriumtober",
+      agent: {
+        key: signer.publicKey(),
+        signature: signature2,
+        id: "tia-api"
+      }
+    });
+    return {
+      cid: anchor3.cid,
+      sha256: hash11,
+      signer: signer.publicKey(),
+      anchoredAt: anchor3.anchoredAt
+    };
+  } catch (err) {
+    console.error("[receipt] Anchor failed:", err instanceof Error ? err.message : "unknown");
+    return null;
+  }
+}
+async function verifyReceipt(cid, expectedHash) {
+  const signer = receiptSigner();
+  if (!signer) {
+    return { ok: false, error: "no_signer" };
+  }
+  const hex3 = expectedHash.trim().toLowerCase().replace(/^sha-256:/, "");
+  if (!HEX_642.test(hex3)) {
+    return { ok: false, error: "invalid_hash" };
+  }
+  const gatewayUrl = `https://gateway.pinata.cloud/ipfs/${cid}`;
+  let response;
+  try {
+    response = await fetch(gatewayUrl, {
+      signal: AbortSignal.timeout(15e3)
+    });
+  } catch {
+    return { ok: false, error: "gateway_timeout" };
+  }
+  if (!response.ok) {
+    return { ok: false, error: "gateway_error" };
+  }
+  let doc;
+  try {
+    const parsed = await response.json();
+    if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+      return { ok: false, error: "invalid_doc" };
+    }
+    doc = parsed;
+  } catch {
+    return { ok: false, error: "invalid_json" };
+  }
+  if (doc.content_sha256 !== hex3) {
+    return { ok: false, error: "content_sha256_mismatch" };
+  }
+  const agent = doc.agent;
+  if (!agent || typeof agent !== "object") {
+    return { ok: false, error: "no_agent" };
+  }
+  const agentData = agent;
+  if (typeof agentData.key !== "string" || typeof agentData.signature !== "string") {
+    return { ok: false, error: "invalid_agent" };
+  }
+  if (agentData.key !== signer.publicKey()) {
+    return { ok: false, error: "signer_mismatch" };
+  }
+  try {
+    const valid = Keypair.fromPublicKey(agentData.key).verify(
+      Buffer.from(`${STATEMENT_PREFIX2}${hex3}`, "utf8"),
+      Buffer.from(agentData.signature, "base64")
+    );
+    if (!valid) {
+      return { ok: false, error: "invalid_signature" };
+    }
+  } catch {
+    return { ok: false, error: "verification_failed" };
+  }
+  return { ok: true };
+}
+var receipt = {
+  anchorReceipt,
+  verifyReceipt
+};
+
 // src/routes/v1.ts
+var import_node_crypto5 = require("node:crypto");
 var router3 = (0, import_express3.Router)();
 router3.get("/channel/merktop/usage", merktopUsageHandler);
 router3.get("/audit/:hash", async (req, res) => {
@@ -147375,6 +147531,62 @@ router3.get("/audit/:hash", async (req, res) => {
     console.error(
       "[GET /v1/audit] error:",
       err instanceof Error ? err.message : "lookup failed"
+    );
+    res.status(500).json({ ok: false, error: "internal_error" });
+  }
+});
+router3.get("/receipt/:cid", async (req, res) => {
+  const { cid } = req.params;
+  if (!cid?.trim()) {
+    res.status(400).json({ ok: false, error: "cid required" });
+    return;
+  }
+  try {
+    const gatewayUrl = `https://gateway.pinata.cloud/ipfs/${cid}`;
+    let fetchResponse;
+    try {
+      fetchResponse = await fetch(gatewayUrl, {
+        signal: AbortSignal.timeout(15e3)
+      });
+    } catch {
+      res.status(504).json({ ok: false, error: "gateway_timeout" });
+      return;
+    }
+    if (!fetchResponse.ok) {
+      res.status(404).json({ ok: false, error: "not_found" });
+      return;
+    }
+    let doc;
+    try {
+      const parsed = await fetchResponse.json();
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        res.status(500).json({ ok: false, error: "invalid_document" });
+        return;
+      }
+      doc = parsed;
+    } catch {
+      res.status(500).json({ ok: false, error: "invalid_json" });
+      return;
+    }
+    const hash11 = typeof doc.content_sha256 === "string" ? doc.content_sha256 : null;
+    if (!hash11) {
+      res.status(500).json({ ok: false, error: "missing_hash" });
+      return;
+    }
+    const verification = await receipt.verifyReceipt(cid, hash11);
+    res.json({
+      ok: true,
+      cid,
+      hash: `sha-256:${hash11}`,
+      gatewayUrl,
+      verified: verification.ok,
+      verificationError: verification.error ?? null,
+      document: doc
+    });
+  } catch (err) {
+    console.error(
+      "[GET /v1/receipt] error:",
+      err instanceof Error ? err.message : "verification failed"
     );
     res.status(500).json({ ok: false, error: "internal_error" });
   }
@@ -147417,7 +147629,36 @@ router3.get("/route", async (req, res) => {
   }
   try {
     const estimate = await estimateRoutes(amount2);
-    res.json({ ok: true, ...estimate });
+    const requestId = (0, import_node_crypto5.randomUUID)();
+    const receiptPromise = receipt.anchorReceipt({
+      v: "tia-receipt-v1",
+      endpoint: "GET /v1/route",
+      requestId,
+      timestamp: estimate.generatedAt,
+      data: estimate
+    }).catch((err) => {
+      console.warn("[GET /v1/route] Receipt anchor failed:", err instanceof Error ? err.message : "unknown");
+      return null;
+    });
+    const response = {
+      ok: true,
+      requestId,
+      ...estimate,
+      receipt: null
+    };
+    const receiptData = await Promise.race([
+      receiptPromise,
+      new Promise((resolve6) => setTimeout(() => resolve6(null), 8e3))
+    ]);
+    if (receiptData) {
+      response.receipt = {
+        cid: receiptData.cid,
+        sha256: receiptData.sha256,
+        signer: receiptData.signer,
+        anchoredAt: receiptData.anchoredAt
+      };
+    }
+    res.json(response);
   } catch (err) {
     const message2 = err instanceof Error ? err.message : "Unknown error";
     console.error("[GET /v1/route] error:", err);
@@ -147451,7 +147692,7 @@ var import_node_fs2 = require("node:fs");
 var import_express4 = require("express");
 
 // src/services/reportLeads.ts
-var import_node_crypto4 = require("node:crypto");
+var import_node_crypto6 = require("node:crypto");
 var import_node_fs = require("node:fs");
 var import_node_path = __toESM(require("node:path"), 1);
 var REPORT_FILENAME = "reporte-remesas-agenticas-2026.pdf";
@@ -147500,7 +147741,7 @@ function downloadKey(token) {
   return `${DOWNLOAD_KEY_PREFIX}${token}`;
 }
 function shortHash(input2) {
-  return (0, import_node_crypto4.createHash)("sha256").update(input2).digest("hex").slice(0, 16);
+  return (0, import_node_crypto6.createHash)("sha256").update(input2).digest("hex").slice(0, 16);
 }
 function leadsStoreRequired() {
   return process.env.NODE_ENV === "production" || Boolean(process.env.VERCEL);
@@ -147517,7 +147758,7 @@ async function createReportLead(input2) {
   if (leadsStoreRequired() && !hasDurableKv()) {
     return { ok: false, status: 503, error: "store_unavailable" };
   }
-  const token = (0, import_node_crypto4.randomBytes)(24).toString("base64url");
+  const token = (0, import_node_crypto6.randomBytes)(24).toString("base64url");
   const kv = getKvBackend();
   const record2 = {
     channel: normalized.channel,
@@ -147656,7 +147897,7 @@ function publicOrigin() {
 }
 
 // src/middleware/paymentGuard.ts
-var import_node_crypto5 = require("node:crypto");
+var import_node_crypto7 = require("node:crypto");
 var MAX_PAYMENT_HEADER_BYTES = 8 * 1024;
 function getEffectivePaymentHeader(req) {
   const v2 = req.headers["payment-signature"];
@@ -147737,7 +147978,7 @@ function paymentReplayGuard() {
       });
       return;
     }
-    const digest = (0, import_node_crypto5.createHash)("sha256").update(effective.value).update("\n").update(`${req.method} ${req.originalUrl}`).digest("hex");
+    const digest = (0, import_node_crypto7.createHash)("sha256").update(effective.value).update("\n").update(`${req.method} ${req.originalUrl}`).digest("hex");
     const key = `tia:xpay:${digest}`;
     const ttlMs = envInt("X402_REPLAY_TTL_SECONDS", 900) * 1e3;
     let first;
@@ -148032,10 +148273,10 @@ ${premiumEndpoints}
         );
       }
       app.use(["/premium", "/v1"], paymentHeaderLimits(), paymentReplayGuard());
-      app.use("/premium", publicOrigin(), (0, import_nirium.x402Serve)(x402Config));
+      app.use("/premium", publicOrigin(), (0, import_nirium2.x402Serve)(x402Config));
       app.use("/premium", premium_default);
       const v1Config = getX402V1ServeConfig();
-      const v1Payment = (0, import_nirium.x402Serve)(v1Config);
+      const v1Payment = (0, import_nirium2.x402Serve)(v1Config);
       app.use(
         "/v1",
         publicOrigin(),
