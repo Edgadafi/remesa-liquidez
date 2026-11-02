@@ -5,6 +5,8 @@ import { checkAndFireAlerts, registerAlert } from "../services/alerts.js";
 import { requireCronSecret } from "../middleware/overrideAuth.js";
 import { merktopUsageHandler } from "../middleware/merktopFreeTier.js";
 import { lookupAudit, parseAuditHash } from "../services/auditTrail.js";
+import { receipt } from "../lib/receipt.js";
+import { randomUUID } from "node:crypto";
 
 const router = Router();
 
@@ -57,6 +59,77 @@ router.get("/audit/:hash", async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * GET /v1/receipt/:cid — Verify and return a Nirium receipt by CID.
+ * Free endpoint (not charged via x402 or merktop).
+ */
+router.get("/receipt/:cid", async (req: Request, res: Response) => {
+  const { cid } = req.params;
+  if (!cid?.trim()) {
+    res.status(400).json({ ok: false, error: "cid required" });
+    return;
+  }
+
+  try {
+    const gatewayUrl = `https://gateway.pinata.cloud/ipfs/${cid}`;
+    
+    // Fetch the IPFS document
+    let fetchResponse: globalThis.Response;
+    try {
+      fetchResponse = await fetch(gatewayUrl, {
+        signal: AbortSignal.timeout(15_000),
+      });
+    } catch {
+      res.status(504).json({ ok: false, error: "gateway_timeout" });
+      return;
+    }
+
+    if (!fetchResponse.ok) {
+      res.status(404).json({ ok: false, error: "not_found" });
+      return;
+    }
+
+    let doc: Record<string, unknown>;
+    try {
+      const parsed = await fetchResponse.json() as unknown;
+      if (!parsed || typeof parsed !== "object" || Array.isArray(parsed)) {
+        res.status(500).json({ ok: false, error: "invalid_document" });
+        return;
+      }
+      doc = parsed as Record<string, unknown>;
+    } catch {
+      res.status(500).json({ ok: false, error: "invalid_json" });
+      return;
+    }
+
+    // Extract hash for verification
+    const hash = typeof doc.content_sha256 === "string" ? doc.content_sha256 : null;
+    if (!hash) {
+      res.status(500).json({ ok: false, error: "missing_hash" });
+      return;
+    }
+
+    // Verify the receipt
+    const verification = await receipt.verifyReceipt(cid, hash);
+
+    res.json({
+      ok: true,
+      cid,
+      hash: `sha-256:${hash}`,
+      gatewayUrl,
+      verified: verification.ok,
+      verificationError: verification.error ?? null,
+      document: doc,
+    });
+  } catch (err: unknown) {
+    console.error(
+      "[GET /v1/receipt] error:",
+      err instanceof Error ? err.message : "verification failed"
+    );
+    res.status(500).json({ ok: false, error: "internal_error" });
+  }
+});
+
 /** GET /v1/quote — USD/MXN + spread + volumen 24h (x402 exact). */
 router.get("/quote", async (_req: Request, res: Response) => {
   try {
@@ -99,7 +172,44 @@ router.get("/route", async (req: Request, res: Response) => {
 
   try {
     const estimate = await estimateRoutes(amount);
-    res.json({ ok: true, ...estimate });
+    const requestId = randomUUID();
+    
+    // Anchor receipt asynchronously - failures don't break the response
+    const receiptPromise = receipt.anchorReceipt({
+      v: "tia-receipt-v1",
+      endpoint: "GET /v1/route",
+      requestId,
+      timestamp: estimate.generatedAt,
+      data: estimate,
+    }).catch((err: unknown) => {
+      console.warn("[GET /v1/route] Receipt anchor failed:", err instanceof Error ? err.message : "unknown");
+      return null;
+    });
+
+    // Send response immediately with receipt pending
+    const response = {
+      ok: true,
+      requestId,
+      ...estimate,
+      receipt: null as typeof receiptData,
+    };
+
+    // Wait for receipt with timeout
+    const receiptData = await Promise.race([
+      receiptPromise,
+      new Promise<null>((resolve) => setTimeout(() => resolve(null), 2000)),
+    ]);
+
+    if (receiptData) {
+      response.receipt = {
+        cid: receiptData.cid,
+        sha256: receiptData.sha256,
+        signer: receiptData.signer,
+        anchoredAt: receiptData.anchoredAt,
+      };
+    }
+
+    res.json(response);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error("[GET /v1/route] error:", err);
