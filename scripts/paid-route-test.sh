@@ -5,7 +5,7 @@
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
-BASE="${BASE:-https://remesa-tia-testnet-ihln37fo1-edgadafis-projects.vercel.app}"
+BASE="${BASE:-https://remesa-tia-testnet-xchcw31kn-edgadafis-projects.vercel.app}"
 BASE="${BASE%/}"
 
 if [[ ! -r /dev/tty ]]; then
