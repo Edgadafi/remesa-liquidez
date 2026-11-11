@@ -198,6 +198,31 @@ router.get("/receipt/:cid", async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * GET /v1/quote/mock — misma forma que /v1/quote, sin cobro y sin anclaje.
+ * No está en la tabla x402 ni en las rutas auditadas. Para test runs.
+ */
+router.get("/quote/mock", (_req: Request, res: Response) => {
+  res.json({
+    ok: true,
+    apiVersion: "1",
+    pair: "USD/MXN",
+    rate: 18.5,
+    bid: 18.5,
+    ask: 18.5,
+    spread: 0,
+    spreadPct: 0,
+    volume24hUsd: 0,
+    vwap24h: 18.5,
+    high24h: 18.5,
+    low24h: 18.5,
+    source: "bitso",
+    isLive: false,
+    generatedAt: new Date().toISOString(),
+    mock: true,
+  });
+});
+
 /** GET /v1/quote — USD/MXN + spread + volumen 24h (x402 exact). */
 router.get("/quote", async (_req: Request, res: Response) => {
   try {

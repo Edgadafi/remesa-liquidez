@@ -80,6 +80,26 @@ paths:
         "500":
           $ref: "#/components/responses/HandlerError"
 
+  /v1/quote/mock:
+    get:
+      tags: [v1]
+      operationId: getQuoteMock
+      summary: USD/MXN ticker fixture for test runs
+      description: |
+        Free. Same JSON shape as `GET /v1/quote`, plus `mock: true`.
+        It is not in the x402 route table, does not spend the Merktop quota,
+        and is not anchored. Prices of the paid routes are unchanged
+        (`/v1/quote` and `/v1/alert` `$0.10`, `/v1/route` `$0.25`).
+      responses:
+        "200":
+          description: Fixture quote. No PAYMENT-RESPONSE header.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuoteMock"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+
   /v1/receipt/tx/{txHash}:
     get:
       tags: [v1]
@@ -697,6 +717,19 @@ components:
         generatedAt:
           type: string
           format: date-time
+
+    QuoteMock:
+      allOf:
+        - $ref: "#/components/schemas/Quote"
+        - type: object
+          required: [mock]
+          properties:
+            mock:
+              type: boolean
+              const: true
+            isLive:
+              type: boolean
+              const: false
 
     RouteOption:
       type: object
