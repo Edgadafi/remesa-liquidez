@@ -80,6 +80,88 @@ paths:
         "500":
           $ref: "#/components/responses/HandlerError"
 
+  /v1/quote/mock:
+    get:
+      tags: [v1]
+      operationId: getQuoteMock
+      summary: USD/MXN ticker fixture for test runs
+      description: |
+        Free. Same JSON shape as `GET /v1/quote`, with `source: "mock"`,
+        `mock: true` and `isLive: false`. It is not in the x402 route table,
+        does not spend the Merktop quota, and is not anchored. Prices of the
+        paid routes are unchanged (`/v1/quote` and `/v1/alert` `$0.10`,
+        `/v1/route` `$0.25`).
+      responses:
+        "200":
+          description: Fixture quote. No PAYMENT-RESPONSE header.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/QuoteMock"
+        "429":
+          $ref: "#/components/responses/RateLimited"
+
+  /v1/receipt/tx/{txHash}:
+    get:
+      tags: [v1]
+      operationId: getReceiptByTx
+      summary: Recover a paid payload by settlement transaction hash
+      description: |
+        Free. Not an x402 route and not part of the Merktop quota.
+
+        Before settlement the server stores the handler JSON (quote, route,
+        or alert), the audit hash and the time, linked to the payment. When
+        settlement confirms, that record is linked to the transaction hash.
+
+        The payload is returned only when the transaction exists and is a
+        payment to this server's `payTo`. A stored record whose payment is
+        not confirmed yet returns `status: pending` and no payload. Unknown
+        hashes, and transactions that do not pay `payTo`, are 404.
+
+        The settlement hash is linked after the paid response has already
+        been sent, so the record can take a few seconds to appear. A 404 in
+        those first seconds is not final. Clients, including Puls3, should
+        retry a 404 for about 15 seconds, and keep retrying `pending` until
+        the chain confirms or the wait is over.
+
+        Storage is the existing KV (Upstash when `UPSTASH_REDIS_REST_URL` and
+        `UPSTASH_REDIS_REST_TOKEN` are set; otherwise in-memory per instance).
+      parameters:
+        - name: txHash
+          in: path
+          required: true
+          description: Stellar transaction hash, 64 hex characters.
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{64}$"
+      responses:
+        "200":
+          description: Stored handler payload, or a pending record.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/PaidReceiptConfirmed"
+                  - $ref: "#/components/schemas/PaidReceiptPending"
+        "400":
+          description: txHash is not 64 hex characters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaidReceiptError"
+        "404":
+          description: |
+            No transaction, no stored payload, or the transaction does not pay
+            this server. Right after the paid response this can still be the
+            hash link catching up: retry for about 15 seconds before treating
+            it as final.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaidReceiptError"
+        "500":
+          $ref: "#/components/responses/HandlerError"
+
   /v1/route:
     get:
       tags: [v1]
@@ -88,6 +170,11 @@ paths:
       description: |
         Default price `$0.25` USDC. `amount` is USD. The handler rejects
         values that are not finite or are outside 1..50000 before estimating.
+
+        `receipt` is always `null` and `receiptStatus` is `pending`. The IPFS
+        anchor runs after the response via `waitUntil` (capped at 8s) and is
+        not part of the body x402 holds until settlement. `null` means the
+        anchor is still in progress, not that it failed.
       parameters:
         - $ref: "#/components/parameters/PaymentSignature"
         - name: amount
@@ -642,6 +729,66 @@ components:
           type: string
           format: date-time
 
+    QuoteMock:
+      type: object
+      required:
+        - ok
+        - apiVersion
+        - pair
+        - rate
+        - bid
+        - ask
+        - spread
+        - spreadPct
+        - volume24hUsd
+        - vwap24h
+        - high24h
+        - low24h
+        - source
+        - isLive
+        - generatedAt
+        - mock
+      properties:
+        ok:
+          type: boolean
+          const: true
+        apiVersion:
+          type: string
+          const: "1"
+        pair:
+          type: string
+          const: USD/MXN
+        rate:
+          type: number
+        bid:
+          type: number
+        ask:
+          type: number
+        spread:
+          type: number
+        spreadPct:
+          type: number
+        volume24hUsd:
+          type: number
+        vwap24h:
+          type: number
+        high24h:
+          type: number
+        low24h:
+          type: number
+        source:
+          type: string
+          const: mock
+        isLive:
+          type: boolean
+          const: false
+        generatedAt:
+          type: string
+          format: date-time
+        mock:
+          type: boolean
+          const: true
+
     RouteOption:
       type: object
       required:
@@ -716,6 +863,67 @@ components:
         generatedAt:
           type: string
           format: date-time
+        requestId:
+          type: string
+          format: uuid
+        receipt:
+          nullable: true
+          description: |
+            Always null on this response. Anchoring continues in the
+            background. Null means pending, not a failed anchor.
+        receiptStatus:
+          type: string
+          const: pending
+          description: Background anchor has been scheduled and is not inlined.
+
+    PaidReceiptConfirmed:
+      type: object
+      required: [ok, status, txHash, endpoint, auditHash, storedAt, payload]
+      properties:
+        ok:
+          type: boolean
+          const: true
+        status:
+          type: string
+          const: confirmed
+        txHash:
+          type: string
+        endpoint:
+          type: string
+        auditHash:
+          type: string
+          nullable: true
+        storedAt:
+          type: string
+          format: date-time
+        payload:
+          description: The quote, route, or alert JSON the handler produced.
+      additionalProperties: false
+
+    PaidReceiptPending:
+      type: object
+      required: [ok, status, txHash]
+      properties:
+        ok:
+          type: boolean
+          const: true
+        status:
+          type: string
+          const: pending
+        txHash:
+          type: string
+      additionalProperties: false
+
+    PaidReceiptError:
+      type: object
+      required: [ok, error]
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum: [not_found, invalid_tx_hash, internal_error]
 
     RouteAmountError:
       type: object

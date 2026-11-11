@@ -12,6 +12,8 @@ import {
 } from "./middleware/paymentGuard.js";
 import { merktopFreeTier } from "./middleware/merktopFreeTier.js";
 import { auditTrail } from "./middleware/auditTrail.js";
+import { observePaidPhases } from "./middleware/x402PhaseLog.js";
+import { paidReceiptCapture } from "./middleware/paidReceiptCapture.js";
 import { hasDurableKv } from "./services/kvStore.js";
 import { getProvaStatus } from "./services/prova.js";
 import {
@@ -183,10 +185,13 @@ ${premiumEndpoints}
             next();
             return;
           }
-          v1Payment(req, res, next);
+          observePaidPhases(req, res, () => {
+            v1Payment(req, res, next);
+          });
         }
       );
       app.use("/v1", auditTrail());
+      app.use("/v1", paidReceiptCapture());
       app.use("/v1", v1Router);
 
       x402Mount.mounted = true;

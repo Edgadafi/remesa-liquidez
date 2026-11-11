@@ -26,7 +26,18 @@ export interface UsdMxnTicker {
 
 let cache: { ticker: UsdMxnTicker; fetchedAt: number } | null = null;
 const CACHE_TTL_MS = 60 * 1000;
+const BITSO_TIMEOUT_MS = 2_500;
 const FALLBACK_USD_MXN = 18.5;
+
+/** Tests: el cache de 60 s es un singleton del módulo. */
+export function resetFxCacheForTests(): void {
+  cache = null;
+}
+
+/** Tests: obliga el siguiente get a ir a Bitso y, si falla, usar el cache viejo. */
+export function expireFxCacheForTests(): void {
+  if (cache) cache = { ticker: cache.ticker, fetchedAt: 0 };
+}
 
 interface BitsoTickerResponse {
   success: boolean;
@@ -74,6 +85,7 @@ export async function getUsdMxnTicker(): Promise<UsdMxnTicker> {
   try {
     const res = await fetch("https://api.bitso.com/v3/ticker/?book=usd_mxn", {
       cache: "no-store",
+      signal: AbortSignal.timeout(BITSO_TIMEOUT_MS),
     });
     if (!res.ok) throw new Error(`Bitso ticker respondió ${res.status}`);
 
@@ -109,7 +121,13 @@ export async function getUsdMxnTicker(): Promise<UsdMxnTicker> {
     cache = { ticker, fetchedAt: now };
     return ticker;
   } catch (err) {
-    console.warn("[fx] Bitso fallback:", err);
+    console.warn(
+      "[fx] Bitso fallback:",
+      err instanceof Error ? err.message : "bitso"
+    );
+    // Cache vigente ya se devolvió arriba. Si el fetch muere (timeout
+    // incluido) y queda un ticker guardado, se prefiere a la constante.
+    if (cache) return cache.ticker;
     return fallbackTicker();
   }
 }

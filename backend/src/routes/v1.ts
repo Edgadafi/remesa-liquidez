@@ -5,8 +5,31 @@ import { checkAndFireAlerts, registerAlert } from "../services/alerts.js";
 import { requireCronSecret } from "../middleware/overrideAuth.js";
 import { merktopUsageHandler } from "../middleware/merktopFreeTier.js";
 import { lookupAudit, parseAuditHash } from "../services/auditTrail.js";
-import { receipt } from "../lib/receipt.js";
+import { resolvePaidReceipt } from "../services/paidReceiptStore.js";
+import { receipt, type ReceiptPayload } from "../lib/receipt.js";
+import { waitUntil } from "@vercel/functions";
 import { randomUUID } from "node:crypto";
+
+/** Tope del anclaje en segundo plano. No bloquea la respuesta. */
+const RECEIPT_ANCHOR_BUDGET_MS = 8_000;
+
+/**
+ * Ancla el recibo después de responder. waitUntil mantiene la función viva
+ * en Vercel sin retener el body; a los 8 s se suelta aunque Nirium no conteste.
+ */
+function anchorRouteReceipt(payload: ReceiptPayload): void {
+  const task = new Promise<void>((resolve) => {
+    const timer = setTimeout(() => {
+      console.warn("[GET /v1/route] receipt anchor exceeded 8s");
+      resolve();
+    }, RECEIPT_ANCHOR_BUDGET_MS);
+    void receipt.anchorReceipt(payload).finally(() => {
+      clearTimeout(timer);
+      resolve();
+    });
+  });
+  waitUntil(task);
+}
 
 const router = Router();
 
@@ -53,6 +76,51 @@ router.get("/audit/:hash", async (req: Request, res: Response) => {
   } catch (err: unknown) {
     console.error(
       "[GET /v1/audit] error:",
+      err instanceof Error ? err.message : "lookup failed"
+    );
+    res.status(500).json({ ok: false, error: "internal_error" });
+  }
+});
+
+const TX_HASH = /^[0-9a-fA-F]{64}$/;
+
+/**
+ * GET /v1/receipt/tx/:txHash — payload que el handler ya había producido
+ * para un pago liquidado. Gratis: no está en la tabla x402.
+ *
+ * 200 confirmed: la tx existe y paga a STELLAR_PAY_TO, y tenemos el JSON.
+ * 200 pending: hay registro pero la cadena aún no confirma ese pago.
+ * 404: no hay tx, no paga a payTo, o no guardamos payload.
+ */
+router.get("/receipt/tx/:txHash", async (req: Request, res: Response) => {
+  const txHash = (req.params.txHash ?? "").trim().toLowerCase();
+  if (!TX_HASH.test(txHash)) {
+    res.status(400).json({ ok: false, error: "invalid_tx_hash" });
+    return;
+  }
+  try {
+    const found = await resolvePaidReceipt(txHash);
+    if (found.status === "missing") {
+      res.status(404).json({ ok: false, error: "not_found" });
+      return;
+    }
+    if (found.status === "pending") {
+      res.json({ ok: true, status: "pending", txHash });
+      return;
+    }
+    const { record } = found;
+    res.json({
+      ok: true,
+      status: "confirmed",
+      txHash,
+      endpoint: record.endpoint,
+      auditHash: record.auditHash,
+      storedAt: record.storedAt,
+      payload: record.payload,
+    });
+  } catch (err: unknown) {
+    console.error(
+      "[GET /v1/receipt/tx] error:",
       err instanceof Error ? err.message : "lookup failed"
     );
     res.status(500).json({ ok: false, error: "internal_error" });
@@ -130,6 +198,31 @@ router.get("/receipt/:cid", async (req: Request, res: Response) => {
   }
 });
 
+/**
+ * GET /v1/quote/mock — misma forma que /v1/quote, sin cobro y sin anclaje.
+ * No está en la tabla x402 ni en las rutas auditadas. Para test runs.
+ */
+router.get("/quote/mock", (_req: Request, res: Response) => {
+  res.json({
+    ok: true,
+    apiVersion: "1",
+    pair: "USD/MXN",
+    rate: 18.5,
+    bid: 18.5,
+    ask: 18.5,
+    spread: 0,
+    spreadPct: 0,
+    volume24hUsd: 0,
+    vwap24h: 18.5,
+    high24h: 18.5,
+    low24h: 18.5,
+    source: "mock",
+    isLive: false,
+    generatedAt: new Date().toISOString(),
+    mock: true,
+  });
+});
+
 /** GET /v1/quote — USD/MXN + spread + volumen 24h (x402 exact). */
 router.get("/quote", async (_req: Request, res: Response) => {
   try {
@@ -173,43 +266,22 @@ router.get("/route", async (req: Request, res: Response) => {
   try {
     const estimate = await estimateRoutes(amount);
     const requestId = randomUUID();
-    
-    // Anchor receipt asynchronously - failures don't break the response
-    const receiptPromise = receipt.anchorReceipt({
+    // receipt null y receiptStatus "pending": el anclaje sigue en waitUntil
+    // y no forma parte del camino que x402 retiene hasta liquidar.
+    res.json({
+      ok: true,
+      requestId,
+      ...estimate,
+      receipt: null,
+      receiptStatus: "pending",
+    });
+    anchorRouteReceipt({
       v: "tia-receipt-v1",
       endpoint: "GET /v1/route",
       requestId,
       timestamp: estimate.generatedAt,
       data: estimate,
-    }).catch((err: unknown) => {
-      console.warn("[GET /v1/route] Receipt anchor failed:", err instanceof Error ? err.message : "unknown");
-      return null;
     });
-
-    // Send response immediately with receipt pending
-    const response = {
-      ok: true,
-      requestId,
-      ...estimate,
-      receipt: null as typeof receiptData,
-    };
-
-    // Wait for receipt with timeout
-    const receiptData = await Promise.race([
-      receiptPromise,
-      new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000)),
-    ]);
-
-    if (receiptData) {
-      response.receipt = {
-        cid: receiptData.cid,
-        sha256: receiptData.sha256,
-        signer: receiptData.signer,
-        anchoredAt: receiptData.anchoredAt,
-      };
-    }
-
-    res.json(response);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error("[GET /v1/route] error:", err);
