@@ -147859,7 +147859,7 @@ router3.get("/quote/mock", (_req, res) => {
     vwap24h: 18.5,
     high24h: 18.5,
     low24h: 18.5,
-    source: "bitso",
+    source: "mock",
     isLive: false,
     generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
     mock: true
@@ -148144,6 +148144,16 @@ function publicOrigin() {
     }
   }
   return (req, _res, next2) => {
+    const forwarded = vercelDeploymentHost(req);
+    if (forwarded && process.env.VERCEL && forwarded !== origin?.hostname) {
+      Object.defineProperty(req, "protocol", {
+        value: "https",
+        configurable: true
+      });
+      req.headers.host = forwarded;
+      next2();
+      return;
+    }
     if (origin) {
       Object.defineProperty(req, "protocol", {
         value: origin.protocol.replace(/:$/, ""),
@@ -148153,6 +148163,14 @@ function publicOrigin() {
     }
     next2();
   };
+}
+function vercelDeploymentHost(req) {
+  const raw = req.get("x-forwarded-host") || req.get("host") || "";
+  const host = raw.split(",")[0]?.trim().toLowerCase() ?? "";
+  if (!/^[a-z0-9.-]+$/.test(host)) return null;
+  if (!host.endsWith(".vercel.app")) return null;
+  if (host.startsWith(".") || host.includes("..")) return null;
+  return host;
 }
 
 // src/middleware/paymentGuard.ts
