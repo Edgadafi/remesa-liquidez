@@ -132,7 +132,10 @@ if (!hash) {
 
 const pendingUntil = Date.now() + 30_000;
 const missingUntil = Date.now() + 15_000;
+let attempts = 0;
+let state = "";
 while (true) {
+  attempts += 1;
   const lookup = await fetch(`${base}/v1/receipt/tx/${hash}`);
   let payload = {};
   try {
@@ -140,10 +143,22 @@ while (true) {
   } catch {
     payload = {};
   }
-  const state = lookup.status === 404 ? "404" : (payload.status ?? String(lookup.status));
+  state = lookup.status === 404 ? "404" : (payload.status ?? String(lookup.status));
   console.log(`receipt_tx ${state}`);
-  const until = state === "pending" ? pendingUntil : state === "404" ? missingUntil : 0;
-  if (Date.now() >= until) break;
-  await new Promise((resolve) => setTimeout(resolve, Math.min(5_000, until - Date.now())));
+  if (state === "404") {
+    const remaining = missingUntil - Date.now();
+    if (remaining <= 0) break;
+    await new Promise((resolve) => setTimeout(resolve, Math.min(3_000, remaining)));
+    continue;
+  }
+  if (state === "pending") {
+    const remaining = pendingUntil - Date.now();
+    if (remaining <= 0) break;
+    await new Promise((resolve) => setTimeout(resolve, Math.min(5_000, remaining)));
+    continue;
+  }
+  break;
 }
+console.log(`receipt_tx_attempts ${attempts}`);
+if (state === "404") process.exit(1);
 EOF
