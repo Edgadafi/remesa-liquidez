@@ -2,6 +2,9 @@
 # Paga GET /v1/route?amount=100 en un preview de testnet y mide el tiempo.
 # La llave se lee en la terminal, no se imprime, no se escribe a disco y se
 # borra al salir. No la pases como argumento.
+#
+# El cliente usa @stellar/stellar-sdk 17. La 16.3.1 del backend no decodifica
+# el XDR actual de testnet. El backend no firma, así que su dependencia no cambia.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -26,11 +29,38 @@ if [[ -z "${STELLAR_TESTNET_SECRET}" ]]; then
   exit 1
 fi
 
-cd "$ROOT/backend"
-export BASE
-export STELLAR_TESTNET_SECRET
-npx tsx --input-type=module <<'EOF'
-import { Agent } from "nirium";
+CLIENT_DIR="$ROOT/scripts/.paid-route-client"
+mkdir -p "$CLIENT_DIR"
+cat > "$CLIENT_DIR/package.json" << 'EOF'
+{
+  "private": true,
+  "dependencies": {
+    "nirium": "0.16.0",
+    "@stellar/stellar-sdk": "^17.4.0"
+  },
+  "overrides": {
+    "@stellar/stellar-sdk": "^17.4.0"
+  }
+}
+EOF
+
+sdk_pkg="$CLIENT_DIR/node_modules/@stellar/stellar-sdk/package.json"
+nested="$CLIENT_DIR/node_modules/@x402/stellar/node_modules/@stellar/stellar-sdk/package.json"
+sdk_version=""
+if [[ -f "$sdk_pkg" && ! -e "$nested" ]]; then
+  sdk_version="$(node -p "require(process.argv[1]).version" "$sdk_pkg")"
+fi
+case "$sdk_version" in
+  17.*) ;;
+  *) npm install --no-fund --no-audit --prefix "$CLIENT_DIR" ;;
+esac
+
+export BASE CLIENT_DIR STELLAR_TESTNET_SECRET
+"$ROOT/backend/node_modules/.bin/tsx" --input-type=module <<'EOF'
+import { createRequire } from "node:module";
+
+const requireFromClient = createRequire(`${process.env.CLIENT_DIR}/package.json`);
+const { Agent } = requireFromClient("nirium");
 
 function redact(value) {
   return String(value).replace(/S[A-Z2-7]{54,}/g, "S…REDACTED");
