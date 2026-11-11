@@ -38,7 +38,7 @@ describe("GET /v1/quote/mock", () => {
       assert.equal(res.body.mock, true);
       assert.equal(res.body.ok, true);
       assert.equal(res.body.pair, "USD/MXN");
-      assert.equal(res.body.source, "bitso");
+      assert.equal(res.body.source, "mock");
       assert.equal(res.body.isLive, false);
       assert.equal(typeof res.body.rate, "number");
       assert.equal(res.body.apiVersion, "1");

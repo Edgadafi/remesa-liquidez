@@ -86,10 +86,11 @@ paths:
       operationId: getQuoteMock
       summary: USD/MXN ticker fixture for test runs
       description: |
-        Free. Same JSON shape as `GET /v1/quote`, plus `mock: true`.
-        It is not in the x402 route table, does not spend the Merktop quota,
-        and is not anchored. Prices of the paid routes are unchanged
-        (`/v1/quote` and `/v1/alert` `$0.10`, `/v1/route` `$0.25`).
+        Free. Same JSON shape as `GET /v1/quote`, with `source: "mock"`,
+        `mock: true` and `isLive: false`. It is not in the x402 route table,
+        does not spend the Merktop quota, and is not anchored. Prices of the
+        paid routes are unchanged (`/v1/quote` and `/v1/alert` `$0.10`,
+        `/v1/route` `$0.25`).
       responses:
         "200":
           description: Fixture quote. No PAYMENT-RESPONSE header.
@@ -719,17 +720,64 @@ components:
           format: date-time
 
     QuoteMock:
-      allOf:
-        - $ref: "#/components/schemas/Quote"
-        - type: object
-          required: [mock]
-          properties:
-            mock:
-              type: boolean
-              const: true
-            isLive:
-              type: boolean
-              const: false
+      type: object
+      required:
+        - ok
+        - apiVersion
+        - pair
+        - rate
+        - bid
+        - ask
+        - spread
+        - spreadPct
+        - volume24hUsd
+        - vwap24h
+        - high24h
+        - low24h
+        - source
+        - isLive
+        - generatedAt
+        - mock
+      properties:
+        ok:
+          type: boolean
+          const: true
+        apiVersion:
+          type: string
+          const: "1"
+        pair:
+          type: string
+          const: USD/MXN
+        rate:
+          type: number
+        bid:
+          type: number
+        ask:
+          type: number
+        spread:
+          type: number
+        spreadPct:
+          type: number
+        volume24hUsd:
+          type: number
+        vwap24h:
+          type: number
+        high24h:
+          type: number
+        low24h:
+          type: number
+        source:
+          type: string
+          const: mock
+        isLive:
+          type: boolean
+          const: false
+        generatedAt:
+          type: string
+          format: date-time
+        mock:
+          type: boolean
+          const: true
 
     RouteOption:
       type: object

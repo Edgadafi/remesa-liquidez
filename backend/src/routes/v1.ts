@@ -216,7 +216,7 @@ router.get("/quote/mock", (_req: Request, res: Response) => {
     vwap24h: 18.5,
     high24h: 18.5,
     low24h: 18.5,
-    source: "bitso",
+    source: "mock",
     isLive: false,
     generatedAt: new Date().toISOString(),
     mock: true,
