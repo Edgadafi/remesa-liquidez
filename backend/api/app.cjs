@@ -9130,9 +9130,9 @@ var require_client = __commonJS({
        * @param requestUrl - The URL of the request that received the payment required response
        * @returns Headers to use for retry, or null to proceed to payment
        */
-      async handlePaymentRequired(paymentRequired2, requestUrl) {
+      async handlePaymentRequired(paymentRequired2, requestUrl2) {
         for (const hook of this.getPaymentRequiredHooks(paymentRequired2)) {
-          const result = await hook({ paymentRequired: paymentRequired2, requestUrl });
+          const result = await hook({ paymentRequired: paymentRequired2, requestUrl: requestUrl2 });
           if (result?.headers) {
             return result.headers;
           }
@@ -10947,9 +10947,9 @@ ${errors.map((e) => `  - ${e.message}`).join("\n")}`;
        * @param requestUrl - The URL of the request that received the payment required response
        * @returns Headers to use for retry, or null to proceed to payment
        */
-      async handlePaymentRequired(paymentRequired2, requestUrl) {
+      async handlePaymentRequired(paymentRequired2, requestUrl2) {
         for (const hook of this.getPaymentRequiredHooks(paymentRequired2)) {
-          const result = await hook({ paymentRequired: paymentRequired2, requestUrl });
+          const result = await hook({ paymentRequired: paymentRequired2, requestUrl: requestUrl2 });
           if (result?.headers) {
             return result.headers;
           }
@@ -11219,8 +11219,8 @@ var require_cjs = __commonJS({
             `Failed to parse payment requirements: ${error62 instanceof Error ? error62.message : "Unknown error"}`
           );
         }
-        const requestUrl = response.url || request3.url;
-        const hookHeaders = await httpClient.handlePaymentRequired(paymentRequired2, requestUrl);
+        const requestUrl2 = response.url || request3.url;
+        const hookHeaders = await httpClient.handlePaymentRequired(paymentRequired2, requestUrl2);
         if (hookHeaders) {
           const hookRequest = clonedRequest.clone();
           for (const [key, value] of Object.entries(hookHeaders)) {
@@ -13303,47 +13303,47 @@ var require_curr_generated = __commonJS({
     require_xdr_type();
     require("buffer");
     var config3 = require_config();
-    var types5 = config3.config((xdr) => {
+    var types5 = config3.config((xdr2) => {
       const SCSYMBOL_LIMIT = 32;
       const SC_SPEC_DOC_LIMIT = 1024;
-      xdr.typedef("Value", xdr.varOpaque());
-      xdr.struct("ScpBallot", [
-        ["counter", xdr.lookup("Uint32")],
-        ["value", xdr.lookup("Value")]
+      xdr2.typedef("Value", xdr2.varOpaque());
+      xdr2.struct("ScpBallot", [
+        ["counter", xdr2.lookup("Uint32")],
+        ["value", xdr2.lookup("Value")]
       ]);
-      xdr.enum("ScpStatementType", {
+      xdr2.enum("ScpStatementType", {
         scpStPrepare: 0,
         scpStConfirm: 1,
         scpStExternalize: 2,
         scpStNominate: 3
       });
-      xdr.struct("ScpNomination", [
-        ["quorumSetHash", xdr.lookup("Hash")],
-        ["votes", xdr.varArray(xdr.lookup("Value"), 2147483647)],
-        ["accepted", xdr.varArray(xdr.lookup("Value"), 2147483647)]
+      xdr2.struct("ScpNomination", [
+        ["quorumSetHash", xdr2.lookup("Hash")],
+        ["votes", xdr2.varArray(xdr2.lookup("Value"), 2147483647)],
+        ["accepted", xdr2.varArray(xdr2.lookup("Value"), 2147483647)]
       ]);
-      xdr.struct("ScpStatementPrepare", [
-        ["quorumSetHash", xdr.lookup("Hash")],
-        ["ballot", xdr.lookup("ScpBallot")],
-        ["prepared", xdr.option(xdr.lookup("ScpBallot"))],
-        ["preparedPrime", xdr.option(xdr.lookup("ScpBallot"))],
-        ["nC", xdr.lookup("Uint32")],
-        ["nH", xdr.lookup("Uint32")]
+      xdr2.struct("ScpStatementPrepare", [
+        ["quorumSetHash", xdr2.lookup("Hash")],
+        ["ballot", xdr2.lookup("ScpBallot")],
+        ["prepared", xdr2.option(xdr2.lookup("ScpBallot"))],
+        ["preparedPrime", xdr2.option(xdr2.lookup("ScpBallot"))],
+        ["nC", xdr2.lookup("Uint32")],
+        ["nH", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("ScpStatementConfirm", [
-        ["ballot", xdr.lookup("ScpBallot")],
-        ["nPrepared", xdr.lookup("Uint32")],
-        ["nCommit", xdr.lookup("Uint32")],
-        ["nH", xdr.lookup("Uint32")],
-        ["quorumSetHash", xdr.lookup("Hash")]
+      xdr2.struct("ScpStatementConfirm", [
+        ["ballot", xdr2.lookup("ScpBallot")],
+        ["nPrepared", xdr2.lookup("Uint32")],
+        ["nCommit", xdr2.lookup("Uint32")],
+        ["nH", xdr2.lookup("Uint32")],
+        ["quorumSetHash", xdr2.lookup("Hash")]
       ]);
-      xdr.struct("ScpStatementExternalize", [
-        ["commit", xdr.lookup("ScpBallot")],
-        ["nH", xdr.lookup("Uint32")],
-        ["commitQuorumSetHash", xdr.lookup("Hash")]
+      xdr2.struct("ScpStatementExternalize", [
+        ["commit", xdr2.lookup("ScpBallot")],
+        ["nH", xdr2.lookup("Uint32")],
+        ["commitQuorumSetHash", xdr2.lookup("Hash")]
       ]);
-      xdr.union("ScpStatementPledges", {
-        switchOn: xdr.lookup("ScpStatementType"),
+      xdr2.union("ScpStatementPledges", {
+        switchOn: xdr2.lookup("ScpStatementType"),
         switchName: "type",
         switches: [
           ["scpStPrepare", "prepare"],
@@ -13352,87 +13352,87 @@ var require_curr_generated = __commonJS({
           ["scpStNominate", "nominate"]
         ],
         arms: {
-          prepare: xdr.lookup("ScpStatementPrepare"),
-          confirm: xdr.lookup("ScpStatementConfirm"),
-          externalize: xdr.lookup("ScpStatementExternalize"),
-          nominate: xdr.lookup("ScpNomination")
+          prepare: xdr2.lookup("ScpStatementPrepare"),
+          confirm: xdr2.lookup("ScpStatementConfirm"),
+          externalize: xdr2.lookup("ScpStatementExternalize"),
+          nominate: xdr2.lookup("ScpNomination")
         }
       });
-      xdr.struct("ScpStatement", [
-        ["nodeId", xdr.lookup("NodeId")],
-        ["slotIndex", xdr.lookup("Uint64")],
-        ["pledges", xdr.lookup("ScpStatementPledges")]
+      xdr2.struct("ScpStatement", [
+        ["nodeId", xdr2.lookup("NodeId")],
+        ["slotIndex", xdr2.lookup("Uint64")],
+        ["pledges", xdr2.lookup("ScpStatementPledges")]
       ]);
-      xdr.struct("ScpEnvelope", [
-        ["statement", xdr.lookup("ScpStatement")],
-        ["signature", xdr.lookup("Signature")]
+      xdr2.struct("ScpEnvelope", [
+        ["statement", xdr2.lookup("ScpStatement")],
+        ["signature", xdr2.lookup("Signature")]
       ]);
-      xdr.struct("ScpQuorumSet", [
-        ["threshold", xdr.lookup("Uint32")],
-        ["validators", xdr.varArray(xdr.lookup("NodeId"), 2147483647)],
-        ["innerSets", xdr.varArray(xdr.lookup("ScpQuorumSet"), 2147483647)]
+      xdr2.struct("ScpQuorumSet", [
+        ["threshold", xdr2.lookup("Uint32")],
+        ["validators", xdr2.varArray(xdr2.lookup("NodeId"), 2147483647)],
+        ["innerSets", xdr2.varArray(xdr2.lookup("ScpQuorumSet"), 2147483647)]
       ]);
-      xdr.typedef("Thresholds", xdr.opaque(4));
-      xdr.typedef("String32", xdr.string(32));
-      xdr.typedef("String64", xdr.string(64));
-      xdr.typedef("SequenceNumber", xdr.lookup("Int64"));
-      xdr.typedef("DataValue", xdr.varOpaque(64));
-      xdr.typedef("AssetCode4", xdr.opaque(4));
-      xdr.typedef("AssetCode12", xdr.opaque(12));
-      xdr.enum("AssetType", {
+      xdr2.typedef("Thresholds", xdr2.opaque(4));
+      xdr2.typedef("String32", xdr2.string(32));
+      xdr2.typedef("String64", xdr2.string(64));
+      xdr2.typedef("SequenceNumber", xdr2.lookup("Int64"));
+      xdr2.typedef("DataValue", xdr2.varOpaque(64));
+      xdr2.typedef("AssetCode4", xdr2.opaque(4));
+      xdr2.typedef("AssetCode12", xdr2.opaque(12));
+      xdr2.enum("AssetType", {
         assetTypeNative: 0,
         assetTypeCreditAlphanum4: 1,
         assetTypeCreditAlphanum12: 2,
         assetTypePoolShare: 3
       });
-      xdr.union("AssetCode", {
-        switchOn: xdr.lookup("AssetType"),
+      xdr2.union("AssetCode", {
+        switchOn: xdr2.lookup("AssetType"),
         switchName: "type",
         switches: [
           ["assetTypeCreditAlphanum4", "assetCode4"],
           ["assetTypeCreditAlphanum12", "assetCode12"]
         ],
         arms: {
-          assetCode4: xdr.lookup("AssetCode4"),
-          assetCode12: xdr.lookup("AssetCode12")
+          assetCode4: xdr2.lookup("AssetCode4"),
+          assetCode12: xdr2.lookup("AssetCode12")
         }
       });
-      xdr.struct("AlphaNum4", [
-        ["assetCode", xdr.lookup("AssetCode4")],
-        ["issuer", xdr.lookup("AccountId")]
+      xdr2.struct("AlphaNum4", [
+        ["assetCode", xdr2.lookup("AssetCode4")],
+        ["issuer", xdr2.lookup("AccountId")]
       ]);
-      xdr.struct("AlphaNum12", [
-        ["assetCode", xdr.lookup("AssetCode12")],
-        ["issuer", xdr.lookup("AccountId")]
+      xdr2.struct("AlphaNum12", [
+        ["assetCode", xdr2.lookup("AssetCode12")],
+        ["issuer", xdr2.lookup("AccountId")]
       ]);
-      xdr.union("Asset", {
-        switchOn: xdr.lookup("AssetType"),
+      xdr2.union("Asset", {
+        switchOn: xdr2.lookup("AssetType"),
         switchName: "type",
         switches: [
-          ["assetTypeNative", xdr.void()],
+          ["assetTypeNative", xdr2.void()],
           ["assetTypeCreditAlphanum4", "alphaNum4"],
           ["assetTypeCreditAlphanum12", "alphaNum12"]
         ],
         arms: {
-          alphaNum4: xdr.lookup("AlphaNum4"),
-          alphaNum12: xdr.lookup("AlphaNum12")
+          alphaNum4: xdr2.lookup("AlphaNum4"),
+          alphaNum12: xdr2.lookup("AlphaNum12")
         }
       });
-      xdr.struct("Price", [
-        ["n", xdr.lookup("Int32")],
-        ["d", xdr.lookup("Int32")]
+      xdr2.struct("Price", [
+        ["n", xdr2.lookup("Int32")],
+        ["d", xdr2.lookup("Int32")]
       ]);
-      xdr.struct("Liabilities", [
-        ["buying", xdr.lookup("Int64")],
-        ["selling", xdr.lookup("Int64")]
+      xdr2.struct("Liabilities", [
+        ["buying", xdr2.lookup("Int64")],
+        ["selling", xdr2.lookup("Int64")]
       ]);
-      xdr.enum("ThresholdIndices", {
+      xdr2.enum("ThresholdIndices", {
         thresholdMasterWeight: 0,
         thresholdLow: 1,
         thresholdMed: 2,
         thresholdHigh: 3
       });
-      xdr.enum("LedgerEntryType", {
+      xdr2.enum("LedgerEntryType", {
         account: 0,
         trustline: 1,
         offer: 2,
@@ -13444,189 +13444,189 @@ var require_curr_generated = __commonJS({
         configSetting: 8,
         ttl: 9
       });
-      xdr.struct("Signer", [
-        ["key", xdr.lookup("SignerKey")],
-        ["weight", xdr.lookup("Uint32")]
+      xdr2.struct("Signer", [
+        ["key", xdr2.lookup("SignerKey")],
+        ["weight", xdr2.lookup("Uint32")]
       ]);
-      xdr.enum("AccountFlags", {
+      xdr2.enum("AccountFlags", {
         authRequiredFlag: 1,
         authRevocableFlag: 2,
         authImmutableFlag: 4,
         authClawbackEnabledFlag: 8
       });
-      xdr.const("MASK_ACCOUNT_FLAGS", 7);
-      xdr.const("MASK_ACCOUNT_FLAGS_V17", 15);
-      xdr.const("MAX_SIGNERS", 20);
-      xdr.typedef("SponsorshipDescriptor", xdr.option(xdr.lookup("AccountId")));
-      xdr.struct("AccountEntryExtensionV3", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["seqLedger", xdr.lookup("Uint32")],
-        ["seqTime", xdr.lookup("TimePoint")]
+      xdr2.const("MASK_ACCOUNT_FLAGS", 7);
+      xdr2.const("MASK_ACCOUNT_FLAGS_V17", 15);
+      xdr2.const("MAX_SIGNERS", 20);
+      xdr2.typedef("SponsorshipDescriptor", xdr2.option(xdr2.lookup("AccountId")));
+      xdr2.struct("AccountEntryExtensionV3", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["seqLedger", xdr2.lookup("Uint32")],
+        ["seqTime", xdr2.lookup("TimePoint")]
       ]);
-      xdr.union("AccountEntryExtensionV2Ext", {
-        switchOn: xdr.int(),
+      xdr2.union("AccountEntryExtensionV2Ext", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [3, "v3"]
         ],
         arms: {
-          v3: xdr.lookup("AccountEntryExtensionV3")
+          v3: xdr2.lookup("AccountEntryExtensionV3")
         }
       });
-      xdr.struct("AccountEntryExtensionV2", [
-        ["numSponsored", xdr.lookup("Uint32")],
-        ["numSponsoring", xdr.lookup("Uint32")],
+      xdr2.struct("AccountEntryExtensionV2", [
+        ["numSponsored", xdr2.lookup("Uint32")],
+        ["numSponsoring", xdr2.lookup("Uint32")],
         [
           "signerSponsoringIDs",
-          xdr.varArray(
-            xdr.lookup("SponsorshipDescriptor"),
-            xdr.lookup("MAX_SIGNERS")
+          xdr2.varArray(
+            xdr2.lookup("SponsorshipDescriptor"),
+            xdr2.lookup("MAX_SIGNERS")
           )
         ],
-        ["ext", xdr.lookup("AccountEntryExtensionV2Ext")]
+        ["ext", xdr2.lookup("AccountEntryExtensionV2Ext")]
       ]);
-      xdr.union("AccountEntryExtensionV1Ext", {
-        switchOn: xdr.int(),
+      xdr2.union("AccountEntryExtensionV1Ext", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [2, "v2"]
         ],
         arms: {
-          v2: xdr.lookup("AccountEntryExtensionV2")
+          v2: xdr2.lookup("AccountEntryExtensionV2")
         }
       });
-      xdr.struct("AccountEntryExtensionV1", [
-        ["liabilities", xdr.lookup("Liabilities")],
-        ["ext", xdr.lookup("AccountEntryExtensionV1Ext")]
+      xdr2.struct("AccountEntryExtensionV1", [
+        ["liabilities", xdr2.lookup("Liabilities")],
+        ["ext", xdr2.lookup("AccountEntryExtensionV1Ext")]
       ]);
-      xdr.union("AccountEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.union("AccountEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "v1"]
         ],
         arms: {
-          v1: xdr.lookup("AccountEntryExtensionV1")
+          v1: xdr2.lookup("AccountEntryExtensionV1")
         }
       });
-      xdr.struct("AccountEntry", [
-        ["accountId", xdr.lookup("AccountId")],
-        ["balance", xdr.lookup("Int64")],
-        ["seqNum", xdr.lookup("SequenceNumber")],
-        ["numSubEntries", xdr.lookup("Uint32")],
-        ["inflationDest", xdr.option(xdr.lookup("AccountId"))],
-        ["flags", xdr.lookup("Uint32")],
-        ["homeDomain", xdr.lookup("String32")],
-        ["thresholds", xdr.lookup("Thresholds")],
-        ["signers", xdr.varArray(xdr.lookup("Signer"), xdr.lookup("MAX_SIGNERS"))],
-        ["ext", xdr.lookup("AccountEntryExt")]
+      xdr2.struct("AccountEntry", [
+        ["accountId", xdr2.lookup("AccountId")],
+        ["balance", xdr2.lookup("Int64")],
+        ["seqNum", xdr2.lookup("SequenceNumber")],
+        ["numSubEntries", xdr2.lookup("Uint32")],
+        ["inflationDest", xdr2.option(xdr2.lookup("AccountId"))],
+        ["flags", xdr2.lookup("Uint32")],
+        ["homeDomain", xdr2.lookup("String32")],
+        ["thresholds", xdr2.lookup("Thresholds")],
+        ["signers", xdr2.varArray(xdr2.lookup("Signer"), xdr2.lookup("MAX_SIGNERS"))],
+        ["ext", xdr2.lookup("AccountEntryExt")]
       ]);
-      xdr.enum("TrustLineFlags", {
+      xdr2.enum("TrustLineFlags", {
         authorizedFlag: 1,
         authorizedToMaintainLiabilitiesFlag: 2,
         trustlineClawbackEnabledFlag: 4
       });
-      xdr.const("MASK_TRUSTLINE_FLAGS", 1);
-      xdr.const("MASK_TRUSTLINE_FLAGS_V13", 3);
-      xdr.const("MASK_TRUSTLINE_FLAGS_V17", 7);
-      xdr.enum("LiquidityPoolType", {
+      xdr2.const("MASK_TRUSTLINE_FLAGS", 1);
+      xdr2.const("MASK_TRUSTLINE_FLAGS_V13", 3);
+      xdr2.const("MASK_TRUSTLINE_FLAGS_V17", 7);
+      xdr2.enum("LiquidityPoolType", {
         liquidityPoolConstantProduct: 0
       });
-      xdr.union("TrustLineAsset", {
-        switchOn: xdr.lookup("AssetType"),
+      xdr2.union("TrustLineAsset", {
+        switchOn: xdr2.lookup("AssetType"),
         switchName: "type",
         switches: [
-          ["assetTypeNative", xdr.void()],
+          ["assetTypeNative", xdr2.void()],
           ["assetTypeCreditAlphanum4", "alphaNum4"],
           ["assetTypeCreditAlphanum12", "alphaNum12"],
           ["assetTypePoolShare", "liquidityPoolId"]
         ],
         arms: {
-          alphaNum4: xdr.lookup("AlphaNum4"),
-          alphaNum12: xdr.lookup("AlphaNum12"),
-          liquidityPoolId: xdr.lookup("PoolId")
+          alphaNum4: xdr2.lookup("AlphaNum4"),
+          alphaNum12: xdr2.lookup("AlphaNum12"),
+          liquidityPoolId: xdr2.lookup("PoolId")
         }
       });
-      xdr.union("TrustLineEntryExtensionV2Ext", {
-        switchOn: xdr.int(),
+      xdr2.union("TrustLineEntryExtensionV2Ext", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("TrustLineEntryExtensionV2", [
-        ["liquidityPoolUseCount", xdr.lookup("Int32")],
-        ["ext", xdr.lookup("TrustLineEntryExtensionV2Ext")]
+      xdr2.struct("TrustLineEntryExtensionV2", [
+        ["liquidityPoolUseCount", xdr2.lookup("Int32")],
+        ["ext", xdr2.lookup("TrustLineEntryExtensionV2Ext")]
       ]);
-      xdr.union("TrustLineEntryV1Ext", {
-        switchOn: xdr.int(),
+      xdr2.union("TrustLineEntryV1Ext", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [2, "v2"]
         ],
         arms: {
-          v2: xdr.lookup("TrustLineEntryExtensionV2")
+          v2: xdr2.lookup("TrustLineEntryExtensionV2")
         }
       });
-      xdr.struct("TrustLineEntryV1", [
-        ["liabilities", xdr.lookup("Liabilities")],
-        ["ext", xdr.lookup("TrustLineEntryV1Ext")]
+      xdr2.struct("TrustLineEntryV1", [
+        ["liabilities", xdr2.lookup("Liabilities")],
+        ["ext", xdr2.lookup("TrustLineEntryV1Ext")]
       ]);
-      xdr.union("TrustLineEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.union("TrustLineEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "v1"]
         ],
         arms: {
-          v1: xdr.lookup("TrustLineEntryV1")
+          v1: xdr2.lookup("TrustLineEntryV1")
         }
       });
-      xdr.struct("TrustLineEntry", [
-        ["accountId", xdr.lookup("AccountId")],
-        ["asset", xdr.lookup("TrustLineAsset")],
-        ["balance", xdr.lookup("Int64")],
-        ["limit", xdr.lookup("Int64")],
-        ["flags", xdr.lookup("Uint32")],
-        ["ext", xdr.lookup("TrustLineEntryExt")]
+      xdr2.struct("TrustLineEntry", [
+        ["accountId", xdr2.lookup("AccountId")],
+        ["asset", xdr2.lookup("TrustLineAsset")],
+        ["balance", xdr2.lookup("Int64")],
+        ["limit", xdr2.lookup("Int64")],
+        ["flags", xdr2.lookup("Uint32")],
+        ["ext", xdr2.lookup("TrustLineEntryExt")]
       ]);
-      xdr.enum("OfferEntryFlags", {
+      xdr2.enum("OfferEntryFlags", {
         passiveFlag: 1
       });
-      xdr.const("MASK_OFFERENTRY_FLAGS", 1);
-      xdr.union("OfferEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.const("MASK_OFFERENTRY_FLAGS", 1);
+      xdr2.union("OfferEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("OfferEntry", [
-        ["sellerId", xdr.lookup("AccountId")],
-        ["offerId", xdr.lookup("Int64")],
-        ["selling", xdr.lookup("Asset")],
-        ["buying", xdr.lookup("Asset")],
-        ["amount", xdr.lookup("Int64")],
-        ["price", xdr.lookup("Price")],
-        ["flags", xdr.lookup("Uint32")],
-        ["ext", xdr.lookup("OfferEntryExt")]
+      xdr2.struct("OfferEntry", [
+        ["sellerId", xdr2.lookup("AccountId")],
+        ["offerId", xdr2.lookup("Int64")],
+        ["selling", xdr2.lookup("Asset")],
+        ["buying", xdr2.lookup("Asset")],
+        ["amount", xdr2.lookup("Int64")],
+        ["price", xdr2.lookup("Price")],
+        ["flags", xdr2.lookup("Uint32")],
+        ["ext", xdr2.lookup("OfferEntryExt")]
       ]);
-      xdr.union("DataEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.union("DataEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("DataEntry", [
-        ["accountId", xdr.lookup("AccountId")],
-        ["dataName", xdr.lookup("String64")],
-        ["dataValue", xdr.lookup("DataValue")],
-        ["ext", xdr.lookup("DataEntryExt")]
+      xdr2.struct("DataEntry", [
+        ["accountId", xdr2.lookup("AccountId")],
+        ["dataName", xdr2.lookup("String64")],
+        ["dataValue", xdr2.lookup("DataValue")],
+        ["ext", xdr2.lookup("DataEntryExt")]
       ]);
-      xdr.enum("ClaimPredicateType", {
+      xdr2.enum("ClaimPredicateType", {
         claimPredicateUnconditional: 0,
         claimPredicateAnd: 1,
         claimPredicateOr: 2,
@@ -13634,11 +13634,11 @@ var require_curr_generated = __commonJS({
         claimPredicateBeforeAbsoluteTime: 4,
         claimPredicateBeforeRelativeTime: 5
       });
-      xdr.union("ClaimPredicate", {
-        switchOn: xdr.lookup("ClaimPredicateType"),
+      xdr2.union("ClaimPredicate", {
+        switchOn: xdr2.lookup("ClaimPredicateType"),
         switchName: "type",
         switches: [
-          ["claimPredicateUnconditional", xdr.void()],
+          ["claimPredicateUnconditional", xdr2.void()],
           ["claimPredicateAnd", "andPredicates"],
           ["claimPredicateOr", "orPredicates"],
           ["claimPredicateNot", "notPredicate"],
@@ -13646,144 +13646,144 @@ var require_curr_generated = __commonJS({
           ["claimPredicateBeforeRelativeTime", "relBefore"]
         ],
         arms: {
-          andPredicates: xdr.varArray(xdr.lookup("ClaimPredicate"), 2),
-          orPredicates: xdr.varArray(xdr.lookup("ClaimPredicate"), 2),
-          notPredicate: xdr.option(xdr.lookup("ClaimPredicate")),
-          absBefore: xdr.lookup("Int64"),
-          relBefore: xdr.lookup("Int64")
+          andPredicates: xdr2.varArray(xdr2.lookup("ClaimPredicate"), 2),
+          orPredicates: xdr2.varArray(xdr2.lookup("ClaimPredicate"), 2),
+          notPredicate: xdr2.option(xdr2.lookup("ClaimPredicate")),
+          absBefore: xdr2.lookup("Int64"),
+          relBefore: xdr2.lookup("Int64")
         }
       });
-      xdr.enum("ClaimantType", {
+      xdr2.enum("ClaimantType", {
         claimantTypeV0: 0
       });
-      xdr.struct("ClaimantV0", [
-        ["destination", xdr.lookup("AccountId")],
-        ["predicate", xdr.lookup("ClaimPredicate")]
+      xdr2.struct("ClaimantV0", [
+        ["destination", xdr2.lookup("AccountId")],
+        ["predicate", xdr2.lookup("ClaimPredicate")]
       ]);
-      xdr.union("Claimant", {
-        switchOn: xdr.lookup("ClaimantType"),
+      xdr2.union("Claimant", {
+        switchOn: xdr2.lookup("ClaimantType"),
         switchName: "type",
         switches: [["claimantTypeV0", "v0"]],
         arms: {
-          v0: xdr.lookup("ClaimantV0")
+          v0: xdr2.lookup("ClaimantV0")
         }
       });
-      xdr.enum("ClaimableBalanceFlags", {
+      xdr2.enum("ClaimableBalanceFlags", {
         claimableBalanceClawbackEnabledFlag: 1
       });
-      xdr.const("MASK_CLAIMABLE_BALANCE_FLAGS", 1);
-      xdr.union("ClaimableBalanceEntryExtensionV1Ext", {
-        switchOn: xdr.int(),
+      xdr2.const("MASK_CLAIMABLE_BALANCE_FLAGS", 1);
+      xdr2.union("ClaimableBalanceEntryExtensionV1Ext", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("ClaimableBalanceEntryExtensionV1", [
-        ["ext", xdr.lookup("ClaimableBalanceEntryExtensionV1Ext")],
-        ["flags", xdr.lookup("Uint32")]
+      xdr2.struct("ClaimableBalanceEntryExtensionV1", [
+        ["ext", xdr2.lookup("ClaimableBalanceEntryExtensionV1Ext")],
+        ["flags", xdr2.lookup("Uint32")]
       ]);
-      xdr.union("ClaimableBalanceEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.union("ClaimableBalanceEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "v1"]
         ],
         arms: {
-          v1: xdr.lookup("ClaimableBalanceEntryExtensionV1")
+          v1: xdr2.lookup("ClaimableBalanceEntryExtensionV1")
         }
       });
-      xdr.struct("ClaimableBalanceEntry", [
-        ["balanceId", xdr.lookup("ClaimableBalanceId")],
-        ["claimants", xdr.varArray(xdr.lookup("Claimant"), 10)],
-        ["asset", xdr.lookup("Asset")],
-        ["amount", xdr.lookup("Int64")],
-        ["ext", xdr.lookup("ClaimableBalanceEntryExt")]
+      xdr2.struct("ClaimableBalanceEntry", [
+        ["balanceId", xdr2.lookup("ClaimableBalanceId")],
+        ["claimants", xdr2.varArray(xdr2.lookup("Claimant"), 10)],
+        ["asset", xdr2.lookup("Asset")],
+        ["amount", xdr2.lookup("Int64")],
+        ["ext", xdr2.lookup("ClaimableBalanceEntryExt")]
       ]);
-      xdr.struct("LiquidityPoolConstantProductParameters", [
-        ["assetA", xdr.lookup("Asset")],
-        ["assetB", xdr.lookup("Asset")],
-        ["fee", xdr.lookup("Int32")]
+      xdr2.struct("LiquidityPoolConstantProductParameters", [
+        ["assetA", xdr2.lookup("Asset")],
+        ["assetB", xdr2.lookup("Asset")],
+        ["fee", xdr2.lookup("Int32")]
       ]);
-      xdr.struct("LiquidityPoolEntryConstantProduct", [
-        ["params", xdr.lookup("LiquidityPoolConstantProductParameters")],
-        ["reserveA", xdr.lookup("Int64")],
-        ["reserveB", xdr.lookup("Int64")],
-        ["totalPoolShares", xdr.lookup("Int64")],
-        ["poolSharesTrustLineCount", xdr.lookup("Int64")]
+      xdr2.struct("LiquidityPoolEntryConstantProduct", [
+        ["params", xdr2.lookup("LiquidityPoolConstantProductParameters")],
+        ["reserveA", xdr2.lookup("Int64")],
+        ["reserveB", xdr2.lookup("Int64")],
+        ["totalPoolShares", xdr2.lookup("Int64")],
+        ["poolSharesTrustLineCount", xdr2.lookup("Int64")]
       ]);
-      xdr.union("LiquidityPoolEntryBody", {
-        switchOn: xdr.lookup("LiquidityPoolType"),
+      xdr2.union("LiquidityPoolEntryBody", {
+        switchOn: xdr2.lookup("LiquidityPoolType"),
         switchName: "type",
         switches: [["liquidityPoolConstantProduct", "constantProduct"]],
         arms: {
-          constantProduct: xdr.lookup("LiquidityPoolEntryConstantProduct")
+          constantProduct: xdr2.lookup("LiquidityPoolEntryConstantProduct")
         }
       });
-      xdr.struct("LiquidityPoolEntry", [
-        ["liquidityPoolId", xdr.lookup("PoolId")],
-        ["body", xdr.lookup("LiquidityPoolEntryBody")]
+      xdr2.struct("LiquidityPoolEntry", [
+        ["liquidityPoolId", xdr2.lookup("PoolId")],
+        ["body", xdr2.lookup("LiquidityPoolEntryBody")]
       ]);
-      xdr.enum("ContractDataDurability", {
+      xdr2.enum("ContractDataDurability", {
         temporary: 0,
         persistent: 1
       });
-      xdr.struct("ContractDataEntry", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["contract", xdr.lookup("ScAddress")],
-        ["key", xdr.lookup("ScVal")],
-        ["durability", xdr.lookup("ContractDataDurability")],
-        ["val", xdr.lookup("ScVal")]
+      xdr2.struct("ContractDataEntry", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["contract", xdr2.lookup("ScAddress")],
+        ["key", xdr2.lookup("ScVal")],
+        ["durability", xdr2.lookup("ContractDataDurability")],
+        ["val", xdr2.lookup("ScVal")]
       ]);
-      xdr.struct("ContractCodeCostInputs", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["nInstructions", xdr.lookup("Uint32")],
-        ["nFunctions", xdr.lookup("Uint32")],
-        ["nGlobals", xdr.lookup("Uint32")],
-        ["nTableEntries", xdr.lookup("Uint32")],
-        ["nTypes", xdr.lookup("Uint32")],
-        ["nDataSegments", xdr.lookup("Uint32")],
-        ["nElemSegments", xdr.lookup("Uint32")],
-        ["nImports", xdr.lookup("Uint32")],
-        ["nExports", xdr.lookup("Uint32")],
-        ["nDataSegmentBytes", xdr.lookup("Uint32")]
+      xdr2.struct("ContractCodeCostInputs", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["nInstructions", xdr2.lookup("Uint32")],
+        ["nFunctions", xdr2.lookup("Uint32")],
+        ["nGlobals", xdr2.lookup("Uint32")],
+        ["nTableEntries", xdr2.lookup("Uint32")],
+        ["nTypes", xdr2.lookup("Uint32")],
+        ["nDataSegments", xdr2.lookup("Uint32")],
+        ["nElemSegments", xdr2.lookup("Uint32")],
+        ["nImports", xdr2.lookup("Uint32")],
+        ["nExports", xdr2.lookup("Uint32")],
+        ["nDataSegmentBytes", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("ContractCodeEntryV1", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["costInputs", xdr.lookup("ContractCodeCostInputs")]
+      xdr2.struct("ContractCodeEntryV1", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["costInputs", xdr2.lookup("ContractCodeCostInputs")]
       ]);
-      xdr.union("ContractCodeEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.union("ContractCodeEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "v1"]
         ],
         arms: {
-          v1: xdr.lookup("ContractCodeEntryV1")
+          v1: xdr2.lookup("ContractCodeEntryV1")
         }
       });
-      xdr.struct("ContractCodeEntry", [
-        ["ext", xdr.lookup("ContractCodeEntryExt")],
-        ["hash", xdr.lookup("Hash")],
-        ["code", xdr.varOpaque()]
+      xdr2.struct("ContractCodeEntry", [
+        ["ext", xdr2.lookup("ContractCodeEntryExt")],
+        ["hash", xdr2.lookup("Hash")],
+        ["code", xdr2.varOpaque()]
       ]);
-      xdr.struct("TtlEntry", [
-        ["keyHash", xdr.lookup("Hash")],
-        ["liveUntilLedgerSeq", xdr.lookup("Uint32")]
+      xdr2.struct("TtlEntry", [
+        ["keyHash", xdr2.lookup("Hash")],
+        ["liveUntilLedgerSeq", xdr2.lookup("Uint32")]
       ]);
-      xdr.union("LedgerEntryExtensionV1Ext", {
-        switchOn: xdr.int(),
+      xdr2.union("LedgerEntryExtensionV1Ext", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("LedgerEntryExtensionV1", [
-        ["sponsoringId", xdr.lookup("SponsorshipDescriptor")],
-        ["ext", xdr.lookup("LedgerEntryExtensionV1Ext")]
+      xdr2.struct("LedgerEntryExtensionV1", [
+        ["sponsoringId", xdr2.lookup("SponsorshipDescriptor")],
+        ["ext", xdr2.lookup("LedgerEntryExtensionV1Ext")]
       ]);
-      xdr.union("LedgerEntryData", {
-        switchOn: xdr.lookup("LedgerEntryType"),
+      xdr2.union("LedgerEntryData", {
+        switchOn: xdr2.lookup("LedgerEntryType"),
         switchName: "type",
         switches: [
           ["account", "account"],
@@ -13798,65 +13798,65 @@ var require_curr_generated = __commonJS({
           ["ttl", "ttl"]
         ],
         arms: {
-          account: xdr.lookup("AccountEntry"),
-          trustLine: xdr.lookup("TrustLineEntry"),
-          offer: xdr.lookup("OfferEntry"),
-          data: xdr.lookup("DataEntry"),
-          claimableBalance: xdr.lookup("ClaimableBalanceEntry"),
-          liquidityPool: xdr.lookup("LiquidityPoolEntry"),
-          contractData: xdr.lookup("ContractDataEntry"),
-          contractCode: xdr.lookup("ContractCodeEntry"),
-          configSetting: xdr.lookup("ConfigSettingEntry"),
-          ttl: xdr.lookup("TtlEntry")
+          account: xdr2.lookup("AccountEntry"),
+          trustLine: xdr2.lookup("TrustLineEntry"),
+          offer: xdr2.lookup("OfferEntry"),
+          data: xdr2.lookup("DataEntry"),
+          claimableBalance: xdr2.lookup("ClaimableBalanceEntry"),
+          liquidityPool: xdr2.lookup("LiquidityPoolEntry"),
+          contractData: xdr2.lookup("ContractDataEntry"),
+          contractCode: xdr2.lookup("ContractCodeEntry"),
+          configSetting: xdr2.lookup("ConfigSettingEntry"),
+          ttl: xdr2.lookup("TtlEntry")
         }
       });
-      xdr.union("LedgerEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.union("LedgerEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "v1"]
         ],
         arms: {
-          v1: xdr.lookup("LedgerEntryExtensionV1")
+          v1: xdr2.lookup("LedgerEntryExtensionV1")
         }
       });
-      xdr.struct("LedgerEntry", [
-        ["lastModifiedLedgerSeq", xdr.lookup("Uint32")],
-        ["data", xdr.lookup("LedgerEntryData")],
-        ["ext", xdr.lookup("LedgerEntryExt")]
+      xdr2.struct("LedgerEntry", [
+        ["lastModifiedLedgerSeq", xdr2.lookup("Uint32")],
+        ["data", xdr2.lookup("LedgerEntryData")],
+        ["ext", xdr2.lookup("LedgerEntryExt")]
       ]);
-      xdr.struct("LedgerKeyAccount", [["accountId", xdr.lookup("AccountId")]]);
-      xdr.struct("LedgerKeyTrustLine", [
-        ["accountId", xdr.lookup("AccountId")],
-        ["asset", xdr.lookup("TrustLineAsset")]
+      xdr2.struct("LedgerKeyAccount", [["accountId", xdr2.lookup("AccountId")]]);
+      xdr2.struct("LedgerKeyTrustLine", [
+        ["accountId", xdr2.lookup("AccountId")],
+        ["asset", xdr2.lookup("TrustLineAsset")]
       ]);
-      xdr.struct("LedgerKeyOffer", [
-        ["sellerId", xdr.lookup("AccountId")],
-        ["offerId", xdr.lookup("Int64")]
+      xdr2.struct("LedgerKeyOffer", [
+        ["sellerId", xdr2.lookup("AccountId")],
+        ["offerId", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("LedgerKeyData", [
-        ["accountId", xdr.lookup("AccountId")],
-        ["dataName", xdr.lookup("String64")]
+      xdr2.struct("LedgerKeyData", [
+        ["accountId", xdr2.lookup("AccountId")],
+        ["dataName", xdr2.lookup("String64")]
       ]);
-      xdr.struct("LedgerKeyClaimableBalance", [
-        ["balanceId", xdr.lookup("ClaimableBalanceId")]
+      xdr2.struct("LedgerKeyClaimableBalance", [
+        ["balanceId", xdr2.lookup("ClaimableBalanceId")]
       ]);
-      xdr.struct("LedgerKeyLiquidityPool", [
-        ["liquidityPoolId", xdr.lookup("PoolId")]
+      xdr2.struct("LedgerKeyLiquidityPool", [
+        ["liquidityPoolId", xdr2.lookup("PoolId")]
       ]);
-      xdr.struct("LedgerKeyContractData", [
-        ["contract", xdr.lookup("ScAddress")],
-        ["key", xdr.lookup("ScVal")],
-        ["durability", xdr.lookup("ContractDataDurability")]
+      xdr2.struct("LedgerKeyContractData", [
+        ["contract", xdr2.lookup("ScAddress")],
+        ["key", xdr2.lookup("ScVal")],
+        ["durability", xdr2.lookup("ContractDataDurability")]
       ]);
-      xdr.struct("LedgerKeyContractCode", [["hash", xdr.lookup("Hash")]]);
-      xdr.struct("LedgerKeyConfigSetting", [
-        ["configSettingId", xdr.lookup("ConfigSettingId")]
+      xdr2.struct("LedgerKeyContractCode", [["hash", xdr2.lookup("Hash")]]);
+      xdr2.struct("LedgerKeyConfigSetting", [
+        ["configSettingId", xdr2.lookup("ConfigSettingId")]
       ]);
-      xdr.struct("LedgerKeyTtl", [["keyHash", xdr.lookup("Hash")]]);
-      xdr.union("LedgerKey", {
-        switchOn: xdr.lookup("LedgerEntryType"),
+      xdr2.struct("LedgerKeyTtl", [["keyHash", xdr2.lookup("Hash")]]);
+      xdr2.union("LedgerKey", {
+        switchOn: xdr2.lookup("LedgerEntryType"),
         switchName: "type",
         switches: [
           ["account", "account"],
@@ -13871,19 +13871,19 @@ var require_curr_generated = __commonJS({
           ["ttl", "ttl"]
         ],
         arms: {
-          account: xdr.lookup("LedgerKeyAccount"),
-          trustLine: xdr.lookup("LedgerKeyTrustLine"),
-          offer: xdr.lookup("LedgerKeyOffer"),
-          data: xdr.lookup("LedgerKeyData"),
-          claimableBalance: xdr.lookup("LedgerKeyClaimableBalance"),
-          liquidityPool: xdr.lookup("LedgerKeyLiquidityPool"),
-          contractData: xdr.lookup("LedgerKeyContractData"),
-          contractCode: xdr.lookup("LedgerKeyContractCode"),
-          configSetting: xdr.lookup("LedgerKeyConfigSetting"),
-          ttl: xdr.lookup("LedgerKeyTtl")
+          account: xdr2.lookup("LedgerKeyAccount"),
+          trustLine: xdr2.lookup("LedgerKeyTrustLine"),
+          offer: xdr2.lookup("LedgerKeyOffer"),
+          data: xdr2.lookup("LedgerKeyData"),
+          claimableBalance: xdr2.lookup("LedgerKeyClaimableBalance"),
+          liquidityPool: xdr2.lookup("LedgerKeyLiquidityPool"),
+          contractData: xdr2.lookup("LedgerKeyContractData"),
+          contractCode: xdr2.lookup("LedgerKeyContractCode"),
+          configSetting: xdr2.lookup("LedgerKeyConfigSetting"),
+          ttl: xdr2.lookup("LedgerKeyTtl")
         }
       });
-      xdr.enum("EnvelopeType", {
+      xdr2.enum("EnvelopeType", {
         envelopeTypeTxV0: 0,
         envelopeTypeScp: 1,
         envelopeTypeTx: 2,
@@ -13896,38 +13896,38 @@ var require_curr_generated = __commonJS({
         envelopeTypeSorobanAuthorization: 9,
         envelopeTypeSorobanAuthorizationWithAddress: 10
       });
-      xdr.enum("BucketListType", {
+      xdr2.enum("BucketListType", {
         live: 0,
         hotArchive: 1
       });
-      xdr.enum("BucketEntryType", {
+      xdr2.enum("BucketEntryType", {
         metaentry: -1,
         liveentry: 0,
         deadentry: 1,
         initentry: 2
       });
-      xdr.enum("HotArchiveBucketEntryType", {
+      xdr2.enum("HotArchiveBucketEntryType", {
         hotArchiveMetaentry: -1,
         hotArchiveArchived: 0,
         hotArchiveLive: 1
       });
-      xdr.union("BucketMetadataExt", {
-        switchOn: xdr.int(),
+      xdr2.union("BucketMetadataExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "bucketListType"]
         ],
         arms: {
-          bucketListType: xdr.lookup("BucketListType")
+          bucketListType: xdr2.lookup("BucketListType")
         }
       });
-      xdr.struct("BucketMetadata", [
-        ["ledgerVersion", xdr.lookup("Uint32")],
-        ["ext", xdr.lookup("BucketMetadataExt")]
+      xdr2.struct("BucketMetadata", [
+        ["ledgerVersion", xdr2.lookup("Uint32")],
+        ["ext", xdr2.lookup("BucketMetadataExt")]
       ]);
-      xdr.union("BucketEntry", {
-        switchOn: xdr.lookup("BucketEntryType"),
+      xdr2.union("BucketEntry", {
+        switchOn: xdr2.lookup("BucketEntryType"),
         switchName: "type",
         switches: [
           ["liveentry", "liveEntry"],
@@ -13936,13 +13936,13 @@ var require_curr_generated = __commonJS({
           ["metaentry", "metaEntry"]
         ],
         arms: {
-          liveEntry: xdr.lookup("LedgerEntry"),
-          deadEntry: xdr.lookup("LedgerKey"),
-          metaEntry: xdr.lookup("BucketMetadata")
+          liveEntry: xdr2.lookup("LedgerEntry"),
+          deadEntry: xdr2.lookup("LedgerKey"),
+          metaEntry: xdr2.lookup("BucketMetadata")
         }
       });
-      xdr.union("HotArchiveBucketEntry", {
-        switchOn: xdr.lookup("HotArchiveBucketEntryType"),
+      xdr2.union("HotArchiveBucketEntry", {
+        switchOn: xdr2.lookup("HotArchiveBucketEntryType"),
         switchName: "type",
         switches: [
           ["hotArchiveArchived", "archivedEntry"],
@@ -13950,91 +13950,91 @@ var require_curr_generated = __commonJS({
           ["hotArchiveMetaentry", "metaEntry"]
         ],
         arms: {
-          archivedEntry: xdr.lookup("LedgerEntry"),
-          key: xdr.lookup("LedgerKey"),
-          metaEntry: xdr.lookup("BucketMetadata")
+          archivedEntry: xdr2.lookup("LedgerEntry"),
+          key: xdr2.lookup("LedgerKey"),
+          metaEntry: xdr2.lookup("BucketMetadata")
         }
       });
-      xdr.typedef("UpgradeType", xdr.varOpaque(128));
-      xdr.enum("StellarValueType", {
+      xdr2.typedef("UpgradeType", xdr2.varOpaque(128));
+      xdr2.enum("StellarValueType", {
         stellarValueBasic: 0,
         stellarValueSigned: 1,
         stellarValueEmptyTxSet: 2
       });
-      xdr.struct("LedgerCloseValueSignature", [
-        ["nodeId", xdr.lookup("NodeId")],
-        ["signature", xdr.lookup("Signature")]
+      xdr2.struct("LedgerCloseValueSignature", [
+        ["nodeId", xdr2.lookup("NodeId")],
+        ["signature", xdr2.lookup("Signature")]
       ]);
-      xdr.struct("StellarValueProposedValue", [
-        ["txSetHash", xdr.lookup("Hash")],
-        ["previousLedgerHash", xdr.lookup("Hash")],
-        ["previousLedgerVersion", xdr.lookup("Uint32")],
-        ["lcValueSignature", xdr.lookup("LedgerCloseValueSignature")]
+      xdr2.struct("StellarValueProposedValue", [
+        ["txSetHash", xdr2.lookup("Hash")],
+        ["previousLedgerHash", xdr2.lookup("Hash")],
+        ["previousLedgerVersion", xdr2.lookup("Uint32")],
+        ["lcValueSignature", xdr2.lookup("LedgerCloseValueSignature")]
       ]);
-      xdr.union("StellarValueExt", {
-        switchOn: xdr.lookup("StellarValueType"),
+      xdr2.union("StellarValueExt", {
+        switchOn: xdr2.lookup("StellarValueType"),
         switchName: "v",
         switches: [
-          ["stellarValueBasic", xdr.void()],
+          ["stellarValueBasic", xdr2.void()],
           ["stellarValueSigned", "lcValueSignature"],
           ["stellarValueEmptyTxSet", "proposedValue"]
         ],
         arms: {
-          lcValueSignature: xdr.lookup("LedgerCloseValueSignature"),
-          proposedValue: xdr.lookup("StellarValueProposedValue")
+          lcValueSignature: xdr2.lookup("LedgerCloseValueSignature"),
+          proposedValue: xdr2.lookup("StellarValueProposedValue")
         }
       });
-      xdr.struct("StellarValue", [
-        ["txSetHash", xdr.lookup("Hash")],
-        ["closeTime", xdr.lookup("TimePoint")],
-        ["upgrades", xdr.varArray(xdr.lookup("UpgradeType"), 6)],
-        ["ext", xdr.lookup("StellarValueExt")]
+      xdr2.struct("StellarValue", [
+        ["txSetHash", xdr2.lookup("Hash")],
+        ["closeTime", xdr2.lookup("TimePoint")],
+        ["upgrades", xdr2.varArray(xdr2.lookup("UpgradeType"), 6)],
+        ["ext", xdr2.lookup("StellarValueExt")]
       ]);
-      xdr.const("MASK_LEDGER_HEADER_FLAGS", 7);
-      xdr.enum("LedgerHeaderFlags", {
+      xdr2.const("MASK_LEDGER_HEADER_FLAGS", 7);
+      xdr2.enum("LedgerHeaderFlags", {
         disableLiquidityPoolTradingFlag: 1,
         disableLiquidityPoolDepositFlag: 2,
         disableLiquidityPoolWithdrawalFlag: 4
       });
-      xdr.union("LedgerHeaderExtensionV1Ext", {
-        switchOn: xdr.int(),
+      xdr2.union("LedgerHeaderExtensionV1Ext", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("LedgerHeaderExtensionV1", [
-        ["flags", xdr.lookup("Uint32")],
-        ["ext", xdr.lookup("LedgerHeaderExtensionV1Ext")]
+      xdr2.struct("LedgerHeaderExtensionV1", [
+        ["flags", xdr2.lookup("Uint32")],
+        ["ext", xdr2.lookup("LedgerHeaderExtensionV1Ext")]
       ]);
-      xdr.union("LedgerHeaderExt", {
-        switchOn: xdr.int(),
+      xdr2.union("LedgerHeaderExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "v1"]
         ],
         arms: {
-          v1: xdr.lookup("LedgerHeaderExtensionV1")
+          v1: xdr2.lookup("LedgerHeaderExtensionV1")
         }
       });
-      xdr.struct("LedgerHeader", [
-        ["ledgerVersion", xdr.lookup("Uint32")],
-        ["previousLedgerHash", xdr.lookup("Hash")],
-        ["scpValue", xdr.lookup("StellarValue")],
-        ["txSetResultHash", xdr.lookup("Hash")],
-        ["bucketListHash", xdr.lookup("Hash")],
-        ["ledgerSeq", xdr.lookup("Uint32")],
-        ["totalCoins", xdr.lookup("Int64")],
-        ["feePool", xdr.lookup("Int64")],
-        ["inflationSeq", xdr.lookup("Uint32")],
-        ["idPool", xdr.lookup("Uint64")],
-        ["baseFee", xdr.lookup("Uint32")],
-        ["baseReserve", xdr.lookup("Uint32")],
-        ["maxTxSetSize", xdr.lookup("Uint32")],
-        ["skipList", xdr.array(xdr.lookup("Hash"), 4)],
-        ["ext", xdr.lookup("LedgerHeaderExt")]
+      xdr2.struct("LedgerHeader", [
+        ["ledgerVersion", xdr2.lookup("Uint32")],
+        ["previousLedgerHash", xdr2.lookup("Hash")],
+        ["scpValue", xdr2.lookup("StellarValue")],
+        ["txSetResultHash", xdr2.lookup("Hash")],
+        ["bucketListHash", xdr2.lookup("Hash")],
+        ["ledgerSeq", xdr2.lookup("Uint32")],
+        ["totalCoins", xdr2.lookup("Int64")],
+        ["feePool", xdr2.lookup("Int64")],
+        ["inflationSeq", xdr2.lookup("Uint32")],
+        ["idPool", xdr2.lookup("Uint64")],
+        ["baseFee", xdr2.lookup("Uint32")],
+        ["baseReserve", xdr2.lookup("Uint32")],
+        ["maxTxSetSize", xdr2.lookup("Uint32")],
+        ["skipList", xdr2.array(xdr2.lookup("Hash"), 4)],
+        ["ext", xdr2.lookup("LedgerHeaderExt")]
       ]);
-      xdr.enum("LedgerUpgradeType", {
+      xdr2.enum("LedgerUpgradeType", {
         ledgerUpgradeVersion: 1,
         ledgerUpgradeBaseFee: 2,
         ledgerUpgradeMaxTxSetSize: 3,
@@ -14043,12 +14043,12 @@ var require_curr_generated = __commonJS({
         ledgerUpgradeConfig: 6,
         ledgerUpgradeMaxSorobanTxSetSize: 7
       });
-      xdr.struct("ConfigUpgradeSetKey", [
-        ["contractId", xdr.lookup("ContractId")],
-        ["contentHash", xdr.lookup("Hash")]
+      xdr2.struct("ConfigUpgradeSetKey", [
+        ["contractId", xdr2.lookup("ContractId")],
+        ["contentHash", xdr2.lookup("Hash")]
       ]);
-      xdr.union("LedgerUpgrade", {
-        switchOn: xdr.lookup("LedgerUpgradeType"),
+      xdr2.union("LedgerUpgrade", {
+        switchOn: xdr2.lookup("LedgerUpgradeType"),
         switchName: "type",
         switches: [
           ["ledgerUpgradeVersion", "newLedgerVersion"],
@@ -14060,149 +14060,149 @@ var require_curr_generated = __commonJS({
           ["ledgerUpgradeMaxSorobanTxSetSize", "newMaxSorobanTxSetSize"]
         ],
         arms: {
-          newLedgerVersion: xdr.lookup("Uint32"),
-          newBaseFee: xdr.lookup("Uint32"),
-          newMaxTxSetSize: xdr.lookup("Uint32"),
-          newBaseReserve: xdr.lookup("Uint32"),
-          newFlags: xdr.lookup("Uint32"),
-          newConfig: xdr.lookup("ConfigUpgradeSetKey"),
-          newMaxSorobanTxSetSize: xdr.lookup("Uint32")
+          newLedgerVersion: xdr2.lookup("Uint32"),
+          newBaseFee: xdr2.lookup("Uint32"),
+          newMaxTxSetSize: xdr2.lookup("Uint32"),
+          newBaseReserve: xdr2.lookup("Uint32"),
+          newFlags: xdr2.lookup("Uint32"),
+          newConfig: xdr2.lookup("ConfigUpgradeSetKey"),
+          newMaxSorobanTxSetSize: xdr2.lookup("Uint32")
         }
       });
-      xdr.struct("ConfigUpgradeSet", [
+      xdr2.struct("ConfigUpgradeSet", [
         [
           "updatedEntry",
-          xdr.varArray(xdr.lookup("ConfigSettingEntry"), 2147483647)
+          xdr2.varArray(xdr2.lookup("ConfigSettingEntry"), 2147483647)
         ]
       ]);
-      xdr.enum("TxSetComponentType", {
+      xdr2.enum("TxSetComponentType", {
         txsetCompTxsMaybeDiscountedFee: 0
       });
-      xdr.typedef(
+      xdr2.typedef(
         "DependentTxCluster",
-        xdr.varArray(xdr.lookup("TransactionEnvelope"), 2147483647)
+        xdr2.varArray(xdr2.lookup("TransactionEnvelope"), 2147483647)
       );
-      xdr.typedef(
+      xdr2.typedef(
         "ParallelTxExecutionStage",
-        xdr.varArray(xdr.lookup("DependentTxCluster"), 2147483647)
+        xdr2.varArray(xdr2.lookup("DependentTxCluster"), 2147483647)
       );
-      xdr.struct("ParallelTxsComponent", [
-        ["baseFee", xdr.option(xdr.lookup("Int64"))],
+      xdr2.struct("ParallelTxsComponent", [
+        ["baseFee", xdr2.option(xdr2.lookup("Int64"))],
         [
           "executionStages",
-          xdr.varArray(xdr.lookup("ParallelTxExecutionStage"), 2147483647)
+          xdr2.varArray(xdr2.lookup("ParallelTxExecutionStage"), 2147483647)
         ]
       ]);
-      xdr.struct("TxSetComponentTxsMaybeDiscountedFee", [
-        ["baseFee", xdr.option(xdr.lookup("Int64"))],
-        ["txes", xdr.varArray(xdr.lookup("TransactionEnvelope"), 2147483647)]
+      xdr2.struct("TxSetComponentTxsMaybeDiscountedFee", [
+        ["baseFee", xdr2.option(xdr2.lookup("Int64"))],
+        ["txes", xdr2.varArray(xdr2.lookup("TransactionEnvelope"), 2147483647)]
       ]);
-      xdr.union("TxSetComponent", {
-        switchOn: xdr.lookup("TxSetComponentType"),
+      xdr2.union("TxSetComponent", {
+        switchOn: xdr2.lookup("TxSetComponentType"),
         switchName: "type",
         switches: [["txsetCompTxsMaybeDiscountedFee", "txsMaybeDiscountedFee"]],
         arms: {
-          txsMaybeDiscountedFee: xdr.lookup("TxSetComponentTxsMaybeDiscountedFee")
+          txsMaybeDiscountedFee: xdr2.lookup("TxSetComponentTxsMaybeDiscountedFee")
         }
       });
-      xdr.union("TransactionPhase", {
-        switchOn: xdr.int(),
+      xdr2.union("TransactionPhase", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
           [0, "v0Components"],
           [1, "parallelTxsComponent"]
         ],
         arms: {
-          v0Components: xdr.varArray(xdr.lookup("TxSetComponent"), 2147483647),
-          parallelTxsComponent: xdr.lookup("ParallelTxsComponent")
+          v0Components: xdr2.varArray(xdr2.lookup("TxSetComponent"), 2147483647),
+          parallelTxsComponent: xdr2.lookup("ParallelTxsComponent")
         }
       });
-      xdr.struct("TransactionSet", [
-        ["previousLedgerHash", xdr.lookup("Hash")],
-        ["txes", xdr.varArray(xdr.lookup("TransactionEnvelope"), 2147483647)]
+      xdr2.struct("TransactionSet", [
+        ["previousLedgerHash", xdr2.lookup("Hash")],
+        ["txes", xdr2.varArray(xdr2.lookup("TransactionEnvelope"), 2147483647)]
       ]);
-      xdr.struct("TransactionSetV1", [
-        ["previousLedgerHash", xdr.lookup("Hash")],
-        ["phases", xdr.varArray(xdr.lookup("TransactionPhase"), 2147483647)]
+      xdr2.struct("TransactionSetV1", [
+        ["previousLedgerHash", xdr2.lookup("Hash")],
+        ["phases", xdr2.varArray(xdr2.lookup("TransactionPhase"), 2147483647)]
       ]);
-      xdr.union("GeneralizedTransactionSet", {
-        switchOn: xdr.int(),
+      xdr2.union("GeneralizedTransactionSet", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [[1, "v1TxSet"]],
         arms: {
-          v1TxSet: xdr.lookup("TransactionSetV1")
+          v1TxSet: xdr2.lookup("TransactionSetV1")
         }
       });
-      xdr.struct("TransactionResultPair", [
-        ["transactionHash", xdr.lookup("Hash")],
-        ["result", xdr.lookup("TransactionResult")]
+      xdr2.struct("TransactionResultPair", [
+        ["transactionHash", xdr2.lookup("Hash")],
+        ["result", xdr2.lookup("TransactionResult")]
       ]);
-      xdr.struct("TransactionResultSet", [
-        ["results", xdr.varArray(xdr.lookup("TransactionResultPair"), 2147483647)]
+      xdr2.struct("TransactionResultSet", [
+        ["results", xdr2.varArray(xdr2.lookup("TransactionResultPair"), 2147483647)]
       ]);
-      xdr.union("TransactionHistoryEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.union("TransactionHistoryEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "generalizedTxSet"]
         ],
         arms: {
-          generalizedTxSet: xdr.lookup("GeneralizedTransactionSet")
+          generalizedTxSet: xdr2.lookup("GeneralizedTransactionSet")
         }
       });
-      xdr.struct("TransactionHistoryEntry", [
-        ["ledgerSeq", xdr.lookup("Uint32")],
-        ["txSet", xdr.lookup("TransactionSet")],
-        ["ext", xdr.lookup("TransactionHistoryEntryExt")]
+      xdr2.struct("TransactionHistoryEntry", [
+        ["ledgerSeq", xdr2.lookup("Uint32")],
+        ["txSet", xdr2.lookup("TransactionSet")],
+        ["ext", xdr2.lookup("TransactionHistoryEntryExt")]
       ]);
-      xdr.union("TransactionHistoryResultEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.union("TransactionHistoryResultEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("TransactionHistoryResultEntry", [
-        ["ledgerSeq", xdr.lookup("Uint32")],
-        ["txResultSet", xdr.lookup("TransactionResultSet")],
-        ["ext", xdr.lookup("TransactionHistoryResultEntryExt")]
+      xdr2.struct("TransactionHistoryResultEntry", [
+        ["ledgerSeq", xdr2.lookup("Uint32")],
+        ["txResultSet", xdr2.lookup("TransactionResultSet")],
+        ["ext", xdr2.lookup("TransactionHistoryResultEntryExt")]
       ]);
-      xdr.union("LedgerHeaderHistoryEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.union("LedgerHeaderHistoryEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("LedgerHeaderHistoryEntry", [
-        ["hash", xdr.lookup("Hash")],
-        ["header", xdr.lookup("LedgerHeader")],
-        ["ext", xdr.lookup("LedgerHeaderHistoryEntryExt")]
+      xdr2.struct("LedgerHeaderHistoryEntry", [
+        ["hash", xdr2.lookup("Hash")],
+        ["header", xdr2.lookup("LedgerHeader")],
+        ["ext", xdr2.lookup("LedgerHeaderHistoryEntryExt")]
       ]);
-      xdr.struct("LedgerScpMessages", [
-        ["ledgerSeq", xdr.lookup("Uint32")],
-        ["messages", xdr.varArray(xdr.lookup("ScpEnvelope"), 2147483647)]
+      xdr2.struct("LedgerScpMessages", [
+        ["ledgerSeq", xdr2.lookup("Uint32")],
+        ["messages", xdr2.varArray(xdr2.lookup("ScpEnvelope"), 2147483647)]
       ]);
-      xdr.struct("ScpHistoryEntryV0", [
-        ["quorumSets", xdr.varArray(xdr.lookup("ScpQuorumSet"), 2147483647)],
-        ["ledgerMessages", xdr.lookup("LedgerScpMessages")]
+      xdr2.struct("ScpHistoryEntryV0", [
+        ["quorumSets", xdr2.varArray(xdr2.lookup("ScpQuorumSet"), 2147483647)],
+        ["ledgerMessages", xdr2.lookup("LedgerScpMessages")]
       ]);
-      xdr.union("ScpHistoryEntry", {
-        switchOn: xdr.int(),
+      xdr2.union("ScpHistoryEntry", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [[0, "v0"]],
         arms: {
-          v0: xdr.lookup("ScpHistoryEntryV0")
+          v0: xdr2.lookup("ScpHistoryEntryV0")
         }
       });
-      xdr.enum("LedgerEntryChangeType", {
+      xdr2.enum("LedgerEntryChangeType", {
         ledgerEntryCreated: 0,
         ledgerEntryUpdated: 1,
         ledgerEntryRemoved: 2,
         ledgerEntryState: 3,
         ledgerEntryRestored: 4
       });
-      xdr.union("LedgerEntryChange", {
-        switchOn: xdr.lookup("LedgerEntryChangeType"),
+      xdr2.union("LedgerEntryChange", {
+        switchOn: xdr2.lookup("LedgerEntryChangeType"),
         switchName: "type",
         switches: [
           ["ledgerEntryCreated", "created"],
@@ -14212,123 +14212,123 @@ var require_curr_generated = __commonJS({
           ["ledgerEntryRestored", "restored"]
         ],
         arms: {
-          created: xdr.lookup("LedgerEntry"),
-          updated: xdr.lookup("LedgerEntry"),
-          removed: xdr.lookup("LedgerKey"),
-          state: xdr.lookup("LedgerEntry"),
-          restored: xdr.lookup("LedgerEntry")
+          created: xdr2.lookup("LedgerEntry"),
+          updated: xdr2.lookup("LedgerEntry"),
+          removed: xdr2.lookup("LedgerKey"),
+          state: xdr2.lookup("LedgerEntry"),
+          restored: xdr2.lookup("LedgerEntry")
         }
       });
-      xdr.typedef(
+      xdr2.typedef(
         "LedgerEntryChanges",
-        xdr.varArray(xdr.lookup("LedgerEntryChange"), 2147483647)
+        xdr2.varArray(xdr2.lookup("LedgerEntryChange"), 2147483647)
       );
-      xdr.struct("OperationMeta", [["changes", xdr.lookup("LedgerEntryChanges")]]);
-      xdr.struct("TransactionMetaV1", [
-        ["txChanges", xdr.lookup("LedgerEntryChanges")],
-        ["operations", xdr.varArray(xdr.lookup("OperationMeta"), 2147483647)]
+      xdr2.struct("OperationMeta", [["changes", xdr2.lookup("LedgerEntryChanges")]]);
+      xdr2.struct("TransactionMetaV1", [
+        ["txChanges", xdr2.lookup("LedgerEntryChanges")],
+        ["operations", xdr2.varArray(xdr2.lookup("OperationMeta"), 2147483647)]
       ]);
-      xdr.struct("TransactionMetaV2", [
-        ["txChangesBefore", xdr.lookup("LedgerEntryChanges")],
-        ["operations", xdr.varArray(xdr.lookup("OperationMeta"), 2147483647)],
-        ["txChangesAfter", xdr.lookup("LedgerEntryChanges")]
+      xdr2.struct("TransactionMetaV2", [
+        ["txChangesBefore", xdr2.lookup("LedgerEntryChanges")],
+        ["operations", xdr2.varArray(xdr2.lookup("OperationMeta"), 2147483647)],
+        ["txChangesAfter", xdr2.lookup("LedgerEntryChanges")]
       ]);
-      xdr.enum("ContractEventType", {
+      xdr2.enum("ContractEventType", {
         system: 0,
         contract: 1,
         diagnostic: 2
       });
-      xdr.struct("ContractEventV0", [
-        ["topics", xdr.varArray(xdr.lookup("ScVal"), 2147483647)],
-        ["data", xdr.lookup("ScVal")]
+      xdr2.struct("ContractEventV0", [
+        ["topics", xdr2.varArray(xdr2.lookup("ScVal"), 2147483647)],
+        ["data", xdr2.lookup("ScVal")]
       ]);
-      xdr.union("ContractEventBody", {
-        switchOn: xdr.int(),
+      xdr2.union("ContractEventBody", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [[0, "v0"]],
         arms: {
-          v0: xdr.lookup("ContractEventV0")
+          v0: xdr2.lookup("ContractEventV0")
         }
       });
-      xdr.struct("ContractEvent", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["contractId", xdr.option(xdr.lookup("ContractId"))],
-        ["type", xdr.lookup("ContractEventType")],
-        ["body", xdr.lookup("ContractEventBody")]
+      xdr2.struct("ContractEvent", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["contractId", xdr2.option(xdr2.lookup("ContractId"))],
+        ["type", xdr2.lookup("ContractEventType")],
+        ["body", xdr2.lookup("ContractEventBody")]
       ]);
-      xdr.struct("DiagnosticEvent", [
-        ["inSuccessfulContractCall", xdr.bool()],
-        ["event", xdr.lookup("ContractEvent")]
+      xdr2.struct("DiagnosticEvent", [
+        ["inSuccessfulContractCall", xdr2.bool()],
+        ["event", xdr2.lookup("ContractEvent")]
       ]);
-      xdr.struct("SorobanTransactionMetaExtV1", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["totalNonRefundableResourceFeeCharged", xdr.lookup("Int64")],
-        ["totalRefundableResourceFeeCharged", xdr.lookup("Int64")],
-        ["rentFeeCharged", xdr.lookup("Int64")]
+      xdr2.struct("SorobanTransactionMetaExtV1", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["totalNonRefundableResourceFeeCharged", xdr2.lookup("Int64")],
+        ["totalRefundableResourceFeeCharged", xdr2.lookup("Int64")],
+        ["rentFeeCharged", xdr2.lookup("Int64")]
       ]);
-      xdr.union("SorobanTransactionMetaExt", {
-        switchOn: xdr.int(),
+      xdr2.union("SorobanTransactionMetaExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "v1"]
         ],
         arms: {
-          v1: xdr.lookup("SorobanTransactionMetaExtV1")
+          v1: xdr2.lookup("SorobanTransactionMetaExtV1")
         }
       });
-      xdr.struct("SorobanTransactionMeta", [
-        ["ext", xdr.lookup("SorobanTransactionMetaExt")],
-        ["events", xdr.varArray(xdr.lookup("ContractEvent"), 2147483647)],
-        ["returnValue", xdr.lookup("ScVal")],
+      xdr2.struct("SorobanTransactionMeta", [
+        ["ext", xdr2.lookup("SorobanTransactionMetaExt")],
+        ["events", xdr2.varArray(xdr2.lookup("ContractEvent"), 2147483647)],
+        ["returnValue", xdr2.lookup("ScVal")],
         [
           "diagnosticEvents",
-          xdr.varArray(xdr.lookup("DiagnosticEvent"), 2147483647)
+          xdr2.varArray(xdr2.lookup("DiagnosticEvent"), 2147483647)
         ]
       ]);
-      xdr.struct("TransactionMetaV3", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["txChangesBefore", xdr.lookup("LedgerEntryChanges")],
-        ["operations", xdr.varArray(xdr.lookup("OperationMeta"), 2147483647)],
-        ["txChangesAfter", xdr.lookup("LedgerEntryChanges")],
-        ["sorobanMeta", xdr.option(xdr.lookup("SorobanTransactionMeta"))]
+      xdr2.struct("TransactionMetaV3", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["txChangesBefore", xdr2.lookup("LedgerEntryChanges")],
+        ["operations", xdr2.varArray(xdr2.lookup("OperationMeta"), 2147483647)],
+        ["txChangesAfter", xdr2.lookup("LedgerEntryChanges")],
+        ["sorobanMeta", xdr2.option(xdr2.lookup("SorobanTransactionMeta"))]
       ]);
-      xdr.struct("OperationMetaV2", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["changes", xdr.lookup("LedgerEntryChanges")],
-        ["events", xdr.varArray(xdr.lookup("ContractEvent"), 2147483647)]
+      xdr2.struct("OperationMetaV2", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["changes", xdr2.lookup("LedgerEntryChanges")],
+        ["events", xdr2.varArray(xdr2.lookup("ContractEvent"), 2147483647)]
       ]);
-      xdr.struct("SorobanTransactionMetaV2", [
-        ["ext", xdr.lookup("SorobanTransactionMetaExt")],
-        ["returnValue", xdr.option(xdr.lookup("ScVal"))]
+      xdr2.struct("SorobanTransactionMetaV2", [
+        ["ext", xdr2.lookup("SorobanTransactionMetaExt")],
+        ["returnValue", xdr2.option(xdr2.lookup("ScVal"))]
       ]);
-      xdr.enum("TransactionEventStage", {
+      xdr2.enum("TransactionEventStage", {
         transactionEventStageBeforeAllTxes: 0,
         transactionEventStageAfterTx: 1,
         transactionEventStageAfterAllTxes: 2
       });
-      xdr.struct("TransactionEvent", [
-        ["stage", xdr.lookup("TransactionEventStage")],
-        ["event", xdr.lookup("ContractEvent")]
+      xdr2.struct("TransactionEvent", [
+        ["stage", xdr2.lookup("TransactionEventStage")],
+        ["event", xdr2.lookup("ContractEvent")]
       ]);
-      xdr.struct("TransactionMetaV4", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["txChangesBefore", xdr.lookup("LedgerEntryChanges")],
-        ["operations", xdr.varArray(xdr.lookup("OperationMetaV2"), 2147483647)],
-        ["txChangesAfter", xdr.lookup("LedgerEntryChanges")],
-        ["sorobanMeta", xdr.option(xdr.lookup("SorobanTransactionMetaV2"))],
-        ["events", xdr.varArray(xdr.lookup("TransactionEvent"), 2147483647)],
+      xdr2.struct("TransactionMetaV4", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["txChangesBefore", xdr2.lookup("LedgerEntryChanges")],
+        ["operations", xdr2.varArray(xdr2.lookup("OperationMetaV2"), 2147483647)],
+        ["txChangesAfter", xdr2.lookup("LedgerEntryChanges")],
+        ["sorobanMeta", xdr2.option(xdr2.lookup("SorobanTransactionMetaV2"))],
+        ["events", xdr2.varArray(xdr2.lookup("TransactionEvent"), 2147483647)],
         [
           "diagnosticEvents",
-          xdr.varArray(xdr.lookup("DiagnosticEvent"), 2147483647)
+          xdr2.varArray(xdr2.lookup("DiagnosticEvent"), 2147483647)
         ]
       ]);
-      xdr.struct("InvokeHostFunctionSuccessPreImage", [
-        ["returnValue", xdr.lookup("ScVal")],
-        ["events", xdr.varArray(xdr.lookup("ContractEvent"), 2147483647)]
+      xdr2.struct("InvokeHostFunctionSuccessPreImage", [
+        ["returnValue", xdr2.lookup("ScVal")],
+        ["events", xdr2.varArray(xdr2.lookup("ContractEvent"), 2147483647)]
       ]);
-      xdr.union("TransactionMeta", {
-        switchOn: xdr.int(),
+      xdr2.union("TransactionMeta", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
           [0, "operations"],
@@ -14338,92 +14338,92 @@ var require_curr_generated = __commonJS({
           [4, "v4"]
         ],
         arms: {
-          operations: xdr.varArray(xdr.lookup("OperationMeta"), 2147483647),
-          v1: xdr.lookup("TransactionMetaV1"),
-          v2: xdr.lookup("TransactionMetaV2"),
-          v3: xdr.lookup("TransactionMetaV3"),
-          v4: xdr.lookup("TransactionMetaV4")
+          operations: xdr2.varArray(xdr2.lookup("OperationMeta"), 2147483647),
+          v1: xdr2.lookup("TransactionMetaV1"),
+          v2: xdr2.lookup("TransactionMetaV2"),
+          v3: xdr2.lookup("TransactionMetaV3"),
+          v4: xdr2.lookup("TransactionMetaV4")
         }
       });
-      xdr.struct("TransactionResultMeta", [
-        ["result", xdr.lookup("TransactionResultPair")],
-        ["feeProcessing", xdr.lookup("LedgerEntryChanges")],
-        ["txApplyProcessing", xdr.lookup("TransactionMeta")]
+      xdr2.struct("TransactionResultMeta", [
+        ["result", xdr2.lookup("TransactionResultPair")],
+        ["feeProcessing", xdr2.lookup("LedgerEntryChanges")],
+        ["txApplyProcessing", xdr2.lookup("TransactionMeta")]
       ]);
-      xdr.struct("TransactionResultMetaV1", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["result", xdr.lookup("TransactionResultPair")],
-        ["feeProcessing", xdr.lookup("LedgerEntryChanges")],
-        ["txApplyProcessing", xdr.lookup("TransactionMeta")],
-        ["postTxApplyFeeProcessing", xdr.lookup("LedgerEntryChanges")]
+      xdr2.struct("TransactionResultMetaV1", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["result", xdr2.lookup("TransactionResultPair")],
+        ["feeProcessing", xdr2.lookup("LedgerEntryChanges")],
+        ["txApplyProcessing", xdr2.lookup("TransactionMeta")],
+        ["postTxApplyFeeProcessing", xdr2.lookup("LedgerEntryChanges")]
       ]);
-      xdr.struct("UpgradeEntryMeta", [
-        ["upgrade", xdr.lookup("LedgerUpgrade")],
-        ["changes", xdr.lookup("LedgerEntryChanges")]
+      xdr2.struct("UpgradeEntryMeta", [
+        ["upgrade", xdr2.lookup("LedgerUpgrade")],
+        ["changes", xdr2.lookup("LedgerEntryChanges")]
       ]);
-      xdr.struct("LedgerCloseMetaV0", [
-        ["ledgerHeader", xdr.lookup("LedgerHeaderHistoryEntry")],
-        ["txSet", xdr.lookup("TransactionSet")],
+      xdr2.struct("LedgerCloseMetaV0", [
+        ["ledgerHeader", xdr2.lookup("LedgerHeaderHistoryEntry")],
+        ["txSet", xdr2.lookup("TransactionSet")],
         [
           "txProcessing",
-          xdr.varArray(xdr.lookup("TransactionResultMeta"), 2147483647)
+          xdr2.varArray(xdr2.lookup("TransactionResultMeta"), 2147483647)
         ],
         [
           "upgradesProcessing",
-          xdr.varArray(xdr.lookup("UpgradeEntryMeta"), 2147483647)
+          xdr2.varArray(xdr2.lookup("UpgradeEntryMeta"), 2147483647)
         ],
-        ["scpInfo", xdr.varArray(xdr.lookup("ScpHistoryEntry"), 2147483647)]
+        ["scpInfo", xdr2.varArray(xdr2.lookup("ScpHistoryEntry"), 2147483647)]
       ]);
-      xdr.struct("LedgerCloseMetaExtV1", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["sorobanFeeWrite1Kb", xdr.lookup("Int64")]
+      xdr2.struct("LedgerCloseMetaExtV1", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["sorobanFeeWrite1Kb", xdr2.lookup("Int64")]
       ]);
-      xdr.union("LedgerCloseMetaExt", {
-        switchOn: xdr.int(),
+      xdr2.union("LedgerCloseMetaExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "v1"]
         ],
         arms: {
-          v1: xdr.lookup("LedgerCloseMetaExtV1")
+          v1: xdr2.lookup("LedgerCloseMetaExtV1")
         }
       });
-      xdr.struct("LedgerCloseMetaV1", [
-        ["ext", xdr.lookup("LedgerCloseMetaExt")],
-        ["ledgerHeader", xdr.lookup("LedgerHeaderHistoryEntry")],
-        ["txSet", xdr.lookup("GeneralizedTransactionSet")],
+      xdr2.struct("LedgerCloseMetaV1", [
+        ["ext", xdr2.lookup("LedgerCloseMetaExt")],
+        ["ledgerHeader", xdr2.lookup("LedgerHeaderHistoryEntry")],
+        ["txSet", xdr2.lookup("GeneralizedTransactionSet")],
         [
           "txProcessing",
-          xdr.varArray(xdr.lookup("TransactionResultMeta"), 2147483647)
+          xdr2.varArray(xdr2.lookup("TransactionResultMeta"), 2147483647)
         ],
         [
           "upgradesProcessing",
-          xdr.varArray(xdr.lookup("UpgradeEntryMeta"), 2147483647)
+          xdr2.varArray(xdr2.lookup("UpgradeEntryMeta"), 2147483647)
         ],
-        ["scpInfo", xdr.varArray(xdr.lookup("ScpHistoryEntry"), 2147483647)],
-        ["totalByteSizeOfLiveSorobanState", xdr.lookup("Uint64")],
-        ["evictedKeys", xdr.varArray(xdr.lookup("LedgerKey"), 2147483647)],
-        ["unused", xdr.varArray(xdr.lookup("LedgerEntry"), 2147483647)]
+        ["scpInfo", xdr2.varArray(xdr2.lookup("ScpHistoryEntry"), 2147483647)],
+        ["totalByteSizeOfLiveSorobanState", xdr2.lookup("Uint64")],
+        ["evictedKeys", xdr2.varArray(xdr2.lookup("LedgerKey"), 2147483647)],
+        ["unused", xdr2.varArray(xdr2.lookup("LedgerEntry"), 2147483647)]
       ]);
-      xdr.struct("LedgerCloseMetaV2", [
-        ["ext", xdr.lookup("LedgerCloseMetaExt")],
-        ["ledgerHeader", xdr.lookup("LedgerHeaderHistoryEntry")],
-        ["txSet", xdr.lookup("GeneralizedTransactionSet")],
+      xdr2.struct("LedgerCloseMetaV2", [
+        ["ext", xdr2.lookup("LedgerCloseMetaExt")],
+        ["ledgerHeader", xdr2.lookup("LedgerHeaderHistoryEntry")],
+        ["txSet", xdr2.lookup("GeneralizedTransactionSet")],
         [
           "txProcessing",
-          xdr.varArray(xdr.lookup("TransactionResultMetaV1"), 2147483647)
+          xdr2.varArray(xdr2.lookup("TransactionResultMetaV1"), 2147483647)
         ],
         [
           "upgradesProcessing",
-          xdr.varArray(xdr.lookup("UpgradeEntryMeta"), 2147483647)
+          xdr2.varArray(xdr2.lookup("UpgradeEntryMeta"), 2147483647)
         ],
-        ["scpInfo", xdr.varArray(xdr.lookup("ScpHistoryEntry"), 2147483647)],
-        ["totalByteSizeOfLiveSorobanState", xdr.lookup("Uint64")],
-        ["evictedKeys", xdr.varArray(xdr.lookup("LedgerKey"), 2147483647)]
+        ["scpInfo", xdr2.varArray(xdr2.lookup("ScpHistoryEntry"), 2147483647)],
+        ["totalByteSizeOfLiveSorobanState", xdr2.lookup("Uint64")],
+        ["evictedKeys", xdr2.varArray(xdr2.lookup("LedgerKey"), 2147483647)]
       ]);
-      xdr.union("LedgerCloseMeta", {
-        switchOn: xdr.int(),
+      xdr2.union("LedgerCloseMeta", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
           [0, "v0"],
@@ -14431,67 +14431,67 @@ var require_curr_generated = __commonJS({
           [2, "v2"]
         ],
         arms: {
-          v0: xdr.lookup("LedgerCloseMetaV0"),
-          v1: xdr.lookup("LedgerCloseMetaV1"),
-          v2: xdr.lookup("LedgerCloseMetaV2")
+          v0: xdr2.lookup("LedgerCloseMetaV0"),
+          v1: xdr2.lookup("LedgerCloseMetaV1"),
+          v2: xdr2.lookup("LedgerCloseMetaV2")
         }
       });
-      xdr.enum("ErrorCode", {
+      xdr2.enum("ErrorCode", {
         errMisc: 0,
         errData: 1,
         errConf: 2,
         errAuth: 3,
         errLoad: 4
       });
-      xdr.struct("Error", [
-        ["code", xdr.lookup("ErrorCode")],
-        ["msg", xdr.string(100)]
+      xdr2.struct("Error", [
+        ["code", xdr2.lookup("ErrorCode")],
+        ["msg", xdr2.string(100)]
       ]);
-      xdr.struct("SendMore", [["numMessages", xdr.lookup("Uint32")]]);
-      xdr.struct("SendMoreExtended", [
-        ["numMessages", xdr.lookup("Uint32")],
-        ["numBytes", xdr.lookup("Uint32")]
+      xdr2.struct("SendMore", [["numMessages", xdr2.lookup("Uint32")]]);
+      xdr2.struct("SendMoreExtended", [
+        ["numMessages", xdr2.lookup("Uint32")],
+        ["numBytes", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("AuthCert", [
-        ["pubkey", xdr.lookup("Curve25519Public")],
-        ["expiration", xdr.lookup("Uint64")],
-        ["sig", xdr.lookup("Signature")]
+      xdr2.struct("AuthCert", [
+        ["pubkey", xdr2.lookup("Curve25519Public")],
+        ["expiration", xdr2.lookup("Uint64")],
+        ["sig", xdr2.lookup("Signature")]
       ]);
-      xdr.struct("Hello", [
-        ["ledgerVersion", xdr.lookup("Uint32")],
-        ["overlayVersion", xdr.lookup("Uint32")],
-        ["overlayMinVersion", xdr.lookup("Uint32")],
-        ["networkId", xdr.lookup("Hash")],
-        ["versionStr", xdr.string(100)],
-        ["listeningPort", xdr.int()],
-        ["peerId", xdr.lookup("NodeId")],
-        ["cert", xdr.lookup("AuthCert")],
-        ["nonce", xdr.lookup("Uint256")]
+      xdr2.struct("Hello", [
+        ["ledgerVersion", xdr2.lookup("Uint32")],
+        ["overlayVersion", xdr2.lookup("Uint32")],
+        ["overlayMinVersion", xdr2.lookup("Uint32")],
+        ["networkId", xdr2.lookup("Hash")],
+        ["versionStr", xdr2.string(100)],
+        ["listeningPort", xdr2.int()],
+        ["peerId", xdr2.lookup("NodeId")],
+        ["cert", xdr2.lookup("AuthCert")],
+        ["nonce", xdr2.lookup("Uint256")]
       ]);
-      xdr.const("AUTH_MSG_FLAG_FLOW_CONTROL_BYTES_REQUESTED", 200);
-      xdr.struct("Auth", [["flags", xdr.int()]]);
-      xdr.enum("IpAddrType", {
+      xdr2.const("AUTH_MSG_FLAG_FLOW_CONTROL_BYTES_REQUESTED", 200);
+      xdr2.struct("Auth", [["flags", xdr2.int()]]);
+      xdr2.enum("IpAddrType", {
         iPv4: 0,
         iPv6: 1
       });
-      xdr.union("PeerAddressIp", {
-        switchOn: xdr.lookup("IpAddrType"),
+      xdr2.union("PeerAddressIp", {
+        switchOn: xdr2.lookup("IpAddrType"),
         switchName: "type",
         switches: [
           ["iPv4", "ipv4"],
           ["iPv6", "ipv6"]
         ],
         arms: {
-          ipv4: xdr.opaque(4),
-          ipv6: xdr.opaque(16)
+          ipv4: xdr2.opaque(4),
+          ipv6: xdr2.opaque(16)
         }
       });
-      xdr.struct("PeerAddress", [
-        ["ip", xdr.lookup("PeerAddressIp")],
-        ["port", xdr.lookup("Uint32")],
-        ["numFailures", xdr.lookup("Uint32")]
+      xdr2.struct("PeerAddress", [
+        ["ip", xdr2.lookup("PeerAddressIp")],
+        ["port", xdr2.lookup("Uint32")],
+        ["numFailures", xdr2.lookup("Uint32")]
       ]);
-      xdr.enum("MessageType", {
+      xdr2.enum("MessageType", {
         errorMsg: 0,
         auth: 2,
         dontHave: 3,
@@ -14514,131 +14514,131 @@ var require_curr_generated = __commonJS({
         timeSlicedSurveyStartCollecting: 23,
         timeSlicedSurveyStopCollecting: 24
       });
-      xdr.struct("DontHave", [
-        ["type", xdr.lookup("MessageType")],
-        ["reqHash", xdr.lookup("Uint256")]
+      xdr2.struct("DontHave", [
+        ["type", xdr2.lookup("MessageType")],
+        ["reqHash", xdr2.lookup("Uint256")]
       ]);
-      xdr.enum("SurveyMessageCommandType", {
+      xdr2.enum("SurveyMessageCommandType", {
         timeSlicedSurveyTopology: 1
       });
-      xdr.enum("SurveyMessageResponseType", {
+      xdr2.enum("SurveyMessageResponseType", {
         surveyTopologyResponseV2: 2
       });
-      xdr.struct("TimeSlicedSurveyStartCollectingMessage", [
-        ["surveyorId", xdr.lookup("NodeId")],
-        ["nonce", xdr.lookup("Uint32")],
-        ["ledgerNum", xdr.lookup("Uint32")]
+      xdr2.struct("TimeSlicedSurveyStartCollectingMessage", [
+        ["surveyorId", xdr2.lookup("NodeId")],
+        ["nonce", xdr2.lookup("Uint32")],
+        ["ledgerNum", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("SignedTimeSlicedSurveyStartCollectingMessage", [
-        ["signature", xdr.lookup("Signature")],
-        ["startCollecting", xdr.lookup("TimeSlicedSurveyStartCollectingMessage")]
+      xdr2.struct("SignedTimeSlicedSurveyStartCollectingMessage", [
+        ["signature", xdr2.lookup("Signature")],
+        ["startCollecting", xdr2.lookup("TimeSlicedSurveyStartCollectingMessage")]
       ]);
-      xdr.struct("TimeSlicedSurveyStopCollectingMessage", [
-        ["surveyorId", xdr.lookup("NodeId")],
-        ["nonce", xdr.lookup("Uint32")],
-        ["ledgerNum", xdr.lookup("Uint32")]
+      xdr2.struct("TimeSlicedSurveyStopCollectingMessage", [
+        ["surveyorId", xdr2.lookup("NodeId")],
+        ["nonce", xdr2.lookup("Uint32")],
+        ["ledgerNum", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("SignedTimeSlicedSurveyStopCollectingMessage", [
-        ["signature", xdr.lookup("Signature")],
-        ["stopCollecting", xdr.lookup("TimeSlicedSurveyStopCollectingMessage")]
+      xdr2.struct("SignedTimeSlicedSurveyStopCollectingMessage", [
+        ["signature", xdr2.lookup("Signature")],
+        ["stopCollecting", xdr2.lookup("TimeSlicedSurveyStopCollectingMessage")]
       ]);
-      xdr.struct("SurveyRequestMessage", [
-        ["surveyorPeerId", xdr.lookup("NodeId")],
-        ["surveyedPeerId", xdr.lookup("NodeId")],
-        ["ledgerNum", xdr.lookup("Uint32")],
-        ["encryptionKey", xdr.lookup("Curve25519Public")],
-        ["commandType", xdr.lookup("SurveyMessageCommandType")]
+      xdr2.struct("SurveyRequestMessage", [
+        ["surveyorPeerId", xdr2.lookup("NodeId")],
+        ["surveyedPeerId", xdr2.lookup("NodeId")],
+        ["ledgerNum", xdr2.lookup("Uint32")],
+        ["encryptionKey", xdr2.lookup("Curve25519Public")],
+        ["commandType", xdr2.lookup("SurveyMessageCommandType")]
       ]);
-      xdr.struct("TimeSlicedSurveyRequestMessage", [
-        ["request", xdr.lookup("SurveyRequestMessage")],
-        ["nonce", xdr.lookup("Uint32")],
-        ["inboundPeersIndex", xdr.lookup("Uint32")],
-        ["outboundPeersIndex", xdr.lookup("Uint32")]
+      xdr2.struct("TimeSlicedSurveyRequestMessage", [
+        ["request", xdr2.lookup("SurveyRequestMessage")],
+        ["nonce", xdr2.lookup("Uint32")],
+        ["inboundPeersIndex", xdr2.lookup("Uint32")],
+        ["outboundPeersIndex", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("SignedTimeSlicedSurveyRequestMessage", [
-        ["requestSignature", xdr.lookup("Signature")],
-        ["request", xdr.lookup("TimeSlicedSurveyRequestMessage")]
+      xdr2.struct("SignedTimeSlicedSurveyRequestMessage", [
+        ["requestSignature", xdr2.lookup("Signature")],
+        ["request", xdr2.lookup("TimeSlicedSurveyRequestMessage")]
       ]);
-      xdr.typedef("EncryptedBody", xdr.varOpaque(64e3));
-      xdr.struct("SurveyResponseMessage", [
-        ["surveyorPeerId", xdr.lookup("NodeId")],
-        ["surveyedPeerId", xdr.lookup("NodeId")],
-        ["ledgerNum", xdr.lookup("Uint32")],
-        ["commandType", xdr.lookup("SurveyMessageCommandType")],
-        ["encryptedBody", xdr.lookup("EncryptedBody")]
+      xdr2.typedef("EncryptedBody", xdr2.varOpaque(64e3));
+      xdr2.struct("SurveyResponseMessage", [
+        ["surveyorPeerId", xdr2.lookup("NodeId")],
+        ["surveyedPeerId", xdr2.lookup("NodeId")],
+        ["ledgerNum", xdr2.lookup("Uint32")],
+        ["commandType", xdr2.lookup("SurveyMessageCommandType")],
+        ["encryptedBody", xdr2.lookup("EncryptedBody")]
       ]);
-      xdr.struct("TimeSlicedSurveyResponseMessage", [
-        ["response", xdr.lookup("SurveyResponseMessage")],
-        ["nonce", xdr.lookup("Uint32")]
+      xdr2.struct("TimeSlicedSurveyResponseMessage", [
+        ["response", xdr2.lookup("SurveyResponseMessage")],
+        ["nonce", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("SignedTimeSlicedSurveyResponseMessage", [
-        ["responseSignature", xdr.lookup("Signature")],
-        ["response", xdr.lookup("TimeSlicedSurveyResponseMessage")]
+      xdr2.struct("SignedTimeSlicedSurveyResponseMessage", [
+        ["responseSignature", xdr2.lookup("Signature")],
+        ["response", xdr2.lookup("TimeSlicedSurveyResponseMessage")]
       ]);
-      xdr.struct("PeerStats", [
-        ["id", xdr.lookup("NodeId")],
-        ["versionStr", xdr.string(100)],
-        ["messagesRead", xdr.lookup("Uint64")],
-        ["messagesWritten", xdr.lookup("Uint64")],
-        ["bytesRead", xdr.lookup("Uint64")],
-        ["bytesWritten", xdr.lookup("Uint64")],
-        ["secondsConnected", xdr.lookup("Uint64")],
-        ["uniqueFloodBytesRecv", xdr.lookup("Uint64")],
-        ["duplicateFloodBytesRecv", xdr.lookup("Uint64")],
-        ["uniqueFetchBytesRecv", xdr.lookup("Uint64")],
-        ["duplicateFetchBytesRecv", xdr.lookup("Uint64")],
-        ["uniqueFloodMessageRecv", xdr.lookup("Uint64")],
-        ["duplicateFloodMessageRecv", xdr.lookup("Uint64")],
-        ["uniqueFetchMessageRecv", xdr.lookup("Uint64")],
-        ["duplicateFetchMessageRecv", xdr.lookup("Uint64")]
+      xdr2.struct("PeerStats", [
+        ["id", xdr2.lookup("NodeId")],
+        ["versionStr", xdr2.string(100)],
+        ["messagesRead", xdr2.lookup("Uint64")],
+        ["messagesWritten", xdr2.lookup("Uint64")],
+        ["bytesRead", xdr2.lookup("Uint64")],
+        ["bytesWritten", xdr2.lookup("Uint64")],
+        ["secondsConnected", xdr2.lookup("Uint64")],
+        ["uniqueFloodBytesRecv", xdr2.lookup("Uint64")],
+        ["duplicateFloodBytesRecv", xdr2.lookup("Uint64")],
+        ["uniqueFetchBytesRecv", xdr2.lookup("Uint64")],
+        ["duplicateFetchBytesRecv", xdr2.lookup("Uint64")],
+        ["uniqueFloodMessageRecv", xdr2.lookup("Uint64")],
+        ["duplicateFloodMessageRecv", xdr2.lookup("Uint64")],
+        ["uniqueFetchMessageRecv", xdr2.lookup("Uint64")],
+        ["duplicateFetchMessageRecv", xdr2.lookup("Uint64")]
       ]);
-      xdr.struct("TimeSlicedNodeData", [
-        ["addedAuthenticatedPeers", xdr.lookup("Uint32")],
-        ["droppedAuthenticatedPeers", xdr.lookup("Uint32")],
-        ["totalInboundPeerCount", xdr.lookup("Uint32")],
-        ["totalOutboundPeerCount", xdr.lookup("Uint32")],
-        ["p75ScpFirstToSelfLatencyMs", xdr.lookup("Uint32")],
-        ["p75ScpSelfToOtherLatencyMs", xdr.lookup("Uint32")],
-        ["lostSyncCount", xdr.lookup("Uint32")],
-        ["isValidator", xdr.bool()],
-        ["maxInboundPeerCount", xdr.lookup("Uint32")],
-        ["maxOutboundPeerCount", xdr.lookup("Uint32")]
+      xdr2.struct("TimeSlicedNodeData", [
+        ["addedAuthenticatedPeers", xdr2.lookup("Uint32")],
+        ["droppedAuthenticatedPeers", xdr2.lookup("Uint32")],
+        ["totalInboundPeerCount", xdr2.lookup("Uint32")],
+        ["totalOutboundPeerCount", xdr2.lookup("Uint32")],
+        ["p75ScpFirstToSelfLatencyMs", xdr2.lookup("Uint32")],
+        ["p75ScpSelfToOtherLatencyMs", xdr2.lookup("Uint32")],
+        ["lostSyncCount", xdr2.lookup("Uint32")],
+        ["isValidator", xdr2.bool()],
+        ["maxInboundPeerCount", xdr2.lookup("Uint32")],
+        ["maxOutboundPeerCount", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("TimeSlicedPeerData", [
-        ["peerStats", xdr.lookup("PeerStats")],
-        ["averageLatencyMs", xdr.lookup("Uint32")]
+      xdr2.struct("TimeSlicedPeerData", [
+        ["peerStats", xdr2.lookup("PeerStats")],
+        ["averageLatencyMs", xdr2.lookup("Uint32")]
       ]);
-      xdr.typedef(
+      xdr2.typedef(
         "TimeSlicedPeerDataList",
-        xdr.varArray(xdr.lookup("TimeSlicedPeerData"), 25)
+        xdr2.varArray(xdr2.lookup("TimeSlicedPeerData"), 25)
       );
-      xdr.struct("TopologyResponseBodyV2", [
-        ["inboundPeers", xdr.lookup("TimeSlicedPeerDataList")],
-        ["outboundPeers", xdr.lookup("TimeSlicedPeerDataList")],
-        ["nodeData", xdr.lookup("TimeSlicedNodeData")]
+      xdr2.struct("TopologyResponseBodyV2", [
+        ["inboundPeers", xdr2.lookup("TimeSlicedPeerDataList")],
+        ["outboundPeers", xdr2.lookup("TimeSlicedPeerDataList")],
+        ["nodeData", xdr2.lookup("TimeSlicedNodeData")]
       ]);
-      xdr.union("SurveyResponseBody", {
-        switchOn: xdr.lookup("SurveyMessageResponseType"),
+      xdr2.union("SurveyResponseBody", {
+        switchOn: xdr2.lookup("SurveyMessageResponseType"),
         switchName: "type",
         switches: [["surveyTopologyResponseV2", "topologyResponseBodyV2"]],
         arms: {
-          topologyResponseBodyV2: xdr.lookup("TopologyResponseBodyV2")
+          topologyResponseBodyV2: xdr2.lookup("TopologyResponseBodyV2")
         }
       });
-      xdr.const("TX_ADVERT_VECTOR_MAX_SIZE", 1e3);
-      xdr.typedef(
+      xdr2.const("TX_ADVERT_VECTOR_MAX_SIZE", 1e3);
+      xdr2.typedef(
         "TxAdvertVector",
-        xdr.varArray(xdr.lookup("Hash"), xdr.lookup("TX_ADVERT_VECTOR_MAX_SIZE"))
+        xdr2.varArray(xdr2.lookup("Hash"), xdr2.lookup("TX_ADVERT_VECTOR_MAX_SIZE"))
       );
-      xdr.struct("FloodAdvert", [["txHashes", xdr.lookup("TxAdvertVector")]]);
-      xdr.const("TX_DEMAND_VECTOR_MAX_SIZE", 1e3);
-      xdr.typedef(
+      xdr2.struct("FloodAdvert", [["txHashes", xdr2.lookup("TxAdvertVector")]]);
+      xdr2.const("TX_DEMAND_VECTOR_MAX_SIZE", 1e3);
+      xdr2.typedef(
         "TxDemandVector",
-        xdr.varArray(xdr.lookup("Hash"), xdr.lookup("TX_DEMAND_VECTOR_MAX_SIZE"))
+        xdr2.varArray(xdr2.lookup("Hash"), xdr2.lookup("TX_DEMAND_VECTOR_MAX_SIZE"))
       );
-      xdr.struct("FloodDemand", [["txHashes", xdr.lookup("TxDemandVector")]]);
-      xdr.union("StellarMessage", {
-        switchOn: xdr.lookup("MessageType"),
+      xdr2.struct("FloodDemand", [["txHashes", xdr2.lookup("TxDemandVector")]]);
+      xdr2.union("StellarMessage", {
+        switchOn: xdr2.lookup("MessageType"),
         switchName: "type",
         switches: [
           ["errorMsg", "error"],
@@ -14670,80 +14670,80 @@ var require_curr_generated = __commonJS({
           ["floodDemand", "floodDemand"]
         ],
         arms: {
-          error: xdr.lookup("Error"),
-          hello: xdr.lookup("Hello"),
-          auth: xdr.lookup("Auth"),
-          dontHave: xdr.lookup("DontHave"),
-          peers: xdr.varArray(xdr.lookup("PeerAddress"), 100),
-          txSetHash: xdr.lookup("Uint256"),
-          txSet: xdr.lookup("TransactionSet"),
-          generalizedTxSet: xdr.lookup("GeneralizedTransactionSet"),
-          transaction: xdr.lookup("TransactionEnvelope"),
-          signedTimeSlicedSurveyRequestMessage: xdr.lookup(
+          error: xdr2.lookup("Error"),
+          hello: xdr2.lookup("Hello"),
+          auth: xdr2.lookup("Auth"),
+          dontHave: xdr2.lookup("DontHave"),
+          peers: xdr2.varArray(xdr2.lookup("PeerAddress"), 100),
+          txSetHash: xdr2.lookup("Uint256"),
+          txSet: xdr2.lookup("TransactionSet"),
+          generalizedTxSet: xdr2.lookup("GeneralizedTransactionSet"),
+          transaction: xdr2.lookup("TransactionEnvelope"),
+          signedTimeSlicedSurveyRequestMessage: xdr2.lookup(
             "SignedTimeSlicedSurveyRequestMessage"
           ),
-          signedTimeSlicedSurveyResponseMessage: xdr.lookup(
+          signedTimeSlicedSurveyResponseMessage: xdr2.lookup(
             "SignedTimeSlicedSurveyResponseMessage"
           ),
-          signedTimeSlicedSurveyStartCollectingMessage: xdr.lookup(
+          signedTimeSlicedSurveyStartCollectingMessage: xdr2.lookup(
             "SignedTimeSlicedSurveyStartCollectingMessage"
           ),
-          signedTimeSlicedSurveyStopCollectingMessage: xdr.lookup(
+          signedTimeSlicedSurveyStopCollectingMessage: xdr2.lookup(
             "SignedTimeSlicedSurveyStopCollectingMessage"
           ),
-          qSetHash: xdr.lookup("Uint256"),
-          qSet: xdr.lookup("ScpQuorumSet"),
-          envelope: xdr.lookup("ScpEnvelope"),
-          getScpLedgerSeq: xdr.lookup("Uint32"),
-          sendMoreMessage: xdr.lookup("SendMore"),
-          sendMoreExtendedMessage: xdr.lookup("SendMoreExtended"),
-          floodAdvert: xdr.lookup("FloodAdvert"),
-          floodDemand: xdr.lookup("FloodDemand")
+          qSetHash: xdr2.lookup("Uint256"),
+          qSet: xdr2.lookup("ScpQuorumSet"),
+          envelope: xdr2.lookup("ScpEnvelope"),
+          getScpLedgerSeq: xdr2.lookup("Uint32"),
+          sendMoreMessage: xdr2.lookup("SendMore"),
+          sendMoreExtendedMessage: xdr2.lookup("SendMoreExtended"),
+          floodAdvert: xdr2.lookup("FloodAdvert"),
+          floodDemand: xdr2.lookup("FloodDemand")
         }
       });
-      xdr.struct("AuthenticatedMessageV0", [
-        ["sequence", xdr.lookup("Uint64")],
-        ["message", xdr.lookup("StellarMessage")],
-        ["mac", xdr.lookup("HmacSha256Mac")]
+      xdr2.struct("AuthenticatedMessageV0", [
+        ["sequence", xdr2.lookup("Uint64")],
+        ["message", xdr2.lookup("StellarMessage")],
+        ["mac", xdr2.lookup("HmacSha256Mac")]
       ]);
-      xdr.union("AuthenticatedMessage", {
-        switchOn: xdr.lookup("Uint32"),
+      xdr2.union("AuthenticatedMessage", {
+        switchOn: xdr2.lookup("Uint32"),
         switchName: "v",
         switches: [[0, "v0"]],
         arms: {
-          v0: xdr.lookup("AuthenticatedMessageV0")
+          v0: xdr2.lookup("AuthenticatedMessageV0")
         }
       });
-      xdr.const("MAX_OPS_PER_TX", 100);
-      xdr.union("LiquidityPoolParameters", {
-        switchOn: xdr.lookup("LiquidityPoolType"),
+      xdr2.const("MAX_OPS_PER_TX", 100);
+      xdr2.union("LiquidityPoolParameters", {
+        switchOn: xdr2.lookup("LiquidityPoolType"),
         switchName: "type",
         switches: [["liquidityPoolConstantProduct", "constantProduct"]],
         arms: {
-          constantProduct: xdr.lookup("LiquidityPoolConstantProductParameters")
+          constantProduct: xdr2.lookup("LiquidityPoolConstantProductParameters")
         }
       });
-      xdr.struct("MuxedAccountMed25519", [
-        ["id", xdr.lookup("Uint64")],
-        ["ed25519", xdr.lookup("Uint256")]
+      xdr2.struct("MuxedAccountMed25519", [
+        ["id", xdr2.lookup("Uint64")],
+        ["ed25519", xdr2.lookup("Uint256")]
       ]);
-      xdr.union("MuxedAccount", {
-        switchOn: xdr.lookup("CryptoKeyType"),
+      xdr2.union("MuxedAccount", {
+        switchOn: xdr2.lookup("CryptoKeyType"),
         switchName: "type",
         switches: [
           ["keyTypeEd25519", "ed25519"],
           ["keyTypeMuxedEd25519", "med25519"]
         ],
         arms: {
-          ed25519: xdr.lookup("Uint256"),
-          med25519: xdr.lookup("MuxedAccountMed25519")
+          ed25519: xdr2.lookup("Uint256"),
+          med25519: xdr2.lookup("MuxedAccountMed25519")
         }
       });
-      xdr.struct("DecoratedSignature", [
-        ["hint", xdr.lookup("SignatureHint")],
-        ["signature", xdr.lookup("Signature")]
+      xdr2.struct("DecoratedSignature", [
+        ["hint", xdr2.lookup("SignatureHint")],
+        ["signature", xdr2.lookup("Signature")]
       ]);
-      xdr.enum("OperationType", {
+      xdr2.enum("OperationType", {
         createAccount: 0,
         payment: 1,
         pathPaymentStrictReceive: 2,
@@ -14772,192 +14772,192 @@ var require_curr_generated = __commonJS({
         extendFootprintTtl: 25,
         restoreFootprint: 26
       });
-      xdr.struct("CreateAccountOp", [
-        ["destination", xdr.lookup("AccountId")],
-        ["startingBalance", xdr.lookup("Int64")]
+      xdr2.struct("CreateAccountOp", [
+        ["destination", xdr2.lookup("AccountId")],
+        ["startingBalance", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("PaymentOp", [
-        ["destination", xdr.lookup("MuxedAccount")],
-        ["asset", xdr.lookup("Asset")],
-        ["amount", xdr.lookup("Int64")]
+      xdr2.struct("PaymentOp", [
+        ["destination", xdr2.lookup("MuxedAccount")],
+        ["asset", xdr2.lookup("Asset")],
+        ["amount", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("PathPaymentStrictReceiveOp", [
-        ["sendAsset", xdr.lookup("Asset")],
-        ["sendMax", xdr.lookup("Int64")],
-        ["destination", xdr.lookup("MuxedAccount")],
-        ["destAsset", xdr.lookup("Asset")],
-        ["destAmount", xdr.lookup("Int64")],
-        ["path", xdr.varArray(xdr.lookup("Asset"), 5)]
+      xdr2.struct("PathPaymentStrictReceiveOp", [
+        ["sendAsset", xdr2.lookup("Asset")],
+        ["sendMax", xdr2.lookup("Int64")],
+        ["destination", xdr2.lookup("MuxedAccount")],
+        ["destAsset", xdr2.lookup("Asset")],
+        ["destAmount", xdr2.lookup("Int64")],
+        ["path", xdr2.varArray(xdr2.lookup("Asset"), 5)]
       ]);
-      xdr.struct("PathPaymentStrictSendOp", [
-        ["sendAsset", xdr.lookup("Asset")],
-        ["sendAmount", xdr.lookup("Int64")],
-        ["destination", xdr.lookup("MuxedAccount")],
-        ["destAsset", xdr.lookup("Asset")],
-        ["destMin", xdr.lookup("Int64")],
-        ["path", xdr.varArray(xdr.lookup("Asset"), 5)]
+      xdr2.struct("PathPaymentStrictSendOp", [
+        ["sendAsset", xdr2.lookup("Asset")],
+        ["sendAmount", xdr2.lookup("Int64")],
+        ["destination", xdr2.lookup("MuxedAccount")],
+        ["destAsset", xdr2.lookup("Asset")],
+        ["destMin", xdr2.lookup("Int64")],
+        ["path", xdr2.varArray(xdr2.lookup("Asset"), 5)]
       ]);
-      xdr.struct("ManageSellOfferOp", [
-        ["selling", xdr.lookup("Asset")],
-        ["buying", xdr.lookup("Asset")],
-        ["amount", xdr.lookup("Int64")],
-        ["price", xdr.lookup("Price")],
-        ["offerId", xdr.lookup("Int64")]
+      xdr2.struct("ManageSellOfferOp", [
+        ["selling", xdr2.lookup("Asset")],
+        ["buying", xdr2.lookup("Asset")],
+        ["amount", xdr2.lookup("Int64")],
+        ["price", xdr2.lookup("Price")],
+        ["offerId", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("ManageBuyOfferOp", [
-        ["selling", xdr.lookup("Asset")],
-        ["buying", xdr.lookup("Asset")],
-        ["buyAmount", xdr.lookup("Int64")],
-        ["price", xdr.lookup("Price")],
-        ["offerId", xdr.lookup("Int64")]
+      xdr2.struct("ManageBuyOfferOp", [
+        ["selling", xdr2.lookup("Asset")],
+        ["buying", xdr2.lookup("Asset")],
+        ["buyAmount", xdr2.lookup("Int64")],
+        ["price", xdr2.lookup("Price")],
+        ["offerId", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("CreatePassiveSellOfferOp", [
-        ["selling", xdr.lookup("Asset")],
-        ["buying", xdr.lookup("Asset")],
-        ["amount", xdr.lookup("Int64")],
-        ["price", xdr.lookup("Price")]
+      xdr2.struct("CreatePassiveSellOfferOp", [
+        ["selling", xdr2.lookup("Asset")],
+        ["buying", xdr2.lookup("Asset")],
+        ["amount", xdr2.lookup("Int64")],
+        ["price", xdr2.lookup("Price")]
       ]);
-      xdr.struct("SetOptionsOp", [
-        ["inflationDest", xdr.option(xdr.lookup("AccountId"))],
-        ["clearFlags", xdr.option(xdr.lookup("Uint32"))],
-        ["setFlags", xdr.option(xdr.lookup("Uint32"))],
-        ["masterWeight", xdr.option(xdr.lookup("Uint32"))],
-        ["lowThreshold", xdr.option(xdr.lookup("Uint32"))],
-        ["medThreshold", xdr.option(xdr.lookup("Uint32"))],
-        ["highThreshold", xdr.option(xdr.lookup("Uint32"))],
-        ["homeDomain", xdr.option(xdr.lookup("String32"))],
-        ["signer", xdr.option(xdr.lookup("Signer"))]
+      xdr2.struct("SetOptionsOp", [
+        ["inflationDest", xdr2.option(xdr2.lookup("AccountId"))],
+        ["clearFlags", xdr2.option(xdr2.lookup("Uint32"))],
+        ["setFlags", xdr2.option(xdr2.lookup("Uint32"))],
+        ["masterWeight", xdr2.option(xdr2.lookup("Uint32"))],
+        ["lowThreshold", xdr2.option(xdr2.lookup("Uint32"))],
+        ["medThreshold", xdr2.option(xdr2.lookup("Uint32"))],
+        ["highThreshold", xdr2.option(xdr2.lookup("Uint32"))],
+        ["homeDomain", xdr2.option(xdr2.lookup("String32"))],
+        ["signer", xdr2.option(xdr2.lookup("Signer"))]
       ]);
-      xdr.union("ChangeTrustAsset", {
-        switchOn: xdr.lookup("AssetType"),
+      xdr2.union("ChangeTrustAsset", {
+        switchOn: xdr2.lookup("AssetType"),
         switchName: "type",
         switches: [
-          ["assetTypeNative", xdr.void()],
+          ["assetTypeNative", xdr2.void()],
           ["assetTypeCreditAlphanum4", "alphaNum4"],
           ["assetTypeCreditAlphanum12", "alphaNum12"],
           ["assetTypePoolShare", "liquidityPool"]
         ],
         arms: {
-          alphaNum4: xdr.lookup("AlphaNum4"),
-          alphaNum12: xdr.lookup("AlphaNum12"),
-          liquidityPool: xdr.lookup("LiquidityPoolParameters")
+          alphaNum4: xdr2.lookup("AlphaNum4"),
+          alphaNum12: xdr2.lookup("AlphaNum12"),
+          liquidityPool: xdr2.lookup("LiquidityPoolParameters")
         }
       });
-      xdr.struct("ChangeTrustOp", [
-        ["line", xdr.lookup("ChangeTrustAsset")],
-        ["limit", xdr.lookup("Int64")]
+      xdr2.struct("ChangeTrustOp", [
+        ["line", xdr2.lookup("ChangeTrustAsset")],
+        ["limit", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("AllowTrustOp", [
-        ["trustor", xdr.lookup("AccountId")],
-        ["asset", xdr.lookup("AssetCode")],
-        ["authorize", xdr.lookup("Uint32")]
+      xdr2.struct("AllowTrustOp", [
+        ["trustor", xdr2.lookup("AccountId")],
+        ["asset", xdr2.lookup("AssetCode")],
+        ["authorize", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("ManageDataOp", [
-        ["dataName", xdr.lookup("String64")],
-        ["dataValue", xdr.option(xdr.lookup("DataValue"))]
+      xdr2.struct("ManageDataOp", [
+        ["dataName", xdr2.lookup("String64")],
+        ["dataValue", xdr2.option(xdr2.lookup("DataValue"))]
       ]);
-      xdr.struct("BumpSequenceOp", [["bumpTo", xdr.lookup("SequenceNumber")]]);
-      xdr.struct("CreateClaimableBalanceOp", [
-        ["asset", xdr.lookup("Asset")],
-        ["amount", xdr.lookup("Int64")],
-        ["claimants", xdr.varArray(xdr.lookup("Claimant"), 10)]
+      xdr2.struct("BumpSequenceOp", [["bumpTo", xdr2.lookup("SequenceNumber")]]);
+      xdr2.struct("CreateClaimableBalanceOp", [
+        ["asset", xdr2.lookup("Asset")],
+        ["amount", xdr2.lookup("Int64")],
+        ["claimants", xdr2.varArray(xdr2.lookup("Claimant"), 10)]
       ]);
-      xdr.struct("ClaimClaimableBalanceOp", [
-        ["balanceId", xdr.lookup("ClaimableBalanceId")]
+      xdr2.struct("ClaimClaimableBalanceOp", [
+        ["balanceId", xdr2.lookup("ClaimableBalanceId")]
       ]);
-      xdr.struct("BeginSponsoringFutureReservesOp", [
-        ["sponsoredId", xdr.lookup("AccountId")]
+      xdr2.struct("BeginSponsoringFutureReservesOp", [
+        ["sponsoredId", xdr2.lookup("AccountId")]
       ]);
-      xdr.enum("RevokeSponsorshipType", {
+      xdr2.enum("RevokeSponsorshipType", {
         revokeSponsorshipLedgerEntry: 0,
         revokeSponsorshipSigner: 1
       });
-      xdr.struct("RevokeSponsorshipOpSigner", [
-        ["accountId", xdr.lookup("AccountId")],
-        ["signerKey", xdr.lookup("SignerKey")]
+      xdr2.struct("RevokeSponsorshipOpSigner", [
+        ["accountId", xdr2.lookup("AccountId")],
+        ["signerKey", xdr2.lookup("SignerKey")]
       ]);
-      xdr.union("RevokeSponsorshipOp", {
-        switchOn: xdr.lookup("RevokeSponsorshipType"),
+      xdr2.union("RevokeSponsorshipOp", {
+        switchOn: xdr2.lookup("RevokeSponsorshipType"),
         switchName: "type",
         switches: [
           ["revokeSponsorshipLedgerEntry", "ledgerKey"],
           ["revokeSponsorshipSigner", "signer"]
         ],
         arms: {
-          ledgerKey: xdr.lookup("LedgerKey"),
-          signer: xdr.lookup("RevokeSponsorshipOpSigner")
+          ledgerKey: xdr2.lookup("LedgerKey"),
+          signer: xdr2.lookup("RevokeSponsorshipOpSigner")
         }
       });
-      xdr.struct("ClawbackOp", [
-        ["asset", xdr.lookup("Asset")],
-        ["from", xdr.lookup("MuxedAccount")],
-        ["amount", xdr.lookup("Int64")]
+      xdr2.struct("ClawbackOp", [
+        ["asset", xdr2.lookup("Asset")],
+        ["from", xdr2.lookup("MuxedAccount")],
+        ["amount", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("ClawbackClaimableBalanceOp", [
-        ["balanceId", xdr.lookup("ClaimableBalanceId")]
+      xdr2.struct("ClawbackClaimableBalanceOp", [
+        ["balanceId", xdr2.lookup("ClaimableBalanceId")]
       ]);
-      xdr.struct("SetTrustLineFlagsOp", [
-        ["trustor", xdr.lookup("AccountId")],
-        ["asset", xdr.lookup("Asset")],
-        ["clearFlags", xdr.lookup("Uint32")],
-        ["setFlags", xdr.lookup("Uint32")]
+      xdr2.struct("SetTrustLineFlagsOp", [
+        ["trustor", xdr2.lookup("AccountId")],
+        ["asset", xdr2.lookup("Asset")],
+        ["clearFlags", xdr2.lookup("Uint32")],
+        ["setFlags", xdr2.lookup("Uint32")]
       ]);
-      xdr.const("LIQUIDITY_POOL_FEE_V18", 30);
-      xdr.struct("LiquidityPoolDepositOp", [
-        ["liquidityPoolId", xdr.lookup("PoolId")],
-        ["maxAmountA", xdr.lookup("Int64")],
-        ["maxAmountB", xdr.lookup("Int64")],
-        ["minPrice", xdr.lookup("Price")],
-        ["maxPrice", xdr.lookup("Price")]
+      xdr2.const("LIQUIDITY_POOL_FEE_V18", 30);
+      xdr2.struct("LiquidityPoolDepositOp", [
+        ["liquidityPoolId", xdr2.lookup("PoolId")],
+        ["maxAmountA", xdr2.lookup("Int64")],
+        ["maxAmountB", xdr2.lookup("Int64")],
+        ["minPrice", xdr2.lookup("Price")],
+        ["maxPrice", xdr2.lookup("Price")]
       ]);
-      xdr.struct("LiquidityPoolWithdrawOp", [
-        ["liquidityPoolId", xdr.lookup("PoolId")],
-        ["amount", xdr.lookup("Int64")],
-        ["minAmountA", xdr.lookup("Int64")],
-        ["minAmountB", xdr.lookup("Int64")]
+      xdr2.struct("LiquidityPoolWithdrawOp", [
+        ["liquidityPoolId", xdr2.lookup("PoolId")],
+        ["amount", xdr2.lookup("Int64")],
+        ["minAmountA", xdr2.lookup("Int64")],
+        ["minAmountB", xdr2.lookup("Int64")]
       ]);
-      xdr.enum("HostFunctionType", {
+      xdr2.enum("HostFunctionType", {
         hostFunctionTypeInvokeContract: 0,
         hostFunctionTypeCreateContract: 1,
         hostFunctionTypeUploadContractWasm: 2,
         hostFunctionTypeCreateContractV2: 3
       });
-      xdr.enum("ContractIdPreimageType", {
+      xdr2.enum("ContractIdPreimageType", {
         contractIdPreimageFromAddress: 0,
         contractIdPreimageFromAsset: 1
       });
-      xdr.struct("ContractIdPreimageFromAddress", [
-        ["address", xdr.lookup("ScAddress")],
-        ["salt", xdr.lookup("Uint256")]
+      xdr2.struct("ContractIdPreimageFromAddress", [
+        ["address", xdr2.lookup("ScAddress")],
+        ["salt", xdr2.lookup("Uint256")]
       ]);
-      xdr.union("ContractIdPreimage", {
-        switchOn: xdr.lookup("ContractIdPreimageType"),
+      xdr2.union("ContractIdPreimage", {
+        switchOn: xdr2.lookup("ContractIdPreimageType"),
         switchName: "type",
         switches: [
           ["contractIdPreimageFromAddress", "fromAddress"],
           ["contractIdPreimageFromAsset", "fromAsset"]
         ],
         arms: {
-          fromAddress: xdr.lookup("ContractIdPreimageFromAddress"),
-          fromAsset: xdr.lookup("Asset")
+          fromAddress: xdr2.lookup("ContractIdPreimageFromAddress"),
+          fromAsset: xdr2.lookup("Asset")
         }
       });
-      xdr.struct("CreateContractArgs", [
-        ["contractIdPreimage", xdr.lookup("ContractIdPreimage")],
-        ["executable", xdr.lookup("ContractExecutable")]
+      xdr2.struct("CreateContractArgs", [
+        ["contractIdPreimage", xdr2.lookup("ContractIdPreimage")],
+        ["executable", xdr2.lookup("ContractExecutable")]
       ]);
-      xdr.struct("CreateContractArgsV2", [
-        ["contractIdPreimage", xdr.lookup("ContractIdPreimage")],
-        ["executable", xdr.lookup("ContractExecutable")],
-        ["constructorArgs", xdr.varArray(xdr.lookup("ScVal"), 2147483647)]
+      xdr2.struct("CreateContractArgsV2", [
+        ["contractIdPreimage", xdr2.lookup("ContractIdPreimage")],
+        ["executable", xdr2.lookup("ContractExecutable")],
+        ["constructorArgs", xdr2.varArray(xdr2.lookup("ScVal"), 2147483647)]
       ]);
-      xdr.struct("InvokeContractArgs", [
-        ["contractAddress", xdr.lookup("ScAddress")],
-        ["functionName", xdr.lookup("ScSymbol")],
-        ["args", xdr.varArray(xdr.lookup("ScVal"), 2147483647)]
+      xdr2.struct("InvokeContractArgs", [
+        ["contractAddress", xdr2.lookup("ScAddress")],
+        ["functionName", xdr2.lookup("ScSymbol")],
+        ["args", xdr2.varArray(xdr2.lookup("ScVal"), 2147483647)]
       ]);
-      xdr.union("HostFunction", {
-        switchOn: xdr.lookup("HostFunctionType"),
+      xdr2.union("HostFunction", {
+        switchOn: xdr2.lookup("HostFunctionType"),
         switchName: "type",
         switches: [
           ["hostFunctionTypeInvokeContract", "invokeContract"],
@@ -14966,19 +14966,19 @@ var require_curr_generated = __commonJS({
           ["hostFunctionTypeCreateContractV2", "createContractV2"]
         ],
         arms: {
-          invokeContract: xdr.lookup("InvokeContractArgs"),
-          createContract: xdr.lookup("CreateContractArgs"),
-          wasm: xdr.varOpaque(),
-          createContractV2: xdr.lookup("CreateContractArgsV2")
+          invokeContract: xdr2.lookup("InvokeContractArgs"),
+          createContract: xdr2.lookup("CreateContractArgs"),
+          wasm: xdr2.varOpaque(),
+          createContractV2: xdr2.lookup("CreateContractArgsV2")
         }
       });
-      xdr.enum("SorobanAuthorizedFunctionType", {
+      xdr2.enum("SorobanAuthorizedFunctionType", {
         sorobanAuthorizedFunctionTypeContractFn: 0,
         sorobanAuthorizedFunctionTypeCreateContractHostFn: 1,
         sorobanAuthorizedFunctionTypeCreateContractV2HostFn: 2
       });
-      xdr.union("SorobanAuthorizedFunction", {
-        switchOn: xdr.lookup("SorobanAuthorizedFunctionType"),
+      xdr2.union("SorobanAuthorizedFunction", {
+        switchOn: xdr2.lookup("SorobanAuthorizedFunctionType"),
         switchName: "type",
         switches: [
           ["sorobanAuthorizedFunctionTypeContractFn", "contractFn"],
@@ -14992,81 +14992,81 @@ var require_curr_generated = __commonJS({
           ]
         ],
         arms: {
-          contractFn: xdr.lookup("InvokeContractArgs"),
-          createContractHostFn: xdr.lookup("CreateContractArgs"),
-          createContractV2HostFn: xdr.lookup("CreateContractArgsV2")
+          contractFn: xdr2.lookup("InvokeContractArgs"),
+          createContractHostFn: xdr2.lookup("CreateContractArgs"),
+          createContractV2HostFn: xdr2.lookup("CreateContractArgsV2")
         }
       });
-      xdr.struct("SorobanAuthorizedInvocation", [
-        ["function", xdr.lookup("SorobanAuthorizedFunction")],
+      xdr2.struct("SorobanAuthorizedInvocation", [
+        ["function", xdr2.lookup("SorobanAuthorizedFunction")],
         [
           "subInvocations",
-          xdr.varArray(xdr.lookup("SorobanAuthorizedInvocation"), 2147483647)
+          xdr2.varArray(xdr2.lookup("SorobanAuthorizedInvocation"), 2147483647)
         ]
       ]);
-      xdr.struct("SorobanAddressCredentials", [
-        ["address", xdr.lookup("ScAddress")],
-        ["nonce", xdr.lookup("Int64")],
-        ["signatureExpirationLedger", xdr.lookup("Uint32")],
-        ["signature", xdr.lookup("ScVal")]
+      xdr2.struct("SorobanAddressCredentials", [
+        ["address", xdr2.lookup("ScAddress")],
+        ["nonce", xdr2.lookup("Int64")],
+        ["signatureExpirationLedger", xdr2.lookup("Uint32")],
+        ["signature", xdr2.lookup("ScVal")]
       ]);
-      xdr.struct("SorobanDelegateSignature", [
-        ["address", xdr.lookup("ScAddress")],
-        ["signature", xdr.lookup("ScVal")],
+      xdr2.struct("SorobanDelegateSignature", [
+        ["address", xdr2.lookup("ScAddress")],
+        ["signature", xdr2.lookup("ScVal")],
         [
           "nestedDelegates",
-          xdr.varArray(xdr.lookup("SorobanDelegateSignature"), 2147483647)
+          xdr2.varArray(xdr2.lookup("SorobanDelegateSignature"), 2147483647)
         ]
       ]);
-      xdr.struct("SorobanAddressCredentialsWithDelegates", [
-        ["addressCredentials", xdr.lookup("SorobanAddressCredentials")],
+      xdr2.struct("SorobanAddressCredentialsWithDelegates", [
+        ["addressCredentials", xdr2.lookup("SorobanAddressCredentials")],
         [
           "delegates",
-          xdr.varArray(xdr.lookup("SorobanDelegateSignature"), 2147483647)
+          xdr2.varArray(xdr2.lookup("SorobanDelegateSignature"), 2147483647)
         ]
       ]);
-      xdr.enum("SorobanCredentialsType", {
+      xdr2.enum("SorobanCredentialsType", {
         sorobanCredentialsSourceAccount: 0,
         sorobanCredentialsAddress: 1,
         sorobanCredentialsAddressV2: 2,
         sorobanCredentialsAddressWithDelegates: 3
       });
-      xdr.union("SorobanCredentials", {
-        switchOn: xdr.lookup("SorobanCredentialsType"),
+      xdr2.union("SorobanCredentials", {
+        switchOn: xdr2.lookup("SorobanCredentialsType"),
         switchName: "type",
         switches: [
-          ["sorobanCredentialsSourceAccount", xdr.void()],
+          ["sorobanCredentialsSourceAccount", xdr2.void()],
           ["sorobanCredentialsAddress", "address"],
           ["sorobanCredentialsAddressV2", "addressV2"],
           ["sorobanCredentialsAddressWithDelegates", "addressWithDelegates"]
         ],
         arms: {
-          address: xdr.lookup("SorobanAddressCredentials"),
-          addressV2: xdr.lookup("SorobanAddressCredentials"),
-          addressWithDelegates: xdr.lookup(
+          address: xdr2.lookup("SorobanAddressCredentials"),
+          addressV2: xdr2.lookup("SorobanAddressCredentials"),
+          addressWithDelegates: xdr2.lookup(
             "SorobanAddressCredentialsWithDelegates"
           )
         }
       });
-      xdr.struct("SorobanAuthorizationEntry", [
-        ["credentials", xdr.lookup("SorobanCredentials")],
-        ["rootInvocation", xdr.lookup("SorobanAuthorizedInvocation")]
+      xdr2.struct("SorobanAuthorizationEntry", [
+        ["credentials", xdr2.lookup("SorobanCredentials")],
+        ["rootInvocation", xdr2.lookup("SorobanAuthorizedInvocation")]
       ]);
-      xdr.typedef(
+      xdr2.typedef(
         "SorobanAuthorizationEntries",
-        xdr.varArray(xdr.lookup("SorobanAuthorizationEntry"), 2147483647)
+        xdr2.varArray(xdr2.lookup("SorobanAuthorizationEntry"), 2147483647)
       );
-      xdr.struct("InvokeHostFunctionOp", [
-        ["hostFunction", xdr.lookup("HostFunction")],
-        ["auth", xdr.varArray(xdr.lookup("SorobanAuthorizationEntry"), 2147483647)]
+      xdr2.struct("InvokeHostFunctionOp", [
+        ["hostFunction", xdr2.lookup("HostFunction")],
+        ["auth", xdr2.varArray(xdr2.lookup("SorobanAuthorizationEntry"), 2147483647)]
       ]);
-      xdr.struct("ExtendFootprintTtlOp", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["extendTo", xdr.lookup("Uint32")]
+      xdr2.struct("ExtendFootprintTtlOp", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["extendTo", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("RestoreFootprintOp", [["ext", xdr.lookup("ExtensionPoint")]]);
-      xdr.union("OperationBody", {
-        switchOn: xdr.lookup("OperationType"),
+      xdr2.struct("RestoreFootprintOp", [["ext", xdr2.lookup("ExtensionPoint")]]);
+      xdr2.union("OperationBody", {
+        switchOn: xdr2.lookup("OperationType"),
         switchName: "type",
         switches: [
           ["createAccount", "createAccountOp"],
@@ -15078,7 +15078,7 @@ var require_curr_generated = __commonJS({
           ["changeTrust", "changeTrustOp"],
           ["allowTrust", "allowTrustOp"],
           ["accountMerge", "destination"],
-          ["inflation", xdr.void()],
+          ["inflation", xdr2.void()],
           ["manageData", "manageDataOp"],
           ["bumpSequence", "bumpSequenceOp"],
           ["manageBuyOffer", "manageBuyOfferOp"],
@@ -15086,7 +15086,7 @@ var require_curr_generated = __commonJS({
           ["createClaimableBalance", "createClaimableBalanceOp"],
           ["claimClaimableBalance", "claimClaimableBalanceOp"],
           ["beginSponsoringFutureReserves", "beginSponsoringFutureReservesOp"],
-          ["endSponsoringFutureReserves", xdr.void()],
+          ["endSponsoringFutureReserves", xdr2.void()],
           ["revokeSponsorship", "revokeSponsorshipOp"],
           ["clawback", "clawbackOp"],
           ["clawbackClaimableBalance", "clawbackClaimableBalanceOp"],
@@ -15098,70 +15098,70 @@ var require_curr_generated = __commonJS({
           ["restoreFootprint", "restoreFootprintOp"]
         ],
         arms: {
-          createAccountOp: xdr.lookup("CreateAccountOp"),
-          paymentOp: xdr.lookup("PaymentOp"),
-          pathPaymentStrictReceiveOp: xdr.lookup("PathPaymentStrictReceiveOp"),
-          manageSellOfferOp: xdr.lookup("ManageSellOfferOp"),
-          createPassiveSellOfferOp: xdr.lookup("CreatePassiveSellOfferOp"),
-          setOptionsOp: xdr.lookup("SetOptionsOp"),
-          changeTrustOp: xdr.lookup("ChangeTrustOp"),
-          allowTrustOp: xdr.lookup("AllowTrustOp"),
-          destination: xdr.lookup("MuxedAccount"),
-          manageDataOp: xdr.lookup("ManageDataOp"),
-          bumpSequenceOp: xdr.lookup("BumpSequenceOp"),
-          manageBuyOfferOp: xdr.lookup("ManageBuyOfferOp"),
-          pathPaymentStrictSendOp: xdr.lookup("PathPaymentStrictSendOp"),
-          createClaimableBalanceOp: xdr.lookup("CreateClaimableBalanceOp"),
-          claimClaimableBalanceOp: xdr.lookup("ClaimClaimableBalanceOp"),
-          beginSponsoringFutureReservesOp: xdr.lookup(
+          createAccountOp: xdr2.lookup("CreateAccountOp"),
+          paymentOp: xdr2.lookup("PaymentOp"),
+          pathPaymentStrictReceiveOp: xdr2.lookup("PathPaymentStrictReceiveOp"),
+          manageSellOfferOp: xdr2.lookup("ManageSellOfferOp"),
+          createPassiveSellOfferOp: xdr2.lookup("CreatePassiveSellOfferOp"),
+          setOptionsOp: xdr2.lookup("SetOptionsOp"),
+          changeTrustOp: xdr2.lookup("ChangeTrustOp"),
+          allowTrustOp: xdr2.lookup("AllowTrustOp"),
+          destination: xdr2.lookup("MuxedAccount"),
+          manageDataOp: xdr2.lookup("ManageDataOp"),
+          bumpSequenceOp: xdr2.lookup("BumpSequenceOp"),
+          manageBuyOfferOp: xdr2.lookup("ManageBuyOfferOp"),
+          pathPaymentStrictSendOp: xdr2.lookup("PathPaymentStrictSendOp"),
+          createClaimableBalanceOp: xdr2.lookup("CreateClaimableBalanceOp"),
+          claimClaimableBalanceOp: xdr2.lookup("ClaimClaimableBalanceOp"),
+          beginSponsoringFutureReservesOp: xdr2.lookup(
             "BeginSponsoringFutureReservesOp"
           ),
-          revokeSponsorshipOp: xdr.lookup("RevokeSponsorshipOp"),
-          clawbackOp: xdr.lookup("ClawbackOp"),
-          clawbackClaimableBalanceOp: xdr.lookup("ClawbackClaimableBalanceOp"),
-          setTrustLineFlagsOp: xdr.lookup("SetTrustLineFlagsOp"),
-          liquidityPoolDepositOp: xdr.lookup("LiquidityPoolDepositOp"),
-          liquidityPoolWithdrawOp: xdr.lookup("LiquidityPoolWithdrawOp"),
-          invokeHostFunctionOp: xdr.lookup("InvokeHostFunctionOp"),
-          extendFootprintTtlOp: xdr.lookup("ExtendFootprintTtlOp"),
-          restoreFootprintOp: xdr.lookup("RestoreFootprintOp")
+          revokeSponsorshipOp: xdr2.lookup("RevokeSponsorshipOp"),
+          clawbackOp: xdr2.lookup("ClawbackOp"),
+          clawbackClaimableBalanceOp: xdr2.lookup("ClawbackClaimableBalanceOp"),
+          setTrustLineFlagsOp: xdr2.lookup("SetTrustLineFlagsOp"),
+          liquidityPoolDepositOp: xdr2.lookup("LiquidityPoolDepositOp"),
+          liquidityPoolWithdrawOp: xdr2.lookup("LiquidityPoolWithdrawOp"),
+          invokeHostFunctionOp: xdr2.lookup("InvokeHostFunctionOp"),
+          extendFootprintTtlOp: xdr2.lookup("ExtendFootprintTtlOp"),
+          restoreFootprintOp: xdr2.lookup("RestoreFootprintOp")
         }
       });
-      xdr.struct("Operation", [
-        ["sourceAccount", xdr.option(xdr.lookup("MuxedAccount"))],
-        ["body", xdr.lookup("OperationBody")]
+      xdr2.struct("Operation", [
+        ["sourceAccount", xdr2.option(xdr2.lookup("MuxedAccount"))],
+        ["body", xdr2.lookup("OperationBody")]
       ]);
-      xdr.struct("HashIdPreimageOperationId", [
-        ["sourceAccount", xdr.lookup("AccountId")],
-        ["seqNum", xdr.lookup("SequenceNumber")],
-        ["opNum", xdr.lookup("Uint32")]
+      xdr2.struct("HashIdPreimageOperationId", [
+        ["sourceAccount", xdr2.lookup("AccountId")],
+        ["seqNum", xdr2.lookup("SequenceNumber")],
+        ["opNum", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("HashIdPreimageRevokeId", [
-        ["sourceAccount", xdr.lookup("AccountId")],
-        ["seqNum", xdr.lookup("SequenceNumber")],
-        ["opNum", xdr.lookup("Uint32")],
-        ["liquidityPoolId", xdr.lookup("PoolId")],
-        ["asset", xdr.lookup("Asset")]
+      xdr2.struct("HashIdPreimageRevokeId", [
+        ["sourceAccount", xdr2.lookup("AccountId")],
+        ["seqNum", xdr2.lookup("SequenceNumber")],
+        ["opNum", xdr2.lookup("Uint32")],
+        ["liquidityPoolId", xdr2.lookup("PoolId")],
+        ["asset", xdr2.lookup("Asset")]
       ]);
-      xdr.struct("HashIdPreimageContractId", [
-        ["networkId", xdr.lookup("Hash")],
-        ["contractIdPreimage", xdr.lookup("ContractIdPreimage")]
+      xdr2.struct("HashIdPreimageContractId", [
+        ["networkId", xdr2.lookup("Hash")],
+        ["contractIdPreimage", xdr2.lookup("ContractIdPreimage")]
       ]);
-      xdr.struct("HashIdPreimageSorobanAuthorization", [
-        ["networkId", xdr.lookup("Hash")],
-        ["nonce", xdr.lookup("Int64")],
-        ["signatureExpirationLedger", xdr.lookup("Uint32")],
-        ["invocation", xdr.lookup("SorobanAuthorizedInvocation")]
+      xdr2.struct("HashIdPreimageSorobanAuthorization", [
+        ["networkId", xdr2.lookup("Hash")],
+        ["nonce", xdr2.lookup("Int64")],
+        ["signatureExpirationLedger", xdr2.lookup("Uint32")],
+        ["invocation", xdr2.lookup("SorobanAuthorizedInvocation")]
       ]);
-      xdr.struct("HashIdPreimageSorobanAuthorizationWithAddress", [
-        ["networkId", xdr.lookup("Hash")],
-        ["nonce", xdr.lookup("Int64")],
-        ["signatureExpirationLedger", xdr.lookup("Uint32")],
-        ["address", xdr.lookup("ScAddress")],
-        ["invocation", xdr.lookup("SorobanAuthorizedInvocation")]
+      xdr2.struct("HashIdPreimageSorobanAuthorizationWithAddress", [
+        ["networkId", xdr2.lookup("Hash")],
+        ["nonce", xdr2.lookup("Int64")],
+        ["signatureExpirationLedger", xdr2.lookup("Uint32")],
+        ["address", xdr2.lookup("ScAddress")],
+        ["invocation", xdr2.lookup("SorobanAuthorizedInvocation")]
       ]);
-      xdr.union("HashIdPreimage", {
-        switchOn: xdr.lookup("EnvelopeType"),
+      xdr2.union("HashIdPreimage", {
+        switchOn: xdr2.lookup("EnvelopeType"),
         switchName: "type",
         switches: [
           ["envelopeTypeOpId", "operationId"],
@@ -15174,177 +15174,177 @@ var require_curr_generated = __commonJS({
           ]
         ],
         arms: {
-          operationId: xdr.lookup("HashIdPreimageOperationId"),
-          revokeId: xdr.lookup("HashIdPreimageRevokeId"),
-          contractId: xdr.lookup("HashIdPreimageContractId"),
-          sorobanAuthorization: xdr.lookup("HashIdPreimageSorobanAuthorization"),
-          sorobanAuthorizationWithAddress: xdr.lookup(
+          operationId: xdr2.lookup("HashIdPreimageOperationId"),
+          revokeId: xdr2.lookup("HashIdPreimageRevokeId"),
+          contractId: xdr2.lookup("HashIdPreimageContractId"),
+          sorobanAuthorization: xdr2.lookup("HashIdPreimageSorobanAuthorization"),
+          sorobanAuthorizationWithAddress: xdr2.lookup(
             "HashIdPreimageSorobanAuthorizationWithAddress"
           )
         }
       });
-      xdr.enum("MemoType", {
+      xdr2.enum("MemoType", {
         memoNone: 0,
         memoText: 1,
         memoId: 2,
         memoHash: 3,
         memoReturn: 4
       });
-      xdr.union("Memo", {
-        switchOn: xdr.lookup("MemoType"),
+      xdr2.union("Memo", {
+        switchOn: xdr2.lookup("MemoType"),
         switchName: "type",
         switches: [
-          ["memoNone", xdr.void()],
+          ["memoNone", xdr2.void()],
           ["memoText", "text"],
           ["memoId", "id"],
           ["memoHash", "hash"],
           ["memoReturn", "retHash"]
         ],
         arms: {
-          text: xdr.string(28),
-          id: xdr.lookup("Uint64"),
-          hash: xdr.lookup("Hash"),
-          retHash: xdr.lookup("Hash")
+          text: xdr2.string(28),
+          id: xdr2.lookup("Uint64"),
+          hash: xdr2.lookup("Hash"),
+          retHash: xdr2.lookup("Hash")
         }
       });
-      xdr.struct("TimeBounds", [
-        ["minTime", xdr.lookup("TimePoint")],
-        ["maxTime", xdr.lookup("TimePoint")]
+      xdr2.struct("TimeBounds", [
+        ["minTime", xdr2.lookup("TimePoint")],
+        ["maxTime", xdr2.lookup("TimePoint")]
       ]);
-      xdr.struct("LedgerBounds", [
-        ["minLedger", xdr.lookup("Uint32")],
-        ["maxLedger", xdr.lookup("Uint32")]
+      xdr2.struct("LedgerBounds", [
+        ["minLedger", xdr2.lookup("Uint32")],
+        ["maxLedger", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("PreconditionsV2", [
-        ["timeBounds", xdr.option(xdr.lookup("TimeBounds"))],
-        ["ledgerBounds", xdr.option(xdr.lookup("LedgerBounds"))],
-        ["minSeqNum", xdr.option(xdr.lookup("SequenceNumber"))],
-        ["minSeqAge", xdr.lookup("Duration")],
-        ["minSeqLedgerGap", xdr.lookup("Uint32")],
-        ["extraSigners", xdr.varArray(xdr.lookup("SignerKey"), 2)]
+      xdr2.struct("PreconditionsV2", [
+        ["timeBounds", xdr2.option(xdr2.lookup("TimeBounds"))],
+        ["ledgerBounds", xdr2.option(xdr2.lookup("LedgerBounds"))],
+        ["minSeqNum", xdr2.option(xdr2.lookup("SequenceNumber"))],
+        ["minSeqAge", xdr2.lookup("Duration")],
+        ["minSeqLedgerGap", xdr2.lookup("Uint32")],
+        ["extraSigners", xdr2.varArray(xdr2.lookup("SignerKey"), 2)]
       ]);
-      xdr.enum("PreconditionType", {
+      xdr2.enum("PreconditionType", {
         precondNone: 0,
         precondTime: 1,
         precondV2: 2
       });
-      xdr.union("Preconditions", {
-        switchOn: xdr.lookup("PreconditionType"),
+      xdr2.union("Preconditions", {
+        switchOn: xdr2.lookup("PreconditionType"),
         switchName: "type",
         switches: [
-          ["precondNone", xdr.void()],
+          ["precondNone", xdr2.void()],
           ["precondTime", "timeBounds"],
           ["precondV2", "v2"]
         ],
         arms: {
-          timeBounds: xdr.lookup("TimeBounds"),
-          v2: xdr.lookup("PreconditionsV2")
+          timeBounds: xdr2.lookup("TimeBounds"),
+          v2: xdr2.lookup("PreconditionsV2")
         }
       });
-      xdr.struct("LedgerFootprint", [
-        ["readOnly", xdr.varArray(xdr.lookup("LedgerKey"), 2147483647)],
-        ["readWrite", xdr.varArray(xdr.lookup("LedgerKey"), 2147483647)]
+      xdr2.struct("LedgerFootprint", [
+        ["readOnly", xdr2.varArray(xdr2.lookup("LedgerKey"), 2147483647)],
+        ["readWrite", xdr2.varArray(xdr2.lookup("LedgerKey"), 2147483647)]
       ]);
-      xdr.struct("SorobanResources", [
-        ["footprint", xdr.lookup("LedgerFootprint")],
-        ["instructions", xdr.lookup("Uint32")],
-        ["diskReadBytes", xdr.lookup("Uint32")],
-        ["writeBytes", xdr.lookup("Uint32")]
+      xdr2.struct("SorobanResources", [
+        ["footprint", xdr2.lookup("LedgerFootprint")],
+        ["instructions", xdr2.lookup("Uint32")],
+        ["diskReadBytes", xdr2.lookup("Uint32")],
+        ["writeBytes", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("SorobanResourcesExtV0", [
-        ["archivedSorobanEntries", xdr.varArray(xdr.lookup("Uint32"), 2147483647)]
+      xdr2.struct("SorobanResourcesExtV0", [
+        ["archivedSorobanEntries", xdr2.varArray(xdr2.lookup("Uint32"), 2147483647)]
       ]);
-      xdr.union("SorobanTransactionDataExt", {
-        switchOn: xdr.int(),
+      xdr2.union("SorobanTransactionDataExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "resourceExt"]
         ],
         arms: {
-          resourceExt: xdr.lookup("SorobanResourcesExtV0")
+          resourceExt: xdr2.lookup("SorobanResourcesExtV0")
         }
       });
-      xdr.struct("SorobanTransactionData", [
-        ["ext", xdr.lookup("SorobanTransactionDataExt")],
-        ["resources", xdr.lookup("SorobanResources")],
-        ["resourceFee", xdr.lookup("Int64")]
+      xdr2.struct("SorobanTransactionData", [
+        ["ext", xdr2.lookup("SorobanTransactionDataExt")],
+        ["resources", xdr2.lookup("SorobanResources")],
+        ["resourceFee", xdr2.lookup("Int64")]
       ]);
-      xdr.union("TransactionV0Ext", {
-        switchOn: xdr.int(),
+      xdr2.union("TransactionV0Ext", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("TransactionV0", [
-        ["sourceAccountEd25519", xdr.lookup("Uint256")],
-        ["fee", xdr.lookup("Uint32")],
-        ["seqNum", xdr.lookup("SequenceNumber")],
-        ["timeBounds", xdr.option(xdr.lookup("TimeBounds"))],
-        ["memo", xdr.lookup("Memo")],
+      xdr2.struct("TransactionV0", [
+        ["sourceAccountEd25519", xdr2.lookup("Uint256")],
+        ["fee", xdr2.lookup("Uint32")],
+        ["seqNum", xdr2.lookup("SequenceNumber")],
+        ["timeBounds", xdr2.option(xdr2.lookup("TimeBounds"))],
+        ["memo", xdr2.lookup("Memo")],
         [
           "operations",
-          xdr.varArray(xdr.lookup("Operation"), xdr.lookup("MAX_OPS_PER_TX"))
+          xdr2.varArray(xdr2.lookup("Operation"), xdr2.lookup("MAX_OPS_PER_TX"))
         ],
-        ["ext", xdr.lookup("TransactionV0Ext")]
+        ["ext", xdr2.lookup("TransactionV0Ext")]
       ]);
-      xdr.struct("TransactionV0Envelope", [
-        ["tx", xdr.lookup("TransactionV0")],
-        ["signatures", xdr.varArray(xdr.lookup("DecoratedSignature"), 20)]
+      xdr2.struct("TransactionV0Envelope", [
+        ["tx", xdr2.lookup("TransactionV0")],
+        ["signatures", xdr2.varArray(xdr2.lookup("DecoratedSignature"), 20)]
       ]);
-      xdr.union("TransactionExt", {
-        switchOn: xdr.int(),
+      xdr2.union("TransactionExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "sorobanData"]
         ],
         arms: {
-          sorobanData: xdr.lookup("SorobanTransactionData")
+          sorobanData: xdr2.lookup("SorobanTransactionData")
         }
       });
-      xdr.struct("Transaction", [
-        ["sourceAccount", xdr.lookup("MuxedAccount")],
-        ["fee", xdr.lookup("Uint32")],
-        ["seqNum", xdr.lookup("SequenceNumber")],
-        ["cond", xdr.lookup("Preconditions")],
-        ["memo", xdr.lookup("Memo")],
+      xdr2.struct("Transaction", [
+        ["sourceAccount", xdr2.lookup("MuxedAccount")],
+        ["fee", xdr2.lookup("Uint32")],
+        ["seqNum", xdr2.lookup("SequenceNumber")],
+        ["cond", xdr2.lookup("Preconditions")],
+        ["memo", xdr2.lookup("Memo")],
         [
           "operations",
-          xdr.varArray(xdr.lookup("Operation"), xdr.lookup("MAX_OPS_PER_TX"))
+          xdr2.varArray(xdr2.lookup("Operation"), xdr2.lookup("MAX_OPS_PER_TX"))
         ],
-        ["ext", xdr.lookup("TransactionExt")]
+        ["ext", xdr2.lookup("TransactionExt")]
       ]);
-      xdr.struct("TransactionV1Envelope", [
-        ["tx", xdr.lookup("Transaction")],
-        ["signatures", xdr.varArray(xdr.lookup("DecoratedSignature"), 20)]
+      xdr2.struct("TransactionV1Envelope", [
+        ["tx", xdr2.lookup("Transaction")],
+        ["signatures", xdr2.varArray(xdr2.lookup("DecoratedSignature"), 20)]
       ]);
-      xdr.union("FeeBumpTransactionInnerTx", {
-        switchOn: xdr.lookup("EnvelopeType"),
+      xdr2.union("FeeBumpTransactionInnerTx", {
+        switchOn: xdr2.lookup("EnvelopeType"),
         switchName: "type",
         switches: [["envelopeTypeTx", "v1"]],
         arms: {
-          v1: xdr.lookup("TransactionV1Envelope")
+          v1: xdr2.lookup("TransactionV1Envelope")
         }
       });
-      xdr.union("FeeBumpTransactionExt", {
-        switchOn: xdr.int(),
+      xdr2.union("FeeBumpTransactionExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("FeeBumpTransaction", [
-        ["feeSource", xdr.lookup("MuxedAccount")],
-        ["fee", xdr.lookup("Int64")],
-        ["innerTx", xdr.lookup("FeeBumpTransactionInnerTx")],
-        ["ext", xdr.lookup("FeeBumpTransactionExt")]
+      xdr2.struct("FeeBumpTransaction", [
+        ["feeSource", xdr2.lookup("MuxedAccount")],
+        ["fee", xdr2.lookup("Int64")],
+        ["innerTx", xdr2.lookup("FeeBumpTransactionInnerTx")],
+        ["ext", xdr2.lookup("FeeBumpTransactionExt")]
       ]);
-      xdr.struct("FeeBumpTransactionEnvelope", [
-        ["tx", xdr.lookup("FeeBumpTransaction")],
-        ["signatures", xdr.varArray(xdr.lookup("DecoratedSignature"), 20)]
+      xdr2.struct("FeeBumpTransactionEnvelope", [
+        ["tx", xdr2.lookup("FeeBumpTransaction")],
+        ["signatures", xdr2.varArray(xdr2.lookup("DecoratedSignature"), 20)]
       ]);
-      xdr.union("TransactionEnvelope", {
-        switchOn: xdr.lookup("EnvelopeType"),
+      xdr2.union("TransactionEnvelope", {
+        switchOn: xdr2.lookup("EnvelopeType"),
         switchName: "type",
         switches: [
           ["envelopeTypeTxV0", "v0"],
@@ -15352,60 +15352,60 @@ var require_curr_generated = __commonJS({
           ["envelopeTypeTxFeeBump", "feeBump"]
         ],
         arms: {
-          v0: xdr.lookup("TransactionV0Envelope"),
-          v1: xdr.lookup("TransactionV1Envelope"),
-          feeBump: xdr.lookup("FeeBumpTransactionEnvelope")
+          v0: xdr2.lookup("TransactionV0Envelope"),
+          v1: xdr2.lookup("TransactionV1Envelope"),
+          feeBump: xdr2.lookup("FeeBumpTransactionEnvelope")
         }
       });
-      xdr.union("TransactionSignaturePayloadTaggedTransaction", {
-        switchOn: xdr.lookup("EnvelopeType"),
+      xdr2.union("TransactionSignaturePayloadTaggedTransaction", {
+        switchOn: xdr2.lookup("EnvelopeType"),
         switchName: "type",
         switches: [
           ["envelopeTypeTx", "tx"],
           ["envelopeTypeTxFeeBump", "feeBump"]
         ],
         arms: {
-          tx: xdr.lookup("Transaction"),
-          feeBump: xdr.lookup("FeeBumpTransaction")
+          tx: xdr2.lookup("Transaction"),
+          feeBump: xdr2.lookup("FeeBumpTransaction")
         }
       });
-      xdr.struct("TransactionSignaturePayload", [
-        ["networkId", xdr.lookup("Hash")],
+      xdr2.struct("TransactionSignaturePayload", [
+        ["networkId", xdr2.lookup("Hash")],
         [
           "taggedTransaction",
-          xdr.lookup("TransactionSignaturePayloadTaggedTransaction")
+          xdr2.lookup("TransactionSignaturePayloadTaggedTransaction")
         ]
       ]);
-      xdr.enum("ClaimAtomType", {
+      xdr2.enum("ClaimAtomType", {
         claimAtomTypeV0: 0,
         claimAtomTypeOrderBook: 1,
         claimAtomTypeLiquidityPool: 2
       });
-      xdr.struct("ClaimOfferAtomV0", [
-        ["sellerEd25519", xdr.lookup("Uint256")],
-        ["offerId", xdr.lookup("Int64")],
-        ["assetSold", xdr.lookup("Asset")],
-        ["amountSold", xdr.lookup("Int64")],
-        ["assetBought", xdr.lookup("Asset")],
-        ["amountBought", xdr.lookup("Int64")]
+      xdr2.struct("ClaimOfferAtomV0", [
+        ["sellerEd25519", xdr2.lookup("Uint256")],
+        ["offerId", xdr2.lookup("Int64")],
+        ["assetSold", xdr2.lookup("Asset")],
+        ["amountSold", xdr2.lookup("Int64")],
+        ["assetBought", xdr2.lookup("Asset")],
+        ["amountBought", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("ClaimOfferAtom", [
-        ["sellerId", xdr.lookup("AccountId")],
-        ["offerId", xdr.lookup("Int64")],
-        ["assetSold", xdr.lookup("Asset")],
-        ["amountSold", xdr.lookup("Int64")],
-        ["assetBought", xdr.lookup("Asset")],
-        ["amountBought", xdr.lookup("Int64")]
+      xdr2.struct("ClaimOfferAtom", [
+        ["sellerId", xdr2.lookup("AccountId")],
+        ["offerId", xdr2.lookup("Int64")],
+        ["assetSold", xdr2.lookup("Asset")],
+        ["amountSold", xdr2.lookup("Int64")],
+        ["assetBought", xdr2.lookup("Asset")],
+        ["amountBought", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("ClaimLiquidityAtom", [
-        ["liquidityPoolId", xdr.lookup("PoolId")],
-        ["assetSold", xdr.lookup("Asset")],
-        ["amountSold", xdr.lookup("Int64")],
-        ["assetBought", xdr.lookup("Asset")],
-        ["amountBought", xdr.lookup("Int64")]
+      xdr2.struct("ClaimLiquidityAtom", [
+        ["liquidityPoolId", xdr2.lookup("PoolId")],
+        ["assetSold", xdr2.lookup("Asset")],
+        ["amountSold", xdr2.lookup("Int64")],
+        ["assetBought", xdr2.lookup("Asset")],
+        ["amountBought", xdr2.lookup("Int64")]
       ]);
-      xdr.union("ClaimAtom", {
-        switchOn: xdr.lookup("ClaimAtomType"),
+      xdr2.union("ClaimAtom", {
+        switchOn: xdr2.lookup("ClaimAtomType"),
         switchName: "type",
         switches: [
           ["claimAtomTypeV0", "v0"],
@@ -15413,31 +15413,31 @@ var require_curr_generated = __commonJS({
           ["claimAtomTypeLiquidityPool", "liquidityPool"]
         ],
         arms: {
-          v0: xdr.lookup("ClaimOfferAtomV0"),
-          orderBook: xdr.lookup("ClaimOfferAtom"),
-          liquidityPool: xdr.lookup("ClaimLiquidityAtom")
+          v0: xdr2.lookup("ClaimOfferAtomV0"),
+          orderBook: xdr2.lookup("ClaimOfferAtom"),
+          liquidityPool: xdr2.lookup("ClaimLiquidityAtom")
         }
       });
-      xdr.enum("CreateAccountResultCode", {
+      xdr2.enum("CreateAccountResultCode", {
         createAccountSuccess: 0,
         createAccountMalformed: -1,
         createAccountUnderfunded: -2,
         createAccountLowReserve: -3,
         createAccountAlreadyExist: -4
       });
-      xdr.union("CreateAccountResult", {
-        switchOn: xdr.lookup("CreateAccountResultCode"),
+      xdr2.union("CreateAccountResult", {
+        switchOn: xdr2.lookup("CreateAccountResultCode"),
         switchName: "code",
         switches: [
-          ["createAccountSuccess", xdr.void()],
-          ["createAccountMalformed", xdr.void()],
-          ["createAccountUnderfunded", xdr.void()],
-          ["createAccountLowReserve", xdr.void()],
-          ["createAccountAlreadyExist", xdr.void()]
+          ["createAccountSuccess", xdr2.void()],
+          ["createAccountMalformed", xdr2.void()],
+          ["createAccountUnderfunded", xdr2.void()],
+          ["createAccountLowReserve", xdr2.void()],
+          ["createAccountAlreadyExist", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("PaymentResultCode", {
+      xdr2.enum("PaymentResultCode", {
         paymentSuccess: 0,
         paymentMalformed: -1,
         paymentUnderfunded: -2,
@@ -15449,24 +15449,24 @@ var require_curr_generated = __commonJS({
         paymentLineFull: -8,
         paymentNoIssuer: -9
       });
-      xdr.union("PaymentResult", {
-        switchOn: xdr.lookup("PaymentResultCode"),
+      xdr2.union("PaymentResult", {
+        switchOn: xdr2.lookup("PaymentResultCode"),
         switchName: "code",
         switches: [
-          ["paymentSuccess", xdr.void()],
-          ["paymentMalformed", xdr.void()],
-          ["paymentUnderfunded", xdr.void()],
-          ["paymentSrcNoTrust", xdr.void()],
-          ["paymentSrcNotAuthorized", xdr.void()],
-          ["paymentNoDestination", xdr.void()],
-          ["paymentNoTrust", xdr.void()],
-          ["paymentNotAuthorized", xdr.void()],
-          ["paymentLineFull", xdr.void()],
-          ["paymentNoIssuer", xdr.void()]
+          ["paymentSuccess", xdr2.void()],
+          ["paymentMalformed", xdr2.void()],
+          ["paymentUnderfunded", xdr2.void()],
+          ["paymentSrcNoTrust", xdr2.void()],
+          ["paymentSrcNotAuthorized", xdr2.void()],
+          ["paymentNoDestination", xdr2.void()],
+          ["paymentNoTrust", xdr2.void()],
+          ["paymentNotAuthorized", xdr2.void()],
+          ["paymentLineFull", xdr2.void()],
+          ["paymentNoIssuer", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("PathPaymentStrictReceiveResultCode", {
+      xdr2.enum("PathPaymentStrictReceiveResultCode", {
         pathPaymentStrictReceiveSuccess: 0,
         pathPaymentStrictReceiveMalformed: -1,
         pathPaymentStrictReceiveUnderfunded: -2,
@@ -15481,39 +15481,39 @@ var require_curr_generated = __commonJS({
         pathPaymentStrictReceiveOfferCrossSelf: -11,
         pathPaymentStrictReceiveOverSendmax: -12
       });
-      xdr.struct("SimplePaymentResult", [
-        ["destination", xdr.lookup("AccountId")],
-        ["asset", xdr.lookup("Asset")],
-        ["amount", xdr.lookup("Int64")]
+      xdr2.struct("SimplePaymentResult", [
+        ["destination", xdr2.lookup("AccountId")],
+        ["asset", xdr2.lookup("Asset")],
+        ["amount", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("PathPaymentStrictReceiveResultSuccess", [
-        ["offers", xdr.varArray(xdr.lookup("ClaimAtom"), 2147483647)],
-        ["last", xdr.lookup("SimplePaymentResult")]
+      xdr2.struct("PathPaymentStrictReceiveResultSuccess", [
+        ["offers", xdr2.varArray(xdr2.lookup("ClaimAtom"), 2147483647)],
+        ["last", xdr2.lookup("SimplePaymentResult")]
       ]);
-      xdr.union("PathPaymentStrictReceiveResult", {
-        switchOn: xdr.lookup("PathPaymentStrictReceiveResultCode"),
+      xdr2.union("PathPaymentStrictReceiveResult", {
+        switchOn: xdr2.lookup("PathPaymentStrictReceiveResultCode"),
         switchName: "code",
         switches: [
           ["pathPaymentStrictReceiveSuccess", "success"],
-          ["pathPaymentStrictReceiveMalformed", xdr.void()],
-          ["pathPaymentStrictReceiveUnderfunded", xdr.void()],
-          ["pathPaymentStrictReceiveSrcNoTrust", xdr.void()],
-          ["pathPaymentStrictReceiveSrcNotAuthorized", xdr.void()],
-          ["pathPaymentStrictReceiveNoDestination", xdr.void()],
-          ["pathPaymentStrictReceiveNoTrust", xdr.void()],
-          ["pathPaymentStrictReceiveNotAuthorized", xdr.void()],
-          ["pathPaymentStrictReceiveLineFull", xdr.void()],
+          ["pathPaymentStrictReceiveMalformed", xdr2.void()],
+          ["pathPaymentStrictReceiveUnderfunded", xdr2.void()],
+          ["pathPaymentStrictReceiveSrcNoTrust", xdr2.void()],
+          ["pathPaymentStrictReceiveSrcNotAuthorized", xdr2.void()],
+          ["pathPaymentStrictReceiveNoDestination", xdr2.void()],
+          ["pathPaymentStrictReceiveNoTrust", xdr2.void()],
+          ["pathPaymentStrictReceiveNotAuthorized", xdr2.void()],
+          ["pathPaymentStrictReceiveLineFull", xdr2.void()],
           ["pathPaymentStrictReceiveNoIssuer", "noIssuer"],
-          ["pathPaymentStrictReceiveTooFewOffers", xdr.void()],
-          ["pathPaymentStrictReceiveOfferCrossSelf", xdr.void()],
-          ["pathPaymentStrictReceiveOverSendmax", xdr.void()]
+          ["pathPaymentStrictReceiveTooFewOffers", xdr2.void()],
+          ["pathPaymentStrictReceiveOfferCrossSelf", xdr2.void()],
+          ["pathPaymentStrictReceiveOverSendmax", xdr2.void()]
         ],
         arms: {
-          success: xdr.lookup("PathPaymentStrictReceiveResultSuccess"),
-          noIssuer: xdr.lookup("Asset")
+          success: xdr2.lookup("PathPaymentStrictReceiveResultSuccess"),
+          noIssuer: xdr2.lookup("Asset")
         }
       });
-      xdr.enum("PathPaymentStrictSendResultCode", {
+      xdr2.enum("PathPaymentStrictSendResultCode", {
         pathPaymentStrictSendSuccess: 0,
         pathPaymentStrictSendMalformed: -1,
         pathPaymentStrictSendUnderfunded: -2,
@@ -15528,34 +15528,34 @@ var require_curr_generated = __commonJS({
         pathPaymentStrictSendOfferCrossSelf: -11,
         pathPaymentStrictSendUnderDestmin: -12
       });
-      xdr.struct("PathPaymentStrictSendResultSuccess", [
-        ["offers", xdr.varArray(xdr.lookup("ClaimAtom"), 2147483647)],
-        ["last", xdr.lookup("SimplePaymentResult")]
+      xdr2.struct("PathPaymentStrictSendResultSuccess", [
+        ["offers", xdr2.varArray(xdr2.lookup("ClaimAtom"), 2147483647)],
+        ["last", xdr2.lookup("SimplePaymentResult")]
       ]);
-      xdr.union("PathPaymentStrictSendResult", {
-        switchOn: xdr.lookup("PathPaymentStrictSendResultCode"),
+      xdr2.union("PathPaymentStrictSendResult", {
+        switchOn: xdr2.lookup("PathPaymentStrictSendResultCode"),
         switchName: "code",
         switches: [
           ["pathPaymentStrictSendSuccess", "success"],
-          ["pathPaymentStrictSendMalformed", xdr.void()],
-          ["pathPaymentStrictSendUnderfunded", xdr.void()],
-          ["pathPaymentStrictSendSrcNoTrust", xdr.void()],
-          ["pathPaymentStrictSendSrcNotAuthorized", xdr.void()],
-          ["pathPaymentStrictSendNoDestination", xdr.void()],
-          ["pathPaymentStrictSendNoTrust", xdr.void()],
-          ["pathPaymentStrictSendNotAuthorized", xdr.void()],
-          ["pathPaymentStrictSendLineFull", xdr.void()],
+          ["pathPaymentStrictSendMalformed", xdr2.void()],
+          ["pathPaymentStrictSendUnderfunded", xdr2.void()],
+          ["pathPaymentStrictSendSrcNoTrust", xdr2.void()],
+          ["pathPaymentStrictSendSrcNotAuthorized", xdr2.void()],
+          ["pathPaymentStrictSendNoDestination", xdr2.void()],
+          ["pathPaymentStrictSendNoTrust", xdr2.void()],
+          ["pathPaymentStrictSendNotAuthorized", xdr2.void()],
+          ["pathPaymentStrictSendLineFull", xdr2.void()],
           ["pathPaymentStrictSendNoIssuer", "noIssuer"],
-          ["pathPaymentStrictSendTooFewOffers", xdr.void()],
-          ["pathPaymentStrictSendOfferCrossSelf", xdr.void()],
-          ["pathPaymentStrictSendUnderDestmin", xdr.void()]
+          ["pathPaymentStrictSendTooFewOffers", xdr2.void()],
+          ["pathPaymentStrictSendOfferCrossSelf", xdr2.void()],
+          ["pathPaymentStrictSendUnderDestmin", xdr2.void()]
         ],
         arms: {
-          success: xdr.lookup("PathPaymentStrictSendResultSuccess"),
-          noIssuer: xdr.lookup("Asset")
+          success: xdr2.lookup("PathPaymentStrictSendResultSuccess"),
+          noIssuer: xdr2.lookup("Asset")
         }
       });
-      xdr.enum("ManageSellOfferResultCode", {
+      xdr2.enum("ManageSellOfferResultCode", {
         manageSellOfferSuccess: 0,
         manageSellOfferMalformed: -1,
         manageSellOfferSellNoTrust: -2,
@@ -15570,50 +15570,50 @@ var require_curr_generated = __commonJS({
         manageSellOfferNotFound: -11,
         manageSellOfferLowReserve: -12
       });
-      xdr.enum("ManageOfferEffect", {
+      xdr2.enum("ManageOfferEffect", {
         manageOfferCreated: 0,
         manageOfferUpdated: 1,
         manageOfferDeleted: 2
       });
-      xdr.union("ManageOfferSuccessResultOffer", {
-        switchOn: xdr.lookup("ManageOfferEffect"),
+      xdr2.union("ManageOfferSuccessResultOffer", {
+        switchOn: xdr2.lookup("ManageOfferEffect"),
         switchName: "effect",
         switches: [
           ["manageOfferCreated", "offer"],
           ["manageOfferUpdated", "offer"],
-          ["manageOfferDeleted", xdr.void()]
+          ["manageOfferDeleted", xdr2.void()]
         ],
         arms: {
-          offer: xdr.lookup("OfferEntry")
+          offer: xdr2.lookup("OfferEntry")
         }
       });
-      xdr.struct("ManageOfferSuccessResult", [
-        ["offersClaimed", xdr.varArray(xdr.lookup("ClaimAtom"), 2147483647)],
-        ["offer", xdr.lookup("ManageOfferSuccessResultOffer")]
+      xdr2.struct("ManageOfferSuccessResult", [
+        ["offersClaimed", xdr2.varArray(xdr2.lookup("ClaimAtom"), 2147483647)],
+        ["offer", xdr2.lookup("ManageOfferSuccessResultOffer")]
       ]);
-      xdr.union("ManageSellOfferResult", {
-        switchOn: xdr.lookup("ManageSellOfferResultCode"),
+      xdr2.union("ManageSellOfferResult", {
+        switchOn: xdr2.lookup("ManageSellOfferResultCode"),
         switchName: "code",
         switches: [
           ["manageSellOfferSuccess", "success"],
-          ["manageSellOfferMalformed", xdr.void()],
-          ["manageSellOfferSellNoTrust", xdr.void()],
-          ["manageSellOfferBuyNoTrust", xdr.void()],
-          ["manageSellOfferSellNotAuthorized", xdr.void()],
-          ["manageSellOfferBuyNotAuthorized", xdr.void()],
-          ["manageSellOfferLineFull", xdr.void()],
-          ["manageSellOfferUnderfunded", xdr.void()],
-          ["manageSellOfferCrossSelf", xdr.void()],
-          ["manageSellOfferSellNoIssuer", xdr.void()],
-          ["manageSellOfferBuyNoIssuer", xdr.void()],
-          ["manageSellOfferNotFound", xdr.void()],
-          ["manageSellOfferLowReserve", xdr.void()]
+          ["manageSellOfferMalformed", xdr2.void()],
+          ["manageSellOfferSellNoTrust", xdr2.void()],
+          ["manageSellOfferBuyNoTrust", xdr2.void()],
+          ["manageSellOfferSellNotAuthorized", xdr2.void()],
+          ["manageSellOfferBuyNotAuthorized", xdr2.void()],
+          ["manageSellOfferLineFull", xdr2.void()],
+          ["manageSellOfferUnderfunded", xdr2.void()],
+          ["manageSellOfferCrossSelf", xdr2.void()],
+          ["manageSellOfferSellNoIssuer", xdr2.void()],
+          ["manageSellOfferBuyNoIssuer", xdr2.void()],
+          ["manageSellOfferNotFound", xdr2.void()],
+          ["manageSellOfferLowReserve", xdr2.void()]
         ],
         arms: {
-          success: xdr.lookup("ManageOfferSuccessResult")
+          success: xdr2.lookup("ManageOfferSuccessResult")
         }
       });
-      xdr.enum("ManageBuyOfferResultCode", {
+      xdr2.enum("ManageBuyOfferResultCode", {
         manageBuyOfferSuccess: 0,
         manageBuyOfferMalformed: -1,
         manageBuyOfferSellNoTrust: -2,
@@ -15628,29 +15628,29 @@ var require_curr_generated = __commonJS({
         manageBuyOfferNotFound: -11,
         manageBuyOfferLowReserve: -12
       });
-      xdr.union("ManageBuyOfferResult", {
-        switchOn: xdr.lookup("ManageBuyOfferResultCode"),
+      xdr2.union("ManageBuyOfferResult", {
+        switchOn: xdr2.lookup("ManageBuyOfferResultCode"),
         switchName: "code",
         switches: [
           ["manageBuyOfferSuccess", "success"],
-          ["manageBuyOfferMalformed", xdr.void()],
-          ["manageBuyOfferSellNoTrust", xdr.void()],
-          ["manageBuyOfferBuyNoTrust", xdr.void()],
-          ["manageBuyOfferSellNotAuthorized", xdr.void()],
-          ["manageBuyOfferBuyNotAuthorized", xdr.void()],
-          ["manageBuyOfferLineFull", xdr.void()],
-          ["manageBuyOfferUnderfunded", xdr.void()],
-          ["manageBuyOfferCrossSelf", xdr.void()],
-          ["manageBuyOfferSellNoIssuer", xdr.void()],
-          ["manageBuyOfferBuyNoIssuer", xdr.void()],
-          ["manageBuyOfferNotFound", xdr.void()],
-          ["manageBuyOfferLowReserve", xdr.void()]
+          ["manageBuyOfferMalformed", xdr2.void()],
+          ["manageBuyOfferSellNoTrust", xdr2.void()],
+          ["manageBuyOfferBuyNoTrust", xdr2.void()],
+          ["manageBuyOfferSellNotAuthorized", xdr2.void()],
+          ["manageBuyOfferBuyNotAuthorized", xdr2.void()],
+          ["manageBuyOfferLineFull", xdr2.void()],
+          ["manageBuyOfferUnderfunded", xdr2.void()],
+          ["manageBuyOfferCrossSelf", xdr2.void()],
+          ["manageBuyOfferSellNoIssuer", xdr2.void()],
+          ["manageBuyOfferBuyNoIssuer", xdr2.void()],
+          ["manageBuyOfferNotFound", xdr2.void()],
+          ["manageBuyOfferLowReserve", xdr2.void()]
         ],
         arms: {
-          success: xdr.lookup("ManageOfferSuccessResult")
+          success: xdr2.lookup("ManageOfferSuccessResult")
         }
       });
-      xdr.enum("SetOptionsResultCode", {
+      xdr2.enum("SetOptionsResultCode", {
         setOptionsSuccess: 0,
         setOptionsLowReserve: -1,
         setOptionsTooManySigners: -2,
@@ -15663,25 +15663,25 @@ var require_curr_generated = __commonJS({
         setOptionsInvalidHomeDomain: -9,
         setOptionsAuthRevocableRequired: -10
       });
-      xdr.union("SetOptionsResult", {
-        switchOn: xdr.lookup("SetOptionsResultCode"),
+      xdr2.union("SetOptionsResult", {
+        switchOn: xdr2.lookup("SetOptionsResultCode"),
         switchName: "code",
         switches: [
-          ["setOptionsSuccess", xdr.void()],
-          ["setOptionsLowReserve", xdr.void()],
-          ["setOptionsTooManySigners", xdr.void()],
-          ["setOptionsBadFlags", xdr.void()],
-          ["setOptionsInvalidInflation", xdr.void()],
-          ["setOptionsCantChange", xdr.void()],
-          ["setOptionsUnknownFlag", xdr.void()],
-          ["setOptionsThresholdOutOfRange", xdr.void()],
-          ["setOptionsBadSigner", xdr.void()],
-          ["setOptionsInvalidHomeDomain", xdr.void()],
-          ["setOptionsAuthRevocableRequired", xdr.void()]
+          ["setOptionsSuccess", xdr2.void()],
+          ["setOptionsLowReserve", xdr2.void()],
+          ["setOptionsTooManySigners", xdr2.void()],
+          ["setOptionsBadFlags", xdr2.void()],
+          ["setOptionsInvalidInflation", xdr2.void()],
+          ["setOptionsCantChange", xdr2.void()],
+          ["setOptionsUnknownFlag", xdr2.void()],
+          ["setOptionsThresholdOutOfRange", xdr2.void()],
+          ["setOptionsBadSigner", xdr2.void()],
+          ["setOptionsInvalidHomeDomain", xdr2.void()],
+          ["setOptionsAuthRevocableRequired", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("ChangeTrustResultCode", {
+      xdr2.enum("ChangeTrustResultCode", {
         changeTrustSuccess: 0,
         changeTrustMalformed: -1,
         changeTrustNoIssuer: -2,
@@ -15692,23 +15692,23 @@ var require_curr_generated = __commonJS({
         changeTrustCannotDelete: -7,
         changeTrustNotAuthMaintainLiabilities: -8
       });
-      xdr.union("ChangeTrustResult", {
-        switchOn: xdr.lookup("ChangeTrustResultCode"),
+      xdr2.union("ChangeTrustResult", {
+        switchOn: xdr2.lookup("ChangeTrustResultCode"),
         switchName: "code",
         switches: [
-          ["changeTrustSuccess", xdr.void()],
-          ["changeTrustMalformed", xdr.void()],
-          ["changeTrustNoIssuer", xdr.void()],
-          ["changeTrustInvalidLimit", xdr.void()],
-          ["changeTrustLowReserve", xdr.void()],
-          ["changeTrustSelfNotAllowed", xdr.void()],
-          ["changeTrustTrustLineMissing", xdr.void()],
-          ["changeTrustCannotDelete", xdr.void()],
-          ["changeTrustNotAuthMaintainLiabilities", xdr.void()]
+          ["changeTrustSuccess", xdr2.void()],
+          ["changeTrustMalformed", xdr2.void()],
+          ["changeTrustNoIssuer", xdr2.void()],
+          ["changeTrustInvalidLimit", xdr2.void()],
+          ["changeTrustLowReserve", xdr2.void()],
+          ["changeTrustSelfNotAllowed", xdr2.void()],
+          ["changeTrustTrustLineMissing", xdr2.void()],
+          ["changeTrustCannotDelete", xdr2.void()],
+          ["changeTrustNotAuthMaintainLiabilities", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("AllowTrustResultCode", {
+      xdr2.enum("AllowTrustResultCode", {
         allowTrustSuccess: 0,
         allowTrustMalformed: -1,
         allowTrustNoTrustLine: -2,
@@ -15717,21 +15717,21 @@ var require_curr_generated = __commonJS({
         allowTrustSelfNotAllowed: -5,
         allowTrustLowReserve: -6
       });
-      xdr.union("AllowTrustResult", {
-        switchOn: xdr.lookup("AllowTrustResultCode"),
+      xdr2.union("AllowTrustResult", {
+        switchOn: xdr2.lookup("AllowTrustResultCode"),
         switchName: "code",
         switches: [
-          ["allowTrustSuccess", xdr.void()],
-          ["allowTrustMalformed", xdr.void()],
-          ["allowTrustNoTrustLine", xdr.void()],
-          ["allowTrustTrustNotRequired", xdr.void()],
-          ["allowTrustCantRevoke", xdr.void()],
-          ["allowTrustSelfNotAllowed", xdr.void()],
-          ["allowTrustLowReserve", xdr.void()]
+          ["allowTrustSuccess", xdr2.void()],
+          ["allowTrustMalformed", xdr2.void()],
+          ["allowTrustNoTrustLine", xdr2.void()],
+          ["allowTrustTrustNotRequired", xdr2.void()],
+          ["allowTrustCantRevoke", xdr2.void()],
+          ["allowTrustSelfNotAllowed", xdr2.void()],
+          ["allowTrustLowReserve", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("AccountMergeResultCode", {
+      xdr2.enum("AccountMergeResultCode", {
         accountMergeSuccess: 0,
         accountMergeMalformed: -1,
         accountMergeNoAccount: -2,
@@ -15741,75 +15741,75 @@ var require_curr_generated = __commonJS({
         accountMergeDestFull: -6,
         accountMergeIsSponsor: -7
       });
-      xdr.union("AccountMergeResult", {
-        switchOn: xdr.lookup("AccountMergeResultCode"),
+      xdr2.union("AccountMergeResult", {
+        switchOn: xdr2.lookup("AccountMergeResultCode"),
         switchName: "code",
         switches: [
           ["accountMergeSuccess", "sourceAccountBalance"],
-          ["accountMergeMalformed", xdr.void()],
-          ["accountMergeNoAccount", xdr.void()],
-          ["accountMergeImmutableSet", xdr.void()],
-          ["accountMergeHasSubEntries", xdr.void()],
-          ["accountMergeSeqnumTooFar", xdr.void()],
-          ["accountMergeDestFull", xdr.void()],
-          ["accountMergeIsSponsor", xdr.void()]
+          ["accountMergeMalformed", xdr2.void()],
+          ["accountMergeNoAccount", xdr2.void()],
+          ["accountMergeImmutableSet", xdr2.void()],
+          ["accountMergeHasSubEntries", xdr2.void()],
+          ["accountMergeSeqnumTooFar", xdr2.void()],
+          ["accountMergeDestFull", xdr2.void()],
+          ["accountMergeIsSponsor", xdr2.void()]
         ],
         arms: {
-          sourceAccountBalance: xdr.lookup("Int64")
+          sourceAccountBalance: xdr2.lookup("Int64")
         }
       });
-      xdr.enum("InflationResultCode", {
+      xdr2.enum("InflationResultCode", {
         inflationSuccess: 0,
         inflationNotTime: -1
       });
-      xdr.struct("InflationPayout", [
-        ["destination", xdr.lookup("AccountId")],
-        ["amount", xdr.lookup("Int64")]
+      xdr2.struct("InflationPayout", [
+        ["destination", xdr2.lookup("AccountId")],
+        ["amount", xdr2.lookup("Int64")]
       ]);
-      xdr.union("InflationResult", {
-        switchOn: xdr.lookup("InflationResultCode"),
+      xdr2.union("InflationResult", {
+        switchOn: xdr2.lookup("InflationResultCode"),
         switchName: "code",
         switches: [
           ["inflationSuccess", "payouts"],
-          ["inflationNotTime", xdr.void()]
+          ["inflationNotTime", xdr2.void()]
         ],
         arms: {
-          payouts: xdr.varArray(xdr.lookup("InflationPayout"), 2147483647)
+          payouts: xdr2.varArray(xdr2.lookup("InflationPayout"), 2147483647)
         }
       });
-      xdr.enum("ManageDataResultCode", {
+      xdr2.enum("ManageDataResultCode", {
         manageDataSuccess: 0,
         manageDataNotSupportedYet: -1,
         manageDataNameNotFound: -2,
         manageDataLowReserve: -3,
         manageDataInvalidName: -4
       });
-      xdr.union("ManageDataResult", {
-        switchOn: xdr.lookup("ManageDataResultCode"),
+      xdr2.union("ManageDataResult", {
+        switchOn: xdr2.lookup("ManageDataResultCode"),
         switchName: "code",
         switches: [
-          ["manageDataSuccess", xdr.void()],
-          ["manageDataNotSupportedYet", xdr.void()],
-          ["manageDataNameNotFound", xdr.void()],
-          ["manageDataLowReserve", xdr.void()],
-          ["manageDataInvalidName", xdr.void()]
+          ["manageDataSuccess", xdr2.void()],
+          ["manageDataNotSupportedYet", xdr2.void()],
+          ["manageDataNameNotFound", xdr2.void()],
+          ["manageDataLowReserve", xdr2.void()],
+          ["manageDataInvalidName", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("BumpSequenceResultCode", {
+      xdr2.enum("BumpSequenceResultCode", {
         bumpSequenceSuccess: 0,
         bumpSequenceBadSeq: -1
       });
-      xdr.union("BumpSequenceResult", {
-        switchOn: xdr.lookup("BumpSequenceResultCode"),
+      xdr2.union("BumpSequenceResult", {
+        switchOn: xdr2.lookup("BumpSequenceResultCode"),
         switchName: "code",
         switches: [
-          ["bumpSequenceSuccess", xdr.void()],
-          ["bumpSequenceBadSeq", xdr.void()]
+          ["bumpSequenceSuccess", xdr2.void()],
+          ["bumpSequenceBadSeq", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("CreateClaimableBalanceResultCode", {
+      xdr2.enum("CreateClaimableBalanceResultCode", {
         createClaimableBalanceSuccess: 0,
         createClaimableBalanceMalformed: -1,
         createClaimableBalanceLowReserve: -2,
@@ -15817,22 +15817,22 @@ var require_curr_generated = __commonJS({
         createClaimableBalanceNotAuthorized: -4,
         createClaimableBalanceUnderfunded: -5
       });
-      xdr.union("CreateClaimableBalanceResult", {
-        switchOn: xdr.lookup("CreateClaimableBalanceResultCode"),
+      xdr2.union("CreateClaimableBalanceResult", {
+        switchOn: xdr2.lookup("CreateClaimableBalanceResultCode"),
         switchName: "code",
         switches: [
           ["createClaimableBalanceSuccess", "balanceId"],
-          ["createClaimableBalanceMalformed", xdr.void()],
-          ["createClaimableBalanceLowReserve", xdr.void()],
-          ["createClaimableBalanceNoTrust", xdr.void()],
-          ["createClaimableBalanceNotAuthorized", xdr.void()],
-          ["createClaimableBalanceUnderfunded", xdr.void()]
+          ["createClaimableBalanceMalformed", xdr2.void()],
+          ["createClaimableBalanceLowReserve", xdr2.void()],
+          ["createClaimableBalanceNoTrust", xdr2.void()],
+          ["createClaimableBalanceNotAuthorized", xdr2.void()],
+          ["createClaimableBalanceUnderfunded", xdr2.void()]
         ],
         arms: {
-          balanceId: xdr.lookup("ClaimableBalanceId")
+          balanceId: xdr2.lookup("ClaimableBalanceId")
         }
       });
-      xdr.enum("ClaimClaimableBalanceResultCode", {
+      xdr2.enum("ClaimClaimableBalanceResultCode", {
         claimClaimableBalanceSuccess: 0,
         claimClaimableBalanceDoesNotExist: -1,
         claimClaimableBalanceCannotClaim: -2,
@@ -15841,51 +15841,51 @@ var require_curr_generated = __commonJS({
         claimClaimableBalanceNotAuthorized: -5,
         claimClaimableBalanceTrustlineFrozen: -6
       });
-      xdr.union("ClaimClaimableBalanceResult", {
-        switchOn: xdr.lookup("ClaimClaimableBalanceResultCode"),
+      xdr2.union("ClaimClaimableBalanceResult", {
+        switchOn: xdr2.lookup("ClaimClaimableBalanceResultCode"),
         switchName: "code",
         switches: [
-          ["claimClaimableBalanceSuccess", xdr.void()],
-          ["claimClaimableBalanceDoesNotExist", xdr.void()],
-          ["claimClaimableBalanceCannotClaim", xdr.void()],
-          ["claimClaimableBalanceLineFull", xdr.void()],
-          ["claimClaimableBalanceNoTrust", xdr.void()],
-          ["claimClaimableBalanceNotAuthorized", xdr.void()],
-          ["claimClaimableBalanceTrustlineFrozen", xdr.void()]
+          ["claimClaimableBalanceSuccess", xdr2.void()],
+          ["claimClaimableBalanceDoesNotExist", xdr2.void()],
+          ["claimClaimableBalanceCannotClaim", xdr2.void()],
+          ["claimClaimableBalanceLineFull", xdr2.void()],
+          ["claimClaimableBalanceNoTrust", xdr2.void()],
+          ["claimClaimableBalanceNotAuthorized", xdr2.void()],
+          ["claimClaimableBalanceTrustlineFrozen", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("BeginSponsoringFutureReservesResultCode", {
+      xdr2.enum("BeginSponsoringFutureReservesResultCode", {
         beginSponsoringFutureReservesSuccess: 0,
         beginSponsoringFutureReservesMalformed: -1,
         beginSponsoringFutureReservesAlreadySponsored: -2,
         beginSponsoringFutureReservesRecursive: -3
       });
-      xdr.union("BeginSponsoringFutureReservesResult", {
-        switchOn: xdr.lookup("BeginSponsoringFutureReservesResultCode"),
+      xdr2.union("BeginSponsoringFutureReservesResult", {
+        switchOn: xdr2.lookup("BeginSponsoringFutureReservesResultCode"),
         switchName: "code",
         switches: [
-          ["beginSponsoringFutureReservesSuccess", xdr.void()],
-          ["beginSponsoringFutureReservesMalformed", xdr.void()],
-          ["beginSponsoringFutureReservesAlreadySponsored", xdr.void()],
-          ["beginSponsoringFutureReservesRecursive", xdr.void()]
+          ["beginSponsoringFutureReservesSuccess", xdr2.void()],
+          ["beginSponsoringFutureReservesMalformed", xdr2.void()],
+          ["beginSponsoringFutureReservesAlreadySponsored", xdr2.void()],
+          ["beginSponsoringFutureReservesRecursive", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("EndSponsoringFutureReservesResultCode", {
+      xdr2.enum("EndSponsoringFutureReservesResultCode", {
         endSponsoringFutureReservesSuccess: 0,
         endSponsoringFutureReservesNotSponsored: -1
       });
-      xdr.union("EndSponsoringFutureReservesResult", {
-        switchOn: xdr.lookup("EndSponsoringFutureReservesResultCode"),
+      xdr2.union("EndSponsoringFutureReservesResult", {
+        switchOn: xdr2.lookup("EndSponsoringFutureReservesResultCode"),
         switchName: "code",
         switches: [
-          ["endSponsoringFutureReservesSuccess", xdr.void()],
-          ["endSponsoringFutureReservesNotSponsored", xdr.void()]
+          ["endSponsoringFutureReservesSuccess", xdr2.void()],
+          ["endSponsoringFutureReservesNotSponsored", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("RevokeSponsorshipResultCode", {
+      xdr2.enum("RevokeSponsorshipResultCode", {
         revokeSponsorshipSuccess: 0,
         revokeSponsorshipDoesNotExist: -1,
         revokeSponsorshipNotSponsor: -2,
@@ -15893,56 +15893,56 @@ var require_curr_generated = __commonJS({
         revokeSponsorshipOnlyTransferable: -4,
         revokeSponsorshipMalformed: -5
       });
-      xdr.union("RevokeSponsorshipResult", {
-        switchOn: xdr.lookup("RevokeSponsorshipResultCode"),
+      xdr2.union("RevokeSponsorshipResult", {
+        switchOn: xdr2.lookup("RevokeSponsorshipResultCode"),
         switchName: "code",
         switches: [
-          ["revokeSponsorshipSuccess", xdr.void()],
-          ["revokeSponsorshipDoesNotExist", xdr.void()],
-          ["revokeSponsorshipNotSponsor", xdr.void()],
-          ["revokeSponsorshipLowReserve", xdr.void()],
-          ["revokeSponsorshipOnlyTransferable", xdr.void()],
-          ["revokeSponsorshipMalformed", xdr.void()]
+          ["revokeSponsorshipSuccess", xdr2.void()],
+          ["revokeSponsorshipDoesNotExist", xdr2.void()],
+          ["revokeSponsorshipNotSponsor", xdr2.void()],
+          ["revokeSponsorshipLowReserve", xdr2.void()],
+          ["revokeSponsorshipOnlyTransferable", xdr2.void()],
+          ["revokeSponsorshipMalformed", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("ClawbackResultCode", {
+      xdr2.enum("ClawbackResultCode", {
         clawbackSuccess: 0,
         clawbackMalformed: -1,
         clawbackNotClawbackEnabled: -2,
         clawbackNoTrust: -3,
         clawbackUnderfunded: -4
       });
-      xdr.union("ClawbackResult", {
-        switchOn: xdr.lookup("ClawbackResultCode"),
+      xdr2.union("ClawbackResult", {
+        switchOn: xdr2.lookup("ClawbackResultCode"),
         switchName: "code",
         switches: [
-          ["clawbackSuccess", xdr.void()],
-          ["clawbackMalformed", xdr.void()],
-          ["clawbackNotClawbackEnabled", xdr.void()],
-          ["clawbackNoTrust", xdr.void()],
-          ["clawbackUnderfunded", xdr.void()]
+          ["clawbackSuccess", xdr2.void()],
+          ["clawbackMalformed", xdr2.void()],
+          ["clawbackNotClawbackEnabled", xdr2.void()],
+          ["clawbackNoTrust", xdr2.void()],
+          ["clawbackUnderfunded", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("ClawbackClaimableBalanceResultCode", {
+      xdr2.enum("ClawbackClaimableBalanceResultCode", {
         clawbackClaimableBalanceSuccess: 0,
         clawbackClaimableBalanceDoesNotExist: -1,
         clawbackClaimableBalanceNotIssuer: -2,
         clawbackClaimableBalanceNotClawbackEnabled: -3
       });
-      xdr.union("ClawbackClaimableBalanceResult", {
-        switchOn: xdr.lookup("ClawbackClaimableBalanceResultCode"),
+      xdr2.union("ClawbackClaimableBalanceResult", {
+        switchOn: xdr2.lookup("ClawbackClaimableBalanceResultCode"),
         switchName: "code",
         switches: [
-          ["clawbackClaimableBalanceSuccess", xdr.void()],
-          ["clawbackClaimableBalanceDoesNotExist", xdr.void()],
-          ["clawbackClaimableBalanceNotIssuer", xdr.void()],
-          ["clawbackClaimableBalanceNotClawbackEnabled", xdr.void()]
+          ["clawbackClaimableBalanceSuccess", xdr2.void()],
+          ["clawbackClaimableBalanceDoesNotExist", xdr2.void()],
+          ["clawbackClaimableBalanceNotIssuer", xdr2.void()],
+          ["clawbackClaimableBalanceNotClawbackEnabled", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("SetTrustLineFlagsResultCode", {
+      xdr2.enum("SetTrustLineFlagsResultCode", {
         setTrustLineFlagsSuccess: 0,
         setTrustLineFlagsMalformed: -1,
         setTrustLineFlagsNoTrustLine: -2,
@@ -15950,20 +15950,20 @@ var require_curr_generated = __commonJS({
         setTrustLineFlagsInvalidState: -4,
         setTrustLineFlagsLowReserve: -5
       });
-      xdr.union("SetTrustLineFlagsResult", {
-        switchOn: xdr.lookup("SetTrustLineFlagsResultCode"),
+      xdr2.union("SetTrustLineFlagsResult", {
+        switchOn: xdr2.lookup("SetTrustLineFlagsResultCode"),
         switchName: "code",
         switches: [
-          ["setTrustLineFlagsSuccess", xdr.void()],
-          ["setTrustLineFlagsMalformed", xdr.void()],
-          ["setTrustLineFlagsNoTrustLine", xdr.void()],
-          ["setTrustLineFlagsCantRevoke", xdr.void()],
-          ["setTrustLineFlagsInvalidState", xdr.void()],
-          ["setTrustLineFlagsLowReserve", xdr.void()]
+          ["setTrustLineFlagsSuccess", xdr2.void()],
+          ["setTrustLineFlagsMalformed", xdr2.void()],
+          ["setTrustLineFlagsNoTrustLine", xdr2.void()],
+          ["setTrustLineFlagsCantRevoke", xdr2.void()],
+          ["setTrustLineFlagsInvalidState", xdr2.void()],
+          ["setTrustLineFlagsLowReserve", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("LiquidityPoolDepositResultCode", {
+      xdr2.enum("LiquidityPoolDepositResultCode", {
         liquidityPoolDepositSuccess: 0,
         liquidityPoolDepositMalformed: -1,
         liquidityPoolDepositNoTrust: -2,
@@ -15974,23 +15974,23 @@ var require_curr_generated = __commonJS({
         liquidityPoolDepositPoolFull: -7,
         liquidityPoolDepositTrustlineFrozen: -8
       });
-      xdr.union("LiquidityPoolDepositResult", {
-        switchOn: xdr.lookup("LiquidityPoolDepositResultCode"),
+      xdr2.union("LiquidityPoolDepositResult", {
+        switchOn: xdr2.lookup("LiquidityPoolDepositResultCode"),
         switchName: "code",
         switches: [
-          ["liquidityPoolDepositSuccess", xdr.void()],
-          ["liquidityPoolDepositMalformed", xdr.void()],
-          ["liquidityPoolDepositNoTrust", xdr.void()],
-          ["liquidityPoolDepositNotAuthorized", xdr.void()],
-          ["liquidityPoolDepositUnderfunded", xdr.void()],
-          ["liquidityPoolDepositLineFull", xdr.void()],
-          ["liquidityPoolDepositBadPrice", xdr.void()],
-          ["liquidityPoolDepositPoolFull", xdr.void()],
-          ["liquidityPoolDepositTrustlineFrozen", xdr.void()]
+          ["liquidityPoolDepositSuccess", xdr2.void()],
+          ["liquidityPoolDepositMalformed", xdr2.void()],
+          ["liquidityPoolDepositNoTrust", xdr2.void()],
+          ["liquidityPoolDepositNotAuthorized", xdr2.void()],
+          ["liquidityPoolDepositUnderfunded", xdr2.void()],
+          ["liquidityPoolDepositLineFull", xdr2.void()],
+          ["liquidityPoolDepositBadPrice", xdr2.void()],
+          ["liquidityPoolDepositPoolFull", xdr2.void()],
+          ["liquidityPoolDepositTrustlineFrozen", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("LiquidityPoolWithdrawResultCode", {
+      xdr2.enum("LiquidityPoolWithdrawResultCode", {
         liquidityPoolWithdrawSuccess: 0,
         liquidityPoolWithdrawMalformed: -1,
         liquidityPoolWithdrawNoTrust: -2,
@@ -15999,21 +15999,21 @@ var require_curr_generated = __commonJS({
         liquidityPoolWithdrawUnderMinimum: -5,
         liquidityPoolWithdrawTrustlineFrozen: -6
       });
-      xdr.union("LiquidityPoolWithdrawResult", {
-        switchOn: xdr.lookup("LiquidityPoolWithdrawResultCode"),
+      xdr2.union("LiquidityPoolWithdrawResult", {
+        switchOn: xdr2.lookup("LiquidityPoolWithdrawResultCode"),
         switchName: "code",
         switches: [
-          ["liquidityPoolWithdrawSuccess", xdr.void()],
-          ["liquidityPoolWithdrawMalformed", xdr.void()],
-          ["liquidityPoolWithdrawNoTrust", xdr.void()],
-          ["liquidityPoolWithdrawUnderfunded", xdr.void()],
-          ["liquidityPoolWithdrawLineFull", xdr.void()],
-          ["liquidityPoolWithdrawUnderMinimum", xdr.void()],
-          ["liquidityPoolWithdrawTrustlineFrozen", xdr.void()]
+          ["liquidityPoolWithdrawSuccess", xdr2.void()],
+          ["liquidityPoolWithdrawMalformed", xdr2.void()],
+          ["liquidityPoolWithdrawNoTrust", xdr2.void()],
+          ["liquidityPoolWithdrawUnderfunded", xdr2.void()],
+          ["liquidityPoolWithdrawLineFull", xdr2.void()],
+          ["liquidityPoolWithdrawUnderMinimum", xdr2.void()],
+          ["liquidityPoolWithdrawTrustlineFrozen", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("InvokeHostFunctionResultCode", {
+      xdr2.enum("InvokeHostFunctionResultCode", {
         invokeHostFunctionSuccess: 0,
         invokeHostFunctionMalformed: -1,
         invokeHostFunctionTrapped: -2,
@@ -16021,56 +16021,56 @@ var require_curr_generated = __commonJS({
         invokeHostFunctionEntryArchived: -4,
         invokeHostFunctionInsufficientRefundableFee: -5
       });
-      xdr.union("InvokeHostFunctionResult", {
-        switchOn: xdr.lookup("InvokeHostFunctionResultCode"),
+      xdr2.union("InvokeHostFunctionResult", {
+        switchOn: xdr2.lookup("InvokeHostFunctionResultCode"),
         switchName: "code",
         switches: [
           ["invokeHostFunctionSuccess", "success"],
-          ["invokeHostFunctionMalformed", xdr.void()],
-          ["invokeHostFunctionTrapped", xdr.void()],
-          ["invokeHostFunctionResourceLimitExceeded", xdr.void()],
-          ["invokeHostFunctionEntryArchived", xdr.void()],
-          ["invokeHostFunctionInsufficientRefundableFee", xdr.void()]
+          ["invokeHostFunctionMalformed", xdr2.void()],
+          ["invokeHostFunctionTrapped", xdr2.void()],
+          ["invokeHostFunctionResourceLimitExceeded", xdr2.void()],
+          ["invokeHostFunctionEntryArchived", xdr2.void()],
+          ["invokeHostFunctionInsufficientRefundableFee", xdr2.void()]
         ],
         arms: {
-          success: xdr.lookup("Hash")
+          success: xdr2.lookup("Hash")
         }
       });
-      xdr.enum("ExtendFootprintTtlResultCode", {
+      xdr2.enum("ExtendFootprintTtlResultCode", {
         extendFootprintTtlSuccess: 0,
         extendFootprintTtlMalformed: -1,
         extendFootprintTtlResourceLimitExceeded: -2,
         extendFootprintTtlInsufficientRefundableFee: -3
       });
-      xdr.union("ExtendFootprintTtlResult", {
-        switchOn: xdr.lookup("ExtendFootprintTtlResultCode"),
+      xdr2.union("ExtendFootprintTtlResult", {
+        switchOn: xdr2.lookup("ExtendFootprintTtlResultCode"),
         switchName: "code",
         switches: [
-          ["extendFootprintTtlSuccess", xdr.void()],
-          ["extendFootprintTtlMalformed", xdr.void()],
-          ["extendFootprintTtlResourceLimitExceeded", xdr.void()],
-          ["extendFootprintTtlInsufficientRefundableFee", xdr.void()]
+          ["extendFootprintTtlSuccess", xdr2.void()],
+          ["extendFootprintTtlMalformed", xdr2.void()],
+          ["extendFootprintTtlResourceLimitExceeded", xdr2.void()],
+          ["extendFootprintTtlInsufficientRefundableFee", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("RestoreFootprintResultCode", {
+      xdr2.enum("RestoreFootprintResultCode", {
         restoreFootprintSuccess: 0,
         restoreFootprintMalformed: -1,
         restoreFootprintResourceLimitExceeded: -2,
         restoreFootprintInsufficientRefundableFee: -3
       });
-      xdr.union("RestoreFootprintResult", {
-        switchOn: xdr.lookup("RestoreFootprintResultCode"),
+      xdr2.union("RestoreFootprintResult", {
+        switchOn: xdr2.lookup("RestoreFootprintResultCode"),
         switchName: "code",
         switches: [
-          ["restoreFootprintSuccess", xdr.void()],
-          ["restoreFootprintMalformed", xdr.void()],
-          ["restoreFootprintResourceLimitExceeded", xdr.void()],
-          ["restoreFootprintInsufficientRefundableFee", xdr.void()]
+          ["restoreFootprintSuccess", xdr2.void()],
+          ["restoreFootprintMalformed", xdr2.void()],
+          ["restoreFootprintResourceLimitExceeded", xdr2.void()],
+          ["restoreFootprintInsufficientRefundableFee", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("OperationResultCode", {
+      xdr2.enum("OperationResultCode", {
         opInner: 0,
         opBadAuth: -1,
         opNoAccount: -2,
@@ -16079,8 +16079,8 @@ var require_curr_generated = __commonJS({
         opExceededWorkLimit: -5,
         opTooManySponsoring: -6
       });
-      xdr.union("OperationResultTr", {
-        switchOn: xdr.lookup("OperationType"),
+      xdr2.union("OperationResultTr", {
+        switchOn: xdr2.lookup("OperationType"),
         switchName: "type",
         switches: [
           ["createAccount", "createAccountResult"],
@@ -16112,60 +16112,60 @@ var require_curr_generated = __commonJS({
           ["restoreFootprint", "restoreFootprintResult"]
         ],
         arms: {
-          createAccountResult: xdr.lookup("CreateAccountResult"),
-          paymentResult: xdr.lookup("PaymentResult"),
-          pathPaymentStrictReceiveResult: xdr.lookup(
+          createAccountResult: xdr2.lookup("CreateAccountResult"),
+          paymentResult: xdr2.lookup("PaymentResult"),
+          pathPaymentStrictReceiveResult: xdr2.lookup(
             "PathPaymentStrictReceiveResult"
           ),
-          manageSellOfferResult: xdr.lookup("ManageSellOfferResult"),
-          createPassiveSellOfferResult: xdr.lookup("ManageSellOfferResult"),
-          setOptionsResult: xdr.lookup("SetOptionsResult"),
-          changeTrustResult: xdr.lookup("ChangeTrustResult"),
-          allowTrustResult: xdr.lookup("AllowTrustResult"),
-          accountMergeResult: xdr.lookup("AccountMergeResult"),
-          inflationResult: xdr.lookup("InflationResult"),
-          manageDataResult: xdr.lookup("ManageDataResult"),
-          bumpSeqResult: xdr.lookup("BumpSequenceResult"),
-          manageBuyOfferResult: xdr.lookup("ManageBuyOfferResult"),
-          pathPaymentStrictSendResult: xdr.lookup("PathPaymentStrictSendResult"),
-          createClaimableBalanceResult: xdr.lookup("CreateClaimableBalanceResult"),
-          claimClaimableBalanceResult: xdr.lookup("ClaimClaimableBalanceResult"),
-          beginSponsoringFutureReservesResult: xdr.lookup(
+          manageSellOfferResult: xdr2.lookup("ManageSellOfferResult"),
+          createPassiveSellOfferResult: xdr2.lookup("ManageSellOfferResult"),
+          setOptionsResult: xdr2.lookup("SetOptionsResult"),
+          changeTrustResult: xdr2.lookup("ChangeTrustResult"),
+          allowTrustResult: xdr2.lookup("AllowTrustResult"),
+          accountMergeResult: xdr2.lookup("AccountMergeResult"),
+          inflationResult: xdr2.lookup("InflationResult"),
+          manageDataResult: xdr2.lookup("ManageDataResult"),
+          bumpSeqResult: xdr2.lookup("BumpSequenceResult"),
+          manageBuyOfferResult: xdr2.lookup("ManageBuyOfferResult"),
+          pathPaymentStrictSendResult: xdr2.lookup("PathPaymentStrictSendResult"),
+          createClaimableBalanceResult: xdr2.lookup("CreateClaimableBalanceResult"),
+          claimClaimableBalanceResult: xdr2.lookup("ClaimClaimableBalanceResult"),
+          beginSponsoringFutureReservesResult: xdr2.lookup(
             "BeginSponsoringFutureReservesResult"
           ),
-          endSponsoringFutureReservesResult: xdr.lookup(
+          endSponsoringFutureReservesResult: xdr2.lookup(
             "EndSponsoringFutureReservesResult"
           ),
-          revokeSponsorshipResult: xdr.lookup("RevokeSponsorshipResult"),
-          clawbackResult: xdr.lookup("ClawbackResult"),
-          clawbackClaimableBalanceResult: xdr.lookup(
+          revokeSponsorshipResult: xdr2.lookup("RevokeSponsorshipResult"),
+          clawbackResult: xdr2.lookup("ClawbackResult"),
+          clawbackClaimableBalanceResult: xdr2.lookup(
             "ClawbackClaimableBalanceResult"
           ),
-          setTrustLineFlagsResult: xdr.lookup("SetTrustLineFlagsResult"),
-          liquidityPoolDepositResult: xdr.lookup("LiquidityPoolDepositResult"),
-          liquidityPoolWithdrawResult: xdr.lookup("LiquidityPoolWithdrawResult"),
-          invokeHostFunctionResult: xdr.lookup("InvokeHostFunctionResult"),
-          extendFootprintTtlResult: xdr.lookup("ExtendFootprintTtlResult"),
-          restoreFootprintResult: xdr.lookup("RestoreFootprintResult")
+          setTrustLineFlagsResult: xdr2.lookup("SetTrustLineFlagsResult"),
+          liquidityPoolDepositResult: xdr2.lookup("LiquidityPoolDepositResult"),
+          liquidityPoolWithdrawResult: xdr2.lookup("LiquidityPoolWithdrawResult"),
+          invokeHostFunctionResult: xdr2.lookup("InvokeHostFunctionResult"),
+          extendFootprintTtlResult: xdr2.lookup("ExtendFootprintTtlResult"),
+          restoreFootprintResult: xdr2.lookup("RestoreFootprintResult")
         }
       });
-      xdr.union("OperationResult", {
-        switchOn: xdr.lookup("OperationResultCode"),
+      xdr2.union("OperationResult", {
+        switchOn: xdr2.lookup("OperationResultCode"),
         switchName: "code",
         switches: [
           ["opInner", "tr"],
-          ["opBadAuth", xdr.void()],
-          ["opNoAccount", xdr.void()],
-          ["opNotSupported", xdr.void()],
-          ["opTooManySubentries", xdr.void()],
-          ["opExceededWorkLimit", xdr.void()],
-          ["opTooManySponsoring", xdr.void()]
+          ["opBadAuth", xdr2.void()],
+          ["opNoAccount", xdr2.void()],
+          ["opNotSupported", xdr2.void()],
+          ["opTooManySubentries", xdr2.void()],
+          ["opExceededWorkLimit", xdr2.void()],
+          ["opTooManySponsoring", xdr2.void()]
         ],
         arms: {
-          tr: xdr.lookup("OperationResultTr")
+          tr: xdr2.lookup("OperationResultTr")
         }
       });
-      xdr.enum("TransactionResultCode", {
+      xdr2.enum("TransactionResultCode", {
         txFeeBumpInnerSuccess: 1,
         txSuccess: 0,
         txFailed: -1,
@@ -16187,133 +16187,133 @@ var require_curr_generated = __commonJS({
         txSorobanInvalid: -17,
         txFrozenKeyAccessed: -18
       });
-      xdr.union("InnerTransactionResultResult", {
-        switchOn: xdr.lookup("TransactionResultCode"),
+      xdr2.union("InnerTransactionResultResult", {
+        switchOn: xdr2.lookup("TransactionResultCode"),
         switchName: "code",
         switches: [
           ["txSuccess", "results"],
           ["txFailed", "results"],
-          ["txTooEarly", xdr.void()],
-          ["txTooLate", xdr.void()],
-          ["txMissingOperation", xdr.void()],
-          ["txBadSeq", xdr.void()],
-          ["txBadAuth", xdr.void()],
-          ["txInsufficientBalance", xdr.void()],
-          ["txNoAccount", xdr.void()],
-          ["txInsufficientFee", xdr.void()],
-          ["txBadAuthExtra", xdr.void()],
-          ["txInternalError", xdr.void()],
-          ["txNotSupported", xdr.void()],
-          ["txBadSponsorship", xdr.void()],
-          ["txBadMinSeqAgeOrGap", xdr.void()],
-          ["txMalformed", xdr.void()],
-          ["txSorobanInvalid", xdr.void()],
-          ["txFrozenKeyAccessed", xdr.void()]
+          ["txTooEarly", xdr2.void()],
+          ["txTooLate", xdr2.void()],
+          ["txMissingOperation", xdr2.void()],
+          ["txBadSeq", xdr2.void()],
+          ["txBadAuth", xdr2.void()],
+          ["txInsufficientBalance", xdr2.void()],
+          ["txNoAccount", xdr2.void()],
+          ["txInsufficientFee", xdr2.void()],
+          ["txBadAuthExtra", xdr2.void()],
+          ["txInternalError", xdr2.void()],
+          ["txNotSupported", xdr2.void()],
+          ["txBadSponsorship", xdr2.void()],
+          ["txBadMinSeqAgeOrGap", xdr2.void()],
+          ["txMalformed", xdr2.void()],
+          ["txSorobanInvalid", xdr2.void()],
+          ["txFrozenKeyAccessed", xdr2.void()]
         ],
         arms: {
-          results: xdr.varArray(xdr.lookup("OperationResult"), 2147483647)
+          results: xdr2.varArray(xdr2.lookup("OperationResult"), 2147483647)
         }
       });
-      xdr.union("InnerTransactionResultExt", {
-        switchOn: xdr.int(),
+      xdr2.union("InnerTransactionResultExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("InnerTransactionResult", [
-        ["feeCharged", xdr.lookup("Int64")],
-        ["result", xdr.lookup("InnerTransactionResultResult")],
-        ["ext", xdr.lookup("InnerTransactionResultExt")]
+      xdr2.struct("InnerTransactionResult", [
+        ["feeCharged", xdr2.lookup("Int64")],
+        ["result", xdr2.lookup("InnerTransactionResultResult")],
+        ["ext", xdr2.lookup("InnerTransactionResultExt")]
       ]);
-      xdr.struct("InnerTransactionResultPair", [
-        ["transactionHash", xdr.lookup("Hash")],
-        ["result", xdr.lookup("InnerTransactionResult")]
+      xdr2.struct("InnerTransactionResultPair", [
+        ["transactionHash", xdr2.lookup("Hash")],
+        ["result", xdr2.lookup("InnerTransactionResult")]
       ]);
-      xdr.union("TransactionResultResult", {
-        switchOn: xdr.lookup("TransactionResultCode"),
+      xdr2.union("TransactionResultResult", {
+        switchOn: xdr2.lookup("TransactionResultCode"),
         switchName: "code",
         switches: [
           ["txFeeBumpInnerSuccess", "innerResultPair"],
           ["txFeeBumpInnerFailed", "innerResultPair"],
           ["txSuccess", "results"],
           ["txFailed", "results"],
-          ["txTooEarly", xdr.void()],
-          ["txTooLate", xdr.void()],
-          ["txMissingOperation", xdr.void()],
-          ["txBadSeq", xdr.void()],
-          ["txBadAuth", xdr.void()],
-          ["txInsufficientBalance", xdr.void()],
-          ["txNoAccount", xdr.void()],
-          ["txInsufficientFee", xdr.void()],
-          ["txBadAuthExtra", xdr.void()],
-          ["txInternalError", xdr.void()],
-          ["txNotSupported", xdr.void()],
-          ["txBadSponsorship", xdr.void()],
-          ["txBadMinSeqAgeOrGap", xdr.void()],
-          ["txMalformed", xdr.void()],
-          ["txSorobanInvalid", xdr.void()],
-          ["txFrozenKeyAccessed", xdr.void()]
+          ["txTooEarly", xdr2.void()],
+          ["txTooLate", xdr2.void()],
+          ["txMissingOperation", xdr2.void()],
+          ["txBadSeq", xdr2.void()],
+          ["txBadAuth", xdr2.void()],
+          ["txInsufficientBalance", xdr2.void()],
+          ["txNoAccount", xdr2.void()],
+          ["txInsufficientFee", xdr2.void()],
+          ["txBadAuthExtra", xdr2.void()],
+          ["txInternalError", xdr2.void()],
+          ["txNotSupported", xdr2.void()],
+          ["txBadSponsorship", xdr2.void()],
+          ["txBadMinSeqAgeOrGap", xdr2.void()],
+          ["txMalformed", xdr2.void()],
+          ["txSorobanInvalid", xdr2.void()],
+          ["txFrozenKeyAccessed", xdr2.void()]
         ],
         arms: {
-          innerResultPair: xdr.lookup("InnerTransactionResultPair"),
-          results: xdr.varArray(xdr.lookup("OperationResult"), 2147483647)
+          innerResultPair: xdr2.lookup("InnerTransactionResultPair"),
+          results: xdr2.varArray(xdr2.lookup("OperationResult"), 2147483647)
         }
       });
-      xdr.union("TransactionResultExt", {
-        switchOn: xdr.int(),
+      xdr2.union("TransactionResultExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("TransactionResult", [
-        ["feeCharged", xdr.lookup("Int64")],
-        ["result", xdr.lookup("TransactionResultResult")],
-        ["ext", xdr.lookup("TransactionResultExt")]
+      xdr2.struct("TransactionResult", [
+        ["feeCharged", xdr2.lookup("Int64")],
+        ["result", xdr2.lookup("TransactionResultResult")],
+        ["ext", xdr2.lookup("TransactionResultExt")]
       ]);
-      xdr.typedef("Hash", xdr.opaque(32));
-      xdr.typedef("Uint256", xdr.opaque(32));
-      xdr.typedef("Uint32", xdr.uint());
-      xdr.typedef("Int32", xdr.int());
-      xdr.typedef("Uint64", xdr.uhyper());
-      xdr.typedef("Int64", xdr.hyper());
-      xdr.typedef("TimePoint", xdr.lookup("Uint64"));
-      xdr.typedef("Duration", xdr.lookup("Uint64"));
-      xdr.union("ExtensionPoint", {
-        switchOn: xdr.int(),
+      xdr2.typedef("Hash", xdr2.opaque(32));
+      xdr2.typedef("Uint256", xdr2.opaque(32));
+      xdr2.typedef("Uint32", xdr2.uint());
+      xdr2.typedef("Int32", xdr2.int());
+      xdr2.typedef("Uint64", xdr2.uhyper());
+      xdr2.typedef("Int64", xdr2.hyper());
+      xdr2.typedef("TimePoint", xdr2.lookup("Uint64"));
+      xdr2.typedef("Duration", xdr2.lookup("Uint64"));
+      xdr2.union("ExtensionPoint", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.enum("CryptoKeyType", {
+      xdr2.enum("CryptoKeyType", {
         keyTypeEd25519: 0,
         keyTypePreAuthTx: 1,
         keyTypeHashX: 2,
         keyTypeEd25519SignedPayload: 3,
         keyTypeMuxedEd25519: 256
       });
-      xdr.enum("PublicKeyType", {
+      xdr2.enum("PublicKeyType", {
         publicKeyTypeEd25519: 0
       });
-      xdr.enum("SignerKeyType", {
+      xdr2.enum("SignerKeyType", {
         signerKeyTypeEd25519: 0,
         signerKeyTypePreAuthTx: 1,
         signerKeyTypeHashX: 2,
         signerKeyTypeEd25519SignedPayload: 3
       });
-      xdr.union("PublicKey", {
-        switchOn: xdr.lookup("PublicKeyType"),
+      xdr2.union("PublicKey", {
+        switchOn: xdr2.lookup("PublicKeyType"),
         switchName: "type",
         switches: [["publicKeyTypeEd25519", "ed25519"]],
         arms: {
-          ed25519: xdr.lookup("Uint256")
+          ed25519: xdr2.lookup("Uint256")
         }
       });
-      xdr.struct("SignerKeyEd25519SignedPayload", [
-        ["ed25519", xdr.lookup("Uint256")],
-        ["payload", xdr.varOpaque(64)]
+      xdr2.struct("SignerKeyEd25519SignedPayload", [
+        ["ed25519", xdr2.lookup("Uint256")],
+        ["payload", xdr2.varOpaque(64)]
       ]);
-      xdr.union("SignerKey", {
-        switchOn: xdr.lookup("SignerKeyType"),
+      xdr2.union("SignerKey", {
+        switchOn: xdr2.lookup("SignerKeyType"),
         switchName: "type",
         switches: [
           ["signerKeyTypeEd25519", "ed25519"],
@@ -16322,55 +16322,55 @@ var require_curr_generated = __commonJS({
           ["signerKeyTypeEd25519SignedPayload", "ed25519SignedPayload"]
         ],
         arms: {
-          ed25519: xdr.lookup("Uint256"),
-          preAuthTx: xdr.lookup("Uint256"),
-          hashX: xdr.lookup("Uint256"),
-          ed25519SignedPayload: xdr.lookup("SignerKeyEd25519SignedPayload")
+          ed25519: xdr2.lookup("Uint256"),
+          preAuthTx: xdr2.lookup("Uint256"),
+          hashX: xdr2.lookup("Uint256"),
+          ed25519SignedPayload: xdr2.lookup("SignerKeyEd25519SignedPayload")
         }
       });
-      xdr.typedef("Signature", xdr.varOpaque(64));
-      xdr.typedef("SignatureHint", xdr.opaque(4));
-      xdr.typedef("NodeId", xdr.lookup("PublicKey"));
-      xdr.typedef("AccountId", xdr.lookup("PublicKey"));
-      xdr.typedef("ContractId", xdr.lookup("Hash"));
-      xdr.struct("Curve25519Secret", [["key", xdr.opaque(32)]]);
-      xdr.struct("Curve25519Public", [["key", xdr.opaque(32)]]);
-      xdr.struct("HmacSha256Key", [["key", xdr.opaque(32)]]);
-      xdr.struct("HmacSha256Mac", [["mac", xdr.opaque(32)]]);
-      xdr.struct("ShortHashSeed", [["seed", xdr.opaque(16)]]);
-      xdr.enum("BinaryFuseFilterType", {
+      xdr2.typedef("Signature", xdr2.varOpaque(64));
+      xdr2.typedef("SignatureHint", xdr2.opaque(4));
+      xdr2.typedef("NodeId", xdr2.lookup("PublicKey"));
+      xdr2.typedef("AccountId", xdr2.lookup("PublicKey"));
+      xdr2.typedef("ContractId", xdr2.lookup("Hash"));
+      xdr2.struct("Curve25519Secret", [["key", xdr2.opaque(32)]]);
+      xdr2.struct("Curve25519Public", [["key", xdr2.opaque(32)]]);
+      xdr2.struct("HmacSha256Key", [["key", xdr2.opaque(32)]]);
+      xdr2.struct("HmacSha256Mac", [["mac", xdr2.opaque(32)]]);
+      xdr2.struct("ShortHashSeed", [["seed", xdr2.opaque(16)]]);
+      xdr2.enum("BinaryFuseFilterType", {
         binaryFuseFilter8Bit: 0,
         binaryFuseFilter16Bit: 1,
         binaryFuseFilter32Bit: 2
       });
-      xdr.struct("SerializedBinaryFuseFilter", [
-        ["type", xdr.lookup("BinaryFuseFilterType")],
-        ["inputHashSeed", xdr.lookup("ShortHashSeed")],
-        ["filterSeed", xdr.lookup("ShortHashSeed")],
-        ["segmentLength", xdr.lookup("Uint32")],
-        ["segementLengthMask", xdr.lookup("Uint32")],
-        ["segmentCount", xdr.lookup("Uint32")],
-        ["segmentCountLength", xdr.lookup("Uint32")],
-        ["fingerprintLength", xdr.lookup("Uint32")],
-        ["fingerprints", xdr.varOpaque()]
+      xdr2.struct("SerializedBinaryFuseFilter", [
+        ["type", xdr2.lookup("BinaryFuseFilterType")],
+        ["inputHashSeed", xdr2.lookup("ShortHashSeed")],
+        ["filterSeed", xdr2.lookup("ShortHashSeed")],
+        ["segmentLength", xdr2.lookup("Uint32")],
+        ["segementLengthMask", xdr2.lookup("Uint32")],
+        ["segmentCount", xdr2.lookup("Uint32")],
+        ["segmentCountLength", xdr2.lookup("Uint32")],
+        ["fingerprintLength", xdr2.lookup("Uint32")],
+        ["fingerprints", xdr2.varOpaque()]
       ]);
-      xdr.typedef("PoolId", xdr.lookup("Hash"));
-      xdr.enum("ClaimableBalanceIdType", {
+      xdr2.typedef("PoolId", xdr2.lookup("Hash"));
+      xdr2.enum("ClaimableBalanceIdType", {
         claimableBalanceIdTypeV0: 0
       });
-      xdr.union("ClaimableBalanceId", {
-        switchOn: xdr.lookup("ClaimableBalanceIdType"),
+      xdr2.union("ClaimableBalanceId", {
+        switchOn: xdr2.lookup("ClaimableBalanceIdType"),
         switchName: "type",
         switches: [["claimableBalanceIdTypeV0", "v0"]],
         arms: {
-          v0: xdr.lookup("Hash")
+          v0: xdr2.lookup("Hash")
         }
       });
-      xdr.typedef("ScBytes", xdr.varOpaque());
-      xdr.typedef("ScString", xdr.string());
-      xdr.const("SCSYMBOL_LIMIT", 32);
-      xdr.typedef("ScSymbol", xdr.string(SCSYMBOL_LIMIT));
-      xdr.enum("ScValType", {
+      xdr2.typedef("ScBytes", xdr2.varOpaque());
+      xdr2.typedef("ScString", xdr2.string());
+      xdr2.const("SCSYMBOL_LIMIT", 32);
+      xdr2.typedef("ScSymbol", xdr2.string(SCSYMBOL_LIMIT));
+      xdr2.enum("ScValType", {
         scvBool: 0,
         scvVoid: 1,
         scvError: 2,
@@ -16395,7 +16395,7 @@ var require_curr_generated = __commonJS({
         scvLedgerKeyNonce: 21,
         scvExecutableTag: 22
       });
-      xdr.enum("ScErrorType", {
+      xdr2.enum("ScErrorType", {
         sceContract: 0,
         sceWasmVm: 1,
         sceContext: 2,
@@ -16407,7 +16407,7 @@ var require_curr_generated = __commonJS({
         sceValue: 8,
         sceAuth: 9
       });
-      xdr.enum("ScErrorCode", {
+      xdr2.enum("ScErrorCode", {
         scecArithDomain: 0,
         scecIndexBounds: 1,
         scecInvalidInput: 2,
@@ -16419,8 +16419,8 @@ var require_curr_generated = __commonJS({
         scecUnexpectedType: 8,
         scecUnexpectedSize: 9
       });
-      xdr.union("ScError", {
-        switchOn: xdr.lookup("ScErrorType"),
+      xdr2.union("ScError", {
+        switchOn: xdr2.lookup("ScErrorType"),
         switchName: "type",
         switches: [
           ["sceContract", "contractCode"],
@@ -16435,48 +16435,48 @@ var require_curr_generated = __commonJS({
           ["sceAuth", "code"]
         ],
         arms: {
-          contractCode: xdr.lookup("Uint32"),
-          code: xdr.lookup("ScErrorCode")
+          contractCode: xdr2.lookup("Uint32"),
+          code: xdr2.lookup("ScErrorCode")
         }
       });
-      xdr.struct("UInt128Parts", [
-        ["hi", xdr.lookup("Uint64")],
-        ["lo", xdr.lookup("Uint64")]
+      xdr2.struct("UInt128Parts", [
+        ["hi", xdr2.lookup("Uint64")],
+        ["lo", xdr2.lookup("Uint64")]
       ]);
-      xdr.struct("Int128Parts", [
-        ["hi", xdr.lookup("Int64")],
-        ["lo", xdr.lookup("Uint64")]
+      xdr2.struct("Int128Parts", [
+        ["hi", xdr2.lookup("Int64")],
+        ["lo", xdr2.lookup("Uint64")]
       ]);
-      xdr.struct("UInt256Parts", [
-        ["hiHi", xdr.lookup("Uint64")],
-        ["hiLo", xdr.lookup("Uint64")],
-        ["loHi", xdr.lookup("Uint64")],
-        ["loLo", xdr.lookup("Uint64")]
+      xdr2.struct("UInt256Parts", [
+        ["hiHi", xdr2.lookup("Uint64")],
+        ["hiLo", xdr2.lookup("Uint64")],
+        ["loHi", xdr2.lookup("Uint64")],
+        ["loLo", xdr2.lookup("Uint64")]
       ]);
-      xdr.struct("Int256Parts", [
-        ["hiHi", xdr.lookup("Int64")],
-        ["hiLo", xdr.lookup("Uint64")],
-        ["loHi", xdr.lookup("Uint64")],
-        ["loLo", xdr.lookup("Uint64")]
+      xdr2.struct("Int256Parts", [
+        ["hiHi", xdr2.lookup("Int64")],
+        ["hiLo", xdr2.lookup("Uint64")],
+        ["loHi", xdr2.lookup("Uint64")],
+        ["loLo", xdr2.lookup("Uint64")]
       ]);
-      xdr.enum("ContractExecutableType", {
+      xdr2.enum("ContractExecutableType", {
         contractExecutableWasm: 0,
         contractExecutableStellarAsset: 1,
         contractExecutableExternalRef: 2
       });
-      xdr.enum("ScAddressType", {
+      xdr2.enum("ScAddressType", {
         scAddressTypeAccount: 0,
         scAddressTypeContract: 1,
         scAddressTypeMuxedAccount: 2,
         scAddressTypeClaimableBalance: 3,
         scAddressTypeLiquidityPool: 4
       });
-      xdr.struct("MuxedEd25519Account", [
-        ["id", xdr.lookup("Uint64")],
-        ["ed25519", xdr.lookup("Uint256")]
+      xdr2.struct("MuxedEd25519Account", [
+        ["id", xdr2.lookup("Uint64")],
+        ["ed25519", xdr2.lookup("Uint256")]
       ]);
-      xdr.union("ScAddress", {
-        switchOn: xdr.lookup("ScAddressType"),
+      xdr2.union("ScAddress", {
+        switchOn: xdr2.lookup("ScAddressType"),
         switchName: "type",
         switches: [
           ["scAddressTypeAccount", "accountId"],
@@ -16486,43 +16486,43 @@ var require_curr_generated = __commonJS({
           ["scAddressTypeLiquidityPool", "liquidityPoolId"]
         ],
         arms: {
-          accountId: xdr.lookup("AccountId"),
-          contractId: xdr.lookup("ContractId"),
-          muxedAccount: xdr.lookup("MuxedEd25519Account"),
-          claimableBalanceId: xdr.lookup("ClaimableBalanceId"),
-          liquidityPoolId: xdr.lookup("PoolId")
+          accountId: xdr2.lookup("AccountId"),
+          contractId: xdr2.lookup("ContractId"),
+          muxedAccount: xdr2.lookup("MuxedEd25519Account"),
+          claimableBalanceId: xdr2.lookup("ClaimableBalanceId"),
+          liquidityPoolId: xdr2.lookup("PoolId")
         }
       });
-      xdr.struct("ContractExecutableExternalRef", [
-        ["executableOwner", xdr.lookup("ScAddress")],
-        ["tag", xdr.lookup("ScString")]
+      xdr2.struct("ContractExecutableExternalRef", [
+        ["executableOwner", xdr2.lookup("ScAddress")],
+        ["tag", xdr2.lookup("ScString")]
       ]);
-      xdr.union("ContractExecutable", {
-        switchOn: xdr.lookup("ContractExecutableType"),
+      xdr2.union("ContractExecutable", {
+        switchOn: xdr2.lookup("ContractExecutableType"),
         switchName: "type",
         switches: [
           ["contractExecutableWasm", "wasmHash"],
-          ["contractExecutableStellarAsset", xdr.void()],
+          ["contractExecutableStellarAsset", xdr2.void()],
           ["contractExecutableExternalRef", "externalRef"]
         ],
         arms: {
-          wasmHash: xdr.lookup("Hash"),
-          externalRef: xdr.lookup("ContractExecutableExternalRef")
+          wasmHash: xdr2.lookup("Hash"),
+          externalRef: xdr2.lookup("ContractExecutableExternalRef")
         }
       });
-      xdr.typedef("ScVec", xdr.varArray(xdr.lookup("ScVal"), 2147483647));
-      xdr.typedef("ScMap", xdr.varArray(xdr.lookup("ScMapEntry"), 2147483647));
-      xdr.struct("ScNonceKey", [["nonce", xdr.lookup("Int64")]]);
-      xdr.struct("ScContractInstance", [
-        ["executable", xdr.lookup("ContractExecutable")],
-        ["storage", xdr.option(xdr.lookup("ScMap"))]
+      xdr2.typedef("ScVec", xdr2.varArray(xdr2.lookup("ScVal"), 2147483647));
+      xdr2.typedef("ScMap", xdr2.varArray(xdr2.lookup("ScMapEntry"), 2147483647));
+      xdr2.struct("ScNonceKey", [["nonce", xdr2.lookup("Int64")]]);
+      xdr2.struct("ScContractInstance", [
+        ["executable", xdr2.lookup("ContractExecutable")],
+        ["storage", xdr2.option(xdr2.lookup("ScMap"))]
       ]);
-      xdr.union("ScVal", {
-        switchOn: xdr.lookup("ScValType"),
+      xdr2.union("ScVal", {
+        switchOn: xdr2.lookup("ScValType"),
         switchName: "type",
         switches: [
           ["scvBool", "b"],
-          ["scvVoid", xdr.void()],
+          ["scvVoid", xdr2.void()],
           ["scvError", "error"],
           ["scvU32", "u32"],
           ["scvI32", "i32"],
@@ -16541,70 +16541,70 @@ var require_curr_generated = __commonJS({
           ["scvMap", "map"],
           ["scvAddress", "address"],
           ["scvContractInstance", "instance"],
-          ["scvLedgerKeyContractInstance", xdr.void()],
+          ["scvLedgerKeyContractInstance", xdr2.void()],
           ["scvLedgerKeyNonce", "nonceKey"],
           ["scvExecutableTag", "executableTag"]
         ],
         arms: {
-          b: xdr.bool(),
-          error: xdr.lookup("ScError"),
-          u32: xdr.lookup("Uint32"),
-          i32: xdr.lookup("Int32"),
-          u64: xdr.lookup("Uint64"),
-          i64: xdr.lookup("Int64"),
-          timepoint: xdr.lookup("TimePoint"),
-          duration: xdr.lookup("Duration"),
-          u128: xdr.lookup("UInt128Parts"),
-          i128: xdr.lookup("Int128Parts"),
-          u256: xdr.lookup("UInt256Parts"),
-          i256: xdr.lookup("Int256Parts"),
-          bytes: xdr.lookup("ScBytes"),
-          str: xdr.lookup("ScString"),
-          sym: xdr.lookup("ScSymbol"),
-          vec: xdr.option(xdr.lookup("ScVec")),
-          map: xdr.option(xdr.lookup("ScMap")),
-          address: xdr.lookup("ScAddress"),
-          instance: xdr.lookup("ScContractInstance"),
-          nonceKey: xdr.lookup("ScNonceKey"),
-          executableTag: xdr.lookup("ScString")
+          b: xdr2.bool(),
+          error: xdr2.lookup("ScError"),
+          u32: xdr2.lookup("Uint32"),
+          i32: xdr2.lookup("Int32"),
+          u64: xdr2.lookup("Uint64"),
+          i64: xdr2.lookup("Int64"),
+          timepoint: xdr2.lookup("TimePoint"),
+          duration: xdr2.lookup("Duration"),
+          u128: xdr2.lookup("UInt128Parts"),
+          i128: xdr2.lookup("Int128Parts"),
+          u256: xdr2.lookup("UInt256Parts"),
+          i256: xdr2.lookup("Int256Parts"),
+          bytes: xdr2.lookup("ScBytes"),
+          str: xdr2.lookup("ScString"),
+          sym: xdr2.lookup("ScSymbol"),
+          vec: xdr2.option(xdr2.lookup("ScVec")),
+          map: xdr2.option(xdr2.lookup("ScMap")),
+          address: xdr2.lookup("ScAddress"),
+          instance: xdr2.lookup("ScContractInstance"),
+          nonceKey: xdr2.lookup("ScNonceKey"),
+          executableTag: xdr2.lookup("ScString")
         }
       });
-      xdr.struct("ScMapEntry", [
-        ["key", xdr.lookup("ScVal")],
-        ["val", xdr.lookup("ScVal")]
+      xdr2.struct("ScMapEntry", [
+        ["key", xdr2.lookup("ScVal")],
+        ["val", xdr2.lookup("ScVal")]
       ]);
-      xdr.enum("ScEnvMetaKind", {
+      xdr2.enum("ScEnvMetaKind", {
         scEnvMetaKindInterfaceVersion: 0
       });
-      xdr.struct("ScEnvMetaEntryInterfaceVersion", [
-        ["protocol", xdr.lookup("Uint32")],
-        ["preRelease", xdr.lookup("Uint32")]
+      xdr2.struct("ScEnvMetaEntryInterfaceVersion", [
+        ["protocol", xdr2.lookup("Uint32")],
+        ["preRelease", xdr2.lookup("Uint32")]
       ]);
-      xdr.union("ScEnvMetaEntry", {
-        switchOn: xdr.lookup("ScEnvMetaKind"),
+      xdr2.union("ScEnvMetaEntry", {
+        switchOn: xdr2.lookup("ScEnvMetaKind"),
         switchName: "kind",
         switches: [["scEnvMetaKindInterfaceVersion", "interfaceVersion"]],
         arms: {
-          interfaceVersion: xdr.lookup("ScEnvMetaEntryInterfaceVersion")
+          interfaceVersion: xdr2.lookup("ScEnvMetaEntryInterfaceVersion")
         }
       });
-      xdr.struct("ScMetaV0", [
-        ["key", xdr.string()],
-        ["val", xdr.string()]
+      xdr2.struct("ScMetaV0", [
+        ["key", xdr2.string()],
+        ["val", xdr2.string()]
       ]);
-      xdr.enum("ScMetaKind", {
+      xdr2.enum("ScMetaKind", {
         scMetaV0: 0
       });
-      xdr.union("ScMetaEntry", {
-        switchOn: xdr.lookup("ScMetaKind"),
+      xdr2.union("ScMetaEntry", {
+        switchOn: xdr2.lookup("ScMetaKind"),
         switchName: "kind",
         switches: [["scMetaV0", "v0"]],
         arms: {
-          v0: xdr.lookup("ScMetaV0")
+          v0: xdr2.lookup("ScMetaV0")
         }
       });
-      xdr.const("SC_SPEC_DOC_LIMIT", 1024);
-      xdr.enum("ScSpecType", {
+      xdr2.const("SC_SPEC_DOC_LIMIT", 1024);
+      xdr2.enum("ScSpecType", {
         scSpecTypeVal: 0,
         scSpecTypeBool: 1,
         scSpecTypeVoid: 2,
@@ -16632,44 +16632,44 @@ var require_curr_generated = __commonJS({
         scSpecTypeBytesN: 1006,
         scSpecTypeUdt: 2e3
       });
-      xdr.struct("ScSpecTypeOption", [["valueType", xdr.lookup("ScSpecTypeDef")]]);
-      xdr.struct("ScSpecTypeResult", [
-        ["okType", xdr.lookup("ScSpecTypeDef")],
-        ["errorType", xdr.lookup("ScSpecTypeDef")]
+      xdr2.struct("ScSpecTypeOption", [["valueType", xdr2.lookup("ScSpecTypeDef")]]);
+      xdr2.struct("ScSpecTypeResult", [
+        ["okType", xdr2.lookup("ScSpecTypeDef")],
+        ["errorType", xdr2.lookup("ScSpecTypeDef")]
       ]);
-      xdr.struct("ScSpecTypeVec", [["elementType", xdr.lookup("ScSpecTypeDef")]]);
-      xdr.struct("ScSpecTypeMap", [
-        ["keyType", xdr.lookup("ScSpecTypeDef")],
-        ["valueType", xdr.lookup("ScSpecTypeDef")]
+      xdr2.struct("ScSpecTypeVec", [["elementType", xdr2.lookup("ScSpecTypeDef")]]);
+      xdr2.struct("ScSpecTypeMap", [
+        ["keyType", xdr2.lookup("ScSpecTypeDef")],
+        ["valueType", xdr2.lookup("ScSpecTypeDef")]
       ]);
-      xdr.struct("ScSpecTypeTuple", [
-        ["valueTypes", xdr.varArray(xdr.lookup("ScSpecTypeDef"), 12)]
+      xdr2.struct("ScSpecTypeTuple", [
+        ["valueTypes", xdr2.varArray(xdr2.lookup("ScSpecTypeDef"), 12)]
       ]);
-      xdr.struct("ScSpecTypeBytesN", [["n", xdr.lookup("Uint32")]]);
-      xdr.struct("ScSpecTypeUdt", [["name", xdr.string(60)]]);
-      xdr.union("ScSpecTypeDef", {
-        switchOn: xdr.lookup("ScSpecType"),
+      xdr2.struct("ScSpecTypeBytesN", [["n", xdr2.lookup("Uint32")]]);
+      xdr2.struct("ScSpecTypeUdt", [["name", xdr2.string(60)]]);
+      xdr2.union("ScSpecTypeDef", {
+        switchOn: xdr2.lookup("ScSpecType"),
         switchName: "type",
         switches: [
-          ["scSpecTypeVal", xdr.void()],
-          ["scSpecTypeBool", xdr.void()],
-          ["scSpecTypeVoid", xdr.void()],
-          ["scSpecTypeError", xdr.void()],
-          ["scSpecTypeU32", xdr.void()],
-          ["scSpecTypeI32", xdr.void()],
-          ["scSpecTypeU64", xdr.void()],
-          ["scSpecTypeI64", xdr.void()],
-          ["scSpecTypeTimepoint", xdr.void()],
-          ["scSpecTypeDuration", xdr.void()],
-          ["scSpecTypeU128", xdr.void()],
-          ["scSpecTypeI128", xdr.void()],
-          ["scSpecTypeU256", xdr.void()],
-          ["scSpecTypeI256", xdr.void()],
-          ["scSpecTypeBytes", xdr.void()],
-          ["scSpecTypeString", xdr.void()],
-          ["scSpecTypeSymbol", xdr.void()],
-          ["scSpecTypeAddress", xdr.void()],
-          ["scSpecTypeMuxedAddress", xdr.void()],
+          ["scSpecTypeVal", xdr2.void()],
+          ["scSpecTypeBool", xdr2.void()],
+          ["scSpecTypeVoid", xdr2.void()],
+          ["scSpecTypeError", xdr2.void()],
+          ["scSpecTypeU32", xdr2.void()],
+          ["scSpecTypeI32", xdr2.void()],
+          ["scSpecTypeU64", xdr2.void()],
+          ["scSpecTypeI64", xdr2.void()],
+          ["scSpecTypeTimepoint", xdr2.void()],
+          ["scSpecTypeDuration", xdr2.void()],
+          ["scSpecTypeU128", xdr2.void()],
+          ["scSpecTypeI128", xdr2.void()],
+          ["scSpecTypeU256", xdr2.void()],
+          ["scSpecTypeI256", xdr2.void()],
+          ["scSpecTypeBytes", xdr2.void()],
+          ["scSpecTypeString", xdr2.void()],
+          ["scSpecTypeSymbol", xdr2.void()],
+          ["scSpecTypeAddress", xdr2.void()],
+          ["scSpecTypeMuxedAddress", xdr2.void()],
           ["scSpecTypeOption", "option"],
           ["scSpecTypeResult", "result"],
           ["scSpecTypeVec", "vec"],
@@ -16679,114 +16679,114 @@ var require_curr_generated = __commonJS({
           ["scSpecTypeUdt", "udt"]
         ],
         arms: {
-          option: xdr.lookup("ScSpecTypeOption"),
-          result: xdr.lookup("ScSpecTypeResult"),
-          vec: xdr.lookup("ScSpecTypeVec"),
-          map: xdr.lookup("ScSpecTypeMap"),
-          tuple: xdr.lookup("ScSpecTypeTuple"),
-          bytesN: xdr.lookup("ScSpecTypeBytesN"),
-          udt: xdr.lookup("ScSpecTypeUdt")
+          option: xdr2.lookup("ScSpecTypeOption"),
+          result: xdr2.lookup("ScSpecTypeResult"),
+          vec: xdr2.lookup("ScSpecTypeVec"),
+          map: xdr2.lookup("ScSpecTypeMap"),
+          tuple: xdr2.lookup("ScSpecTypeTuple"),
+          bytesN: xdr2.lookup("ScSpecTypeBytesN"),
+          udt: xdr2.lookup("ScSpecTypeUdt")
         }
       });
-      xdr.struct("ScSpecUdtStructFieldV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["name", xdr.string(30)],
-        ["type", xdr.lookup("ScSpecTypeDef")]
+      xdr2.struct("ScSpecUdtStructFieldV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["name", xdr2.string(30)],
+        ["type", xdr2.lookup("ScSpecTypeDef")]
       ]);
-      xdr.struct("ScSpecUdtStructV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["lib", xdr.string(80)],
-        ["name", xdr.string(60)],
-        ["fields", xdr.varArray(xdr.lookup("ScSpecUdtStructFieldV0"), 2147483647)]
+      xdr2.struct("ScSpecUdtStructV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["lib", xdr2.string(80)],
+        ["name", xdr2.string(60)],
+        ["fields", xdr2.varArray(xdr2.lookup("ScSpecUdtStructFieldV0"), 2147483647)]
       ]);
-      xdr.struct("ScSpecUdtUnionCaseVoidV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["name", xdr.string(60)]
+      xdr2.struct("ScSpecUdtUnionCaseVoidV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["name", xdr2.string(60)]
       ]);
-      xdr.struct("ScSpecUdtUnionCaseTupleV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["name", xdr.string(60)],
-        ["type", xdr.varArray(xdr.lookup("ScSpecTypeDef"), 2147483647)]
+      xdr2.struct("ScSpecUdtUnionCaseTupleV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["name", xdr2.string(60)],
+        ["type", xdr2.varArray(xdr2.lookup("ScSpecTypeDef"), 2147483647)]
       ]);
-      xdr.enum("ScSpecUdtUnionCaseV0Kind", {
+      xdr2.enum("ScSpecUdtUnionCaseV0Kind", {
         scSpecUdtUnionCaseVoidV0: 0,
         scSpecUdtUnionCaseTupleV0: 1
       });
-      xdr.union("ScSpecUdtUnionCaseV0", {
-        switchOn: xdr.lookup("ScSpecUdtUnionCaseV0Kind"),
+      xdr2.union("ScSpecUdtUnionCaseV0", {
+        switchOn: xdr2.lookup("ScSpecUdtUnionCaseV0Kind"),
         switchName: "kind",
         switches: [
           ["scSpecUdtUnionCaseVoidV0", "voidCase"],
           ["scSpecUdtUnionCaseTupleV0", "tupleCase"]
         ],
         arms: {
-          voidCase: xdr.lookup("ScSpecUdtUnionCaseVoidV0"),
-          tupleCase: xdr.lookup("ScSpecUdtUnionCaseTupleV0")
+          voidCase: xdr2.lookup("ScSpecUdtUnionCaseVoidV0"),
+          tupleCase: xdr2.lookup("ScSpecUdtUnionCaseTupleV0")
         }
       });
-      xdr.struct("ScSpecUdtUnionV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["lib", xdr.string(80)],
-        ["name", xdr.string(60)],
-        ["cases", xdr.varArray(xdr.lookup("ScSpecUdtUnionCaseV0"), 2147483647)]
+      xdr2.struct("ScSpecUdtUnionV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["lib", xdr2.string(80)],
+        ["name", xdr2.string(60)],
+        ["cases", xdr2.varArray(xdr2.lookup("ScSpecUdtUnionCaseV0"), 2147483647)]
       ]);
-      xdr.struct("ScSpecUdtEnumCaseV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["name", xdr.string(60)],
-        ["value", xdr.lookup("Uint32")]
+      xdr2.struct("ScSpecUdtEnumCaseV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["name", xdr2.string(60)],
+        ["value", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("ScSpecUdtEnumV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["lib", xdr.string(80)],
-        ["name", xdr.string(60)],
-        ["cases", xdr.varArray(xdr.lookup("ScSpecUdtEnumCaseV0"), 2147483647)]
+      xdr2.struct("ScSpecUdtEnumV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["lib", xdr2.string(80)],
+        ["name", xdr2.string(60)],
+        ["cases", xdr2.varArray(xdr2.lookup("ScSpecUdtEnumCaseV0"), 2147483647)]
       ]);
-      xdr.struct("ScSpecUdtErrorEnumCaseV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["name", xdr.string(60)],
-        ["value", xdr.lookup("Uint32")]
+      xdr2.struct("ScSpecUdtErrorEnumCaseV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["name", xdr2.string(60)],
+        ["value", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("ScSpecUdtErrorEnumV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["lib", xdr.string(80)],
-        ["name", xdr.string(60)],
-        ["cases", xdr.varArray(xdr.lookup("ScSpecUdtErrorEnumCaseV0"), 2147483647)]
+      xdr2.struct("ScSpecUdtErrorEnumV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["lib", xdr2.string(80)],
+        ["name", xdr2.string(60)],
+        ["cases", xdr2.varArray(xdr2.lookup("ScSpecUdtErrorEnumCaseV0"), 2147483647)]
       ]);
-      xdr.struct("ScSpecFunctionInputV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["name", xdr.string(30)],
-        ["type", xdr.lookup("ScSpecTypeDef")]
+      xdr2.struct("ScSpecFunctionInputV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["name", xdr2.string(30)],
+        ["type", xdr2.lookup("ScSpecTypeDef")]
       ]);
-      xdr.struct("ScSpecFunctionV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["name", xdr.lookup("ScSymbol")],
-        ["inputs", xdr.varArray(xdr.lookup("ScSpecFunctionInputV0"), 2147483647)],
-        ["outputs", xdr.varArray(xdr.lookup("ScSpecTypeDef"), 1)]
+      xdr2.struct("ScSpecFunctionV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["name", xdr2.lookup("ScSymbol")],
+        ["inputs", xdr2.varArray(xdr2.lookup("ScSpecFunctionInputV0"), 2147483647)],
+        ["outputs", xdr2.varArray(xdr2.lookup("ScSpecTypeDef"), 1)]
       ]);
-      xdr.enum("ScSpecEventParamLocationV0", {
+      xdr2.enum("ScSpecEventParamLocationV0", {
         scSpecEventParamLocationData: 0,
         scSpecEventParamLocationTopicList: 1
       });
-      xdr.struct("ScSpecEventParamV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["name", xdr.string(30)],
-        ["type", xdr.lookup("ScSpecTypeDef")],
-        ["location", xdr.lookup("ScSpecEventParamLocationV0")]
+      xdr2.struct("ScSpecEventParamV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["name", xdr2.string(30)],
+        ["type", xdr2.lookup("ScSpecTypeDef")],
+        ["location", xdr2.lookup("ScSpecEventParamLocationV0")]
       ]);
-      xdr.enum("ScSpecEventDataFormat", {
+      xdr2.enum("ScSpecEventDataFormat", {
         scSpecEventDataFormatSingleValue: 0,
         scSpecEventDataFormatVec: 1,
         scSpecEventDataFormatMap: 2
       });
-      xdr.struct("ScSpecEventV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["lib", xdr.string(80)],
-        ["name", xdr.lookup("ScSymbol")],
-        ["prefixTopics", xdr.varArray(xdr.lookup("ScSymbol"), 2)],
-        ["params", xdr.varArray(xdr.lookup("ScSpecEventParamV0"), 2147483647)],
-        ["dataFormat", xdr.lookup("ScSpecEventDataFormat")]
+      xdr2.struct("ScSpecEventV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["lib", xdr2.string(80)],
+        ["name", xdr2.lookup("ScSymbol")],
+        ["prefixTopics", xdr2.varArray(xdr2.lookup("ScSymbol"), 2)],
+        ["params", xdr2.varArray(xdr2.lookup("ScSpecEventParamV0"), 2147483647)],
+        ["dataFormat", xdr2.lookup("ScSpecEventDataFormat")]
       ]);
-      xdr.enum("ScSpecEntryKind", {
+      xdr2.enum("ScSpecEntryKind", {
         scSpecEntryFunctionV0: 0,
         scSpecEntryUdtStructV0: 1,
         scSpecEntryUdtUnionV0: 2,
@@ -16794,8 +16794,8 @@ var require_curr_generated = __commonJS({
         scSpecEntryUdtErrorEnumV0: 4,
         scSpecEntryEventV0: 5
       });
-      xdr.union("ScSpecEntry", {
-        switchOn: xdr.lookup("ScSpecEntryKind"),
+      xdr2.union("ScSpecEntry", {
+        switchOn: xdr2.lookup("ScSpecEntryKind"),
         switchName: "kind",
         switches: [
           ["scSpecEntryFunctionV0", "functionV0"],
@@ -16806,61 +16806,61 @@ var require_curr_generated = __commonJS({
           ["scSpecEntryEventV0", "eventV0"]
         ],
         arms: {
-          functionV0: xdr.lookup("ScSpecFunctionV0"),
-          udtStructV0: xdr.lookup("ScSpecUdtStructV0"),
-          udtUnionV0: xdr.lookup("ScSpecUdtUnionV0"),
-          udtEnumV0: xdr.lookup("ScSpecUdtEnumV0"),
-          udtErrorEnumV0: xdr.lookup("ScSpecUdtErrorEnumV0"),
-          eventV0: xdr.lookup("ScSpecEventV0")
+          functionV0: xdr2.lookup("ScSpecFunctionV0"),
+          udtStructV0: xdr2.lookup("ScSpecUdtStructV0"),
+          udtUnionV0: xdr2.lookup("ScSpecUdtUnionV0"),
+          udtEnumV0: xdr2.lookup("ScSpecUdtEnumV0"),
+          udtErrorEnumV0: xdr2.lookup("ScSpecUdtErrorEnumV0"),
+          eventV0: xdr2.lookup("ScSpecEventV0")
         }
       });
-      xdr.typedef("EncodedLedgerKey", xdr.varOpaque());
-      xdr.struct("ConfigSettingContractExecutionLanesV0", [
-        ["ledgerMaxTxCount", xdr.lookup("Uint32")]
+      xdr2.typedef("EncodedLedgerKey", xdr2.varOpaque());
+      xdr2.struct("ConfigSettingContractExecutionLanesV0", [
+        ["ledgerMaxTxCount", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("ConfigSettingContractComputeV0", [
-        ["ledgerMaxInstructions", xdr.lookup("Int64")],
-        ["txMaxInstructions", xdr.lookup("Int64")],
-        ["feeRatePerInstructionsIncrement", xdr.lookup("Int64")],
-        ["txMemoryLimit", xdr.lookup("Uint32")]
+      xdr2.struct("ConfigSettingContractComputeV0", [
+        ["ledgerMaxInstructions", xdr2.lookup("Int64")],
+        ["txMaxInstructions", xdr2.lookup("Int64")],
+        ["feeRatePerInstructionsIncrement", xdr2.lookup("Int64")],
+        ["txMemoryLimit", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("ConfigSettingContractParallelComputeV0", [
-        ["ledgerMaxDependentTxClusters", xdr.lookup("Uint32")]
+      xdr2.struct("ConfigSettingContractParallelComputeV0", [
+        ["ledgerMaxDependentTxClusters", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("ConfigSettingContractLedgerCostV0", [
-        ["ledgerMaxDiskReadEntries", xdr.lookup("Uint32")],
-        ["ledgerMaxDiskReadBytes", xdr.lookup("Uint32")],
-        ["ledgerMaxWriteLedgerEntries", xdr.lookup("Uint32")],
-        ["ledgerMaxWriteBytes", xdr.lookup("Uint32")],
-        ["txMaxDiskReadEntries", xdr.lookup("Uint32")],
-        ["txMaxDiskReadBytes", xdr.lookup("Uint32")],
-        ["txMaxWriteLedgerEntries", xdr.lookup("Uint32")],
-        ["txMaxWriteBytes", xdr.lookup("Uint32")],
-        ["feeDiskReadLedgerEntry", xdr.lookup("Int64")],
-        ["feeWriteLedgerEntry", xdr.lookup("Int64")],
-        ["feeDiskRead1Kb", xdr.lookup("Int64")],
-        ["sorobanStateTargetSizeBytes", xdr.lookup("Int64")],
-        ["rentFee1KbSorobanStateSizeLow", xdr.lookup("Int64")],
-        ["rentFee1KbSorobanStateSizeHigh", xdr.lookup("Int64")],
-        ["sorobanStateRentFeeGrowthFactor", xdr.lookup("Uint32")]
+      xdr2.struct("ConfigSettingContractLedgerCostV0", [
+        ["ledgerMaxDiskReadEntries", xdr2.lookup("Uint32")],
+        ["ledgerMaxDiskReadBytes", xdr2.lookup("Uint32")],
+        ["ledgerMaxWriteLedgerEntries", xdr2.lookup("Uint32")],
+        ["ledgerMaxWriteBytes", xdr2.lookup("Uint32")],
+        ["txMaxDiskReadEntries", xdr2.lookup("Uint32")],
+        ["txMaxDiskReadBytes", xdr2.lookup("Uint32")],
+        ["txMaxWriteLedgerEntries", xdr2.lookup("Uint32")],
+        ["txMaxWriteBytes", xdr2.lookup("Uint32")],
+        ["feeDiskReadLedgerEntry", xdr2.lookup("Int64")],
+        ["feeWriteLedgerEntry", xdr2.lookup("Int64")],
+        ["feeDiskRead1Kb", xdr2.lookup("Int64")],
+        ["sorobanStateTargetSizeBytes", xdr2.lookup("Int64")],
+        ["rentFee1KbSorobanStateSizeLow", xdr2.lookup("Int64")],
+        ["rentFee1KbSorobanStateSizeHigh", xdr2.lookup("Int64")],
+        ["sorobanStateRentFeeGrowthFactor", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("ConfigSettingContractLedgerCostExtV0", [
-        ["txMaxFootprintEntries", xdr.lookup("Uint32")],
-        ["feeWrite1Kb", xdr.lookup("Int64")]
+      xdr2.struct("ConfigSettingContractLedgerCostExtV0", [
+        ["txMaxFootprintEntries", xdr2.lookup("Uint32")],
+        ["feeWrite1Kb", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("ConfigSettingContractHistoricalDataV0", [
-        ["feeHistorical1Kb", xdr.lookup("Int64")]
+      xdr2.struct("ConfigSettingContractHistoricalDataV0", [
+        ["feeHistorical1Kb", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("ConfigSettingContractEventsV0", [
-        ["txMaxContractEventsSizeBytes", xdr.lookup("Uint32")],
-        ["feeContractEvents1Kb", xdr.lookup("Int64")]
+      xdr2.struct("ConfigSettingContractEventsV0", [
+        ["txMaxContractEventsSizeBytes", xdr2.lookup("Uint32")],
+        ["feeContractEvents1Kb", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("ConfigSettingContractBandwidthV0", [
-        ["ledgerMaxTxsSizeBytes", xdr.lookup("Uint32")],
-        ["txMaxSizeBytes", xdr.lookup("Uint32")],
-        ["feeTxSize1Kb", xdr.lookup("Int64")]
+      xdr2.struct("ConfigSettingContractBandwidthV0", [
+        ["ledgerMaxTxsSizeBytes", xdr2.lookup("Uint32")],
+        ["txMaxSizeBytes", xdr2.lookup("Uint32")],
+        ["feeTxSize1Kb", xdr2.lookup("Int64")]
       ]);
-      xdr.enum("ContractCostType", {
+      xdr2.enum("ContractCostType", {
         wasmInsnExec: 0,
         memAlloc: 1,
         memCpy: 2,
@@ -16948,61 +16948,61 @@ var require_curr_generated = __commonJS({
         bn254FrInv: 84,
         bn254G1Msm: 85
       });
-      xdr.struct("ContractCostParamEntry", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["constTerm", xdr.lookup("Int64")],
-        ["linearTerm", xdr.lookup("Int64")]
+      xdr2.struct("ContractCostParamEntry", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["constTerm", xdr2.lookup("Int64")],
+        ["linearTerm", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("StateArchivalSettings", [
-        ["maxEntryTtl", xdr.lookup("Uint32")],
-        ["minTemporaryTtl", xdr.lookup("Uint32")],
-        ["minPersistentTtl", xdr.lookup("Uint32")],
-        ["persistentRentRateDenominator", xdr.lookup("Int64")],
-        ["tempRentRateDenominator", xdr.lookup("Int64")],
-        ["maxEntriesToArchive", xdr.lookup("Uint32")],
-        ["liveSorobanStateSizeWindowSampleSize", xdr.lookup("Uint32")],
-        ["liveSorobanStateSizeWindowSamplePeriod", xdr.lookup("Uint32")],
-        ["evictionScanSize", xdr.lookup("Uint32")],
-        ["startingEvictionScanLevel", xdr.lookup("Uint32")]
+      xdr2.struct("StateArchivalSettings", [
+        ["maxEntryTtl", xdr2.lookup("Uint32")],
+        ["minTemporaryTtl", xdr2.lookup("Uint32")],
+        ["minPersistentTtl", xdr2.lookup("Uint32")],
+        ["persistentRentRateDenominator", xdr2.lookup("Int64")],
+        ["tempRentRateDenominator", xdr2.lookup("Int64")],
+        ["maxEntriesToArchive", xdr2.lookup("Uint32")],
+        ["liveSorobanStateSizeWindowSampleSize", xdr2.lookup("Uint32")],
+        ["liveSorobanStateSizeWindowSamplePeriod", xdr2.lookup("Uint32")],
+        ["evictionScanSize", xdr2.lookup("Uint32")],
+        ["startingEvictionScanLevel", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("EvictionIterator", [
-        ["bucketListLevel", xdr.lookup("Uint32")],
-        ["isCurrBucket", xdr.bool()],
-        ["bucketFileOffset", xdr.lookup("Uint64")]
+      xdr2.struct("EvictionIterator", [
+        ["bucketListLevel", xdr2.lookup("Uint32")],
+        ["isCurrBucket", xdr2.bool()],
+        ["bucketFileOffset", xdr2.lookup("Uint64")]
       ]);
-      xdr.struct("ConfigSettingScpTiming", [
-        ["ledgerTargetCloseTimeMilliseconds", xdr.lookup("Uint32")],
-        ["nominationTimeoutInitialMilliseconds", xdr.lookup("Uint32")],
-        ["nominationTimeoutIncrementMilliseconds", xdr.lookup("Uint32")],
-        ["ballotTimeoutInitialMilliseconds", xdr.lookup("Uint32")],
-        ["ballotTimeoutIncrementMilliseconds", xdr.lookup("Uint32")]
+      xdr2.struct("ConfigSettingScpTiming", [
+        ["ledgerTargetCloseTimeMilliseconds", xdr2.lookup("Uint32")],
+        ["nominationTimeoutInitialMilliseconds", xdr2.lookup("Uint32")],
+        ["nominationTimeoutIncrementMilliseconds", xdr2.lookup("Uint32")],
+        ["ballotTimeoutInitialMilliseconds", xdr2.lookup("Uint32")],
+        ["ballotTimeoutIncrementMilliseconds", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("FrozenLedgerKeys", [
-        ["keys", xdr.varArray(xdr.lookup("EncodedLedgerKey"), 2147483647)]
+      xdr2.struct("FrozenLedgerKeys", [
+        ["keys", xdr2.varArray(xdr2.lookup("EncodedLedgerKey"), 2147483647)]
       ]);
-      xdr.struct("FrozenLedgerKeysDelta", [
-        ["keysToFreeze", xdr.varArray(xdr.lookup("EncodedLedgerKey"), 2147483647)],
+      xdr2.struct("FrozenLedgerKeysDelta", [
+        ["keysToFreeze", xdr2.varArray(xdr2.lookup("EncodedLedgerKey"), 2147483647)],
         [
           "keysToUnfreeze",
-          xdr.varArray(xdr.lookup("EncodedLedgerKey"), 2147483647)
+          xdr2.varArray(xdr2.lookup("EncodedLedgerKey"), 2147483647)
         ]
       ]);
-      xdr.struct("FreezeBypassTxes", [
-        ["txHashes", xdr.varArray(xdr.lookup("Hash"), 2147483647)]
+      xdr2.struct("FreezeBypassTxes", [
+        ["txHashes", xdr2.varArray(xdr2.lookup("Hash"), 2147483647)]
       ]);
-      xdr.struct("FreezeBypassTxsDelta", [
-        ["addTxes", xdr.varArray(xdr.lookup("Hash"), 2147483647)],
-        ["removeTxes", xdr.varArray(xdr.lookup("Hash"), 2147483647)]
+      xdr2.struct("FreezeBypassTxsDelta", [
+        ["addTxes", xdr2.varArray(xdr2.lookup("Hash"), 2147483647)],
+        ["removeTxes", xdr2.varArray(xdr2.lookup("Hash"), 2147483647)]
       ]);
-      xdr.const("CONTRACT_COST_COUNT_LIMIT", 1024);
-      xdr.typedef(
+      xdr2.const("CONTRACT_COST_COUNT_LIMIT", 1024);
+      xdr2.typedef(
         "ContractCostParams",
-        xdr.varArray(
-          xdr.lookup("ContractCostParamEntry"),
-          xdr.lookup("CONTRACT_COST_COUNT_LIMIT")
+        xdr2.varArray(
+          xdr2.lookup("ContractCostParamEntry"),
+          xdr2.lookup("CONTRACT_COST_COUNT_LIMIT")
         )
       );
-      xdr.enum("ConfigSettingId", {
+      xdr2.enum("ConfigSettingId", {
         configSettingContractMaxSizeBytes: 0,
         configSettingContractComputeV0: 1,
         configSettingContractLedgerCostV0: 2,
@@ -17025,8 +17025,8 @@ var require_curr_generated = __commonJS({
         configSettingFreezeBypassTxes: 19,
         configSettingFreezeBypassTxsDelta: 20
       });
-      xdr.union("ConfigSettingEntry", {
-        switchOn: xdr.lookup("ConfigSettingId"),
+      xdr2.union("ConfigSettingEntry", {
+        switchOn: xdr2.lookup("ConfigSettingId"),
         switchName: "configSettingId",
         switches: [
           ["configSettingContractMaxSizeBytes", "contractMaxSizeBytes"],
@@ -17058,44 +17058,44 @@ var require_curr_generated = __commonJS({
           ["configSettingFreezeBypassTxsDelta", "freezeBypassTxsDelta"]
         ],
         arms: {
-          contractMaxSizeBytes: xdr.lookup("Uint32"),
-          contractCompute: xdr.lookup("ConfigSettingContractComputeV0"),
-          contractLedgerCost: xdr.lookup("ConfigSettingContractLedgerCostV0"),
-          contractHistoricalData: xdr.lookup(
+          contractMaxSizeBytes: xdr2.lookup("Uint32"),
+          contractCompute: xdr2.lookup("ConfigSettingContractComputeV0"),
+          contractLedgerCost: xdr2.lookup("ConfigSettingContractLedgerCostV0"),
+          contractHistoricalData: xdr2.lookup(
             "ConfigSettingContractHistoricalDataV0"
           ),
-          contractEvents: xdr.lookup("ConfigSettingContractEventsV0"),
-          contractBandwidth: xdr.lookup("ConfigSettingContractBandwidthV0"),
-          contractCostParamsCpuInsns: xdr.lookup("ContractCostParams"),
-          contractCostParamsMemBytes: xdr.lookup("ContractCostParams"),
-          contractDataKeySizeBytes: xdr.lookup("Uint32"),
-          contractDataEntrySizeBytes: xdr.lookup("Uint32"),
-          stateArchivalSettings: xdr.lookup("StateArchivalSettings"),
-          contractExecutionLanes: xdr.lookup(
+          contractEvents: xdr2.lookup("ConfigSettingContractEventsV0"),
+          contractBandwidth: xdr2.lookup("ConfigSettingContractBandwidthV0"),
+          contractCostParamsCpuInsns: xdr2.lookup("ContractCostParams"),
+          contractCostParamsMemBytes: xdr2.lookup("ContractCostParams"),
+          contractDataKeySizeBytes: xdr2.lookup("Uint32"),
+          contractDataEntrySizeBytes: xdr2.lookup("Uint32"),
+          stateArchivalSettings: xdr2.lookup("StateArchivalSettings"),
+          contractExecutionLanes: xdr2.lookup(
             "ConfigSettingContractExecutionLanesV0"
           ),
-          liveSorobanStateSizeWindow: xdr.varArray(
-            xdr.lookup("Uint64"),
+          liveSorobanStateSizeWindow: xdr2.varArray(
+            xdr2.lookup("Uint64"),
             2147483647
           ),
-          evictionIterator: xdr.lookup("EvictionIterator"),
-          contractParallelCompute: xdr.lookup(
+          evictionIterator: xdr2.lookup("EvictionIterator"),
+          contractParallelCompute: xdr2.lookup(
             "ConfigSettingContractParallelComputeV0"
           ),
-          contractLedgerCostExt: xdr.lookup("ConfigSettingContractLedgerCostExtV0"),
-          contractScpTiming: xdr.lookup("ConfigSettingScpTiming"),
-          frozenLedgerKeys: xdr.lookup("FrozenLedgerKeys"),
-          frozenLedgerKeysDelta: xdr.lookup("FrozenLedgerKeysDelta"),
-          freezeBypassTxes: xdr.lookup("FreezeBypassTxes"),
-          freezeBypassTxsDelta: xdr.lookup("FreezeBypassTxsDelta")
+          contractLedgerCostExt: xdr2.lookup("ConfigSettingContractLedgerCostExtV0"),
+          contractScpTiming: xdr2.lookup("ConfigSettingScpTiming"),
+          frozenLedgerKeys: xdr2.lookup("FrozenLedgerKeys"),
+          frozenLedgerKeysDelta: xdr2.lookup("FrozenLedgerKeysDelta"),
+          freezeBypassTxes: xdr2.lookup("FreezeBypassTxes"),
+          freezeBypassTxsDelta: xdr2.lookup("FreezeBypassTxsDelta")
         }
       });
-      xdr.struct("LedgerCloseMetaBatch", [
-        ["startSequence", xdr.lookup("Uint32")],
-        ["endSequence", xdr.lookup("Uint32")],
+      xdr2.struct("LedgerCloseMetaBatch", [
+        ["startSequence", xdr2.lookup("Uint32")],
+        ["endSequence", xdr2.lookup("Uint32")],
         [
           "ledgerCloseMeta",
-          xdr.varArray(xdr.lookup("LedgerCloseMeta"), 2147483647)
+          xdr2.varArray(xdr2.lookup("LedgerCloseMeta"), 2147483647)
         ]
       ]);
     });
@@ -33204,10 +33204,10 @@ var require_utils4 = __commonJS({
       let count = 0;
       attempts.push(await fn());
       if (!keepWaitingIf(attempts[attempts.length - 1])) return attempts;
-      const waitUntil4 = new Date(Date.now() + timeoutInSeconds * 1e3).valueOf();
+      const waitUntil5 = new Date(Date.now() + timeoutInSeconds * 1e3).valueOf();
       let waitTime = 1e3;
       let totalWaitTime = waitTime;
-      while (Date.now() < waitUntil4 && keepWaitingIf(attempts[attempts.length - 1])) {
+      while (Date.now() < waitUntil5 && keepWaitingIf(attempts[attempts.length - 1])) {
         count += 1;
         if (verbose) {
           console.info(
@@ -33216,8 +33216,8 @@ var require_utils4 = __commonJS({
         }
         await new Promise((res) => setTimeout(res, waitTime));
         waitTime *= exponentialFactor;
-        if (new Date(Date.now() + waitTime).valueOf() > waitUntil4) {
-          waitTime = waitUntil4 - Date.now();
+        if (new Date(Date.now() + waitTime).valueOf() > waitUntil5) {
+          waitTime = waitUntil5 - Date.now();
           if (verbose) {
             console.info(`was gonna wait too long; new waitTime: ${waitTime}ms`);
           }
@@ -35119,9 +35119,9 @@ var require_signer = __commonJS({
            holding no secret key — rejects the returned promise instead of throwing,
            preserving the behavior `basicNodeSigner` had before it delegated here. */
       // eslint-disable-next-line @typescript-eslint/require-await
-      signTransaction = async (xdr, opts) => {
+      signTransaction = async (xdr2, opts) => {
         const t = transaction_builder.TransactionBuilder.fromXDR(
-          xdr,
+          xdr2,
           opts?.networkPassphrase || this.networkPassphrase
         );
         t.sign(this.keypair);
@@ -40172,7 +40172,7 @@ var require_cjs3 = __commonJS({
       }
       return assets.find((entry) => entry.asset === asset);
     };
-    var import_stellar_sdk8 = require_cjs2();
+    var import_stellar_sdk9 = require_cjs2();
     var import_rpc5 = require_rpc();
     function handleSimulationResult(simulation) {
       if (!simulation) {
@@ -40190,10 +40190,10 @@ var require_cjs3 = __commonJS({
     }
     function getAddressCredentials2(credentials) {
       const credentialsType = credentials.switch();
-      if (credentialsType === import_stellar_sdk8.xdr.SorobanCredentialsType.sorobanCredentialsAddress()) {
+      if (credentialsType === import_stellar_sdk9.xdr.SorobanCredentialsType.sorobanCredentialsAddress()) {
         return credentials.address();
       }
-      if (credentialsType === import_stellar_sdk8.xdr.SorobanCredentialsType.sorobanCredentialsAddressV2()) {
+      if (credentialsType === import_stellar_sdk9.xdr.SorobanCredentialsType.sorobanCredentialsAddressV2()) {
         return credentials.addressV2();
       }
       return void 0;
@@ -40224,7 +40224,7 @@ var require_cjs3 = __commonJS({
       for (const entry of invokeOp.auth ?? []) {
         const addressCredentials = getAddressCredentials2(entry.credentials());
         if (addressCredentials) {
-          const address4 = import_stellar_sdk8.Address.fromScAddress(addressCredentials.address()).toString();
+          const address4 = import_stellar_sdk9.Address.fromScAddress(addressCredentials.address()).toString();
           const signature2 = addressCredentials.signature();
           const isSigned = signature2.switch().name !== "scvVoid";
           if (isSigned) {
@@ -40500,7 +40500,7 @@ var require_client4 = __commonJS({
       }
       return assets.find((entry) => entry.asset === asset);
     };
-    var import_stellar_sdk8 = require_cjs2();
+    var import_stellar_sdk9 = require_cjs2();
     var import_rpc5 = require_rpc();
     function handleSimulationResult(simulation) {
       if (!simulation) {
@@ -118906,47 +118906,47 @@ var init_curr_generated = __esm({
     init_unsigned_hyper();
     init_xdr_type();
     init_config();
-    types4 = config2((xdr) => {
+    types4 = config2((xdr2) => {
       const SCSYMBOL_LIMIT = 32;
       const SC_SPEC_DOC_LIMIT = 1024;
-      xdr.typedef("Value", xdr.varOpaque());
-      xdr.struct("ScpBallot", [
-        ["counter", xdr.lookup("Uint32")],
-        ["value", xdr.lookup("Value")]
+      xdr2.typedef("Value", xdr2.varOpaque());
+      xdr2.struct("ScpBallot", [
+        ["counter", xdr2.lookup("Uint32")],
+        ["value", xdr2.lookup("Value")]
       ]);
-      xdr.enum("ScpStatementType", {
+      xdr2.enum("ScpStatementType", {
         scpStPrepare: 0,
         scpStConfirm: 1,
         scpStExternalize: 2,
         scpStNominate: 3
       });
-      xdr.struct("ScpNomination", [
-        ["quorumSetHash", xdr.lookup("Hash")],
-        ["votes", xdr.varArray(xdr.lookup("Value"), 2147483647)],
-        ["accepted", xdr.varArray(xdr.lookup("Value"), 2147483647)]
+      xdr2.struct("ScpNomination", [
+        ["quorumSetHash", xdr2.lookup("Hash")],
+        ["votes", xdr2.varArray(xdr2.lookup("Value"), 2147483647)],
+        ["accepted", xdr2.varArray(xdr2.lookup("Value"), 2147483647)]
       ]);
-      xdr.struct("ScpStatementPrepare", [
-        ["quorumSetHash", xdr.lookup("Hash")],
-        ["ballot", xdr.lookup("ScpBallot")],
-        ["prepared", xdr.option(xdr.lookup("ScpBallot"))],
-        ["preparedPrime", xdr.option(xdr.lookup("ScpBallot"))],
-        ["nC", xdr.lookup("Uint32")],
-        ["nH", xdr.lookup("Uint32")]
+      xdr2.struct("ScpStatementPrepare", [
+        ["quorumSetHash", xdr2.lookup("Hash")],
+        ["ballot", xdr2.lookup("ScpBallot")],
+        ["prepared", xdr2.option(xdr2.lookup("ScpBallot"))],
+        ["preparedPrime", xdr2.option(xdr2.lookup("ScpBallot"))],
+        ["nC", xdr2.lookup("Uint32")],
+        ["nH", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("ScpStatementConfirm", [
-        ["ballot", xdr.lookup("ScpBallot")],
-        ["nPrepared", xdr.lookup("Uint32")],
-        ["nCommit", xdr.lookup("Uint32")],
-        ["nH", xdr.lookup("Uint32")],
-        ["quorumSetHash", xdr.lookup("Hash")]
+      xdr2.struct("ScpStatementConfirm", [
+        ["ballot", xdr2.lookup("ScpBallot")],
+        ["nPrepared", xdr2.lookup("Uint32")],
+        ["nCommit", xdr2.lookup("Uint32")],
+        ["nH", xdr2.lookup("Uint32")],
+        ["quorumSetHash", xdr2.lookup("Hash")]
       ]);
-      xdr.struct("ScpStatementExternalize", [
-        ["commit", xdr.lookup("ScpBallot")],
-        ["nH", xdr.lookup("Uint32")],
-        ["commitQuorumSetHash", xdr.lookup("Hash")]
+      xdr2.struct("ScpStatementExternalize", [
+        ["commit", xdr2.lookup("ScpBallot")],
+        ["nH", xdr2.lookup("Uint32")],
+        ["commitQuorumSetHash", xdr2.lookup("Hash")]
       ]);
-      xdr.union("ScpStatementPledges", {
-        switchOn: xdr.lookup("ScpStatementType"),
+      xdr2.union("ScpStatementPledges", {
+        switchOn: xdr2.lookup("ScpStatementType"),
         switchName: "type",
         switches: [
           ["scpStPrepare", "prepare"],
@@ -118955,87 +118955,87 @@ var init_curr_generated = __esm({
           ["scpStNominate", "nominate"]
         ],
         arms: {
-          prepare: xdr.lookup("ScpStatementPrepare"),
-          confirm: xdr.lookup("ScpStatementConfirm"),
-          externalize: xdr.lookup("ScpStatementExternalize"),
-          nominate: xdr.lookup("ScpNomination")
+          prepare: xdr2.lookup("ScpStatementPrepare"),
+          confirm: xdr2.lookup("ScpStatementConfirm"),
+          externalize: xdr2.lookup("ScpStatementExternalize"),
+          nominate: xdr2.lookup("ScpNomination")
         }
       });
-      xdr.struct("ScpStatement", [
-        ["nodeId", xdr.lookup("NodeId")],
-        ["slotIndex", xdr.lookup("Uint64")],
-        ["pledges", xdr.lookup("ScpStatementPledges")]
+      xdr2.struct("ScpStatement", [
+        ["nodeId", xdr2.lookup("NodeId")],
+        ["slotIndex", xdr2.lookup("Uint64")],
+        ["pledges", xdr2.lookup("ScpStatementPledges")]
       ]);
-      xdr.struct("ScpEnvelope", [
-        ["statement", xdr.lookup("ScpStatement")],
-        ["signature", xdr.lookup("Signature")]
+      xdr2.struct("ScpEnvelope", [
+        ["statement", xdr2.lookup("ScpStatement")],
+        ["signature", xdr2.lookup("Signature")]
       ]);
-      xdr.struct("ScpQuorumSet", [
-        ["threshold", xdr.lookup("Uint32")],
-        ["validators", xdr.varArray(xdr.lookup("NodeId"), 2147483647)],
-        ["innerSets", xdr.varArray(xdr.lookup("ScpQuorumSet"), 2147483647)]
+      xdr2.struct("ScpQuorumSet", [
+        ["threshold", xdr2.lookup("Uint32")],
+        ["validators", xdr2.varArray(xdr2.lookup("NodeId"), 2147483647)],
+        ["innerSets", xdr2.varArray(xdr2.lookup("ScpQuorumSet"), 2147483647)]
       ]);
-      xdr.typedef("Thresholds", xdr.opaque(4));
-      xdr.typedef("String32", xdr.string(32));
-      xdr.typedef("String64", xdr.string(64));
-      xdr.typedef("SequenceNumber", xdr.lookup("Int64"));
-      xdr.typedef("DataValue", xdr.varOpaque(64));
-      xdr.typedef("AssetCode4", xdr.opaque(4));
-      xdr.typedef("AssetCode12", xdr.opaque(12));
-      xdr.enum("AssetType", {
+      xdr2.typedef("Thresholds", xdr2.opaque(4));
+      xdr2.typedef("String32", xdr2.string(32));
+      xdr2.typedef("String64", xdr2.string(64));
+      xdr2.typedef("SequenceNumber", xdr2.lookup("Int64"));
+      xdr2.typedef("DataValue", xdr2.varOpaque(64));
+      xdr2.typedef("AssetCode4", xdr2.opaque(4));
+      xdr2.typedef("AssetCode12", xdr2.opaque(12));
+      xdr2.enum("AssetType", {
         assetTypeNative: 0,
         assetTypeCreditAlphanum4: 1,
         assetTypeCreditAlphanum12: 2,
         assetTypePoolShare: 3
       });
-      xdr.union("AssetCode", {
-        switchOn: xdr.lookup("AssetType"),
+      xdr2.union("AssetCode", {
+        switchOn: xdr2.lookup("AssetType"),
         switchName: "type",
         switches: [
           ["assetTypeCreditAlphanum4", "assetCode4"],
           ["assetTypeCreditAlphanum12", "assetCode12"]
         ],
         arms: {
-          assetCode4: xdr.lookup("AssetCode4"),
-          assetCode12: xdr.lookup("AssetCode12")
+          assetCode4: xdr2.lookup("AssetCode4"),
+          assetCode12: xdr2.lookup("AssetCode12")
         }
       });
-      xdr.struct("AlphaNum4", [
-        ["assetCode", xdr.lookup("AssetCode4")],
-        ["issuer", xdr.lookup("AccountId")]
+      xdr2.struct("AlphaNum4", [
+        ["assetCode", xdr2.lookup("AssetCode4")],
+        ["issuer", xdr2.lookup("AccountId")]
       ]);
-      xdr.struct("AlphaNum12", [
-        ["assetCode", xdr.lookup("AssetCode12")],
-        ["issuer", xdr.lookup("AccountId")]
+      xdr2.struct("AlphaNum12", [
+        ["assetCode", xdr2.lookup("AssetCode12")],
+        ["issuer", xdr2.lookup("AccountId")]
       ]);
-      xdr.union("Asset", {
-        switchOn: xdr.lookup("AssetType"),
+      xdr2.union("Asset", {
+        switchOn: xdr2.lookup("AssetType"),
         switchName: "type",
         switches: [
-          ["assetTypeNative", xdr.void()],
+          ["assetTypeNative", xdr2.void()],
           ["assetTypeCreditAlphanum4", "alphaNum4"],
           ["assetTypeCreditAlphanum12", "alphaNum12"]
         ],
         arms: {
-          alphaNum4: xdr.lookup("AlphaNum4"),
-          alphaNum12: xdr.lookup("AlphaNum12")
+          alphaNum4: xdr2.lookup("AlphaNum4"),
+          alphaNum12: xdr2.lookup("AlphaNum12")
         }
       });
-      xdr.struct("Price", [
-        ["n", xdr.lookup("Int32")],
-        ["d", xdr.lookup("Int32")]
+      xdr2.struct("Price", [
+        ["n", xdr2.lookup("Int32")],
+        ["d", xdr2.lookup("Int32")]
       ]);
-      xdr.struct("Liabilities", [
-        ["buying", xdr.lookup("Int64")],
-        ["selling", xdr.lookup("Int64")]
+      xdr2.struct("Liabilities", [
+        ["buying", xdr2.lookup("Int64")],
+        ["selling", xdr2.lookup("Int64")]
       ]);
-      xdr.enum("ThresholdIndices", {
+      xdr2.enum("ThresholdIndices", {
         thresholdMasterWeight: 0,
         thresholdLow: 1,
         thresholdMed: 2,
         thresholdHigh: 3
       });
-      xdr.enum("LedgerEntryType", {
+      xdr2.enum("LedgerEntryType", {
         account: 0,
         trustline: 1,
         offer: 2,
@@ -119047,189 +119047,189 @@ var init_curr_generated = __esm({
         configSetting: 8,
         ttl: 9
       });
-      xdr.struct("Signer", [
-        ["key", xdr.lookup("SignerKey")],
-        ["weight", xdr.lookup("Uint32")]
+      xdr2.struct("Signer", [
+        ["key", xdr2.lookup("SignerKey")],
+        ["weight", xdr2.lookup("Uint32")]
       ]);
-      xdr.enum("AccountFlags", {
+      xdr2.enum("AccountFlags", {
         authRequiredFlag: 1,
         authRevocableFlag: 2,
         authImmutableFlag: 4,
         authClawbackEnabledFlag: 8
       });
-      xdr.const("MASK_ACCOUNT_FLAGS", 7);
-      xdr.const("MASK_ACCOUNT_FLAGS_V17", 15);
-      xdr.const("MAX_SIGNERS", 20);
-      xdr.typedef("SponsorshipDescriptor", xdr.option(xdr.lookup("AccountId")));
-      xdr.struct("AccountEntryExtensionV3", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["seqLedger", xdr.lookup("Uint32")],
-        ["seqTime", xdr.lookup("TimePoint")]
+      xdr2.const("MASK_ACCOUNT_FLAGS", 7);
+      xdr2.const("MASK_ACCOUNT_FLAGS_V17", 15);
+      xdr2.const("MAX_SIGNERS", 20);
+      xdr2.typedef("SponsorshipDescriptor", xdr2.option(xdr2.lookup("AccountId")));
+      xdr2.struct("AccountEntryExtensionV3", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["seqLedger", xdr2.lookup("Uint32")],
+        ["seqTime", xdr2.lookup("TimePoint")]
       ]);
-      xdr.union("AccountEntryExtensionV2Ext", {
-        switchOn: xdr.int(),
+      xdr2.union("AccountEntryExtensionV2Ext", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [3, "v3"]
         ],
         arms: {
-          v3: xdr.lookup("AccountEntryExtensionV3")
+          v3: xdr2.lookup("AccountEntryExtensionV3")
         }
       });
-      xdr.struct("AccountEntryExtensionV2", [
-        ["numSponsored", xdr.lookup("Uint32")],
-        ["numSponsoring", xdr.lookup("Uint32")],
+      xdr2.struct("AccountEntryExtensionV2", [
+        ["numSponsored", xdr2.lookup("Uint32")],
+        ["numSponsoring", xdr2.lookup("Uint32")],
         [
           "signerSponsoringIDs",
-          xdr.varArray(
-            xdr.lookup("SponsorshipDescriptor"),
-            xdr.lookup("MAX_SIGNERS")
+          xdr2.varArray(
+            xdr2.lookup("SponsorshipDescriptor"),
+            xdr2.lookup("MAX_SIGNERS")
           )
         ],
-        ["ext", xdr.lookup("AccountEntryExtensionV2Ext")]
+        ["ext", xdr2.lookup("AccountEntryExtensionV2Ext")]
       ]);
-      xdr.union("AccountEntryExtensionV1Ext", {
-        switchOn: xdr.int(),
+      xdr2.union("AccountEntryExtensionV1Ext", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [2, "v2"]
         ],
         arms: {
-          v2: xdr.lookup("AccountEntryExtensionV2")
+          v2: xdr2.lookup("AccountEntryExtensionV2")
         }
       });
-      xdr.struct("AccountEntryExtensionV1", [
-        ["liabilities", xdr.lookup("Liabilities")],
-        ["ext", xdr.lookup("AccountEntryExtensionV1Ext")]
+      xdr2.struct("AccountEntryExtensionV1", [
+        ["liabilities", xdr2.lookup("Liabilities")],
+        ["ext", xdr2.lookup("AccountEntryExtensionV1Ext")]
       ]);
-      xdr.union("AccountEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.union("AccountEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "v1"]
         ],
         arms: {
-          v1: xdr.lookup("AccountEntryExtensionV1")
+          v1: xdr2.lookup("AccountEntryExtensionV1")
         }
       });
-      xdr.struct("AccountEntry", [
-        ["accountId", xdr.lookup("AccountId")],
-        ["balance", xdr.lookup("Int64")],
-        ["seqNum", xdr.lookup("SequenceNumber")],
-        ["numSubEntries", xdr.lookup("Uint32")],
-        ["inflationDest", xdr.option(xdr.lookup("AccountId"))],
-        ["flags", xdr.lookup("Uint32")],
-        ["homeDomain", xdr.lookup("String32")],
-        ["thresholds", xdr.lookup("Thresholds")],
-        ["signers", xdr.varArray(xdr.lookup("Signer"), xdr.lookup("MAX_SIGNERS"))],
-        ["ext", xdr.lookup("AccountEntryExt")]
+      xdr2.struct("AccountEntry", [
+        ["accountId", xdr2.lookup("AccountId")],
+        ["balance", xdr2.lookup("Int64")],
+        ["seqNum", xdr2.lookup("SequenceNumber")],
+        ["numSubEntries", xdr2.lookup("Uint32")],
+        ["inflationDest", xdr2.option(xdr2.lookup("AccountId"))],
+        ["flags", xdr2.lookup("Uint32")],
+        ["homeDomain", xdr2.lookup("String32")],
+        ["thresholds", xdr2.lookup("Thresholds")],
+        ["signers", xdr2.varArray(xdr2.lookup("Signer"), xdr2.lookup("MAX_SIGNERS"))],
+        ["ext", xdr2.lookup("AccountEntryExt")]
       ]);
-      xdr.enum("TrustLineFlags", {
+      xdr2.enum("TrustLineFlags", {
         authorizedFlag: 1,
         authorizedToMaintainLiabilitiesFlag: 2,
         trustlineClawbackEnabledFlag: 4
       });
-      xdr.const("MASK_TRUSTLINE_FLAGS", 1);
-      xdr.const("MASK_TRUSTLINE_FLAGS_V13", 3);
-      xdr.const("MASK_TRUSTLINE_FLAGS_V17", 7);
-      xdr.enum("LiquidityPoolType", {
+      xdr2.const("MASK_TRUSTLINE_FLAGS", 1);
+      xdr2.const("MASK_TRUSTLINE_FLAGS_V13", 3);
+      xdr2.const("MASK_TRUSTLINE_FLAGS_V17", 7);
+      xdr2.enum("LiquidityPoolType", {
         liquidityPoolConstantProduct: 0
       });
-      xdr.union("TrustLineAsset", {
-        switchOn: xdr.lookup("AssetType"),
+      xdr2.union("TrustLineAsset", {
+        switchOn: xdr2.lookup("AssetType"),
         switchName: "type",
         switches: [
-          ["assetTypeNative", xdr.void()],
+          ["assetTypeNative", xdr2.void()],
           ["assetTypeCreditAlphanum4", "alphaNum4"],
           ["assetTypeCreditAlphanum12", "alphaNum12"],
           ["assetTypePoolShare", "liquidityPoolId"]
         ],
         arms: {
-          alphaNum4: xdr.lookup("AlphaNum4"),
-          alphaNum12: xdr.lookup("AlphaNum12"),
-          liquidityPoolId: xdr.lookup("PoolId")
+          alphaNum4: xdr2.lookup("AlphaNum4"),
+          alphaNum12: xdr2.lookup("AlphaNum12"),
+          liquidityPoolId: xdr2.lookup("PoolId")
         }
       });
-      xdr.union("TrustLineEntryExtensionV2Ext", {
-        switchOn: xdr.int(),
+      xdr2.union("TrustLineEntryExtensionV2Ext", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("TrustLineEntryExtensionV2", [
-        ["liquidityPoolUseCount", xdr.lookup("Int32")],
-        ["ext", xdr.lookup("TrustLineEntryExtensionV2Ext")]
+      xdr2.struct("TrustLineEntryExtensionV2", [
+        ["liquidityPoolUseCount", xdr2.lookup("Int32")],
+        ["ext", xdr2.lookup("TrustLineEntryExtensionV2Ext")]
       ]);
-      xdr.union("TrustLineEntryV1Ext", {
-        switchOn: xdr.int(),
+      xdr2.union("TrustLineEntryV1Ext", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [2, "v2"]
         ],
         arms: {
-          v2: xdr.lookup("TrustLineEntryExtensionV2")
+          v2: xdr2.lookup("TrustLineEntryExtensionV2")
         }
       });
-      xdr.struct("TrustLineEntryV1", [
-        ["liabilities", xdr.lookup("Liabilities")],
-        ["ext", xdr.lookup("TrustLineEntryV1Ext")]
+      xdr2.struct("TrustLineEntryV1", [
+        ["liabilities", xdr2.lookup("Liabilities")],
+        ["ext", xdr2.lookup("TrustLineEntryV1Ext")]
       ]);
-      xdr.union("TrustLineEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.union("TrustLineEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "v1"]
         ],
         arms: {
-          v1: xdr.lookup("TrustLineEntryV1")
+          v1: xdr2.lookup("TrustLineEntryV1")
         }
       });
-      xdr.struct("TrustLineEntry", [
-        ["accountId", xdr.lookup("AccountId")],
-        ["asset", xdr.lookup("TrustLineAsset")],
-        ["balance", xdr.lookup("Int64")],
-        ["limit", xdr.lookup("Int64")],
-        ["flags", xdr.lookup("Uint32")],
-        ["ext", xdr.lookup("TrustLineEntryExt")]
+      xdr2.struct("TrustLineEntry", [
+        ["accountId", xdr2.lookup("AccountId")],
+        ["asset", xdr2.lookup("TrustLineAsset")],
+        ["balance", xdr2.lookup("Int64")],
+        ["limit", xdr2.lookup("Int64")],
+        ["flags", xdr2.lookup("Uint32")],
+        ["ext", xdr2.lookup("TrustLineEntryExt")]
       ]);
-      xdr.enum("OfferEntryFlags", {
+      xdr2.enum("OfferEntryFlags", {
         passiveFlag: 1
       });
-      xdr.const("MASK_OFFERENTRY_FLAGS", 1);
-      xdr.union("OfferEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.const("MASK_OFFERENTRY_FLAGS", 1);
+      xdr2.union("OfferEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("OfferEntry", [
-        ["sellerId", xdr.lookup("AccountId")],
-        ["offerId", xdr.lookup("Int64")],
-        ["selling", xdr.lookup("Asset")],
-        ["buying", xdr.lookup("Asset")],
-        ["amount", xdr.lookup("Int64")],
-        ["price", xdr.lookup("Price")],
-        ["flags", xdr.lookup("Uint32")],
-        ["ext", xdr.lookup("OfferEntryExt")]
+      xdr2.struct("OfferEntry", [
+        ["sellerId", xdr2.lookup("AccountId")],
+        ["offerId", xdr2.lookup("Int64")],
+        ["selling", xdr2.lookup("Asset")],
+        ["buying", xdr2.lookup("Asset")],
+        ["amount", xdr2.lookup("Int64")],
+        ["price", xdr2.lookup("Price")],
+        ["flags", xdr2.lookup("Uint32")],
+        ["ext", xdr2.lookup("OfferEntryExt")]
       ]);
-      xdr.union("DataEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.union("DataEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("DataEntry", [
-        ["accountId", xdr.lookup("AccountId")],
-        ["dataName", xdr.lookup("String64")],
-        ["dataValue", xdr.lookup("DataValue")],
-        ["ext", xdr.lookup("DataEntryExt")]
+      xdr2.struct("DataEntry", [
+        ["accountId", xdr2.lookup("AccountId")],
+        ["dataName", xdr2.lookup("String64")],
+        ["dataValue", xdr2.lookup("DataValue")],
+        ["ext", xdr2.lookup("DataEntryExt")]
       ]);
-      xdr.enum("ClaimPredicateType", {
+      xdr2.enum("ClaimPredicateType", {
         claimPredicateUnconditional: 0,
         claimPredicateAnd: 1,
         claimPredicateOr: 2,
@@ -119237,11 +119237,11 @@ var init_curr_generated = __esm({
         claimPredicateBeforeAbsoluteTime: 4,
         claimPredicateBeforeRelativeTime: 5
       });
-      xdr.union("ClaimPredicate", {
-        switchOn: xdr.lookup("ClaimPredicateType"),
+      xdr2.union("ClaimPredicate", {
+        switchOn: xdr2.lookup("ClaimPredicateType"),
         switchName: "type",
         switches: [
-          ["claimPredicateUnconditional", xdr.void()],
+          ["claimPredicateUnconditional", xdr2.void()],
           ["claimPredicateAnd", "andPredicates"],
           ["claimPredicateOr", "orPredicates"],
           ["claimPredicateNot", "notPredicate"],
@@ -119249,144 +119249,144 @@ var init_curr_generated = __esm({
           ["claimPredicateBeforeRelativeTime", "relBefore"]
         ],
         arms: {
-          andPredicates: xdr.varArray(xdr.lookup("ClaimPredicate"), 2),
-          orPredicates: xdr.varArray(xdr.lookup("ClaimPredicate"), 2),
-          notPredicate: xdr.option(xdr.lookup("ClaimPredicate")),
-          absBefore: xdr.lookup("Int64"),
-          relBefore: xdr.lookup("Int64")
+          andPredicates: xdr2.varArray(xdr2.lookup("ClaimPredicate"), 2),
+          orPredicates: xdr2.varArray(xdr2.lookup("ClaimPredicate"), 2),
+          notPredicate: xdr2.option(xdr2.lookup("ClaimPredicate")),
+          absBefore: xdr2.lookup("Int64"),
+          relBefore: xdr2.lookup("Int64")
         }
       });
-      xdr.enum("ClaimantType", {
+      xdr2.enum("ClaimantType", {
         claimantTypeV0: 0
       });
-      xdr.struct("ClaimantV0", [
-        ["destination", xdr.lookup("AccountId")],
-        ["predicate", xdr.lookup("ClaimPredicate")]
+      xdr2.struct("ClaimantV0", [
+        ["destination", xdr2.lookup("AccountId")],
+        ["predicate", xdr2.lookup("ClaimPredicate")]
       ]);
-      xdr.union("Claimant", {
-        switchOn: xdr.lookup("ClaimantType"),
+      xdr2.union("Claimant", {
+        switchOn: xdr2.lookup("ClaimantType"),
         switchName: "type",
         switches: [["claimantTypeV0", "v0"]],
         arms: {
-          v0: xdr.lookup("ClaimantV0")
+          v0: xdr2.lookup("ClaimantV0")
         }
       });
-      xdr.enum("ClaimableBalanceFlags", {
+      xdr2.enum("ClaimableBalanceFlags", {
         claimableBalanceClawbackEnabledFlag: 1
       });
-      xdr.const("MASK_CLAIMABLE_BALANCE_FLAGS", 1);
-      xdr.union("ClaimableBalanceEntryExtensionV1Ext", {
-        switchOn: xdr.int(),
+      xdr2.const("MASK_CLAIMABLE_BALANCE_FLAGS", 1);
+      xdr2.union("ClaimableBalanceEntryExtensionV1Ext", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("ClaimableBalanceEntryExtensionV1", [
-        ["ext", xdr.lookup("ClaimableBalanceEntryExtensionV1Ext")],
-        ["flags", xdr.lookup("Uint32")]
+      xdr2.struct("ClaimableBalanceEntryExtensionV1", [
+        ["ext", xdr2.lookup("ClaimableBalanceEntryExtensionV1Ext")],
+        ["flags", xdr2.lookup("Uint32")]
       ]);
-      xdr.union("ClaimableBalanceEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.union("ClaimableBalanceEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "v1"]
         ],
         arms: {
-          v1: xdr.lookup("ClaimableBalanceEntryExtensionV1")
+          v1: xdr2.lookup("ClaimableBalanceEntryExtensionV1")
         }
       });
-      xdr.struct("ClaimableBalanceEntry", [
-        ["balanceId", xdr.lookup("ClaimableBalanceId")],
-        ["claimants", xdr.varArray(xdr.lookup("Claimant"), 10)],
-        ["asset", xdr.lookup("Asset")],
-        ["amount", xdr.lookup("Int64")],
-        ["ext", xdr.lookup("ClaimableBalanceEntryExt")]
+      xdr2.struct("ClaimableBalanceEntry", [
+        ["balanceId", xdr2.lookup("ClaimableBalanceId")],
+        ["claimants", xdr2.varArray(xdr2.lookup("Claimant"), 10)],
+        ["asset", xdr2.lookup("Asset")],
+        ["amount", xdr2.lookup("Int64")],
+        ["ext", xdr2.lookup("ClaimableBalanceEntryExt")]
       ]);
-      xdr.struct("LiquidityPoolConstantProductParameters", [
-        ["assetA", xdr.lookup("Asset")],
-        ["assetB", xdr.lookup("Asset")],
-        ["fee", xdr.lookup("Int32")]
+      xdr2.struct("LiquidityPoolConstantProductParameters", [
+        ["assetA", xdr2.lookup("Asset")],
+        ["assetB", xdr2.lookup("Asset")],
+        ["fee", xdr2.lookup("Int32")]
       ]);
-      xdr.struct("LiquidityPoolEntryConstantProduct", [
-        ["params", xdr.lookup("LiquidityPoolConstantProductParameters")],
-        ["reserveA", xdr.lookup("Int64")],
-        ["reserveB", xdr.lookup("Int64")],
-        ["totalPoolShares", xdr.lookup("Int64")],
-        ["poolSharesTrustLineCount", xdr.lookup("Int64")]
+      xdr2.struct("LiquidityPoolEntryConstantProduct", [
+        ["params", xdr2.lookup("LiquidityPoolConstantProductParameters")],
+        ["reserveA", xdr2.lookup("Int64")],
+        ["reserveB", xdr2.lookup("Int64")],
+        ["totalPoolShares", xdr2.lookup("Int64")],
+        ["poolSharesTrustLineCount", xdr2.lookup("Int64")]
       ]);
-      xdr.union("LiquidityPoolEntryBody", {
-        switchOn: xdr.lookup("LiquidityPoolType"),
+      xdr2.union("LiquidityPoolEntryBody", {
+        switchOn: xdr2.lookup("LiquidityPoolType"),
         switchName: "type",
         switches: [["liquidityPoolConstantProduct", "constantProduct"]],
         arms: {
-          constantProduct: xdr.lookup("LiquidityPoolEntryConstantProduct")
+          constantProduct: xdr2.lookup("LiquidityPoolEntryConstantProduct")
         }
       });
-      xdr.struct("LiquidityPoolEntry", [
-        ["liquidityPoolId", xdr.lookup("PoolId")],
-        ["body", xdr.lookup("LiquidityPoolEntryBody")]
+      xdr2.struct("LiquidityPoolEntry", [
+        ["liquidityPoolId", xdr2.lookup("PoolId")],
+        ["body", xdr2.lookup("LiquidityPoolEntryBody")]
       ]);
-      xdr.enum("ContractDataDurability", {
+      xdr2.enum("ContractDataDurability", {
         temporary: 0,
         persistent: 1
       });
-      xdr.struct("ContractDataEntry", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["contract", xdr.lookup("ScAddress")],
-        ["key", xdr.lookup("ScVal")],
-        ["durability", xdr.lookup("ContractDataDurability")],
-        ["val", xdr.lookup("ScVal")]
+      xdr2.struct("ContractDataEntry", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["contract", xdr2.lookup("ScAddress")],
+        ["key", xdr2.lookup("ScVal")],
+        ["durability", xdr2.lookup("ContractDataDurability")],
+        ["val", xdr2.lookup("ScVal")]
       ]);
-      xdr.struct("ContractCodeCostInputs", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["nInstructions", xdr.lookup("Uint32")],
-        ["nFunctions", xdr.lookup("Uint32")],
-        ["nGlobals", xdr.lookup("Uint32")],
-        ["nTableEntries", xdr.lookup("Uint32")],
-        ["nTypes", xdr.lookup("Uint32")],
-        ["nDataSegments", xdr.lookup("Uint32")],
-        ["nElemSegments", xdr.lookup("Uint32")],
-        ["nImports", xdr.lookup("Uint32")],
-        ["nExports", xdr.lookup("Uint32")],
-        ["nDataSegmentBytes", xdr.lookup("Uint32")]
+      xdr2.struct("ContractCodeCostInputs", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["nInstructions", xdr2.lookup("Uint32")],
+        ["nFunctions", xdr2.lookup("Uint32")],
+        ["nGlobals", xdr2.lookup("Uint32")],
+        ["nTableEntries", xdr2.lookup("Uint32")],
+        ["nTypes", xdr2.lookup("Uint32")],
+        ["nDataSegments", xdr2.lookup("Uint32")],
+        ["nElemSegments", xdr2.lookup("Uint32")],
+        ["nImports", xdr2.lookup("Uint32")],
+        ["nExports", xdr2.lookup("Uint32")],
+        ["nDataSegmentBytes", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("ContractCodeEntryV1", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["costInputs", xdr.lookup("ContractCodeCostInputs")]
+      xdr2.struct("ContractCodeEntryV1", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["costInputs", xdr2.lookup("ContractCodeCostInputs")]
       ]);
-      xdr.union("ContractCodeEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.union("ContractCodeEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "v1"]
         ],
         arms: {
-          v1: xdr.lookup("ContractCodeEntryV1")
+          v1: xdr2.lookup("ContractCodeEntryV1")
         }
       });
-      xdr.struct("ContractCodeEntry", [
-        ["ext", xdr.lookup("ContractCodeEntryExt")],
-        ["hash", xdr.lookup("Hash")],
-        ["code", xdr.varOpaque()]
+      xdr2.struct("ContractCodeEntry", [
+        ["ext", xdr2.lookup("ContractCodeEntryExt")],
+        ["hash", xdr2.lookup("Hash")],
+        ["code", xdr2.varOpaque()]
       ]);
-      xdr.struct("TtlEntry", [
-        ["keyHash", xdr.lookup("Hash")],
-        ["liveUntilLedgerSeq", xdr.lookup("Uint32")]
+      xdr2.struct("TtlEntry", [
+        ["keyHash", xdr2.lookup("Hash")],
+        ["liveUntilLedgerSeq", xdr2.lookup("Uint32")]
       ]);
-      xdr.union("LedgerEntryExtensionV1Ext", {
-        switchOn: xdr.int(),
+      xdr2.union("LedgerEntryExtensionV1Ext", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("LedgerEntryExtensionV1", [
-        ["sponsoringId", xdr.lookup("SponsorshipDescriptor")],
-        ["ext", xdr.lookup("LedgerEntryExtensionV1Ext")]
+      xdr2.struct("LedgerEntryExtensionV1", [
+        ["sponsoringId", xdr2.lookup("SponsorshipDescriptor")],
+        ["ext", xdr2.lookup("LedgerEntryExtensionV1Ext")]
       ]);
-      xdr.union("LedgerEntryData", {
-        switchOn: xdr.lookup("LedgerEntryType"),
+      xdr2.union("LedgerEntryData", {
+        switchOn: xdr2.lookup("LedgerEntryType"),
         switchName: "type",
         switches: [
           ["account", "account"],
@@ -119401,65 +119401,65 @@ var init_curr_generated = __esm({
           ["ttl", "ttl"]
         ],
         arms: {
-          account: xdr.lookup("AccountEntry"),
-          trustLine: xdr.lookup("TrustLineEntry"),
-          offer: xdr.lookup("OfferEntry"),
-          data: xdr.lookup("DataEntry"),
-          claimableBalance: xdr.lookup("ClaimableBalanceEntry"),
-          liquidityPool: xdr.lookup("LiquidityPoolEntry"),
-          contractData: xdr.lookup("ContractDataEntry"),
-          contractCode: xdr.lookup("ContractCodeEntry"),
-          configSetting: xdr.lookup("ConfigSettingEntry"),
-          ttl: xdr.lookup("TtlEntry")
+          account: xdr2.lookup("AccountEntry"),
+          trustLine: xdr2.lookup("TrustLineEntry"),
+          offer: xdr2.lookup("OfferEntry"),
+          data: xdr2.lookup("DataEntry"),
+          claimableBalance: xdr2.lookup("ClaimableBalanceEntry"),
+          liquidityPool: xdr2.lookup("LiquidityPoolEntry"),
+          contractData: xdr2.lookup("ContractDataEntry"),
+          contractCode: xdr2.lookup("ContractCodeEntry"),
+          configSetting: xdr2.lookup("ConfigSettingEntry"),
+          ttl: xdr2.lookup("TtlEntry")
         }
       });
-      xdr.union("LedgerEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.union("LedgerEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "v1"]
         ],
         arms: {
-          v1: xdr.lookup("LedgerEntryExtensionV1")
+          v1: xdr2.lookup("LedgerEntryExtensionV1")
         }
       });
-      xdr.struct("LedgerEntry", [
-        ["lastModifiedLedgerSeq", xdr.lookup("Uint32")],
-        ["data", xdr.lookup("LedgerEntryData")],
-        ["ext", xdr.lookup("LedgerEntryExt")]
+      xdr2.struct("LedgerEntry", [
+        ["lastModifiedLedgerSeq", xdr2.lookup("Uint32")],
+        ["data", xdr2.lookup("LedgerEntryData")],
+        ["ext", xdr2.lookup("LedgerEntryExt")]
       ]);
-      xdr.struct("LedgerKeyAccount", [["accountId", xdr.lookup("AccountId")]]);
-      xdr.struct("LedgerKeyTrustLine", [
-        ["accountId", xdr.lookup("AccountId")],
-        ["asset", xdr.lookup("TrustLineAsset")]
+      xdr2.struct("LedgerKeyAccount", [["accountId", xdr2.lookup("AccountId")]]);
+      xdr2.struct("LedgerKeyTrustLine", [
+        ["accountId", xdr2.lookup("AccountId")],
+        ["asset", xdr2.lookup("TrustLineAsset")]
       ]);
-      xdr.struct("LedgerKeyOffer", [
-        ["sellerId", xdr.lookup("AccountId")],
-        ["offerId", xdr.lookup("Int64")]
+      xdr2.struct("LedgerKeyOffer", [
+        ["sellerId", xdr2.lookup("AccountId")],
+        ["offerId", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("LedgerKeyData", [
-        ["accountId", xdr.lookup("AccountId")],
-        ["dataName", xdr.lookup("String64")]
+      xdr2.struct("LedgerKeyData", [
+        ["accountId", xdr2.lookup("AccountId")],
+        ["dataName", xdr2.lookup("String64")]
       ]);
-      xdr.struct("LedgerKeyClaimableBalance", [
-        ["balanceId", xdr.lookup("ClaimableBalanceId")]
+      xdr2.struct("LedgerKeyClaimableBalance", [
+        ["balanceId", xdr2.lookup("ClaimableBalanceId")]
       ]);
-      xdr.struct("LedgerKeyLiquidityPool", [
-        ["liquidityPoolId", xdr.lookup("PoolId")]
+      xdr2.struct("LedgerKeyLiquidityPool", [
+        ["liquidityPoolId", xdr2.lookup("PoolId")]
       ]);
-      xdr.struct("LedgerKeyContractData", [
-        ["contract", xdr.lookup("ScAddress")],
-        ["key", xdr.lookup("ScVal")],
-        ["durability", xdr.lookup("ContractDataDurability")]
+      xdr2.struct("LedgerKeyContractData", [
+        ["contract", xdr2.lookup("ScAddress")],
+        ["key", xdr2.lookup("ScVal")],
+        ["durability", xdr2.lookup("ContractDataDurability")]
       ]);
-      xdr.struct("LedgerKeyContractCode", [["hash", xdr.lookup("Hash")]]);
-      xdr.struct("LedgerKeyConfigSetting", [
-        ["configSettingId", xdr.lookup("ConfigSettingId")]
+      xdr2.struct("LedgerKeyContractCode", [["hash", xdr2.lookup("Hash")]]);
+      xdr2.struct("LedgerKeyConfigSetting", [
+        ["configSettingId", xdr2.lookup("ConfigSettingId")]
       ]);
-      xdr.struct("LedgerKeyTtl", [["keyHash", xdr.lookup("Hash")]]);
-      xdr.union("LedgerKey", {
-        switchOn: xdr.lookup("LedgerEntryType"),
+      xdr2.struct("LedgerKeyTtl", [["keyHash", xdr2.lookup("Hash")]]);
+      xdr2.union("LedgerKey", {
+        switchOn: xdr2.lookup("LedgerEntryType"),
         switchName: "type",
         switches: [
           ["account", "account"],
@@ -119474,19 +119474,19 @@ var init_curr_generated = __esm({
           ["ttl", "ttl"]
         ],
         arms: {
-          account: xdr.lookup("LedgerKeyAccount"),
-          trustLine: xdr.lookup("LedgerKeyTrustLine"),
-          offer: xdr.lookup("LedgerKeyOffer"),
-          data: xdr.lookup("LedgerKeyData"),
-          claimableBalance: xdr.lookup("LedgerKeyClaimableBalance"),
-          liquidityPool: xdr.lookup("LedgerKeyLiquidityPool"),
-          contractData: xdr.lookup("LedgerKeyContractData"),
-          contractCode: xdr.lookup("LedgerKeyContractCode"),
-          configSetting: xdr.lookup("LedgerKeyConfigSetting"),
-          ttl: xdr.lookup("LedgerKeyTtl")
+          account: xdr2.lookup("LedgerKeyAccount"),
+          trustLine: xdr2.lookup("LedgerKeyTrustLine"),
+          offer: xdr2.lookup("LedgerKeyOffer"),
+          data: xdr2.lookup("LedgerKeyData"),
+          claimableBalance: xdr2.lookup("LedgerKeyClaimableBalance"),
+          liquidityPool: xdr2.lookup("LedgerKeyLiquidityPool"),
+          contractData: xdr2.lookup("LedgerKeyContractData"),
+          contractCode: xdr2.lookup("LedgerKeyContractCode"),
+          configSetting: xdr2.lookup("LedgerKeyConfigSetting"),
+          ttl: xdr2.lookup("LedgerKeyTtl")
         }
       });
-      xdr.enum("EnvelopeType", {
+      xdr2.enum("EnvelopeType", {
         envelopeTypeTxV0: 0,
         envelopeTypeScp: 1,
         envelopeTypeTx: 2,
@@ -119499,38 +119499,38 @@ var init_curr_generated = __esm({
         envelopeTypeSorobanAuthorization: 9,
         envelopeTypeSorobanAuthorizationWithAddress: 10
       });
-      xdr.enum("BucketListType", {
+      xdr2.enum("BucketListType", {
         live: 0,
         hotArchive: 1
       });
-      xdr.enum("BucketEntryType", {
+      xdr2.enum("BucketEntryType", {
         metaentry: -1,
         liveentry: 0,
         deadentry: 1,
         initentry: 2
       });
-      xdr.enum("HotArchiveBucketEntryType", {
+      xdr2.enum("HotArchiveBucketEntryType", {
         hotArchiveMetaentry: -1,
         hotArchiveArchived: 0,
         hotArchiveLive: 1
       });
-      xdr.union("BucketMetadataExt", {
-        switchOn: xdr.int(),
+      xdr2.union("BucketMetadataExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "bucketListType"]
         ],
         arms: {
-          bucketListType: xdr.lookup("BucketListType")
+          bucketListType: xdr2.lookup("BucketListType")
         }
       });
-      xdr.struct("BucketMetadata", [
-        ["ledgerVersion", xdr.lookup("Uint32")],
-        ["ext", xdr.lookup("BucketMetadataExt")]
+      xdr2.struct("BucketMetadata", [
+        ["ledgerVersion", xdr2.lookup("Uint32")],
+        ["ext", xdr2.lookup("BucketMetadataExt")]
       ]);
-      xdr.union("BucketEntry", {
-        switchOn: xdr.lookup("BucketEntryType"),
+      xdr2.union("BucketEntry", {
+        switchOn: xdr2.lookup("BucketEntryType"),
         switchName: "type",
         switches: [
           ["liveentry", "liveEntry"],
@@ -119539,13 +119539,13 @@ var init_curr_generated = __esm({
           ["metaentry", "metaEntry"]
         ],
         arms: {
-          liveEntry: xdr.lookup("LedgerEntry"),
-          deadEntry: xdr.lookup("LedgerKey"),
-          metaEntry: xdr.lookup("BucketMetadata")
+          liveEntry: xdr2.lookup("LedgerEntry"),
+          deadEntry: xdr2.lookup("LedgerKey"),
+          metaEntry: xdr2.lookup("BucketMetadata")
         }
       });
-      xdr.union("HotArchiveBucketEntry", {
-        switchOn: xdr.lookup("HotArchiveBucketEntryType"),
+      xdr2.union("HotArchiveBucketEntry", {
+        switchOn: xdr2.lookup("HotArchiveBucketEntryType"),
         switchName: "type",
         switches: [
           ["hotArchiveArchived", "archivedEntry"],
@@ -119553,91 +119553,91 @@ var init_curr_generated = __esm({
           ["hotArchiveMetaentry", "metaEntry"]
         ],
         arms: {
-          archivedEntry: xdr.lookup("LedgerEntry"),
-          key: xdr.lookup("LedgerKey"),
-          metaEntry: xdr.lookup("BucketMetadata")
+          archivedEntry: xdr2.lookup("LedgerEntry"),
+          key: xdr2.lookup("LedgerKey"),
+          metaEntry: xdr2.lookup("BucketMetadata")
         }
       });
-      xdr.typedef("UpgradeType", xdr.varOpaque(128));
-      xdr.enum("StellarValueType", {
+      xdr2.typedef("UpgradeType", xdr2.varOpaque(128));
+      xdr2.enum("StellarValueType", {
         stellarValueBasic: 0,
         stellarValueSigned: 1,
         stellarValueEmptyTxSet: 2
       });
-      xdr.struct("LedgerCloseValueSignature", [
-        ["nodeId", xdr.lookup("NodeId")],
-        ["signature", xdr.lookup("Signature")]
+      xdr2.struct("LedgerCloseValueSignature", [
+        ["nodeId", xdr2.lookup("NodeId")],
+        ["signature", xdr2.lookup("Signature")]
       ]);
-      xdr.struct("StellarValueProposedValue", [
-        ["txSetHash", xdr.lookup("Hash")],
-        ["previousLedgerHash", xdr.lookup("Hash")],
-        ["previousLedgerVersion", xdr.lookup("Uint32")],
-        ["lcValueSignature", xdr.lookup("LedgerCloseValueSignature")]
+      xdr2.struct("StellarValueProposedValue", [
+        ["txSetHash", xdr2.lookup("Hash")],
+        ["previousLedgerHash", xdr2.lookup("Hash")],
+        ["previousLedgerVersion", xdr2.lookup("Uint32")],
+        ["lcValueSignature", xdr2.lookup("LedgerCloseValueSignature")]
       ]);
-      xdr.union("StellarValueExt", {
-        switchOn: xdr.lookup("StellarValueType"),
+      xdr2.union("StellarValueExt", {
+        switchOn: xdr2.lookup("StellarValueType"),
         switchName: "v",
         switches: [
-          ["stellarValueBasic", xdr.void()],
+          ["stellarValueBasic", xdr2.void()],
           ["stellarValueSigned", "lcValueSignature"],
           ["stellarValueEmptyTxSet", "proposedValue"]
         ],
         arms: {
-          lcValueSignature: xdr.lookup("LedgerCloseValueSignature"),
-          proposedValue: xdr.lookup("StellarValueProposedValue")
+          lcValueSignature: xdr2.lookup("LedgerCloseValueSignature"),
+          proposedValue: xdr2.lookup("StellarValueProposedValue")
         }
       });
-      xdr.struct("StellarValue", [
-        ["txSetHash", xdr.lookup("Hash")],
-        ["closeTime", xdr.lookup("TimePoint")],
-        ["upgrades", xdr.varArray(xdr.lookup("UpgradeType"), 6)],
-        ["ext", xdr.lookup("StellarValueExt")]
+      xdr2.struct("StellarValue", [
+        ["txSetHash", xdr2.lookup("Hash")],
+        ["closeTime", xdr2.lookup("TimePoint")],
+        ["upgrades", xdr2.varArray(xdr2.lookup("UpgradeType"), 6)],
+        ["ext", xdr2.lookup("StellarValueExt")]
       ]);
-      xdr.const("MASK_LEDGER_HEADER_FLAGS", 7);
-      xdr.enum("LedgerHeaderFlags", {
+      xdr2.const("MASK_LEDGER_HEADER_FLAGS", 7);
+      xdr2.enum("LedgerHeaderFlags", {
         disableLiquidityPoolTradingFlag: 1,
         disableLiquidityPoolDepositFlag: 2,
         disableLiquidityPoolWithdrawalFlag: 4
       });
-      xdr.union("LedgerHeaderExtensionV1Ext", {
-        switchOn: xdr.int(),
+      xdr2.union("LedgerHeaderExtensionV1Ext", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("LedgerHeaderExtensionV1", [
-        ["flags", xdr.lookup("Uint32")],
-        ["ext", xdr.lookup("LedgerHeaderExtensionV1Ext")]
+      xdr2.struct("LedgerHeaderExtensionV1", [
+        ["flags", xdr2.lookup("Uint32")],
+        ["ext", xdr2.lookup("LedgerHeaderExtensionV1Ext")]
       ]);
-      xdr.union("LedgerHeaderExt", {
-        switchOn: xdr.int(),
+      xdr2.union("LedgerHeaderExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "v1"]
         ],
         arms: {
-          v1: xdr.lookup("LedgerHeaderExtensionV1")
+          v1: xdr2.lookup("LedgerHeaderExtensionV1")
         }
       });
-      xdr.struct("LedgerHeader", [
-        ["ledgerVersion", xdr.lookup("Uint32")],
-        ["previousLedgerHash", xdr.lookup("Hash")],
-        ["scpValue", xdr.lookup("StellarValue")],
-        ["txSetResultHash", xdr.lookup("Hash")],
-        ["bucketListHash", xdr.lookup("Hash")],
-        ["ledgerSeq", xdr.lookup("Uint32")],
-        ["totalCoins", xdr.lookup("Int64")],
-        ["feePool", xdr.lookup("Int64")],
-        ["inflationSeq", xdr.lookup("Uint32")],
-        ["idPool", xdr.lookup("Uint64")],
-        ["baseFee", xdr.lookup("Uint32")],
-        ["baseReserve", xdr.lookup("Uint32")],
-        ["maxTxSetSize", xdr.lookup("Uint32")],
-        ["skipList", xdr.array(xdr.lookup("Hash"), 4)],
-        ["ext", xdr.lookup("LedgerHeaderExt")]
+      xdr2.struct("LedgerHeader", [
+        ["ledgerVersion", xdr2.lookup("Uint32")],
+        ["previousLedgerHash", xdr2.lookup("Hash")],
+        ["scpValue", xdr2.lookup("StellarValue")],
+        ["txSetResultHash", xdr2.lookup("Hash")],
+        ["bucketListHash", xdr2.lookup("Hash")],
+        ["ledgerSeq", xdr2.lookup("Uint32")],
+        ["totalCoins", xdr2.lookup("Int64")],
+        ["feePool", xdr2.lookup("Int64")],
+        ["inflationSeq", xdr2.lookup("Uint32")],
+        ["idPool", xdr2.lookup("Uint64")],
+        ["baseFee", xdr2.lookup("Uint32")],
+        ["baseReserve", xdr2.lookup("Uint32")],
+        ["maxTxSetSize", xdr2.lookup("Uint32")],
+        ["skipList", xdr2.array(xdr2.lookup("Hash"), 4)],
+        ["ext", xdr2.lookup("LedgerHeaderExt")]
       ]);
-      xdr.enum("LedgerUpgradeType", {
+      xdr2.enum("LedgerUpgradeType", {
         ledgerUpgradeVersion: 1,
         ledgerUpgradeBaseFee: 2,
         ledgerUpgradeMaxTxSetSize: 3,
@@ -119646,12 +119646,12 @@ var init_curr_generated = __esm({
         ledgerUpgradeConfig: 6,
         ledgerUpgradeMaxSorobanTxSetSize: 7
       });
-      xdr.struct("ConfigUpgradeSetKey", [
-        ["contractId", xdr.lookup("ContractId")],
-        ["contentHash", xdr.lookup("Hash")]
+      xdr2.struct("ConfigUpgradeSetKey", [
+        ["contractId", xdr2.lookup("ContractId")],
+        ["contentHash", xdr2.lookup("Hash")]
       ]);
-      xdr.union("LedgerUpgrade", {
-        switchOn: xdr.lookup("LedgerUpgradeType"),
+      xdr2.union("LedgerUpgrade", {
+        switchOn: xdr2.lookup("LedgerUpgradeType"),
         switchName: "type",
         switches: [
           ["ledgerUpgradeVersion", "newLedgerVersion"],
@@ -119663,149 +119663,149 @@ var init_curr_generated = __esm({
           ["ledgerUpgradeMaxSorobanTxSetSize", "newMaxSorobanTxSetSize"]
         ],
         arms: {
-          newLedgerVersion: xdr.lookup("Uint32"),
-          newBaseFee: xdr.lookup("Uint32"),
-          newMaxTxSetSize: xdr.lookup("Uint32"),
-          newBaseReserve: xdr.lookup("Uint32"),
-          newFlags: xdr.lookup("Uint32"),
-          newConfig: xdr.lookup("ConfigUpgradeSetKey"),
-          newMaxSorobanTxSetSize: xdr.lookup("Uint32")
+          newLedgerVersion: xdr2.lookup("Uint32"),
+          newBaseFee: xdr2.lookup("Uint32"),
+          newMaxTxSetSize: xdr2.lookup("Uint32"),
+          newBaseReserve: xdr2.lookup("Uint32"),
+          newFlags: xdr2.lookup("Uint32"),
+          newConfig: xdr2.lookup("ConfigUpgradeSetKey"),
+          newMaxSorobanTxSetSize: xdr2.lookup("Uint32")
         }
       });
-      xdr.struct("ConfigUpgradeSet", [
+      xdr2.struct("ConfigUpgradeSet", [
         [
           "updatedEntry",
-          xdr.varArray(xdr.lookup("ConfigSettingEntry"), 2147483647)
+          xdr2.varArray(xdr2.lookup("ConfigSettingEntry"), 2147483647)
         ]
       ]);
-      xdr.enum("TxSetComponentType", {
+      xdr2.enum("TxSetComponentType", {
         txsetCompTxsMaybeDiscountedFee: 0
       });
-      xdr.typedef(
+      xdr2.typedef(
         "DependentTxCluster",
-        xdr.varArray(xdr.lookup("TransactionEnvelope"), 2147483647)
+        xdr2.varArray(xdr2.lookup("TransactionEnvelope"), 2147483647)
       );
-      xdr.typedef(
+      xdr2.typedef(
         "ParallelTxExecutionStage",
-        xdr.varArray(xdr.lookup("DependentTxCluster"), 2147483647)
+        xdr2.varArray(xdr2.lookup("DependentTxCluster"), 2147483647)
       );
-      xdr.struct("ParallelTxsComponent", [
-        ["baseFee", xdr.option(xdr.lookup("Int64"))],
+      xdr2.struct("ParallelTxsComponent", [
+        ["baseFee", xdr2.option(xdr2.lookup("Int64"))],
         [
           "executionStages",
-          xdr.varArray(xdr.lookup("ParallelTxExecutionStage"), 2147483647)
+          xdr2.varArray(xdr2.lookup("ParallelTxExecutionStage"), 2147483647)
         ]
       ]);
-      xdr.struct("TxSetComponentTxsMaybeDiscountedFee", [
-        ["baseFee", xdr.option(xdr.lookup("Int64"))],
-        ["txes", xdr.varArray(xdr.lookup("TransactionEnvelope"), 2147483647)]
+      xdr2.struct("TxSetComponentTxsMaybeDiscountedFee", [
+        ["baseFee", xdr2.option(xdr2.lookup("Int64"))],
+        ["txes", xdr2.varArray(xdr2.lookup("TransactionEnvelope"), 2147483647)]
       ]);
-      xdr.union("TxSetComponent", {
-        switchOn: xdr.lookup("TxSetComponentType"),
+      xdr2.union("TxSetComponent", {
+        switchOn: xdr2.lookup("TxSetComponentType"),
         switchName: "type",
         switches: [["txsetCompTxsMaybeDiscountedFee", "txsMaybeDiscountedFee"]],
         arms: {
-          txsMaybeDiscountedFee: xdr.lookup("TxSetComponentTxsMaybeDiscountedFee")
+          txsMaybeDiscountedFee: xdr2.lookup("TxSetComponentTxsMaybeDiscountedFee")
         }
       });
-      xdr.union("TransactionPhase", {
-        switchOn: xdr.int(),
+      xdr2.union("TransactionPhase", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
           [0, "v0Components"],
           [1, "parallelTxsComponent"]
         ],
         arms: {
-          v0Components: xdr.varArray(xdr.lookup("TxSetComponent"), 2147483647),
-          parallelTxsComponent: xdr.lookup("ParallelTxsComponent")
+          v0Components: xdr2.varArray(xdr2.lookup("TxSetComponent"), 2147483647),
+          parallelTxsComponent: xdr2.lookup("ParallelTxsComponent")
         }
       });
-      xdr.struct("TransactionSet", [
-        ["previousLedgerHash", xdr.lookup("Hash")],
-        ["txes", xdr.varArray(xdr.lookup("TransactionEnvelope"), 2147483647)]
+      xdr2.struct("TransactionSet", [
+        ["previousLedgerHash", xdr2.lookup("Hash")],
+        ["txes", xdr2.varArray(xdr2.lookup("TransactionEnvelope"), 2147483647)]
       ]);
-      xdr.struct("TransactionSetV1", [
-        ["previousLedgerHash", xdr.lookup("Hash")],
-        ["phases", xdr.varArray(xdr.lookup("TransactionPhase"), 2147483647)]
+      xdr2.struct("TransactionSetV1", [
+        ["previousLedgerHash", xdr2.lookup("Hash")],
+        ["phases", xdr2.varArray(xdr2.lookup("TransactionPhase"), 2147483647)]
       ]);
-      xdr.union("GeneralizedTransactionSet", {
-        switchOn: xdr.int(),
+      xdr2.union("GeneralizedTransactionSet", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [[1, "v1TxSet"]],
         arms: {
-          v1TxSet: xdr.lookup("TransactionSetV1")
+          v1TxSet: xdr2.lookup("TransactionSetV1")
         }
       });
-      xdr.struct("TransactionResultPair", [
-        ["transactionHash", xdr.lookup("Hash")],
-        ["result", xdr.lookup("TransactionResult")]
+      xdr2.struct("TransactionResultPair", [
+        ["transactionHash", xdr2.lookup("Hash")],
+        ["result", xdr2.lookup("TransactionResult")]
       ]);
-      xdr.struct("TransactionResultSet", [
-        ["results", xdr.varArray(xdr.lookup("TransactionResultPair"), 2147483647)]
+      xdr2.struct("TransactionResultSet", [
+        ["results", xdr2.varArray(xdr2.lookup("TransactionResultPair"), 2147483647)]
       ]);
-      xdr.union("TransactionHistoryEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.union("TransactionHistoryEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "generalizedTxSet"]
         ],
         arms: {
-          generalizedTxSet: xdr.lookup("GeneralizedTransactionSet")
+          generalizedTxSet: xdr2.lookup("GeneralizedTransactionSet")
         }
       });
-      xdr.struct("TransactionHistoryEntry", [
-        ["ledgerSeq", xdr.lookup("Uint32")],
-        ["txSet", xdr.lookup("TransactionSet")],
-        ["ext", xdr.lookup("TransactionHistoryEntryExt")]
+      xdr2.struct("TransactionHistoryEntry", [
+        ["ledgerSeq", xdr2.lookup("Uint32")],
+        ["txSet", xdr2.lookup("TransactionSet")],
+        ["ext", xdr2.lookup("TransactionHistoryEntryExt")]
       ]);
-      xdr.union("TransactionHistoryResultEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.union("TransactionHistoryResultEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("TransactionHistoryResultEntry", [
-        ["ledgerSeq", xdr.lookup("Uint32")],
-        ["txResultSet", xdr.lookup("TransactionResultSet")],
-        ["ext", xdr.lookup("TransactionHistoryResultEntryExt")]
+      xdr2.struct("TransactionHistoryResultEntry", [
+        ["ledgerSeq", xdr2.lookup("Uint32")],
+        ["txResultSet", xdr2.lookup("TransactionResultSet")],
+        ["ext", xdr2.lookup("TransactionHistoryResultEntryExt")]
       ]);
-      xdr.union("LedgerHeaderHistoryEntryExt", {
-        switchOn: xdr.int(),
+      xdr2.union("LedgerHeaderHistoryEntryExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("LedgerHeaderHistoryEntry", [
-        ["hash", xdr.lookup("Hash")],
-        ["header", xdr.lookup("LedgerHeader")],
-        ["ext", xdr.lookup("LedgerHeaderHistoryEntryExt")]
+      xdr2.struct("LedgerHeaderHistoryEntry", [
+        ["hash", xdr2.lookup("Hash")],
+        ["header", xdr2.lookup("LedgerHeader")],
+        ["ext", xdr2.lookup("LedgerHeaderHistoryEntryExt")]
       ]);
-      xdr.struct("LedgerScpMessages", [
-        ["ledgerSeq", xdr.lookup("Uint32")],
-        ["messages", xdr.varArray(xdr.lookup("ScpEnvelope"), 2147483647)]
+      xdr2.struct("LedgerScpMessages", [
+        ["ledgerSeq", xdr2.lookup("Uint32")],
+        ["messages", xdr2.varArray(xdr2.lookup("ScpEnvelope"), 2147483647)]
       ]);
-      xdr.struct("ScpHistoryEntryV0", [
-        ["quorumSets", xdr.varArray(xdr.lookup("ScpQuorumSet"), 2147483647)],
-        ["ledgerMessages", xdr.lookup("LedgerScpMessages")]
+      xdr2.struct("ScpHistoryEntryV0", [
+        ["quorumSets", xdr2.varArray(xdr2.lookup("ScpQuorumSet"), 2147483647)],
+        ["ledgerMessages", xdr2.lookup("LedgerScpMessages")]
       ]);
-      xdr.union("ScpHistoryEntry", {
-        switchOn: xdr.int(),
+      xdr2.union("ScpHistoryEntry", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [[0, "v0"]],
         arms: {
-          v0: xdr.lookup("ScpHistoryEntryV0")
+          v0: xdr2.lookup("ScpHistoryEntryV0")
         }
       });
-      xdr.enum("LedgerEntryChangeType", {
+      xdr2.enum("LedgerEntryChangeType", {
         ledgerEntryCreated: 0,
         ledgerEntryUpdated: 1,
         ledgerEntryRemoved: 2,
         ledgerEntryState: 3,
         ledgerEntryRestored: 4
       });
-      xdr.union("LedgerEntryChange", {
-        switchOn: xdr.lookup("LedgerEntryChangeType"),
+      xdr2.union("LedgerEntryChange", {
+        switchOn: xdr2.lookup("LedgerEntryChangeType"),
         switchName: "type",
         switches: [
           ["ledgerEntryCreated", "created"],
@@ -119815,123 +119815,123 @@ var init_curr_generated = __esm({
           ["ledgerEntryRestored", "restored"]
         ],
         arms: {
-          created: xdr.lookup("LedgerEntry"),
-          updated: xdr.lookup("LedgerEntry"),
-          removed: xdr.lookup("LedgerKey"),
-          state: xdr.lookup("LedgerEntry"),
-          restored: xdr.lookup("LedgerEntry")
+          created: xdr2.lookup("LedgerEntry"),
+          updated: xdr2.lookup("LedgerEntry"),
+          removed: xdr2.lookup("LedgerKey"),
+          state: xdr2.lookup("LedgerEntry"),
+          restored: xdr2.lookup("LedgerEntry")
         }
       });
-      xdr.typedef(
+      xdr2.typedef(
         "LedgerEntryChanges",
-        xdr.varArray(xdr.lookup("LedgerEntryChange"), 2147483647)
+        xdr2.varArray(xdr2.lookup("LedgerEntryChange"), 2147483647)
       );
-      xdr.struct("OperationMeta", [["changes", xdr.lookup("LedgerEntryChanges")]]);
-      xdr.struct("TransactionMetaV1", [
-        ["txChanges", xdr.lookup("LedgerEntryChanges")],
-        ["operations", xdr.varArray(xdr.lookup("OperationMeta"), 2147483647)]
+      xdr2.struct("OperationMeta", [["changes", xdr2.lookup("LedgerEntryChanges")]]);
+      xdr2.struct("TransactionMetaV1", [
+        ["txChanges", xdr2.lookup("LedgerEntryChanges")],
+        ["operations", xdr2.varArray(xdr2.lookup("OperationMeta"), 2147483647)]
       ]);
-      xdr.struct("TransactionMetaV2", [
-        ["txChangesBefore", xdr.lookup("LedgerEntryChanges")],
-        ["operations", xdr.varArray(xdr.lookup("OperationMeta"), 2147483647)],
-        ["txChangesAfter", xdr.lookup("LedgerEntryChanges")]
+      xdr2.struct("TransactionMetaV2", [
+        ["txChangesBefore", xdr2.lookup("LedgerEntryChanges")],
+        ["operations", xdr2.varArray(xdr2.lookup("OperationMeta"), 2147483647)],
+        ["txChangesAfter", xdr2.lookup("LedgerEntryChanges")]
       ]);
-      xdr.enum("ContractEventType", {
+      xdr2.enum("ContractEventType", {
         system: 0,
         contract: 1,
         diagnostic: 2
       });
-      xdr.struct("ContractEventV0", [
-        ["topics", xdr.varArray(xdr.lookup("ScVal"), 2147483647)],
-        ["data", xdr.lookup("ScVal")]
+      xdr2.struct("ContractEventV0", [
+        ["topics", xdr2.varArray(xdr2.lookup("ScVal"), 2147483647)],
+        ["data", xdr2.lookup("ScVal")]
       ]);
-      xdr.union("ContractEventBody", {
-        switchOn: xdr.int(),
+      xdr2.union("ContractEventBody", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [[0, "v0"]],
         arms: {
-          v0: xdr.lookup("ContractEventV0")
+          v0: xdr2.lookup("ContractEventV0")
         }
       });
-      xdr.struct("ContractEvent", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["contractId", xdr.option(xdr.lookup("ContractId"))],
-        ["type", xdr.lookup("ContractEventType")],
-        ["body", xdr.lookup("ContractEventBody")]
+      xdr2.struct("ContractEvent", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["contractId", xdr2.option(xdr2.lookup("ContractId"))],
+        ["type", xdr2.lookup("ContractEventType")],
+        ["body", xdr2.lookup("ContractEventBody")]
       ]);
-      xdr.struct("DiagnosticEvent", [
-        ["inSuccessfulContractCall", xdr.bool()],
-        ["event", xdr.lookup("ContractEvent")]
+      xdr2.struct("DiagnosticEvent", [
+        ["inSuccessfulContractCall", xdr2.bool()],
+        ["event", xdr2.lookup("ContractEvent")]
       ]);
-      xdr.struct("SorobanTransactionMetaExtV1", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["totalNonRefundableResourceFeeCharged", xdr.lookup("Int64")],
-        ["totalRefundableResourceFeeCharged", xdr.lookup("Int64")],
-        ["rentFeeCharged", xdr.lookup("Int64")]
+      xdr2.struct("SorobanTransactionMetaExtV1", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["totalNonRefundableResourceFeeCharged", xdr2.lookup("Int64")],
+        ["totalRefundableResourceFeeCharged", xdr2.lookup("Int64")],
+        ["rentFeeCharged", xdr2.lookup("Int64")]
       ]);
-      xdr.union("SorobanTransactionMetaExt", {
-        switchOn: xdr.int(),
+      xdr2.union("SorobanTransactionMetaExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "v1"]
         ],
         arms: {
-          v1: xdr.lookup("SorobanTransactionMetaExtV1")
+          v1: xdr2.lookup("SorobanTransactionMetaExtV1")
         }
       });
-      xdr.struct("SorobanTransactionMeta", [
-        ["ext", xdr.lookup("SorobanTransactionMetaExt")],
-        ["events", xdr.varArray(xdr.lookup("ContractEvent"), 2147483647)],
-        ["returnValue", xdr.lookup("ScVal")],
+      xdr2.struct("SorobanTransactionMeta", [
+        ["ext", xdr2.lookup("SorobanTransactionMetaExt")],
+        ["events", xdr2.varArray(xdr2.lookup("ContractEvent"), 2147483647)],
+        ["returnValue", xdr2.lookup("ScVal")],
         [
           "diagnosticEvents",
-          xdr.varArray(xdr.lookup("DiagnosticEvent"), 2147483647)
+          xdr2.varArray(xdr2.lookup("DiagnosticEvent"), 2147483647)
         ]
       ]);
-      xdr.struct("TransactionMetaV3", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["txChangesBefore", xdr.lookup("LedgerEntryChanges")],
-        ["operations", xdr.varArray(xdr.lookup("OperationMeta"), 2147483647)],
-        ["txChangesAfter", xdr.lookup("LedgerEntryChanges")],
-        ["sorobanMeta", xdr.option(xdr.lookup("SorobanTransactionMeta"))]
+      xdr2.struct("TransactionMetaV3", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["txChangesBefore", xdr2.lookup("LedgerEntryChanges")],
+        ["operations", xdr2.varArray(xdr2.lookup("OperationMeta"), 2147483647)],
+        ["txChangesAfter", xdr2.lookup("LedgerEntryChanges")],
+        ["sorobanMeta", xdr2.option(xdr2.lookup("SorobanTransactionMeta"))]
       ]);
-      xdr.struct("OperationMetaV2", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["changes", xdr.lookup("LedgerEntryChanges")],
-        ["events", xdr.varArray(xdr.lookup("ContractEvent"), 2147483647)]
+      xdr2.struct("OperationMetaV2", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["changes", xdr2.lookup("LedgerEntryChanges")],
+        ["events", xdr2.varArray(xdr2.lookup("ContractEvent"), 2147483647)]
       ]);
-      xdr.struct("SorobanTransactionMetaV2", [
-        ["ext", xdr.lookup("SorobanTransactionMetaExt")],
-        ["returnValue", xdr.option(xdr.lookup("ScVal"))]
+      xdr2.struct("SorobanTransactionMetaV2", [
+        ["ext", xdr2.lookup("SorobanTransactionMetaExt")],
+        ["returnValue", xdr2.option(xdr2.lookup("ScVal"))]
       ]);
-      xdr.enum("TransactionEventStage", {
+      xdr2.enum("TransactionEventStage", {
         transactionEventStageBeforeAllTxes: 0,
         transactionEventStageAfterTx: 1,
         transactionEventStageAfterAllTxes: 2
       });
-      xdr.struct("TransactionEvent", [
-        ["stage", xdr.lookup("TransactionEventStage")],
-        ["event", xdr.lookup("ContractEvent")]
+      xdr2.struct("TransactionEvent", [
+        ["stage", xdr2.lookup("TransactionEventStage")],
+        ["event", xdr2.lookup("ContractEvent")]
       ]);
-      xdr.struct("TransactionMetaV4", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["txChangesBefore", xdr.lookup("LedgerEntryChanges")],
-        ["operations", xdr.varArray(xdr.lookup("OperationMetaV2"), 2147483647)],
-        ["txChangesAfter", xdr.lookup("LedgerEntryChanges")],
-        ["sorobanMeta", xdr.option(xdr.lookup("SorobanTransactionMetaV2"))],
-        ["events", xdr.varArray(xdr.lookup("TransactionEvent"), 2147483647)],
+      xdr2.struct("TransactionMetaV4", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["txChangesBefore", xdr2.lookup("LedgerEntryChanges")],
+        ["operations", xdr2.varArray(xdr2.lookup("OperationMetaV2"), 2147483647)],
+        ["txChangesAfter", xdr2.lookup("LedgerEntryChanges")],
+        ["sorobanMeta", xdr2.option(xdr2.lookup("SorobanTransactionMetaV2"))],
+        ["events", xdr2.varArray(xdr2.lookup("TransactionEvent"), 2147483647)],
         [
           "diagnosticEvents",
-          xdr.varArray(xdr.lookup("DiagnosticEvent"), 2147483647)
+          xdr2.varArray(xdr2.lookup("DiagnosticEvent"), 2147483647)
         ]
       ]);
-      xdr.struct("InvokeHostFunctionSuccessPreImage", [
-        ["returnValue", xdr.lookup("ScVal")],
-        ["events", xdr.varArray(xdr.lookup("ContractEvent"), 2147483647)]
+      xdr2.struct("InvokeHostFunctionSuccessPreImage", [
+        ["returnValue", xdr2.lookup("ScVal")],
+        ["events", xdr2.varArray(xdr2.lookup("ContractEvent"), 2147483647)]
       ]);
-      xdr.union("TransactionMeta", {
-        switchOn: xdr.int(),
+      xdr2.union("TransactionMeta", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
           [0, "operations"],
@@ -119941,92 +119941,92 @@ var init_curr_generated = __esm({
           [4, "v4"]
         ],
         arms: {
-          operations: xdr.varArray(xdr.lookup("OperationMeta"), 2147483647),
-          v1: xdr.lookup("TransactionMetaV1"),
-          v2: xdr.lookup("TransactionMetaV2"),
-          v3: xdr.lookup("TransactionMetaV3"),
-          v4: xdr.lookup("TransactionMetaV4")
+          operations: xdr2.varArray(xdr2.lookup("OperationMeta"), 2147483647),
+          v1: xdr2.lookup("TransactionMetaV1"),
+          v2: xdr2.lookup("TransactionMetaV2"),
+          v3: xdr2.lookup("TransactionMetaV3"),
+          v4: xdr2.lookup("TransactionMetaV4")
         }
       });
-      xdr.struct("TransactionResultMeta", [
-        ["result", xdr.lookup("TransactionResultPair")],
-        ["feeProcessing", xdr.lookup("LedgerEntryChanges")],
-        ["txApplyProcessing", xdr.lookup("TransactionMeta")]
+      xdr2.struct("TransactionResultMeta", [
+        ["result", xdr2.lookup("TransactionResultPair")],
+        ["feeProcessing", xdr2.lookup("LedgerEntryChanges")],
+        ["txApplyProcessing", xdr2.lookup("TransactionMeta")]
       ]);
-      xdr.struct("TransactionResultMetaV1", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["result", xdr.lookup("TransactionResultPair")],
-        ["feeProcessing", xdr.lookup("LedgerEntryChanges")],
-        ["txApplyProcessing", xdr.lookup("TransactionMeta")],
-        ["postTxApplyFeeProcessing", xdr.lookup("LedgerEntryChanges")]
+      xdr2.struct("TransactionResultMetaV1", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["result", xdr2.lookup("TransactionResultPair")],
+        ["feeProcessing", xdr2.lookup("LedgerEntryChanges")],
+        ["txApplyProcessing", xdr2.lookup("TransactionMeta")],
+        ["postTxApplyFeeProcessing", xdr2.lookup("LedgerEntryChanges")]
       ]);
-      xdr.struct("UpgradeEntryMeta", [
-        ["upgrade", xdr.lookup("LedgerUpgrade")],
-        ["changes", xdr.lookup("LedgerEntryChanges")]
+      xdr2.struct("UpgradeEntryMeta", [
+        ["upgrade", xdr2.lookup("LedgerUpgrade")],
+        ["changes", xdr2.lookup("LedgerEntryChanges")]
       ]);
-      xdr.struct("LedgerCloseMetaV0", [
-        ["ledgerHeader", xdr.lookup("LedgerHeaderHistoryEntry")],
-        ["txSet", xdr.lookup("TransactionSet")],
+      xdr2.struct("LedgerCloseMetaV0", [
+        ["ledgerHeader", xdr2.lookup("LedgerHeaderHistoryEntry")],
+        ["txSet", xdr2.lookup("TransactionSet")],
         [
           "txProcessing",
-          xdr.varArray(xdr.lookup("TransactionResultMeta"), 2147483647)
+          xdr2.varArray(xdr2.lookup("TransactionResultMeta"), 2147483647)
         ],
         [
           "upgradesProcessing",
-          xdr.varArray(xdr.lookup("UpgradeEntryMeta"), 2147483647)
+          xdr2.varArray(xdr2.lookup("UpgradeEntryMeta"), 2147483647)
         ],
-        ["scpInfo", xdr.varArray(xdr.lookup("ScpHistoryEntry"), 2147483647)]
+        ["scpInfo", xdr2.varArray(xdr2.lookup("ScpHistoryEntry"), 2147483647)]
       ]);
-      xdr.struct("LedgerCloseMetaExtV1", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["sorobanFeeWrite1Kb", xdr.lookup("Int64")]
+      xdr2.struct("LedgerCloseMetaExtV1", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["sorobanFeeWrite1Kb", xdr2.lookup("Int64")]
       ]);
-      xdr.union("LedgerCloseMetaExt", {
-        switchOn: xdr.int(),
+      xdr2.union("LedgerCloseMetaExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "v1"]
         ],
         arms: {
-          v1: xdr.lookup("LedgerCloseMetaExtV1")
+          v1: xdr2.lookup("LedgerCloseMetaExtV1")
         }
       });
-      xdr.struct("LedgerCloseMetaV1", [
-        ["ext", xdr.lookup("LedgerCloseMetaExt")],
-        ["ledgerHeader", xdr.lookup("LedgerHeaderHistoryEntry")],
-        ["txSet", xdr.lookup("GeneralizedTransactionSet")],
+      xdr2.struct("LedgerCloseMetaV1", [
+        ["ext", xdr2.lookup("LedgerCloseMetaExt")],
+        ["ledgerHeader", xdr2.lookup("LedgerHeaderHistoryEntry")],
+        ["txSet", xdr2.lookup("GeneralizedTransactionSet")],
         [
           "txProcessing",
-          xdr.varArray(xdr.lookup("TransactionResultMeta"), 2147483647)
+          xdr2.varArray(xdr2.lookup("TransactionResultMeta"), 2147483647)
         ],
         [
           "upgradesProcessing",
-          xdr.varArray(xdr.lookup("UpgradeEntryMeta"), 2147483647)
+          xdr2.varArray(xdr2.lookup("UpgradeEntryMeta"), 2147483647)
         ],
-        ["scpInfo", xdr.varArray(xdr.lookup("ScpHistoryEntry"), 2147483647)],
-        ["totalByteSizeOfLiveSorobanState", xdr.lookup("Uint64")],
-        ["evictedKeys", xdr.varArray(xdr.lookup("LedgerKey"), 2147483647)],
-        ["unused", xdr.varArray(xdr.lookup("LedgerEntry"), 2147483647)]
+        ["scpInfo", xdr2.varArray(xdr2.lookup("ScpHistoryEntry"), 2147483647)],
+        ["totalByteSizeOfLiveSorobanState", xdr2.lookup("Uint64")],
+        ["evictedKeys", xdr2.varArray(xdr2.lookup("LedgerKey"), 2147483647)],
+        ["unused", xdr2.varArray(xdr2.lookup("LedgerEntry"), 2147483647)]
       ]);
-      xdr.struct("LedgerCloseMetaV2", [
-        ["ext", xdr.lookup("LedgerCloseMetaExt")],
-        ["ledgerHeader", xdr.lookup("LedgerHeaderHistoryEntry")],
-        ["txSet", xdr.lookup("GeneralizedTransactionSet")],
+      xdr2.struct("LedgerCloseMetaV2", [
+        ["ext", xdr2.lookup("LedgerCloseMetaExt")],
+        ["ledgerHeader", xdr2.lookup("LedgerHeaderHistoryEntry")],
+        ["txSet", xdr2.lookup("GeneralizedTransactionSet")],
         [
           "txProcessing",
-          xdr.varArray(xdr.lookup("TransactionResultMetaV1"), 2147483647)
+          xdr2.varArray(xdr2.lookup("TransactionResultMetaV1"), 2147483647)
         ],
         [
           "upgradesProcessing",
-          xdr.varArray(xdr.lookup("UpgradeEntryMeta"), 2147483647)
+          xdr2.varArray(xdr2.lookup("UpgradeEntryMeta"), 2147483647)
         ],
-        ["scpInfo", xdr.varArray(xdr.lookup("ScpHistoryEntry"), 2147483647)],
-        ["totalByteSizeOfLiveSorobanState", xdr.lookup("Uint64")],
-        ["evictedKeys", xdr.varArray(xdr.lookup("LedgerKey"), 2147483647)]
+        ["scpInfo", xdr2.varArray(xdr2.lookup("ScpHistoryEntry"), 2147483647)],
+        ["totalByteSizeOfLiveSorobanState", xdr2.lookup("Uint64")],
+        ["evictedKeys", xdr2.varArray(xdr2.lookup("LedgerKey"), 2147483647)]
       ]);
-      xdr.union("LedgerCloseMeta", {
-        switchOn: xdr.int(),
+      xdr2.union("LedgerCloseMeta", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
           [0, "v0"],
@@ -120034,67 +120034,67 @@ var init_curr_generated = __esm({
           [2, "v2"]
         ],
         arms: {
-          v0: xdr.lookup("LedgerCloseMetaV0"),
-          v1: xdr.lookup("LedgerCloseMetaV1"),
-          v2: xdr.lookup("LedgerCloseMetaV2")
+          v0: xdr2.lookup("LedgerCloseMetaV0"),
+          v1: xdr2.lookup("LedgerCloseMetaV1"),
+          v2: xdr2.lookup("LedgerCloseMetaV2")
         }
       });
-      xdr.enum("ErrorCode", {
+      xdr2.enum("ErrorCode", {
         errMisc: 0,
         errData: 1,
         errConf: 2,
         errAuth: 3,
         errLoad: 4
       });
-      xdr.struct("Error", [
-        ["code", xdr.lookup("ErrorCode")],
-        ["msg", xdr.string(100)]
+      xdr2.struct("Error", [
+        ["code", xdr2.lookup("ErrorCode")],
+        ["msg", xdr2.string(100)]
       ]);
-      xdr.struct("SendMore", [["numMessages", xdr.lookup("Uint32")]]);
-      xdr.struct("SendMoreExtended", [
-        ["numMessages", xdr.lookup("Uint32")],
-        ["numBytes", xdr.lookup("Uint32")]
+      xdr2.struct("SendMore", [["numMessages", xdr2.lookup("Uint32")]]);
+      xdr2.struct("SendMoreExtended", [
+        ["numMessages", xdr2.lookup("Uint32")],
+        ["numBytes", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("AuthCert", [
-        ["pubkey", xdr.lookup("Curve25519Public")],
-        ["expiration", xdr.lookup("Uint64")],
-        ["sig", xdr.lookup("Signature")]
+      xdr2.struct("AuthCert", [
+        ["pubkey", xdr2.lookup("Curve25519Public")],
+        ["expiration", xdr2.lookup("Uint64")],
+        ["sig", xdr2.lookup("Signature")]
       ]);
-      xdr.struct("Hello", [
-        ["ledgerVersion", xdr.lookup("Uint32")],
-        ["overlayVersion", xdr.lookup("Uint32")],
-        ["overlayMinVersion", xdr.lookup("Uint32")],
-        ["networkId", xdr.lookup("Hash")],
-        ["versionStr", xdr.string(100)],
-        ["listeningPort", xdr.int()],
-        ["peerId", xdr.lookup("NodeId")],
-        ["cert", xdr.lookup("AuthCert")],
-        ["nonce", xdr.lookup("Uint256")]
+      xdr2.struct("Hello", [
+        ["ledgerVersion", xdr2.lookup("Uint32")],
+        ["overlayVersion", xdr2.lookup("Uint32")],
+        ["overlayMinVersion", xdr2.lookup("Uint32")],
+        ["networkId", xdr2.lookup("Hash")],
+        ["versionStr", xdr2.string(100)],
+        ["listeningPort", xdr2.int()],
+        ["peerId", xdr2.lookup("NodeId")],
+        ["cert", xdr2.lookup("AuthCert")],
+        ["nonce", xdr2.lookup("Uint256")]
       ]);
-      xdr.const("AUTH_MSG_FLAG_FLOW_CONTROL_BYTES_REQUESTED", 200);
-      xdr.struct("Auth", [["flags", xdr.int()]]);
-      xdr.enum("IpAddrType", {
+      xdr2.const("AUTH_MSG_FLAG_FLOW_CONTROL_BYTES_REQUESTED", 200);
+      xdr2.struct("Auth", [["flags", xdr2.int()]]);
+      xdr2.enum("IpAddrType", {
         iPv4: 0,
         iPv6: 1
       });
-      xdr.union("PeerAddressIp", {
-        switchOn: xdr.lookup("IpAddrType"),
+      xdr2.union("PeerAddressIp", {
+        switchOn: xdr2.lookup("IpAddrType"),
         switchName: "type",
         switches: [
           ["iPv4", "ipv4"],
           ["iPv6", "ipv6"]
         ],
         arms: {
-          ipv4: xdr.opaque(4),
-          ipv6: xdr.opaque(16)
+          ipv4: xdr2.opaque(4),
+          ipv6: xdr2.opaque(16)
         }
       });
-      xdr.struct("PeerAddress", [
-        ["ip", xdr.lookup("PeerAddressIp")],
-        ["port", xdr.lookup("Uint32")],
-        ["numFailures", xdr.lookup("Uint32")]
+      xdr2.struct("PeerAddress", [
+        ["ip", xdr2.lookup("PeerAddressIp")],
+        ["port", xdr2.lookup("Uint32")],
+        ["numFailures", xdr2.lookup("Uint32")]
       ]);
-      xdr.enum("MessageType", {
+      xdr2.enum("MessageType", {
         errorMsg: 0,
         auth: 2,
         dontHave: 3,
@@ -120117,131 +120117,131 @@ var init_curr_generated = __esm({
         timeSlicedSurveyStartCollecting: 23,
         timeSlicedSurveyStopCollecting: 24
       });
-      xdr.struct("DontHave", [
-        ["type", xdr.lookup("MessageType")],
-        ["reqHash", xdr.lookup("Uint256")]
+      xdr2.struct("DontHave", [
+        ["type", xdr2.lookup("MessageType")],
+        ["reqHash", xdr2.lookup("Uint256")]
       ]);
-      xdr.enum("SurveyMessageCommandType", {
+      xdr2.enum("SurveyMessageCommandType", {
         timeSlicedSurveyTopology: 1
       });
-      xdr.enum("SurveyMessageResponseType", {
+      xdr2.enum("SurveyMessageResponseType", {
         surveyTopologyResponseV2: 2
       });
-      xdr.struct("TimeSlicedSurveyStartCollectingMessage", [
-        ["surveyorId", xdr.lookup("NodeId")],
-        ["nonce", xdr.lookup("Uint32")],
-        ["ledgerNum", xdr.lookup("Uint32")]
+      xdr2.struct("TimeSlicedSurveyStartCollectingMessage", [
+        ["surveyorId", xdr2.lookup("NodeId")],
+        ["nonce", xdr2.lookup("Uint32")],
+        ["ledgerNum", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("SignedTimeSlicedSurveyStartCollectingMessage", [
-        ["signature", xdr.lookup("Signature")],
-        ["startCollecting", xdr.lookup("TimeSlicedSurveyStartCollectingMessage")]
+      xdr2.struct("SignedTimeSlicedSurveyStartCollectingMessage", [
+        ["signature", xdr2.lookup("Signature")],
+        ["startCollecting", xdr2.lookup("TimeSlicedSurveyStartCollectingMessage")]
       ]);
-      xdr.struct("TimeSlicedSurveyStopCollectingMessage", [
-        ["surveyorId", xdr.lookup("NodeId")],
-        ["nonce", xdr.lookup("Uint32")],
-        ["ledgerNum", xdr.lookup("Uint32")]
+      xdr2.struct("TimeSlicedSurveyStopCollectingMessage", [
+        ["surveyorId", xdr2.lookup("NodeId")],
+        ["nonce", xdr2.lookup("Uint32")],
+        ["ledgerNum", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("SignedTimeSlicedSurveyStopCollectingMessage", [
-        ["signature", xdr.lookup("Signature")],
-        ["stopCollecting", xdr.lookup("TimeSlicedSurveyStopCollectingMessage")]
+      xdr2.struct("SignedTimeSlicedSurveyStopCollectingMessage", [
+        ["signature", xdr2.lookup("Signature")],
+        ["stopCollecting", xdr2.lookup("TimeSlicedSurveyStopCollectingMessage")]
       ]);
-      xdr.struct("SurveyRequestMessage", [
-        ["surveyorPeerId", xdr.lookup("NodeId")],
-        ["surveyedPeerId", xdr.lookup("NodeId")],
-        ["ledgerNum", xdr.lookup("Uint32")],
-        ["encryptionKey", xdr.lookup("Curve25519Public")],
-        ["commandType", xdr.lookup("SurveyMessageCommandType")]
+      xdr2.struct("SurveyRequestMessage", [
+        ["surveyorPeerId", xdr2.lookup("NodeId")],
+        ["surveyedPeerId", xdr2.lookup("NodeId")],
+        ["ledgerNum", xdr2.lookup("Uint32")],
+        ["encryptionKey", xdr2.lookup("Curve25519Public")],
+        ["commandType", xdr2.lookup("SurveyMessageCommandType")]
       ]);
-      xdr.struct("TimeSlicedSurveyRequestMessage", [
-        ["request", xdr.lookup("SurveyRequestMessage")],
-        ["nonce", xdr.lookup("Uint32")],
-        ["inboundPeersIndex", xdr.lookup("Uint32")],
-        ["outboundPeersIndex", xdr.lookup("Uint32")]
+      xdr2.struct("TimeSlicedSurveyRequestMessage", [
+        ["request", xdr2.lookup("SurveyRequestMessage")],
+        ["nonce", xdr2.lookup("Uint32")],
+        ["inboundPeersIndex", xdr2.lookup("Uint32")],
+        ["outboundPeersIndex", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("SignedTimeSlicedSurveyRequestMessage", [
-        ["requestSignature", xdr.lookup("Signature")],
-        ["request", xdr.lookup("TimeSlicedSurveyRequestMessage")]
+      xdr2.struct("SignedTimeSlicedSurveyRequestMessage", [
+        ["requestSignature", xdr2.lookup("Signature")],
+        ["request", xdr2.lookup("TimeSlicedSurveyRequestMessage")]
       ]);
-      xdr.typedef("EncryptedBody", xdr.varOpaque(64e3));
-      xdr.struct("SurveyResponseMessage", [
-        ["surveyorPeerId", xdr.lookup("NodeId")],
-        ["surveyedPeerId", xdr.lookup("NodeId")],
-        ["ledgerNum", xdr.lookup("Uint32")],
-        ["commandType", xdr.lookup("SurveyMessageCommandType")],
-        ["encryptedBody", xdr.lookup("EncryptedBody")]
+      xdr2.typedef("EncryptedBody", xdr2.varOpaque(64e3));
+      xdr2.struct("SurveyResponseMessage", [
+        ["surveyorPeerId", xdr2.lookup("NodeId")],
+        ["surveyedPeerId", xdr2.lookup("NodeId")],
+        ["ledgerNum", xdr2.lookup("Uint32")],
+        ["commandType", xdr2.lookup("SurveyMessageCommandType")],
+        ["encryptedBody", xdr2.lookup("EncryptedBody")]
       ]);
-      xdr.struct("TimeSlicedSurveyResponseMessage", [
-        ["response", xdr.lookup("SurveyResponseMessage")],
-        ["nonce", xdr.lookup("Uint32")]
+      xdr2.struct("TimeSlicedSurveyResponseMessage", [
+        ["response", xdr2.lookup("SurveyResponseMessage")],
+        ["nonce", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("SignedTimeSlicedSurveyResponseMessage", [
-        ["responseSignature", xdr.lookup("Signature")],
-        ["response", xdr.lookup("TimeSlicedSurveyResponseMessage")]
+      xdr2.struct("SignedTimeSlicedSurveyResponseMessage", [
+        ["responseSignature", xdr2.lookup("Signature")],
+        ["response", xdr2.lookup("TimeSlicedSurveyResponseMessage")]
       ]);
-      xdr.struct("PeerStats", [
-        ["id", xdr.lookup("NodeId")],
-        ["versionStr", xdr.string(100)],
-        ["messagesRead", xdr.lookup("Uint64")],
-        ["messagesWritten", xdr.lookup("Uint64")],
-        ["bytesRead", xdr.lookup("Uint64")],
-        ["bytesWritten", xdr.lookup("Uint64")],
-        ["secondsConnected", xdr.lookup("Uint64")],
-        ["uniqueFloodBytesRecv", xdr.lookup("Uint64")],
-        ["duplicateFloodBytesRecv", xdr.lookup("Uint64")],
-        ["uniqueFetchBytesRecv", xdr.lookup("Uint64")],
-        ["duplicateFetchBytesRecv", xdr.lookup("Uint64")],
-        ["uniqueFloodMessageRecv", xdr.lookup("Uint64")],
-        ["duplicateFloodMessageRecv", xdr.lookup("Uint64")],
-        ["uniqueFetchMessageRecv", xdr.lookup("Uint64")],
-        ["duplicateFetchMessageRecv", xdr.lookup("Uint64")]
+      xdr2.struct("PeerStats", [
+        ["id", xdr2.lookup("NodeId")],
+        ["versionStr", xdr2.string(100)],
+        ["messagesRead", xdr2.lookup("Uint64")],
+        ["messagesWritten", xdr2.lookup("Uint64")],
+        ["bytesRead", xdr2.lookup("Uint64")],
+        ["bytesWritten", xdr2.lookup("Uint64")],
+        ["secondsConnected", xdr2.lookup("Uint64")],
+        ["uniqueFloodBytesRecv", xdr2.lookup("Uint64")],
+        ["duplicateFloodBytesRecv", xdr2.lookup("Uint64")],
+        ["uniqueFetchBytesRecv", xdr2.lookup("Uint64")],
+        ["duplicateFetchBytesRecv", xdr2.lookup("Uint64")],
+        ["uniqueFloodMessageRecv", xdr2.lookup("Uint64")],
+        ["duplicateFloodMessageRecv", xdr2.lookup("Uint64")],
+        ["uniqueFetchMessageRecv", xdr2.lookup("Uint64")],
+        ["duplicateFetchMessageRecv", xdr2.lookup("Uint64")]
       ]);
-      xdr.struct("TimeSlicedNodeData", [
-        ["addedAuthenticatedPeers", xdr.lookup("Uint32")],
-        ["droppedAuthenticatedPeers", xdr.lookup("Uint32")],
-        ["totalInboundPeerCount", xdr.lookup("Uint32")],
-        ["totalOutboundPeerCount", xdr.lookup("Uint32")],
-        ["p75ScpFirstToSelfLatencyMs", xdr.lookup("Uint32")],
-        ["p75ScpSelfToOtherLatencyMs", xdr.lookup("Uint32")],
-        ["lostSyncCount", xdr.lookup("Uint32")],
-        ["isValidator", xdr.bool()],
-        ["maxInboundPeerCount", xdr.lookup("Uint32")],
-        ["maxOutboundPeerCount", xdr.lookup("Uint32")]
+      xdr2.struct("TimeSlicedNodeData", [
+        ["addedAuthenticatedPeers", xdr2.lookup("Uint32")],
+        ["droppedAuthenticatedPeers", xdr2.lookup("Uint32")],
+        ["totalInboundPeerCount", xdr2.lookup("Uint32")],
+        ["totalOutboundPeerCount", xdr2.lookup("Uint32")],
+        ["p75ScpFirstToSelfLatencyMs", xdr2.lookup("Uint32")],
+        ["p75ScpSelfToOtherLatencyMs", xdr2.lookup("Uint32")],
+        ["lostSyncCount", xdr2.lookup("Uint32")],
+        ["isValidator", xdr2.bool()],
+        ["maxInboundPeerCount", xdr2.lookup("Uint32")],
+        ["maxOutboundPeerCount", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("TimeSlicedPeerData", [
-        ["peerStats", xdr.lookup("PeerStats")],
-        ["averageLatencyMs", xdr.lookup("Uint32")]
+      xdr2.struct("TimeSlicedPeerData", [
+        ["peerStats", xdr2.lookup("PeerStats")],
+        ["averageLatencyMs", xdr2.lookup("Uint32")]
       ]);
-      xdr.typedef(
+      xdr2.typedef(
         "TimeSlicedPeerDataList",
-        xdr.varArray(xdr.lookup("TimeSlicedPeerData"), 25)
+        xdr2.varArray(xdr2.lookup("TimeSlicedPeerData"), 25)
       );
-      xdr.struct("TopologyResponseBodyV2", [
-        ["inboundPeers", xdr.lookup("TimeSlicedPeerDataList")],
-        ["outboundPeers", xdr.lookup("TimeSlicedPeerDataList")],
-        ["nodeData", xdr.lookup("TimeSlicedNodeData")]
+      xdr2.struct("TopologyResponseBodyV2", [
+        ["inboundPeers", xdr2.lookup("TimeSlicedPeerDataList")],
+        ["outboundPeers", xdr2.lookup("TimeSlicedPeerDataList")],
+        ["nodeData", xdr2.lookup("TimeSlicedNodeData")]
       ]);
-      xdr.union("SurveyResponseBody", {
-        switchOn: xdr.lookup("SurveyMessageResponseType"),
+      xdr2.union("SurveyResponseBody", {
+        switchOn: xdr2.lookup("SurveyMessageResponseType"),
         switchName: "type",
         switches: [["surveyTopologyResponseV2", "topologyResponseBodyV2"]],
         arms: {
-          topologyResponseBodyV2: xdr.lookup("TopologyResponseBodyV2")
+          topologyResponseBodyV2: xdr2.lookup("TopologyResponseBodyV2")
         }
       });
-      xdr.const("TX_ADVERT_VECTOR_MAX_SIZE", 1e3);
-      xdr.typedef(
+      xdr2.const("TX_ADVERT_VECTOR_MAX_SIZE", 1e3);
+      xdr2.typedef(
         "TxAdvertVector",
-        xdr.varArray(xdr.lookup("Hash"), xdr.lookup("TX_ADVERT_VECTOR_MAX_SIZE"))
+        xdr2.varArray(xdr2.lookup("Hash"), xdr2.lookup("TX_ADVERT_VECTOR_MAX_SIZE"))
       );
-      xdr.struct("FloodAdvert", [["txHashes", xdr.lookup("TxAdvertVector")]]);
-      xdr.const("TX_DEMAND_VECTOR_MAX_SIZE", 1e3);
-      xdr.typedef(
+      xdr2.struct("FloodAdvert", [["txHashes", xdr2.lookup("TxAdvertVector")]]);
+      xdr2.const("TX_DEMAND_VECTOR_MAX_SIZE", 1e3);
+      xdr2.typedef(
         "TxDemandVector",
-        xdr.varArray(xdr.lookup("Hash"), xdr.lookup("TX_DEMAND_VECTOR_MAX_SIZE"))
+        xdr2.varArray(xdr2.lookup("Hash"), xdr2.lookup("TX_DEMAND_VECTOR_MAX_SIZE"))
       );
-      xdr.struct("FloodDemand", [["txHashes", xdr.lookup("TxDemandVector")]]);
-      xdr.union("StellarMessage", {
-        switchOn: xdr.lookup("MessageType"),
+      xdr2.struct("FloodDemand", [["txHashes", xdr2.lookup("TxDemandVector")]]);
+      xdr2.union("StellarMessage", {
+        switchOn: xdr2.lookup("MessageType"),
         switchName: "type",
         switches: [
           ["errorMsg", "error"],
@@ -120273,80 +120273,80 @@ var init_curr_generated = __esm({
           ["floodDemand", "floodDemand"]
         ],
         arms: {
-          error: xdr.lookup("Error"),
-          hello: xdr.lookup("Hello"),
-          auth: xdr.lookup("Auth"),
-          dontHave: xdr.lookup("DontHave"),
-          peers: xdr.varArray(xdr.lookup("PeerAddress"), 100),
-          txSetHash: xdr.lookup("Uint256"),
-          txSet: xdr.lookup("TransactionSet"),
-          generalizedTxSet: xdr.lookup("GeneralizedTransactionSet"),
-          transaction: xdr.lookup("TransactionEnvelope"),
-          signedTimeSlicedSurveyRequestMessage: xdr.lookup(
+          error: xdr2.lookup("Error"),
+          hello: xdr2.lookup("Hello"),
+          auth: xdr2.lookup("Auth"),
+          dontHave: xdr2.lookup("DontHave"),
+          peers: xdr2.varArray(xdr2.lookup("PeerAddress"), 100),
+          txSetHash: xdr2.lookup("Uint256"),
+          txSet: xdr2.lookup("TransactionSet"),
+          generalizedTxSet: xdr2.lookup("GeneralizedTransactionSet"),
+          transaction: xdr2.lookup("TransactionEnvelope"),
+          signedTimeSlicedSurveyRequestMessage: xdr2.lookup(
             "SignedTimeSlicedSurveyRequestMessage"
           ),
-          signedTimeSlicedSurveyResponseMessage: xdr.lookup(
+          signedTimeSlicedSurveyResponseMessage: xdr2.lookup(
             "SignedTimeSlicedSurveyResponseMessage"
           ),
-          signedTimeSlicedSurveyStartCollectingMessage: xdr.lookup(
+          signedTimeSlicedSurveyStartCollectingMessage: xdr2.lookup(
             "SignedTimeSlicedSurveyStartCollectingMessage"
           ),
-          signedTimeSlicedSurveyStopCollectingMessage: xdr.lookup(
+          signedTimeSlicedSurveyStopCollectingMessage: xdr2.lookup(
             "SignedTimeSlicedSurveyStopCollectingMessage"
           ),
-          qSetHash: xdr.lookup("Uint256"),
-          qSet: xdr.lookup("ScpQuorumSet"),
-          envelope: xdr.lookup("ScpEnvelope"),
-          getScpLedgerSeq: xdr.lookup("Uint32"),
-          sendMoreMessage: xdr.lookup("SendMore"),
-          sendMoreExtendedMessage: xdr.lookup("SendMoreExtended"),
-          floodAdvert: xdr.lookup("FloodAdvert"),
-          floodDemand: xdr.lookup("FloodDemand")
+          qSetHash: xdr2.lookup("Uint256"),
+          qSet: xdr2.lookup("ScpQuorumSet"),
+          envelope: xdr2.lookup("ScpEnvelope"),
+          getScpLedgerSeq: xdr2.lookup("Uint32"),
+          sendMoreMessage: xdr2.lookup("SendMore"),
+          sendMoreExtendedMessage: xdr2.lookup("SendMoreExtended"),
+          floodAdvert: xdr2.lookup("FloodAdvert"),
+          floodDemand: xdr2.lookup("FloodDemand")
         }
       });
-      xdr.struct("AuthenticatedMessageV0", [
-        ["sequence", xdr.lookup("Uint64")],
-        ["message", xdr.lookup("StellarMessage")],
-        ["mac", xdr.lookup("HmacSha256Mac")]
+      xdr2.struct("AuthenticatedMessageV0", [
+        ["sequence", xdr2.lookup("Uint64")],
+        ["message", xdr2.lookup("StellarMessage")],
+        ["mac", xdr2.lookup("HmacSha256Mac")]
       ]);
-      xdr.union("AuthenticatedMessage", {
-        switchOn: xdr.lookup("Uint32"),
+      xdr2.union("AuthenticatedMessage", {
+        switchOn: xdr2.lookup("Uint32"),
         switchName: "v",
         switches: [[0, "v0"]],
         arms: {
-          v0: xdr.lookup("AuthenticatedMessageV0")
+          v0: xdr2.lookup("AuthenticatedMessageV0")
         }
       });
-      xdr.const("MAX_OPS_PER_TX", 100);
-      xdr.union("LiquidityPoolParameters", {
-        switchOn: xdr.lookup("LiquidityPoolType"),
+      xdr2.const("MAX_OPS_PER_TX", 100);
+      xdr2.union("LiquidityPoolParameters", {
+        switchOn: xdr2.lookup("LiquidityPoolType"),
         switchName: "type",
         switches: [["liquidityPoolConstantProduct", "constantProduct"]],
         arms: {
-          constantProduct: xdr.lookup("LiquidityPoolConstantProductParameters")
+          constantProduct: xdr2.lookup("LiquidityPoolConstantProductParameters")
         }
       });
-      xdr.struct("MuxedAccountMed25519", [
-        ["id", xdr.lookup("Uint64")],
-        ["ed25519", xdr.lookup("Uint256")]
+      xdr2.struct("MuxedAccountMed25519", [
+        ["id", xdr2.lookup("Uint64")],
+        ["ed25519", xdr2.lookup("Uint256")]
       ]);
-      xdr.union("MuxedAccount", {
-        switchOn: xdr.lookup("CryptoKeyType"),
+      xdr2.union("MuxedAccount", {
+        switchOn: xdr2.lookup("CryptoKeyType"),
         switchName: "type",
         switches: [
           ["keyTypeEd25519", "ed25519"],
           ["keyTypeMuxedEd25519", "med25519"]
         ],
         arms: {
-          ed25519: xdr.lookup("Uint256"),
-          med25519: xdr.lookup("MuxedAccountMed25519")
+          ed25519: xdr2.lookup("Uint256"),
+          med25519: xdr2.lookup("MuxedAccountMed25519")
         }
       });
-      xdr.struct("DecoratedSignature", [
-        ["hint", xdr.lookup("SignatureHint")],
-        ["signature", xdr.lookup("Signature")]
+      xdr2.struct("DecoratedSignature", [
+        ["hint", xdr2.lookup("SignatureHint")],
+        ["signature", xdr2.lookup("Signature")]
       ]);
-      xdr.enum("OperationType", {
+      xdr2.enum("OperationType", {
         createAccount: 0,
         payment: 1,
         pathPaymentStrictReceive: 2,
@@ -120375,192 +120375,192 @@ var init_curr_generated = __esm({
         extendFootprintTtl: 25,
         restoreFootprint: 26
       });
-      xdr.struct("CreateAccountOp", [
-        ["destination", xdr.lookup("AccountId")],
-        ["startingBalance", xdr.lookup("Int64")]
+      xdr2.struct("CreateAccountOp", [
+        ["destination", xdr2.lookup("AccountId")],
+        ["startingBalance", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("PaymentOp", [
-        ["destination", xdr.lookup("MuxedAccount")],
-        ["asset", xdr.lookup("Asset")],
-        ["amount", xdr.lookup("Int64")]
+      xdr2.struct("PaymentOp", [
+        ["destination", xdr2.lookup("MuxedAccount")],
+        ["asset", xdr2.lookup("Asset")],
+        ["amount", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("PathPaymentStrictReceiveOp", [
-        ["sendAsset", xdr.lookup("Asset")],
-        ["sendMax", xdr.lookup("Int64")],
-        ["destination", xdr.lookup("MuxedAccount")],
-        ["destAsset", xdr.lookup("Asset")],
-        ["destAmount", xdr.lookup("Int64")],
-        ["path", xdr.varArray(xdr.lookup("Asset"), 5)]
+      xdr2.struct("PathPaymentStrictReceiveOp", [
+        ["sendAsset", xdr2.lookup("Asset")],
+        ["sendMax", xdr2.lookup("Int64")],
+        ["destination", xdr2.lookup("MuxedAccount")],
+        ["destAsset", xdr2.lookup("Asset")],
+        ["destAmount", xdr2.lookup("Int64")],
+        ["path", xdr2.varArray(xdr2.lookup("Asset"), 5)]
       ]);
-      xdr.struct("PathPaymentStrictSendOp", [
-        ["sendAsset", xdr.lookup("Asset")],
-        ["sendAmount", xdr.lookup("Int64")],
-        ["destination", xdr.lookup("MuxedAccount")],
-        ["destAsset", xdr.lookup("Asset")],
-        ["destMin", xdr.lookup("Int64")],
-        ["path", xdr.varArray(xdr.lookup("Asset"), 5)]
+      xdr2.struct("PathPaymentStrictSendOp", [
+        ["sendAsset", xdr2.lookup("Asset")],
+        ["sendAmount", xdr2.lookup("Int64")],
+        ["destination", xdr2.lookup("MuxedAccount")],
+        ["destAsset", xdr2.lookup("Asset")],
+        ["destMin", xdr2.lookup("Int64")],
+        ["path", xdr2.varArray(xdr2.lookup("Asset"), 5)]
       ]);
-      xdr.struct("ManageSellOfferOp", [
-        ["selling", xdr.lookup("Asset")],
-        ["buying", xdr.lookup("Asset")],
-        ["amount", xdr.lookup("Int64")],
-        ["price", xdr.lookup("Price")],
-        ["offerId", xdr.lookup("Int64")]
+      xdr2.struct("ManageSellOfferOp", [
+        ["selling", xdr2.lookup("Asset")],
+        ["buying", xdr2.lookup("Asset")],
+        ["amount", xdr2.lookup("Int64")],
+        ["price", xdr2.lookup("Price")],
+        ["offerId", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("ManageBuyOfferOp", [
-        ["selling", xdr.lookup("Asset")],
-        ["buying", xdr.lookup("Asset")],
-        ["buyAmount", xdr.lookup("Int64")],
-        ["price", xdr.lookup("Price")],
-        ["offerId", xdr.lookup("Int64")]
+      xdr2.struct("ManageBuyOfferOp", [
+        ["selling", xdr2.lookup("Asset")],
+        ["buying", xdr2.lookup("Asset")],
+        ["buyAmount", xdr2.lookup("Int64")],
+        ["price", xdr2.lookup("Price")],
+        ["offerId", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("CreatePassiveSellOfferOp", [
-        ["selling", xdr.lookup("Asset")],
-        ["buying", xdr.lookup("Asset")],
-        ["amount", xdr.lookup("Int64")],
-        ["price", xdr.lookup("Price")]
+      xdr2.struct("CreatePassiveSellOfferOp", [
+        ["selling", xdr2.lookup("Asset")],
+        ["buying", xdr2.lookup("Asset")],
+        ["amount", xdr2.lookup("Int64")],
+        ["price", xdr2.lookup("Price")]
       ]);
-      xdr.struct("SetOptionsOp", [
-        ["inflationDest", xdr.option(xdr.lookup("AccountId"))],
-        ["clearFlags", xdr.option(xdr.lookup("Uint32"))],
-        ["setFlags", xdr.option(xdr.lookup("Uint32"))],
-        ["masterWeight", xdr.option(xdr.lookup("Uint32"))],
-        ["lowThreshold", xdr.option(xdr.lookup("Uint32"))],
-        ["medThreshold", xdr.option(xdr.lookup("Uint32"))],
-        ["highThreshold", xdr.option(xdr.lookup("Uint32"))],
-        ["homeDomain", xdr.option(xdr.lookup("String32"))],
-        ["signer", xdr.option(xdr.lookup("Signer"))]
+      xdr2.struct("SetOptionsOp", [
+        ["inflationDest", xdr2.option(xdr2.lookup("AccountId"))],
+        ["clearFlags", xdr2.option(xdr2.lookup("Uint32"))],
+        ["setFlags", xdr2.option(xdr2.lookup("Uint32"))],
+        ["masterWeight", xdr2.option(xdr2.lookup("Uint32"))],
+        ["lowThreshold", xdr2.option(xdr2.lookup("Uint32"))],
+        ["medThreshold", xdr2.option(xdr2.lookup("Uint32"))],
+        ["highThreshold", xdr2.option(xdr2.lookup("Uint32"))],
+        ["homeDomain", xdr2.option(xdr2.lookup("String32"))],
+        ["signer", xdr2.option(xdr2.lookup("Signer"))]
       ]);
-      xdr.union("ChangeTrustAsset", {
-        switchOn: xdr.lookup("AssetType"),
+      xdr2.union("ChangeTrustAsset", {
+        switchOn: xdr2.lookup("AssetType"),
         switchName: "type",
         switches: [
-          ["assetTypeNative", xdr.void()],
+          ["assetTypeNative", xdr2.void()],
           ["assetTypeCreditAlphanum4", "alphaNum4"],
           ["assetTypeCreditAlphanum12", "alphaNum12"],
           ["assetTypePoolShare", "liquidityPool"]
         ],
         arms: {
-          alphaNum4: xdr.lookup("AlphaNum4"),
-          alphaNum12: xdr.lookup("AlphaNum12"),
-          liquidityPool: xdr.lookup("LiquidityPoolParameters")
+          alphaNum4: xdr2.lookup("AlphaNum4"),
+          alphaNum12: xdr2.lookup("AlphaNum12"),
+          liquidityPool: xdr2.lookup("LiquidityPoolParameters")
         }
       });
-      xdr.struct("ChangeTrustOp", [
-        ["line", xdr.lookup("ChangeTrustAsset")],
-        ["limit", xdr.lookup("Int64")]
+      xdr2.struct("ChangeTrustOp", [
+        ["line", xdr2.lookup("ChangeTrustAsset")],
+        ["limit", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("AllowTrustOp", [
-        ["trustor", xdr.lookup("AccountId")],
-        ["asset", xdr.lookup("AssetCode")],
-        ["authorize", xdr.lookup("Uint32")]
+      xdr2.struct("AllowTrustOp", [
+        ["trustor", xdr2.lookup("AccountId")],
+        ["asset", xdr2.lookup("AssetCode")],
+        ["authorize", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("ManageDataOp", [
-        ["dataName", xdr.lookup("String64")],
-        ["dataValue", xdr.option(xdr.lookup("DataValue"))]
+      xdr2.struct("ManageDataOp", [
+        ["dataName", xdr2.lookup("String64")],
+        ["dataValue", xdr2.option(xdr2.lookup("DataValue"))]
       ]);
-      xdr.struct("BumpSequenceOp", [["bumpTo", xdr.lookup("SequenceNumber")]]);
-      xdr.struct("CreateClaimableBalanceOp", [
-        ["asset", xdr.lookup("Asset")],
-        ["amount", xdr.lookup("Int64")],
-        ["claimants", xdr.varArray(xdr.lookup("Claimant"), 10)]
+      xdr2.struct("BumpSequenceOp", [["bumpTo", xdr2.lookup("SequenceNumber")]]);
+      xdr2.struct("CreateClaimableBalanceOp", [
+        ["asset", xdr2.lookup("Asset")],
+        ["amount", xdr2.lookup("Int64")],
+        ["claimants", xdr2.varArray(xdr2.lookup("Claimant"), 10)]
       ]);
-      xdr.struct("ClaimClaimableBalanceOp", [
-        ["balanceId", xdr.lookup("ClaimableBalanceId")]
+      xdr2.struct("ClaimClaimableBalanceOp", [
+        ["balanceId", xdr2.lookup("ClaimableBalanceId")]
       ]);
-      xdr.struct("BeginSponsoringFutureReservesOp", [
-        ["sponsoredId", xdr.lookup("AccountId")]
+      xdr2.struct("BeginSponsoringFutureReservesOp", [
+        ["sponsoredId", xdr2.lookup("AccountId")]
       ]);
-      xdr.enum("RevokeSponsorshipType", {
+      xdr2.enum("RevokeSponsorshipType", {
         revokeSponsorshipLedgerEntry: 0,
         revokeSponsorshipSigner: 1
       });
-      xdr.struct("RevokeSponsorshipOpSigner", [
-        ["accountId", xdr.lookup("AccountId")],
-        ["signerKey", xdr.lookup("SignerKey")]
+      xdr2.struct("RevokeSponsorshipOpSigner", [
+        ["accountId", xdr2.lookup("AccountId")],
+        ["signerKey", xdr2.lookup("SignerKey")]
       ]);
-      xdr.union("RevokeSponsorshipOp", {
-        switchOn: xdr.lookup("RevokeSponsorshipType"),
+      xdr2.union("RevokeSponsorshipOp", {
+        switchOn: xdr2.lookup("RevokeSponsorshipType"),
         switchName: "type",
         switches: [
           ["revokeSponsorshipLedgerEntry", "ledgerKey"],
           ["revokeSponsorshipSigner", "signer"]
         ],
         arms: {
-          ledgerKey: xdr.lookup("LedgerKey"),
-          signer: xdr.lookup("RevokeSponsorshipOpSigner")
+          ledgerKey: xdr2.lookup("LedgerKey"),
+          signer: xdr2.lookup("RevokeSponsorshipOpSigner")
         }
       });
-      xdr.struct("ClawbackOp", [
-        ["asset", xdr.lookup("Asset")],
-        ["from", xdr.lookup("MuxedAccount")],
-        ["amount", xdr.lookup("Int64")]
+      xdr2.struct("ClawbackOp", [
+        ["asset", xdr2.lookup("Asset")],
+        ["from", xdr2.lookup("MuxedAccount")],
+        ["amount", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("ClawbackClaimableBalanceOp", [
-        ["balanceId", xdr.lookup("ClaimableBalanceId")]
+      xdr2.struct("ClawbackClaimableBalanceOp", [
+        ["balanceId", xdr2.lookup("ClaimableBalanceId")]
       ]);
-      xdr.struct("SetTrustLineFlagsOp", [
-        ["trustor", xdr.lookup("AccountId")],
-        ["asset", xdr.lookup("Asset")],
-        ["clearFlags", xdr.lookup("Uint32")],
-        ["setFlags", xdr.lookup("Uint32")]
+      xdr2.struct("SetTrustLineFlagsOp", [
+        ["trustor", xdr2.lookup("AccountId")],
+        ["asset", xdr2.lookup("Asset")],
+        ["clearFlags", xdr2.lookup("Uint32")],
+        ["setFlags", xdr2.lookup("Uint32")]
       ]);
-      xdr.const("LIQUIDITY_POOL_FEE_V18", 30);
-      xdr.struct("LiquidityPoolDepositOp", [
-        ["liquidityPoolId", xdr.lookup("PoolId")],
-        ["maxAmountA", xdr.lookup("Int64")],
-        ["maxAmountB", xdr.lookup("Int64")],
-        ["minPrice", xdr.lookup("Price")],
-        ["maxPrice", xdr.lookup("Price")]
+      xdr2.const("LIQUIDITY_POOL_FEE_V18", 30);
+      xdr2.struct("LiquidityPoolDepositOp", [
+        ["liquidityPoolId", xdr2.lookup("PoolId")],
+        ["maxAmountA", xdr2.lookup("Int64")],
+        ["maxAmountB", xdr2.lookup("Int64")],
+        ["minPrice", xdr2.lookup("Price")],
+        ["maxPrice", xdr2.lookup("Price")]
       ]);
-      xdr.struct("LiquidityPoolWithdrawOp", [
-        ["liquidityPoolId", xdr.lookup("PoolId")],
-        ["amount", xdr.lookup("Int64")],
-        ["minAmountA", xdr.lookup("Int64")],
-        ["minAmountB", xdr.lookup("Int64")]
+      xdr2.struct("LiquidityPoolWithdrawOp", [
+        ["liquidityPoolId", xdr2.lookup("PoolId")],
+        ["amount", xdr2.lookup("Int64")],
+        ["minAmountA", xdr2.lookup("Int64")],
+        ["minAmountB", xdr2.lookup("Int64")]
       ]);
-      xdr.enum("HostFunctionType", {
+      xdr2.enum("HostFunctionType", {
         hostFunctionTypeInvokeContract: 0,
         hostFunctionTypeCreateContract: 1,
         hostFunctionTypeUploadContractWasm: 2,
         hostFunctionTypeCreateContractV2: 3
       });
-      xdr.enum("ContractIdPreimageType", {
+      xdr2.enum("ContractIdPreimageType", {
         contractIdPreimageFromAddress: 0,
         contractIdPreimageFromAsset: 1
       });
-      xdr.struct("ContractIdPreimageFromAddress", [
-        ["address", xdr.lookup("ScAddress")],
-        ["salt", xdr.lookup("Uint256")]
+      xdr2.struct("ContractIdPreimageFromAddress", [
+        ["address", xdr2.lookup("ScAddress")],
+        ["salt", xdr2.lookup("Uint256")]
       ]);
-      xdr.union("ContractIdPreimage", {
-        switchOn: xdr.lookup("ContractIdPreimageType"),
+      xdr2.union("ContractIdPreimage", {
+        switchOn: xdr2.lookup("ContractIdPreimageType"),
         switchName: "type",
         switches: [
           ["contractIdPreimageFromAddress", "fromAddress"],
           ["contractIdPreimageFromAsset", "fromAsset"]
         ],
         arms: {
-          fromAddress: xdr.lookup("ContractIdPreimageFromAddress"),
-          fromAsset: xdr.lookup("Asset")
+          fromAddress: xdr2.lookup("ContractIdPreimageFromAddress"),
+          fromAsset: xdr2.lookup("Asset")
         }
       });
-      xdr.struct("CreateContractArgs", [
-        ["contractIdPreimage", xdr.lookup("ContractIdPreimage")],
-        ["executable", xdr.lookup("ContractExecutable")]
+      xdr2.struct("CreateContractArgs", [
+        ["contractIdPreimage", xdr2.lookup("ContractIdPreimage")],
+        ["executable", xdr2.lookup("ContractExecutable")]
       ]);
-      xdr.struct("CreateContractArgsV2", [
-        ["contractIdPreimage", xdr.lookup("ContractIdPreimage")],
-        ["executable", xdr.lookup("ContractExecutable")],
-        ["constructorArgs", xdr.varArray(xdr.lookup("ScVal"), 2147483647)]
+      xdr2.struct("CreateContractArgsV2", [
+        ["contractIdPreimage", xdr2.lookup("ContractIdPreimage")],
+        ["executable", xdr2.lookup("ContractExecutable")],
+        ["constructorArgs", xdr2.varArray(xdr2.lookup("ScVal"), 2147483647)]
       ]);
-      xdr.struct("InvokeContractArgs", [
-        ["contractAddress", xdr.lookup("ScAddress")],
-        ["functionName", xdr.lookup("ScSymbol")],
-        ["args", xdr.varArray(xdr.lookup("ScVal"), 2147483647)]
+      xdr2.struct("InvokeContractArgs", [
+        ["contractAddress", xdr2.lookup("ScAddress")],
+        ["functionName", xdr2.lookup("ScSymbol")],
+        ["args", xdr2.varArray(xdr2.lookup("ScVal"), 2147483647)]
       ]);
-      xdr.union("HostFunction", {
-        switchOn: xdr.lookup("HostFunctionType"),
+      xdr2.union("HostFunction", {
+        switchOn: xdr2.lookup("HostFunctionType"),
         switchName: "type",
         switches: [
           ["hostFunctionTypeInvokeContract", "invokeContract"],
@@ -120569,19 +120569,19 @@ var init_curr_generated = __esm({
           ["hostFunctionTypeCreateContractV2", "createContractV2"]
         ],
         arms: {
-          invokeContract: xdr.lookup("InvokeContractArgs"),
-          createContract: xdr.lookup("CreateContractArgs"),
-          wasm: xdr.varOpaque(),
-          createContractV2: xdr.lookup("CreateContractArgsV2")
+          invokeContract: xdr2.lookup("InvokeContractArgs"),
+          createContract: xdr2.lookup("CreateContractArgs"),
+          wasm: xdr2.varOpaque(),
+          createContractV2: xdr2.lookup("CreateContractArgsV2")
         }
       });
-      xdr.enum("SorobanAuthorizedFunctionType", {
+      xdr2.enum("SorobanAuthorizedFunctionType", {
         sorobanAuthorizedFunctionTypeContractFn: 0,
         sorobanAuthorizedFunctionTypeCreateContractHostFn: 1,
         sorobanAuthorizedFunctionTypeCreateContractV2HostFn: 2
       });
-      xdr.union("SorobanAuthorizedFunction", {
-        switchOn: xdr.lookup("SorobanAuthorizedFunctionType"),
+      xdr2.union("SorobanAuthorizedFunction", {
+        switchOn: xdr2.lookup("SorobanAuthorizedFunctionType"),
         switchName: "type",
         switches: [
           ["sorobanAuthorizedFunctionTypeContractFn", "contractFn"],
@@ -120595,81 +120595,81 @@ var init_curr_generated = __esm({
           ]
         ],
         arms: {
-          contractFn: xdr.lookup("InvokeContractArgs"),
-          createContractHostFn: xdr.lookup("CreateContractArgs"),
-          createContractV2HostFn: xdr.lookup("CreateContractArgsV2")
+          contractFn: xdr2.lookup("InvokeContractArgs"),
+          createContractHostFn: xdr2.lookup("CreateContractArgs"),
+          createContractV2HostFn: xdr2.lookup("CreateContractArgsV2")
         }
       });
-      xdr.struct("SorobanAuthorizedInvocation", [
-        ["function", xdr.lookup("SorobanAuthorizedFunction")],
+      xdr2.struct("SorobanAuthorizedInvocation", [
+        ["function", xdr2.lookup("SorobanAuthorizedFunction")],
         [
           "subInvocations",
-          xdr.varArray(xdr.lookup("SorobanAuthorizedInvocation"), 2147483647)
+          xdr2.varArray(xdr2.lookup("SorobanAuthorizedInvocation"), 2147483647)
         ]
       ]);
-      xdr.struct("SorobanAddressCredentials", [
-        ["address", xdr.lookup("ScAddress")],
-        ["nonce", xdr.lookup("Int64")],
-        ["signatureExpirationLedger", xdr.lookup("Uint32")],
-        ["signature", xdr.lookup("ScVal")]
+      xdr2.struct("SorobanAddressCredentials", [
+        ["address", xdr2.lookup("ScAddress")],
+        ["nonce", xdr2.lookup("Int64")],
+        ["signatureExpirationLedger", xdr2.lookup("Uint32")],
+        ["signature", xdr2.lookup("ScVal")]
       ]);
-      xdr.struct("SorobanDelegateSignature", [
-        ["address", xdr.lookup("ScAddress")],
-        ["signature", xdr.lookup("ScVal")],
+      xdr2.struct("SorobanDelegateSignature", [
+        ["address", xdr2.lookup("ScAddress")],
+        ["signature", xdr2.lookup("ScVal")],
         [
           "nestedDelegates",
-          xdr.varArray(xdr.lookup("SorobanDelegateSignature"), 2147483647)
+          xdr2.varArray(xdr2.lookup("SorobanDelegateSignature"), 2147483647)
         ]
       ]);
-      xdr.struct("SorobanAddressCredentialsWithDelegates", [
-        ["addressCredentials", xdr.lookup("SorobanAddressCredentials")],
+      xdr2.struct("SorobanAddressCredentialsWithDelegates", [
+        ["addressCredentials", xdr2.lookup("SorobanAddressCredentials")],
         [
           "delegates",
-          xdr.varArray(xdr.lookup("SorobanDelegateSignature"), 2147483647)
+          xdr2.varArray(xdr2.lookup("SorobanDelegateSignature"), 2147483647)
         ]
       ]);
-      xdr.enum("SorobanCredentialsType", {
+      xdr2.enum("SorobanCredentialsType", {
         sorobanCredentialsSourceAccount: 0,
         sorobanCredentialsAddress: 1,
         sorobanCredentialsAddressV2: 2,
         sorobanCredentialsAddressWithDelegates: 3
       });
-      xdr.union("SorobanCredentials", {
-        switchOn: xdr.lookup("SorobanCredentialsType"),
+      xdr2.union("SorobanCredentials", {
+        switchOn: xdr2.lookup("SorobanCredentialsType"),
         switchName: "type",
         switches: [
-          ["sorobanCredentialsSourceAccount", xdr.void()],
+          ["sorobanCredentialsSourceAccount", xdr2.void()],
           ["sorobanCredentialsAddress", "address"],
           ["sorobanCredentialsAddressV2", "addressV2"],
           ["sorobanCredentialsAddressWithDelegates", "addressWithDelegates"]
         ],
         arms: {
-          address: xdr.lookup("SorobanAddressCredentials"),
-          addressV2: xdr.lookup("SorobanAddressCredentials"),
-          addressWithDelegates: xdr.lookup(
+          address: xdr2.lookup("SorobanAddressCredentials"),
+          addressV2: xdr2.lookup("SorobanAddressCredentials"),
+          addressWithDelegates: xdr2.lookup(
             "SorobanAddressCredentialsWithDelegates"
           )
         }
       });
-      xdr.struct("SorobanAuthorizationEntry", [
-        ["credentials", xdr.lookup("SorobanCredentials")],
-        ["rootInvocation", xdr.lookup("SorobanAuthorizedInvocation")]
+      xdr2.struct("SorobanAuthorizationEntry", [
+        ["credentials", xdr2.lookup("SorobanCredentials")],
+        ["rootInvocation", xdr2.lookup("SorobanAuthorizedInvocation")]
       ]);
-      xdr.typedef(
+      xdr2.typedef(
         "SorobanAuthorizationEntries",
-        xdr.varArray(xdr.lookup("SorobanAuthorizationEntry"), 2147483647)
+        xdr2.varArray(xdr2.lookup("SorobanAuthorizationEntry"), 2147483647)
       );
-      xdr.struct("InvokeHostFunctionOp", [
-        ["hostFunction", xdr.lookup("HostFunction")],
-        ["auth", xdr.varArray(xdr.lookup("SorobanAuthorizationEntry"), 2147483647)]
+      xdr2.struct("InvokeHostFunctionOp", [
+        ["hostFunction", xdr2.lookup("HostFunction")],
+        ["auth", xdr2.varArray(xdr2.lookup("SorobanAuthorizationEntry"), 2147483647)]
       ]);
-      xdr.struct("ExtendFootprintTtlOp", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["extendTo", xdr.lookup("Uint32")]
+      xdr2.struct("ExtendFootprintTtlOp", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["extendTo", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("RestoreFootprintOp", [["ext", xdr.lookup("ExtensionPoint")]]);
-      xdr.union("OperationBody", {
-        switchOn: xdr.lookup("OperationType"),
+      xdr2.struct("RestoreFootprintOp", [["ext", xdr2.lookup("ExtensionPoint")]]);
+      xdr2.union("OperationBody", {
+        switchOn: xdr2.lookup("OperationType"),
         switchName: "type",
         switches: [
           ["createAccount", "createAccountOp"],
@@ -120681,7 +120681,7 @@ var init_curr_generated = __esm({
           ["changeTrust", "changeTrustOp"],
           ["allowTrust", "allowTrustOp"],
           ["accountMerge", "destination"],
-          ["inflation", xdr.void()],
+          ["inflation", xdr2.void()],
           ["manageData", "manageDataOp"],
           ["bumpSequence", "bumpSequenceOp"],
           ["manageBuyOffer", "manageBuyOfferOp"],
@@ -120689,7 +120689,7 @@ var init_curr_generated = __esm({
           ["createClaimableBalance", "createClaimableBalanceOp"],
           ["claimClaimableBalance", "claimClaimableBalanceOp"],
           ["beginSponsoringFutureReserves", "beginSponsoringFutureReservesOp"],
-          ["endSponsoringFutureReserves", xdr.void()],
+          ["endSponsoringFutureReserves", xdr2.void()],
           ["revokeSponsorship", "revokeSponsorshipOp"],
           ["clawback", "clawbackOp"],
           ["clawbackClaimableBalance", "clawbackClaimableBalanceOp"],
@@ -120701,70 +120701,70 @@ var init_curr_generated = __esm({
           ["restoreFootprint", "restoreFootprintOp"]
         ],
         arms: {
-          createAccountOp: xdr.lookup("CreateAccountOp"),
-          paymentOp: xdr.lookup("PaymentOp"),
-          pathPaymentStrictReceiveOp: xdr.lookup("PathPaymentStrictReceiveOp"),
-          manageSellOfferOp: xdr.lookup("ManageSellOfferOp"),
-          createPassiveSellOfferOp: xdr.lookup("CreatePassiveSellOfferOp"),
-          setOptionsOp: xdr.lookup("SetOptionsOp"),
-          changeTrustOp: xdr.lookup("ChangeTrustOp"),
-          allowTrustOp: xdr.lookup("AllowTrustOp"),
-          destination: xdr.lookup("MuxedAccount"),
-          manageDataOp: xdr.lookup("ManageDataOp"),
-          bumpSequenceOp: xdr.lookup("BumpSequenceOp"),
-          manageBuyOfferOp: xdr.lookup("ManageBuyOfferOp"),
-          pathPaymentStrictSendOp: xdr.lookup("PathPaymentStrictSendOp"),
-          createClaimableBalanceOp: xdr.lookup("CreateClaimableBalanceOp"),
-          claimClaimableBalanceOp: xdr.lookup("ClaimClaimableBalanceOp"),
-          beginSponsoringFutureReservesOp: xdr.lookup(
+          createAccountOp: xdr2.lookup("CreateAccountOp"),
+          paymentOp: xdr2.lookup("PaymentOp"),
+          pathPaymentStrictReceiveOp: xdr2.lookup("PathPaymentStrictReceiveOp"),
+          manageSellOfferOp: xdr2.lookup("ManageSellOfferOp"),
+          createPassiveSellOfferOp: xdr2.lookup("CreatePassiveSellOfferOp"),
+          setOptionsOp: xdr2.lookup("SetOptionsOp"),
+          changeTrustOp: xdr2.lookup("ChangeTrustOp"),
+          allowTrustOp: xdr2.lookup("AllowTrustOp"),
+          destination: xdr2.lookup("MuxedAccount"),
+          manageDataOp: xdr2.lookup("ManageDataOp"),
+          bumpSequenceOp: xdr2.lookup("BumpSequenceOp"),
+          manageBuyOfferOp: xdr2.lookup("ManageBuyOfferOp"),
+          pathPaymentStrictSendOp: xdr2.lookup("PathPaymentStrictSendOp"),
+          createClaimableBalanceOp: xdr2.lookup("CreateClaimableBalanceOp"),
+          claimClaimableBalanceOp: xdr2.lookup("ClaimClaimableBalanceOp"),
+          beginSponsoringFutureReservesOp: xdr2.lookup(
             "BeginSponsoringFutureReservesOp"
           ),
-          revokeSponsorshipOp: xdr.lookup("RevokeSponsorshipOp"),
-          clawbackOp: xdr.lookup("ClawbackOp"),
-          clawbackClaimableBalanceOp: xdr.lookup("ClawbackClaimableBalanceOp"),
-          setTrustLineFlagsOp: xdr.lookup("SetTrustLineFlagsOp"),
-          liquidityPoolDepositOp: xdr.lookup("LiquidityPoolDepositOp"),
-          liquidityPoolWithdrawOp: xdr.lookup("LiquidityPoolWithdrawOp"),
-          invokeHostFunctionOp: xdr.lookup("InvokeHostFunctionOp"),
-          extendFootprintTtlOp: xdr.lookup("ExtendFootprintTtlOp"),
-          restoreFootprintOp: xdr.lookup("RestoreFootprintOp")
+          revokeSponsorshipOp: xdr2.lookup("RevokeSponsorshipOp"),
+          clawbackOp: xdr2.lookup("ClawbackOp"),
+          clawbackClaimableBalanceOp: xdr2.lookup("ClawbackClaimableBalanceOp"),
+          setTrustLineFlagsOp: xdr2.lookup("SetTrustLineFlagsOp"),
+          liquidityPoolDepositOp: xdr2.lookup("LiquidityPoolDepositOp"),
+          liquidityPoolWithdrawOp: xdr2.lookup("LiquidityPoolWithdrawOp"),
+          invokeHostFunctionOp: xdr2.lookup("InvokeHostFunctionOp"),
+          extendFootprintTtlOp: xdr2.lookup("ExtendFootprintTtlOp"),
+          restoreFootprintOp: xdr2.lookup("RestoreFootprintOp")
         }
       });
-      xdr.struct("Operation", [
-        ["sourceAccount", xdr.option(xdr.lookup("MuxedAccount"))],
-        ["body", xdr.lookup("OperationBody")]
+      xdr2.struct("Operation", [
+        ["sourceAccount", xdr2.option(xdr2.lookup("MuxedAccount"))],
+        ["body", xdr2.lookup("OperationBody")]
       ]);
-      xdr.struct("HashIdPreimageOperationId", [
-        ["sourceAccount", xdr.lookup("AccountId")],
-        ["seqNum", xdr.lookup("SequenceNumber")],
-        ["opNum", xdr.lookup("Uint32")]
+      xdr2.struct("HashIdPreimageOperationId", [
+        ["sourceAccount", xdr2.lookup("AccountId")],
+        ["seqNum", xdr2.lookup("SequenceNumber")],
+        ["opNum", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("HashIdPreimageRevokeId", [
-        ["sourceAccount", xdr.lookup("AccountId")],
-        ["seqNum", xdr.lookup("SequenceNumber")],
-        ["opNum", xdr.lookup("Uint32")],
-        ["liquidityPoolId", xdr.lookup("PoolId")],
-        ["asset", xdr.lookup("Asset")]
+      xdr2.struct("HashIdPreimageRevokeId", [
+        ["sourceAccount", xdr2.lookup("AccountId")],
+        ["seqNum", xdr2.lookup("SequenceNumber")],
+        ["opNum", xdr2.lookup("Uint32")],
+        ["liquidityPoolId", xdr2.lookup("PoolId")],
+        ["asset", xdr2.lookup("Asset")]
       ]);
-      xdr.struct("HashIdPreimageContractId", [
-        ["networkId", xdr.lookup("Hash")],
-        ["contractIdPreimage", xdr.lookup("ContractIdPreimage")]
+      xdr2.struct("HashIdPreimageContractId", [
+        ["networkId", xdr2.lookup("Hash")],
+        ["contractIdPreimage", xdr2.lookup("ContractIdPreimage")]
       ]);
-      xdr.struct("HashIdPreimageSorobanAuthorization", [
-        ["networkId", xdr.lookup("Hash")],
-        ["nonce", xdr.lookup("Int64")],
-        ["signatureExpirationLedger", xdr.lookup("Uint32")],
-        ["invocation", xdr.lookup("SorobanAuthorizedInvocation")]
+      xdr2.struct("HashIdPreimageSorobanAuthorization", [
+        ["networkId", xdr2.lookup("Hash")],
+        ["nonce", xdr2.lookup("Int64")],
+        ["signatureExpirationLedger", xdr2.lookup("Uint32")],
+        ["invocation", xdr2.lookup("SorobanAuthorizedInvocation")]
       ]);
-      xdr.struct("HashIdPreimageSorobanAuthorizationWithAddress", [
-        ["networkId", xdr.lookup("Hash")],
-        ["nonce", xdr.lookup("Int64")],
-        ["signatureExpirationLedger", xdr.lookup("Uint32")],
-        ["address", xdr.lookup("ScAddress")],
-        ["invocation", xdr.lookup("SorobanAuthorizedInvocation")]
+      xdr2.struct("HashIdPreimageSorobanAuthorizationWithAddress", [
+        ["networkId", xdr2.lookup("Hash")],
+        ["nonce", xdr2.lookup("Int64")],
+        ["signatureExpirationLedger", xdr2.lookup("Uint32")],
+        ["address", xdr2.lookup("ScAddress")],
+        ["invocation", xdr2.lookup("SorobanAuthorizedInvocation")]
       ]);
-      xdr.union("HashIdPreimage", {
-        switchOn: xdr.lookup("EnvelopeType"),
+      xdr2.union("HashIdPreimage", {
+        switchOn: xdr2.lookup("EnvelopeType"),
         switchName: "type",
         switches: [
           ["envelopeTypeOpId", "operationId"],
@@ -120777,177 +120777,177 @@ var init_curr_generated = __esm({
           ]
         ],
         arms: {
-          operationId: xdr.lookup("HashIdPreimageOperationId"),
-          revokeId: xdr.lookup("HashIdPreimageRevokeId"),
-          contractId: xdr.lookup("HashIdPreimageContractId"),
-          sorobanAuthorization: xdr.lookup("HashIdPreimageSorobanAuthorization"),
-          sorobanAuthorizationWithAddress: xdr.lookup(
+          operationId: xdr2.lookup("HashIdPreimageOperationId"),
+          revokeId: xdr2.lookup("HashIdPreimageRevokeId"),
+          contractId: xdr2.lookup("HashIdPreimageContractId"),
+          sorobanAuthorization: xdr2.lookup("HashIdPreimageSorobanAuthorization"),
+          sorobanAuthorizationWithAddress: xdr2.lookup(
             "HashIdPreimageSorobanAuthorizationWithAddress"
           )
         }
       });
-      xdr.enum("MemoType", {
+      xdr2.enum("MemoType", {
         memoNone: 0,
         memoText: 1,
         memoId: 2,
         memoHash: 3,
         memoReturn: 4
       });
-      xdr.union("Memo", {
-        switchOn: xdr.lookup("MemoType"),
+      xdr2.union("Memo", {
+        switchOn: xdr2.lookup("MemoType"),
         switchName: "type",
         switches: [
-          ["memoNone", xdr.void()],
+          ["memoNone", xdr2.void()],
           ["memoText", "text"],
           ["memoId", "id"],
           ["memoHash", "hash"],
           ["memoReturn", "retHash"]
         ],
         arms: {
-          text: xdr.string(28),
-          id: xdr.lookup("Uint64"),
-          hash: xdr.lookup("Hash"),
-          retHash: xdr.lookup("Hash")
+          text: xdr2.string(28),
+          id: xdr2.lookup("Uint64"),
+          hash: xdr2.lookup("Hash"),
+          retHash: xdr2.lookup("Hash")
         }
       });
-      xdr.struct("TimeBounds", [
-        ["minTime", xdr.lookup("TimePoint")],
-        ["maxTime", xdr.lookup("TimePoint")]
+      xdr2.struct("TimeBounds", [
+        ["minTime", xdr2.lookup("TimePoint")],
+        ["maxTime", xdr2.lookup("TimePoint")]
       ]);
-      xdr.struct("LedgerBounds", [
-        ["minLedger", xdr.lookup("Uint32")],
-        ["maxLedger", xdr.lookup("Uint32")]
+      xdr2.struct("LedgerBounds", [
+        ["minLedger", xdr2.lookup("Uint32")],
+        ["maxLedger", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("PreconditionsV2", [
-        ["timeBounds", xdr.option(xdr.lookup("TimeBounds"))],
-        ["ledgerBounds", xdr.option(xdr.lookup("LedgerBounds"))],
-        ["minSeqNum", xdr.option(xdr.lookup("SequenceNumber"))],
-        ["minSeqAge", xdr.lookup("Duration")],
-        ["minSeqLedgerGap", xdr.lookup("Uint32")],
-        ["extraSigners", xdr.varArray(xdr.lookup("SignerKey"), 2)]
+      xdr2.struct("PreconditionsV2", [
+        ["timeBounds", xdr2.option(xdr2.lookup("TimeBounds"))],
+        ["ledgerBounds", xdr2.option(xdr2.lookup("LedgerBounds"))],
+        ["minSeqNum", xdr2.option(xdr2.lookup("SequenceNumber"))],
+        ["minSeqAge", xdr2.lookup("Duration")],
+        ["minSeqLedgerGap", xdr2.lookup("Uint32")],
+        ["extraSigners", xdr2.varArray(xdr2.lookup("SignerKey"), 2)]
       ]);
-      xdr.enum("PreconditionType", {
+      xdr2.enum("PreconditionType", {
         precondNone: 0,
         precondTime: 1,
         precondV2: 2
       });
-      xdr.union("Preconditions", {
-        switchOn: xdr.lookup("PreconditionType"),
+      xdr2.union("Preconditions", {
+        switchOn: xdr2.lookup("PreconditionType"),
         switchName: "type",
         switches: [
-          ["precondNone", xdr.void()],
+          ["precondNone", xdr2.void()],
           ["precondTime", "timeBounds"],
           ["precondV2", "v2"]
         ],
         arms: {
-          timeBounds: xdr.lookup("TimeBounds"),
-          v2: xdr.lookup("PreconditionsV2")
+          timeBounds: xdr2.lookup("TimeBounds"),
+          v2: xdr2.lookup("PreconditionsV2")
         }
       });
-      xdr.struct("LedgerFootprint", [
-        ["readOnly", xdr.varArray(xdr.lookup("LedgerKey"), 2147483647)],
-        ["readWrite", xdr.varArray(xdr.lookup("LedgerKey"), 2147483647)]
+      xdr2.struct("LedgerFootprint", [
+        ["readOnly", xdr2.varArray(xdr2.lookup("LedgerKey"), 2147483647)],
+        ["readWrite", xdr2.varArray(xdr2.lookup("LedgerKey"), 2147483647)]
       ]);
-      xdr.struct("SorobanResources", [
-        ["footprint", xdr.lookup("LedgerFootprint")],
-        ["instructions", xdr.lookup("Uint32")],
-        ["diskReadBytes", xdr.lookup("Uint32")],
-        ["writeBytes", xdr.lookup("Uint32")]
+      xdr2.struct("SorobanResources", [
+        ["footprint", xdr2.lookup("LedgerFootprint")],
+        ["instructions", xdr2.lookup("Uint32")],
+        ["diskReadBytes", xdr2.lookup("Uint32")],
+        ["writeBytes", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("SorobanResourcesExtV0", [
-        ["archivedSorobanEntries", xdr.varArray(xdr.lookup("Uint32"), 2147483647)]
+      xdr2.struct("SorobanResourcesExtV0", [
+        ["archivedSorobanEntries", xdr2.varArray(xdr2.lookup("Uint32"), 2147483647)]
       ]);
-      xdr.union("SorobanTransactionDataExt", {
-        switchOn: xdr.int(),
+      xdr2.union("SorobanTransactionDataExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "resourceExt"]
         ],
         arms: {
-          resourceExt: xdr.lookup("SorobanResourcesExtV0")
+          resourceExt: xdr2.lookup("SorobanResourcesExtV0")
         }
       });
-      xdr.struct("SorobanTransactionData", [
-        ["ext", xdr.lookup("SorobanTransactionDataExt")],
-        ["resources", xdr.lookup("SorobanResources")],
-        ["resourceFee", xdr.lookup("Int64")]
+      xdr2.struct("SorobanTransactionData", [
+        ["ext", xdr2.lookup("SorobanTransactionDataExt")],
+        ["resources", xdr2.lookup("SorobanResources")],
+        ["resourceFee", xdr2.lookup("Int64")]
       ]);
-      xdr.union("TransactionV0Ext", {
-        switchOn: xdr.int(),
+      xdr2.union("TransactionV0Ext", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("TransactionV0", [
-        ["sourceAccountEd25519", xdr.lookup("Uint256")],
-        ["fee", xdr.lookup("Uint32")],
-        ["seqNum", xdr.lookup("SequenceNumber")],
-        ["timeBounds", xdr.option(xdr.lookup("TimeBounds"))],
-        ["memo", xdr.lookup("Memo")],
+      xdr2.struct("TransactionV0", [
+        ["sourceAccountEd25519", xdr2.lookup("Uint256")],
+        ["fee", xdr2.lookup("Uint32")],
+        ["seqNum", xdr2.lookup("SequenceNumber")],
+        ["timeBounds", xdr2.option(xdr2.lookup("TimeBounds"))],
+        ["memo", xdr2.lookup("Memo")],
         [
           "operations",
-          xdr.varArray(xdr.lookup("Operation"), xdr.lookup("MAX_OPS_PER_TX"))
+          xdr2.varArray(xdr2.lookup("Operation"), xdr2.lookup("MAX_OPS_PER_TX"))
         ],
-        ["ext", xdr.lookup("TransactionV0Ext")]
+        ["ext", xdr2.lookup("TransactionV0Ext")]
       ]);
-      xdr.struct("TransactionV0Envelope", [
-        ["tx", xdr.lookup("TransactionV0")],
-        ["signatures", xdr.varArray(xdr.lookup("DecoratedSignature"), 20)]
+      xdr2.struct("TransactionV0Envelope", [
+        ["tx", xdr2.lookup("TransactionV0")],
+        ["signatures", xdr2.varArray(xdr2.lookup("DecoratedSignature"), 20)]
       ]);
-      xdr.union("TransactionExt", {
-        switchOn: xdr.int(),
+      xdr2.union("TransactionExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
         switches: [
-          [0, xdr.void()],
+          [0, xdr2.void()],
           [1, "sorobanData"]
         ],
         arms: {
-          sorobanData: xdr.lookup("SorobanTransactionData")
+          sorobanData: xdr2.lookup("SorobanTransactionData")
         }
       });
-      xdr.struct("Transaction", [
-        ["sourceAccount", xdr.lookup("MuxedAccount")],
-        ["fee", xdr.lookup("Uint32")],
-        ["seqNum", xdr.lookup("SequenceNumber")],
-        ["cond", xdr.lookup("Preconditions")],
-        ["memo", xdr.lookup("Memo")],
+      xdr2.struct("Transaction", [
+        ["sourceAccount", xdr2.lookup("MuxedAccount")],
+        ["fee", xdr2.lookup("Uint32")],
+        ["seqNum", xdr2.lookup("SequenceNumber")],
+        ["cond", xdr2.lookup("Preconditions")],
+        ["memo", xdr2.lookup("Memo")],
         [
           "operations",
-          xdr.varArray(xdr.lookup("Operation"), xdr.lookup("MAX_OPS_PER_TX"))
+          xdr2.varArray(xdr2.lookup("Operation"), xdr2.lookup("MAX_OPS_PER_TX"))
         ],
-        ["ext", xdr.lookup("TransactionExt")]
+        ["ext", xdr2.lookup("TransactionExt")]
       ]);
-      xdr.struct("TransactionV1Envelope", [
-        ["tx", xdr.lookup("Transaction")],
-        ["signatures", xdr.varArray(xdr.lookup("DecoratedSignature"), 20)]
+      xdr2.struct("TransactionV1Envelope", [
+        ["tx", xdr2.lookup("Transaction")],
+        ["signatures", xdr2.varArray(xdr2.lookup("DecoratedSignature"), 20)]
       ]);
-      xdr.union("FeeBumpTransactionInnerTx", {
-        switchOn: xdr.lookup("EnvelopeType"),
+      xdr2.union("FeeBumpTransactionInnerTx", {
+        switchOn: xdr2.lookup("EnvelopeType"),
         switchName: "type",
         switches: [["envelopeTypeTx", "v1"]],
         arms: {
-          v1: xdr.lookup("TransactionV1Envelope")
+          v1: xdr2.lookup("TransactionV1Envelope")
         }
       });
-      xdr.union("FeeBumpTransactionExt", {
-        switchOn: xdr.int(),
+      xdr2.union("FeeBumpTransactionExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("FeeBumpTransaction", [
-        ["feeSource", xdr.lookup("MuxedAccount")],
-        ["fee", xdr.lookup("Int64")],
-        ["innerTx", xdr.lookup("FeeBumpTransactionInnerTx")],
-        ["ext", xdr.lookup("FeeBumpTransactionExt")]
+      xdr2.struct("FeeBumpTransaction", [
+        ["feeSource", xdr2.lookup("MuxedAccount")],
+        ["fee", xdr2.lookup("Int64")],
+        ["innerTx", xdr2.lookup("FeeBumpTransactionInnerTx")],
+        ["ext", xdr2.lookup("FeeBumpTransactionExt")]
       ]);
-      xdr.struct("FeeBumpTransactionEnvelope", [
-        ["tx", xdr.lookup("FeeBumpTransaction")],
-        ["signatures", xdr.varArray(xdr.lookup("DecoratedSignature"), 20)]
+      xdr2.struct("FeeBumpTransactionEnvelope", [
+        ["tx", xdr2.lookup("FeeBumpTransaction")],
+        ["signatures", xdr2.varArray(xdr2.lookup("DecoratedSignature"), 20)]
       ]);
-      xdr.union("TransactionEnvelope", {
-        switchOn: xdr.lookup("EnvelopeType"),
+      xdr2.union("TransactionEnvelope", {
+        switchOn: xdr2.lookup("EnvelopeType"),
         switchName: "type",
         switches: [
           ["envelopeTypeTxV0", "v0"],
@@ -120955,60 +120955,60 @@ var init_curr_generated = __esm({
           ["envelopeTypeTxFeeBump", "feeBump"]
         ],
         arms: {
-          v0: xdr.lookup("TransactionV0Envelope"),
-          v1: xdr.lookup("TransactionV1Envelope"),
-          feeBump: xdr.lookup("FeeBumpTransactionEnvelope")
+          v0: xdr2.lookup("TransactionV0Envelope"),
+          v1: xdr2.lookup("TransactionV1Envelope"),
+          feeBump: xdr2.lookup("FeeBumpTransactionEnvelope")
         }
       });
-      xdr.union("TransactionSignaturePayloadTaggedTransaction", {
-        switchOn: xdr.lookup("EnvelopeType"),
+      xdr2.union("TransactionSignaturePayloadTaggedTransaction", {
+        switchOn: xdr2.lookup("EnvelopeType"),
         switchName: "type",
         switches: [
           ["envelopeTypeTx", "tx"],
           ["envelopeTypeTxFeeBump", "feeBump"]
         ],
         arms: {
-          tx: xdr.lookup("Transaction"),
-          feeBump: xdr.lookup("FeeBumpTransaction")
+          tx: xdr2.lookup("Transaction"),
+          feeBump: xdr2.lookup("FeeBumpTransaction")
         }
       });
-      xdr.struct("TransactionSignaturePayload", [
-        ["networkId", xdr.lookup("Hash")],
+      xdr2.struct("TransactionSignaturePayload", [
+        ["networkId", xdr2.lookup("Hash")],
         [
           "taggedTransaction",
-          xdr.lookup("TransactionSignaturePayloadTaggedTransaction")
+          xdr2.lookup("TransactionSignaturePayloadTaggedTransaction")
         ]
       ]);
-      xdr.enum("ClaimAtomType", {
+      xdr2.enum("ClaimAtomType", {
         claimAtomTypeV0: 0,
         claimAtomTypeOrderBook: 1,
         claimAtomTypeLiquidityPool: 2
       });
-      xdr.struct("ClaimOfferAtomV0", [
-        ["sellerEd25519", xdr.lookup("Uint256")],
-        ["offerId", xdr.lookup("Int64")],
-        ["assetSold", xdr.lookup("Asset")],
-        ["amountSold", xdr.lookup("Int64")],
-        ["assetBought", xdr.lookup("Asset")],
-        ["amountBought", xdr.lookup("Int64")]
+      xdr2.struct("ClaimOfferAtomV0", [
+        ["sellerEd25519", xdr2.lookup("Uint256")],
+        ["offerId", xdr2.lookup("Int64")],
+        ["assetSold", xdr2.lookup("Asset")],
+        ["amountSold", xdr2.lookup("Int64")],
+        ["assetBought", xdr2.lookup("Asset")],
+        ["amountBought", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("ClaimOfferAtom", [
-        ["sellerId", xdr.lookup("AccountId")],
-        ["offerId", xdr.lookup("Int64")],
-        ["assetSold", xdr.lookup("Asset")],
-        ["amountSold", xdr.lookup("Int64")],
-        ["assetBought", xdr.lookup("Asset")],
-        ["amountBought", xdr.lookup("Int64")]
+      xdr2.struct("ClaimOfferAtom", [
+        ["sellerId", xdr2.lookup("AccountId")],
+        ["offerId", xdr2.lookup("Int64")],
+        ["assetSold", xdr2.lookup("Asset")],
+        ["amountSold", xdr2.lookup("Int64")],
+        ["assetBought", xdr2.lookup("Asset")],
+        ["amountBought", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("ClaimLiquidityAtom", [
-        ["liquidityPoolId", xdr.lookup("PoolId")],
-        ["assetSold", xdr.lookup("Asset")],
-        ["amountSold", xdr.lookup("Int64")],
-        ["assetBought", xdr.lookup("Asset")],
-        ["amountBought", xdr.lookup("Int64")]
+      xdr2.struct("ClaimLiquidityAtom", [
+        ["liquidityPoolId", xdr2.lookup("PoolId")],
+        ["assetSold", xdr2.lookup("Asset")],
+        ["amountSold", xdr2.lookup("Int64")],
+        ["assetBought", xdr2.lookup("Asset")],
+        ["amountBought", xdr2.lookup("Int64")]
       ]);
-      xdr.union("ClaimAtom", {
-        switchOn: xdr.lookup("ClaimAtomType"),
+      xdr2.union("ClaimAtom", {
+        switchOn: xdr2.lookup("ClaimAtomType"),
         switchName: "type",
         switches: [
           ["claimAtomTypeV0", "v0"],
@@ -121016,31 +121016,31 @@ var init_curr_generated = __esm({
           ["claimAtomTypeLiquidityPool", "liquidityPool"]
         ],
         arms: {
-          v0: xdr.lookup("ClaimOfferAtomV0"),
-          orderBook: xdr.lookup("ClaimOfferAtom"),
-          liquidityPool: xdr.lookup("ClaimLiquidityAtom")
+          v0: xdr2.lookup("ClaimOfferAtomV0"),
+          orderBook: xdr2.lookup("ClaimOfferAtom"),
+          liquidityPool: xdr2.lookup("ClaimLiquidityAtom")
         }
       });
-      xdr.enum("CreateAccountResultCode", {
+      xdr2.enum("CreateAccountResultCode", {
         createAccountSuccess: 0,
         createAccountMalformed: -1,
         createAccountUnderfunded: -2,
         createAccountLowReserve: -3,
         createAccountAlreadyExist: -4
       });
-      xdr.union("CreateAccountResult", {
-        switchOn: xdr.lookup("CreateAccountResultCode"),
+      xdr2.union("CreateAccountResult", {
+        switchOn: xdr2.lookup("CreateAccountResultCode"),
         switchName: "code",
         switches: [
-          ["createAccountSuccess", xdr.void()],
-          ["createAccountMalformed", xdr.void()],
-          ["createAccountUnderfunded", xdr.void()],
-          ["createAccountLowReserve", xdr.void()],
-          ["createAccountAlreadyExist", xdr.void()]
+          ["createAccountSuccess", xdr2.void()],
+          ["createAccountMalformed", xdr2.void()],
+          ["createAccountUnderfunded", xdr2.void()],
+          ["createAccountLowReserve", xdr2.void()],
+          ["createAccountAlreadyExist", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("PaymentResultCode", {
+      xdr2.enum("PaymentResultCode", {
         paymentSuccess: 0,
         paymentMalformed: -1,
         paymentUnderfunded: -2,
@@ -121052,24 +121052,24 @@ var init_curr_generated = __esm({
         paymentLineFull: -8,
         paymentNoIssuer: -9
       });
-      xdr.union("PaymentResult", {
-        switchOn: xdr.lookup("PaymentResultCode"),
+      xdr2.union("PaymentResult", {
+        switchOn: xdr2.lookup("PaymentResultCode"),
         switchName: "code",
         switches: [
-          ["paymentSuccess", xdr.void()],
-          ["paymentMalformed", xdr.void()],
-          ["paymentUnderfunded", xdr.void()],
-          ["paymentSrcNoTrust", xdr.void()],
-          ["paymentSrcNotAuthorized", xdr.void()],
-          ["paymentNoDestination", xdr.void()],
-          ["paymentNoTrust", xdr.void()],
-          ["paymentNotAuthorized", xdr.void()],
-          ["paymentLineFull", xdr.void()],
-          ["paymentNoIssuer", xdr.void()]
+          ["paymentSuccess", xdr2.void()],
+          ["paymentMalformed", xdr2.void()],
+          ["paymentUnderfunded", xdr2.void()],
+          ["paymentSrcNoTrust", xdr2.void()],
+          ["paymentSrcNotAuthorized", xdr2.void()],
+          ["paymentNoDestination", xdr2.void()],
+          ["paymentNoTrust", xdr2.void()],
+          ["paymentNotAuthorized", xdr2.void()],
+          ["paymentLineFull", xdr2.void()],
+          ["paymentNoIssuer", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("PathPaymentStrictReceiveResultCode", {
+      xdr2.enum("PathPaymentStrictReceiveResultCode", {
         pathPaymentStrictReceiveSuccess: 0,
         pathPaymentStrictReceiveMalformed: -1,
         pathPaymentStrictReceiveUnderfunded: -2,
@@ -121084,39 +121084,39 @@ var init_curr_generated = __esm({
         pathPaymentStrictReceiveOfferCrossSelf: -11,
         pathPaymentStrictReceiveOverSendmax: -12
       });
-      xdr.struct("SimplePaymentResult", [
-        ["destination", xdr.lookup("AccountId")],
-        ["asset", xdr.lookup("Asset")],
-        ["amount", xdr.lookup("Int64")]
+      xdr2.struct("SimplePaymentResult", [
+        ["destination", xdr2.lookup("AccountId")],
+        ["asset", xdr2.lookup("Asset")],
+        ["amount", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("PathPaymentStrictReceiveResultSuccess", [
-        ["offers", xdr.varArray(xdr.lookup("ClaimAtom"), 2147483647)],
-        ["last", xdr.lookup("SimplePaymentResult")]
+      xdr2.struct("PathPaymentStrictReceiveResultSuccess", [
+        ["offers", xdr2.varArray(xdr2.lookup("ClaimAtom"), 2147483647)],
+        ["last", xdr2.lookup("SimplePaymentResult")]
       ]);
-      xdr.union("PathPaymentStrictReceiveResult", {
-        switchOn: xdr.lookup("PathPaymentStrictReceiveResultCode"),
+      xdr2.union("PathPaymentStrictReceiveResult", {
+        switchOn: xdr2.lookup("PathPaymentStrictReceiveResultCode"),
         switchName: "code",
         switches: [
           ["pathPaymentStrictReceiveSuccess", "success"],
-          ["pathPaymentStrictReceiveMalformed", xdr.void()],
-          ["pathPaymentStrictReceiveUnderfunded", xdr.void()],
-          ["pathPaymentStrictReceiveSrcNoTrust", xdr.void()],
-          ["pathPaymentStrictReceiveSrcNotAuthorized", xdr.void()],
-          ["pathPaymentStrictReceiveNoDestination", xdr.void()],
-          ["pathPaymentStrictReceiveNoTrust", xdr.void()],
-          ["pathPaymentStrictReceiveNotAuthorized", xdr.void()],
-          ["pathPaymentStrictReceiveLineFull", xdr.void()],
+          ["pathPaymentStrictReceiveMalformed", xdr2.void()],
+          ["pathPaymentStrictReceiveUnderfunded", xdr2.void()],
+          ["pathPaymentStrictReceiveSrcNoTrust", xdr2.void()],
+          ["pathPaymentStrictReceiveSrcNotAuthorized", xdr2.void()],
+          ["pathPaymentStrictReceiveNoDestination", xdr2.void()],
+          ["pathPaymentStrictReceiveNoTrust", xdr2.void()],
+          ["pathPaymentStrictReceiveNotAuthorized", xdr2.void()],
+          ["pathPaymentStrictReceiveLineFull", xdr2.void()],
           ["pathPaymentStrictReceiveNoIssuer", "noIssuer"],
-          ["pathPaymentStrictReceiveTooFewOffers", xdr.void()],
-          ["pathPaymentStrictReceiveOfferCrossSelf", xdr.void()],
-          ["pathPaymentStrictReceiveOverSendmax", xdr.void()]
+          ["pathPaymentStrictReceiveTooFewOffers", xdr2.void()],
+          ["pathPaymentStrictReceiveOfferCrossSelf", xdr2.void()],
+          ["pathPaymentStrictReceiveOverSendmax", xdr2.void()]
         ],
         arms: {
-          success: xdr.lookup("PathPaymentStrictReceiveResultSuccess"),
-          noIssuer: xdr.lookup("Asset")
+          success: xdr2.lookup("PathPaymentStrictReceiveResultSuccess"),
+          noIssuer: xdr2.lookup("Asset")
         }
       });
-      xdr.enum("PathPaymentStrictSendResultCode", {
+      xdr2.enum("PathPaymentStrictSendResultCode", {
         pathPaymentStrictSendSuccess: 0,
         pathPaymentStrictSendMalformed: -1,
         pathPaymentStrictSendUnderfunded: -2,
@@ -121131,34 +121131,34 @@ var init_curr_generated = __esm({
         pathPaymentStrictSendOfferCrossSelf: -11,
         pathPaymentStrictSendUnderDestmin: -12
       });
-      xdr.struct("PathPaymentStrictSendResultSuccess", [
-        ["offers", xdr.varArray(xdr.lookup("ClaimAtom"), 2147483647)],
-        ["last", xdr.lookup("SimplePaymentResult")]
+      xdr2.struct("PathPaymentStrictSendResultSuccess", [
+        ["offers", xdr2.varArray(xdr2.lookup("ClaimAtom"), 2147483647)],
+        ["last", xdr2.lookup("SimplePaymentResult")]
       ]);
-      xdr.union("PathPaymentStrictSendResult", {
-        switchOn: xdr.lookup("PathPaymentStrictSendResultCode"),
+      xdr2.union("PathPaymentStrictSendResult", {
+        switchOn: xdr2.lookup("PathPaymentStrictSendResultCode"),
         switchName: "code",
         switches: [
           ["pathPaymentStrictSendSuccess", "success"],
-          ["pathPaymentStrictSendMalformed", xdr.void()],
-          ["pathPaymentStrictSendUnderfunded", xdr.void()],
-          ["pathPaymentStrictSendSrcNoTrust", xdr.void()],
-          ["pathPaymentStrictSendSrcNotAuthorized", xdr.void()],
-          ["pathPaymentStrictSendNoDestination", xdr.void()],
-          ["pathPaymentStrictSendNoTrust", xdr.void()],
-          ["pathPaymentStrictSendNotAuthorized", xdr.void()],
-          ["pathPaymentStrictSendLineFull", xdr.void()],
+          ["pathPaymentStrictSendMalformed", xdr2.void()],
+          ["pathPaymentStrictSendUnderfunded", xdr2.void()],
+          ["pathPaymentStrictSendSrcNoTrust", xdr2.void()],
+          ["pathPaymentStrictSendSrcNotAuthorized", xdr2.void()],
+          ["pathPaymentStrictSendNoDestination", xdr2.void()],
+          ["pathPaymentStrictSendNoTrust", xdr2.void()],
+          ["pathPaymentStrictSendNotAuthorized", xdr2.void()],
+          ["pathPaymentStrictSendLineFull", xdr2.void()],
           ["pathPaymentStrictSendNoIssuer", "noIssuer"],
-          ["pathPaymentStrictSendTooFewOffers", xdr.void()],
-          ["pathPaymentStrictSendOfferCrossSelf", xdr.void()],
-          ["pathPaymentStrictSendUnderDestmin", xdr.void()]
+          ["pathPaymentStrictSendTooFewOffers", xdr2.void()],
+          ["pathPaymentStrictSendOfferCrossSelf", xdr2.void()],
+          ["pathPaymentStrictSendUnderDestmin", xdr2.void()]
         ],
         arms: {
-          success: xdr.lookup("PathPaymentStrictSendResultSuccess"),
-          noIssuer: xdr.lookup("Asset")
+          success: xdr2.lookup("PathPaymentStrictSendResultSuccess"),
+          noIssuer: xdr2.lookup("Asset")
         }
       });
-      xdr.enum("ManageSellOfferResultCode", {
+      xdr2.enum("ManageSellOfferResultCode", {
         manageSellOfferSuccess: 0,
         manageSellOfferMalformed: -1,
         manageSellOfferSellNoTrust: -2,
@@ -121173,50 +121173,50 @@ var init_curr_generated = __esm({
         manageSellOfferNotFound: -11,
         manageSellOfferLowReserve: -12
       });
-      xdr.enum("ManageOfferEffect", {
+      xdr2.enum("ManageOfferEffect", {
         manageOfferCreated: 0,
         manageOfferUpdated: 1,
         manageOfferDeleted: 2
       });
-      xdr.union("ManageOfferSuccessResultOffer", {
-        switchOn: xdr.lookup("ManageOfferEffect"),
+      xdr2.union("ManageOfferSuccessResultOffer", {
+        switchOn: xdr2.lookup("ManageOfferEffect"),
         switchName: "effect",
         switches: [
           ["manageOfferCreated", "offer"],
           ["manageOfferUpdated", "offer"],
-          ["manageOfferDeleted", xdr.void()]
+          ["manageOfferDeleted", xdr2.void()]
         ],
         arms: {
-          offer: xdr.lookup("OfferEntry")
+          offer: xdr2.lookup("OfferEntry")
         }
       });
-      xdr.struct("ManageOfferSuccessResult", [
-        ["offersClaimed", xdr.varArray(xdr.lookup("ClaimAtom"), 2147483647)],
-        ["offer", xdr.lookup("ManageOfferSuccessResultOffer")]
+      xdr2.struct("ManageOfferSuccessResult", [
+        ["offersClaimed", xdr2.varArray(xdr2.lookup("ClaimAtom"), 2147483647)],
+        ["offer", xdr2.lookup("ManageOfferSuccessResultOffer")]
       ]);
-      xdr.union("ManageSellOfferResult", {
-        switchOn: xdr.lookup("ManageSellOfferResultCode"),
+      xdr2.union("ManageSellOfferResult", {
+        switchOn: xdr2.lookup("ManageSellOfferResultCode"),
         switchName: "code",
         switches: [
           ["manageSellOfferSuccess", "success"],
-          ["manageSellOfferMalformed", xdr.void()],
-          ["manageSellOfferSellNoTrust", xdr.void()],
-          ["manageSellOfferBuyNoTrust", xdr.void()],
-          ["manageSellOfferSellNotAuthorized", xdr.void()],
-          ["manageSellOfferBuyNotAuthorized", xdr.void()],
-          ["manageSellOfferLineFull", xdr.void()],
-          ["manageSellOfferUnderfunded", xdr.void()],
-          ["manageSellOfferCrossSelf", xdr.void()],
-          ["manageSellOfferSellNoIssuer", xdr.void()],
-          ["manageSellOfferBuyNoIssuer", xdr.void()],
-          ["manageSellOfferNotFound", xdr.void()],
-          ["manageSellOfferLowReserve", xdr.void()]
+          ["manageSellOfferMalformed", xdr2.void()],
+          ["manageSellOfferSellNoTrust", xdr2.void()],
+          ["manageSellOfferBuyNoTrust", xdr2.void()],
+          ["manageSellOfferSellNotAuthorized", xdr2.void()],
+          ["manageSellOfferBuyNotAuthorized", xdr2.void()],
+          ["manageSellOfferLineFull", xdr2.void()],
+          ["manageSellOfferUnderfunded", xdr2.void()],
+          ["manageSellOfferCrossSelf", xdr2.void()],
+          ["manageSellOfferSellNoIssuer", xdr2.void()],
+          ["manageSellOfferBuyNoIssuer", xdr2.void()],
+          ["manageSellOfferNotFound", xdr2.void()],
+          ["manageSellOfferLowReserve", xdr2.void()]
         ],
         arms: {
-          success: xdr.lookup("ManageOfferSuccessResult")
+          success: xdr2.lookup("ManageOfferSuccessResult")
         }
       });
-      xdr.enum("ManageBuyOfferResultCode", {
+      xdr2.enum("ManageBuyOfferResultCode", {
         manageBuyOfferSuccess: 0,
         manageBuyOfferMalformed: -1,
         manageBuyOfferSellNoTrust: -2,
@@ -121231,29 +121231,29 @@ var init_curr_generated = __esm({
         manageBuyOfferNotFound: -11,
         manageBuyOfferLowReserve: -12
       });
-      xdr.union("ManageBuyOfferResult", {
-        switchOn: xdr.lookup("ManageBuyOfferResultCode"),
+      xdr2.union("ManageBuyOfferResult", {
+        switchOn: xdr2.lookup("ManageBuyOfferResultCode"),
         switchName: "code",
         switches: [
           ["manageBuyOfferSuccess", "success"],
-          ["manageBuyOfferMalformed", xdr.void()],
-          ["manageBuyOfferSellNoTrust", xdr.void()],
-          ["manageBuyOfferBuyNoTrust", xdr.void()],
-          ["manageBuyOfferSellNotAuthorized", xdr.void()],
-          ["manageBuyOfferBuyNotAuthorized", xdr.void()],
-          ["manageBuyOfferLineFull", xdr.void()],
-          ["manageBuyOfferUnderfunded", xdr.void()],
-          ["manageBuyOfferCrossSelf", xdr.void()],
-          ["manageBuyOfferSellNoIssuer", xdr.void()],
-          ["manageBuyOfferBuyNoIssuer", xdr.void()],
-          ["manageBuyOfferNotFound", xdr.void()],
-          ["manageBuyOfferLowReserve", xdr.void()]
+          ["manageBuyOfferMalformed", xdr2.void()],
+          ["manageBuyOfferSellNoTrust", xdr2.void()],
+          ["manageBuyOfferBuyNoTrust", xdr2.void()],
+          ["manageBuyOfferSellNotAuthorized", xdr2.void()],
+          ["manageBuyOfferBuyNotAuthorized", xdr2.void()],
+          ["manageBuyOfferLineFull", xdr2.void()],
+          ["manageBuyOfferUnderfunded", xdr2.void()],
+          ["manageBuyOfferCrossSelf", xdr2.void()],
+          ["manageBuyOfferSellNoIssuer", xdr2.void()],
+          ["manageBuyOfferBuyNoIssuer", xdr2.void()],
+          ["manageBuyOfferNotFound", xdr2.void()],
+          ["manageBuyOfferLowReserve", xdr2.void()]
         ],
         arms: {
-          success: xdr.lookup("ManageOfferSuccessResult")
+          success: xdr2.lookup("ManageOfferSuccessResult")
         }
       });
-      xdr.enum("SetOptionsResultCode", {
+      xdr2.enum("SetOptionsResultCode", {
         setOptionsSuccess: 0,
         setOptionsLowReserve: -1,
         setOptionsTooManySigners: -2,
@@ -121266,25 +121266,25 @@ var init_curr_generated = __esm({
         setOptionsInvalidHomeDomain: -9,
         setOptionsAuthRevocableRequired: -10
       });
-      xdr.union("SetOptionsResult", {
-        switchOn: xdr.lookup("SetOptionsResultCode"),
+      xdr2.union("SetOptionsResult", {
+        switchOn: xdr2.lookup("SetOptionsResultCode"),
         switchName: "code",
         switches: [
-          ["setOptionsSuccess", xdr.void()],
-          ["setOptionsLowReserve", xdr.void()],
-          ["setOptionsTooManySigners", xdr.void()],
-          ["setOptionsBadFlags", xdr.void()],
-          ["setOptionsInvalidInflation", xdr.void()],
-          ["setOptionsCantChange", xdr.void()],
-          ["setOptionsUnknownFlag", xdr.void()],
-          ["setOptionsThresholdOutOfRange", xdr.void()],
-          ["setOptionsBadSigner", xdr.void()],
-          ["setOptionsInvalidHomeDomain", xdr.void()],
-          ["setOptionsAuthRevocableRequired", xdr.void()]
+          ["setOptionsSuccess", xdr2.void()],
+          ["setOptionsLowReserve", xdr2.void()],
+          ["setOptionsTooManySigners", xdr2.void()],
+          ["setOptionsBadFlags", xdr2.void()],
+          ["setOptionsInvalidInflation", xdr2.void()],
+          ["setOptionsCantChange", xdr2.void()],
+          ["setOptionsUnknownFlag", xdr2.void()],
+          ["setOptionsThresholdOutOfRange", xdr2.void()],
+          ["setOptionsBadSigner", xdr2.void()],
+          ["setOptionsInvalidHomeDomain", xdr2.void()],
+          ["setOptionsAuthRevocableRequired", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("ChangeTrustResultCode", {
+      xdr2.enum("ChangeTrustResultCode", {
         changeTrustSuccess: 0,
         changeTrustMalformed: -1,
         changeTrustNoIssuer: -2,
@@ -121295,23 +121295,23 @@ var init_curr_generated = __esm({
         changeTrustCannotDelete: -7,
         changeTrustNotAuthMaintainLiabilities: -8
       });
-      xdr.union("ChangeTrustResult", {
-        switchOn: xdr.lookup("ChangeTrustResultCode"),
+      xdr2.union("ChangeTrustResult", {
+        switchOn: xdr2.lookup("ChangeTrustResultCode"),
         switchName: "code",
         switches: [
-          ["changeTrustSuccess", xdr.void()],
-          ["changeTrustMalformed", xdr.void()],
-          ["changeTrustNoIssuer", xdr.void()],
-          ["changeTrustInvalidLimit", xdr.void()],
-          ["changeTrustLowReserve", xdr.void()],
-          ["changeTrustSelfNotAllowed", xdr.void()],
-          ["changeTrustTrustLineMissing", xdr.void()],
-          ["changeTrustCannotDelete", xdr.void()],
-          ["changeTrustNotAuthMaintainLiabilities", xdr.void()]
+          ["changeTrustSuccess", xdr2.void()],
+          ["changeTrustMalformed", xdr2.void()],
+          ["changeTrustNoIssuer", xdr2.void()],
+          ["changeTrustInvalidLimit", xdr2.void()],
+          ["changeTrustLowReserve", xdr2.void()],
+          ["changeTrustSelfNotAllowed", xdr2.void()],
+          ["changeTrustTrustLineMissing", xdr2.void()],
+          ["changeTrustCannotDelete", xdr2.void()],
+          ["changeTrustNotAuthMaintainLiabilities", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("AllowTrustResultCode", {
+      xdr2.enum("AllowTrustResultCode", {
         allowTrustSuccess: 0,
         allowTrustMalformed: -1,
         allowTrustNoTrustLine: -2,
@@ -121320,21 +121320,21 @@ var init_curr_generated = __esm({
         allowTrustSelfNotAllowed: -5,
         allowTrustLowReserve: -6
       });
-      xdr.union("AllowTrustResult", {
-        switchOn: xdr.lookup("AllowTrustResultCode"),
+      xdr2.union("AllowTrustResult", {
+        switchOn: xdr2.lookup("AllowTrustResultCode"),
         switchName: "code",
         switches: [
-          ["allowTrustSuccess", xdr.void()],
-          ["allowTrustMalformed", xdr.void()],
-          ["allowTrustNoTrustLine", xdr.void()],
-          ["allowTrustTrustNotRequired", xdr.void()],
-          ["allowTrustCantRevoke", xdr.void()],
-          ["allowTrustSelfNotAllowed", xdr.void()],
-          ["allowTrustLowReserve", xdr.void()]
+          ["allowTrustSuccess", xdr2.void()],
+          ["allowTrustMalformed", xdr2.void()],
+          ["allowTrustNoTrustLine", xdr2.void()],
+          ["allowTrustTrustNotRequired", xdr2.void()],
+          ["allowTrustCantRevoke", xdr2.void()],
+          ["allowTrustSelfNotAllowed", xdr2.void()],
+          ["allowTrustLowReserve", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("AccountMergeResultCode", {
+      xdr2.enum("AccountMergeResultCode", {
         accountMergeSuccess: 0,
         accountMergeMalformed: -1,
         accountMergeNoAccount: -2,
@@ -121344,75 +121344,75 @@ var init_curr_generated = __esm({
         accountMergeDestFull: -6,
         accountMergeIsSponsor: -7
       });
-      xdr.union("AccountMergeResult", {
-        switchOn: xdr.lookup("AccountMergeResultCode"),
+      xdr2.union("AccountMergeResult", {
+        switchOn: xdr2.lookup("AccountMergeResultCode"),
         switchName: "code",
         switches: [
           ["accountMergeSuccess", "sourceAccountBalance"],
-          ["accountMergeMalformed", xdr.void()],
-          ["accountMergeNoAccount", xdr.void()],
-          ["accountMergeImmutableSet", xdr.void()],
-          ["accountMergeHasSubEntries", xdr.void()],
-          ["accountMergeSeqnumTooFar", xdr.void()],
-          ["accountMergeDestFull", xdr.void()],
-          ["accountMergeIsSponsor", xdr.void()]
+          ["accountMergeMalformed", xdr2.void()],
+          ["accountMergeNoAccount", xdr2.void()],
+          ["accountMergeImmutableSet", xdr2.void()],
+          ["accountMergeHasSubEntries", xdr2.void()],
+          ["accountMergeSeqnumTooFar", xdr2.void()],
+          ["accountMergeDestFull", xdr2.void()],
+          ["accountMergeIsSponsor", xdr2.void()]
         ],
         arms: {
-          sourceAccountBalance: xdr.lookup("Int64")
+          sourceAccountBalance: xdr2.lookup("Int64")
         }
       });
-      xdr.enum("InflationResultCode", {
+      xdr2.enum("InflationResultCode", {
         inflationSuccess: 0,
         inflationNotTime: -1
       });
-      xdr.struct("InflationPayout", [
-        ["destination", xdr.lookup("AccountId")],
-        ["amount", xdr.lookup("Int64")]
+      xdr2.struct("InflationPayout", [
+        ["destination", xdr2.lookup("AccountId")],
+        ["amount", xdr2.lookup("Int64")]
       ]);
-      xdr.union("InflationResult", {
-        switchOn: xdr.lookup("InflationResultCode"),
+      xdr2.union("InflationResult", {
+        switchOn: xdr2.lookup("InflationResultCode"),
         switchName: "code",
         switches: [
           ["inflationSuccess", "payouts"],
-          ["inflationNotTime", xdr.void()]
+          ["inflationNotTime", xdr2.void()]
         ],
         arms: {
-          payouts: xdr.varArray(xdr.lookup("InflationPayout"), 2147483647)
+          payouts: xdr2.varArray(xdr2.lookup("InflationPayout"), 2147483647)
         }
       });
-      xdr.enum("ManageDataResultCode", {
+      xdr2.enum("ManageDataResultCode", {
         manageDataSuccess: 0,
         manageDataNotSupportedYet: -1,
         manageDataNameNotFound: -2,
         manageDataLowReserve: -3,
         manageDataInvalidName: -4
       });
-      xdr.union("ManageDataResult", {
-        switchOn: xdr.lookup("ManageDataResultCode"),
+      xdr2.union("ManageDataResult", {
+        switchOn: xdr2.lookup("ManageDataResultCode"),
         switchName: "code",
         switches: [
-          ["manageDataSuccess", xdr.void()],
-          ["manageDataNotSupportedYet", xdr.void()],
-          ["manageDataNameNotFound", xdr.void()],
-          ["manageDataLowReserve", xdr.void()],
-          ["manageDataInvalidName", xdr.void()]
+          ["manageDataSuccess", xdr2.void()],
+          ["manageDataNotSupportedYet", xdr2.void()],
+          ["manageDataNameNotFound", xdr2.void()],
+          ["manageDataLowReserve", xdr2.void()],
+          ["manageDataInvalidName", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("BumpSequenceResultCode", {
+      xdr2.enum("BumpSequenceResultCode", {
         bumpSequenceSuccess: 0,
         bumpSequenceBadSeq: -1
       });
-      xdr.union("BumpSequenceResult", {
-        switchOn: xdr.lookup("BumpSequenceResultCode"),
+      xdr2.union("BumpSequenceResult", {
+        switchOn: xdr2.lookup("BumpSequenceResultCode"),
         switchName: "code",
         switches: [
-          ["bumpSequenceSuccess", xdr.void()],
-          ["bumpSequenceBadSeq", xdr.void()]
+          ["bumpSequenceSuccess", xdr2.void()],
+          ["bumpSequenceBadSeq", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("CreateClaimableBalanceResultCode", {
+      xdr2.enum("CreateClaimableBalanceResultCode", {
         createClaimableBalanceSuccess: 0,
         createClaimableBalanceMalformed: -1,
         createClaimableBalanceLowReserve: -2,
@@ -121420,22 +121420,22 @@ var init_curr_generated = __esm({
         createClaimableBalanceNotAuthorized: -4,
         createClaimableBalanceUnderfunded: -5
       });
-      xdr.union("CreateClaimableBalanceResult", {
-        switchOn: xdr.lookup("CreateClaimableBalanceResultCode"),
+      xdr2.union("CreateClaimableBalanceResult", {
+        switchOn: xdr2.lookup("CreateClaimableBalanceResultCode"),
         switchName: "code",
         switches: [
           ["createClaimableBalanceSuccess", "balanceId"],
-          ["createClaimableBalanceMalformed", xdr.void()],
-          ["createClaimableBalanceLowReserve", xdr.void()],
-          ["createClaimableBalanceNoTrust", xdr.void()],
-          ["createClaimableBalanceNotAuthorized", xdr.void()],
-          ["createClaimableBalanceUnderfunded", xdr.void()]
+          ["createClaimableBalanceMalformed", xdr2.void()],
+          ["createClaimableBalanceLowReserve", xdr2.void()],
+          ["createClaimableBalanceNoTrust", xdr2.void()],
+          ["createClaimableBalanceNotAuthorized", xdr2.void()],
+          ["createClaimableBalanceUnderfunded", xdr2.void()]
         ],
         arms: {
-          balanceId: xdr.lookup("ClaimableBalanceId")
+          balanceId: xdr2.lookup("ClaimableBalanceId")
         }
       });
-      xdr.enum("ClaimClaimableBalanceResultCode", {
+      xdr2.enum("ClaimClaimableBalanceResultCode", {
         claimClaimableBalanceSuccess: 0,
         claimClaimableBalanceDoesNotExist: -1,
         claimClaimableBalanceCannotClaim: -2,
@@ -121444,51 +121444,51 @@ var init_curr_generated = __esm({
         claimClaimableBalanceNotAuthorized: -5,
         claimClaimableBalanceTrustlineFrozen: -6
       });
-      xdr.union("ClaimClaimableBalanceResult", {
-        switchOn: xdr.lookup("ClaimClaimableBalanceResultCode"),
+      xdr2.union("ClaimClaimableBalanceResult", {
+        switchOn: xdr2.lookup("ClaimClaimableBalanceResultCode"),
         switchName: "code",
         switches: [
-          ["claimClaimableBalanceSuccess", xdr.void()],
-          ["claimClaimableBalanceDoesNotExist", xdr.void()],
-          ["claimClaimableBalanceCannotClaim", xdr.void()],
-          ["claimClaimableBalanceLineFull", xdr.void()],
-          ["claimClaimableBalanceNoTrust", xdr.void()],
-          ["claimClaimableBalanceNotAuthorized", xdr.void()],
-          ["claimClaimableBalanceTrustlineFrozen", xdr.void()]
+          ["claimClaimableBalanceSuccess", xdr2.void()],
+          ["claimClaimableBalanceDoesNotExist", xdr2.void()],
+          ["claimClaimableBalanceCannotClaim", xdr2.void()],
+          ["claimClaimableBalanceLineFull", xdr2.void()],
+          ["claimClaimableBalanceNoTrust", xdr2.void()],
+          ["claimClaimableBalanceNotAuthorized", xdr2.void()],
+          ["claimClaimableBalanceTrustlineFrozen", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("BeginSponsoringFutureReservesResultCode", {
+      xdr2.enum("BeginSponsoringFutureReservesResultCode", {
         beginSponsoringFutureReservesSuccess: 0,
         beginSponsoringFutureReservesMalformed: -1,
         beginSponsoringFutureReservesAlreadySponsored: -2,
         beginSponsoringFutureReservesRecursive: -3
       });
-      xdr.union("BeginSponsoringFutureReservesResult", {
-        switchOn: xdr.lookup("BeginSponsoringFutureReservesResultCode"),
+      xdr2.union("BeginSponsoringFutureReservesResult", {
+        switchOn: xdr2.lookup("BeginSponsoringFutureReservesResultCode"),
         switchName: "code",
         switches: [
-          ["beginSponsoringFutureReservesSuccess", xdr.void()],
-          ["beginSponsoringFutureReservesMalformed", xdr.void()],
-          ["beginSponsoringFutureReservesAlreadySponsored", xdr.void()],
-          ["beginSponsoringFutureReservesRecursive", xdr.void()]
+          ["beginSponsoringFutureReservesSuccess", xdr2.void()],
+          ["beginSponsoringFutureReservesMalformed", xdr2.void()],
+          ["beginSponsoringFutureReservesAlreadySponsored", xdr2.void()],
+          ["beginSponsoringFutureReservesRecursive", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("EndSponsoringFutureReservesResultCode", {
+      xdr2.enum("EndSponsoringFutureReservesResultCode", {
         endSponsoringFutureReservesSuccess: 0,
         endSponsoringFutureReservesNotSponsored: -1
       });
-      xdr.union("EndSponsoringFutureReservesResult", {
-        switchOn: xdr.lookup("EndSponsoringFutureReservesResultCode"),
+      xdr2.union("EndSponsoringFutureReservesResult", {
+        switchOn: xdr2.lookup("EndSponsoringFutureReservesResultCode"),
         switchName: "code",
         switches: [
-          ["endSponsoringFutureReservesSuccess", xdr.void()],
-          ["endSponsoringFutureReservesNotSponsored", xdr.void()]
+          ["endSponsoringFutureReservesSuccess", xdr2.void()],
+          ["endSponsoringFutureReservesNotSponsored", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("RevokeSponsorshipResultCode", {
+      xdr2.enum("RevokeSponsorshipResultCode", {
         revokeSponsorshipSuccess: 0,
         revokeSponsorshipDoesNotExist: -1,
         revokeSponsorshipNotSponsor: -2,
@@ -121496,56 +121496,56 @@ var init_curr_generated = __esm({
         revokeSponsorshipOnlyTransferable: -4,
         revokeSponsorshipMalformed: -5
       });
-      xdr.union("RevokeSponsorshipResult", {
-        switchOn: xdr.lookup("RevokeSponsorshipResultCode"),
+      xdr2.union("RevokeSponsorshipResult", {
+        switchOn: xdr2.lookup("RevokeSponsorshipResultCode"),
         switchName: "code",
         switches: [
-          ["revokeSponsorshipSuccess", xdr.void()],
-          ["revokeSponsorshipDoesNotExist", xdr.void()],
-          ["revokeSponsorshipNotSponsor", xdr.void()],
-          ["revokeSponsorshipLowReserve", xdr.void()],
-          ["revokeSponsorshipOnlyTransferable", xdr.void()],
-          ["revokeSponsorshipMalformed", xdr.void()]
+          ["revokeSponsorshipSuccess", xdr2.void()],
+          ["revokeSponsorshipDoesNotExist", xdr2.void()],
+          ["revokeSponsorshipNotSponsor", xdr2.void()],
+          ["revokeSponsorshipLowReserve", xdr2.void()],
+          ["revokeSponsorshipOnlyTransferable", xdr2.void()],
+          ["revokeSponsorshipMalformed", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("ClawbackResultCode", {
+      xdr2.enum("ClawbackResultCode", {
         clawbackSuccess: 0,
         clawbackMalformed: -1,
         clawbackNotClawbackEnabled: -2,
         clawbackNoTrust: -3,
         clawbackUnderfunded: -4
       });
-      xdr.union("ClawbackResult", {
-        switchOn: xdr.lookup("ClawbackResultCode"),
+      xdr2.union("ClawbackResult", {
+        switchOn: xdr2.lookup("ClawbackResultCode"),
         switchName: "code",
         switches: [
-          ["clawbackSuccess", xdr.void()],
-          ["clawbackMalformed", xdr.void()],
-          ["clawbackNotClawbackEnabled", xdr.void()],
-          ["clawbackNoTrust", xdr.void()],
-          ["clawbackUnderfunded", xdr.void()]
+          ["clawbackSuccess", xdr2.void()],
+          ["clawbackMalformed", xdr2.void()],
+          ["clawbackNotClawbackEnabled", xdr2.void()],
+          ["clawbackNoTrust", xdr2.void()],
+          ["clawbackUnderfunded", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("ClawbackClaimableBalanceResultCode", {
+      xdr2.enum("ClawbackClaimableBalanceResultCode", {
         clawbackClaimableBalanceSuccess: 0,
         clawbackClaimableBalanceDoesNotExist: -1,
         clawbackClaimableBalanceNotIssuer: -2,
         clawbackClaimableBalanceNotClawbackEnabled: -3
       });
-      xdr.union("ClawbackClaimableBalanceResult", {
-        switchOn: xdr.lookup("ClawbackClaimableBalanceResultCode"),
+      xdr2.union("ClawbackClaimableBalanceResult", {
+        switchOn: xdr2.lookup("ClawbackClaimableBalanceResultCode"),
         switchName: "code",
         switches: [
-          ["clawbackClaimableBalanceSuccess", xdr.void()],
-          ["clawbackClaimableBalanceDoesNotExist", xdr.void()],
-          ["clawbackClaimableBalanceNotIssuer", xdr.void()],
-          ["clawbackClaimableBalanceNotClawbackEnabled", xdr.void()]
+          ["clawbackClaimableBalanceSuccess", xdr2.void()],
+          ["clawbackClaimableBalanceDoesNotExist", xdr2.void()],
+          ["clawbackClaimableBalanceNotIssuer", xdr2.void()],
+          ["clawbackClaimableBalanceNotClawbackEnabled", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("SetTrustLineFlagsResultCode", {
+      xdr2.enum("SetTrustLineFlagsResultCode", {
         setTrustLineFlagsSuccess: 0,
         setTrustLineFlagsMalformed: -1,
         setTrustLineFlagsNoTrustLine: -2,
@@ -121553,20 +121553,20 @@ var init_curr_generated = __esm({
         setTrustLineFlagsInvalidState: -4,
         setTrustLineFlagsLowReserve: -5
       });
-      xdr.union("SetTrustLineFlagsResult", {
-        switchOn: xdr.lookup("SetTrustLineFlagsResultCode"),
+      xdr2.union("SetTrustLineFlagsResult", {
+        switchOn: xdr2.lookup("SetTrustLineFlagsResultCode"),
         switchName: "code",
         switches: [
-          ["setTrustLineFlagsSuccess", xdr.void()],
-          ["setTrustLineFlagsMalformed", xdr.void()],
-          ["setTrustLineFlagsNoTrustLine", xdr.void()],
-          ["setTrustLineFlagsCantRevoke", xdr.void()],
-          ["setTrustLineFlagsInvalidState", xdr.void()],
-          ["setTrustLineFlagsLowReserve", xdr.void()]
+          ["setTrustLineFlagsSuccess", xdr2.void()],
+          ["setTrustLineFlagsMalformed", xdr2.void()],
+          ["setTrustLineFlagsNoTrustLine", xdr2.void()],
+          ["setTrustLineFlagsCantRevoke", xdr2.void()],
+          ["setTrustLineFlagsInvalidState", xdr2.void()],
+          ["setTrustLineFlagsLowReserve", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("LiquidityPoolDepositResultCode", {
+      xdr2.enum("LiquidityPoolDepositResultCode", {
         liquidityPoolDepositSuccess: 0,
         liquidityPoolDepositMalformed: -1,
         liquidityPoolDepositNoTrust: -2,
@@ -121577,23 +121577,23 @@ var init_curr_generated = __esm({
         liquidityPoolDepositPoolFull: -7,
         liquidityPoolDepositTrustlineFrozen: -8
       });
-      xdr.union("LiquidityPoolDepositResult", {
-        switchOn: xdr.lookup("LiquidityPoolDepositResultCode"),
+      xdr2.union("LiquidityPoolDepositResult", {
+        switchOn: xdr2.lookup("LiquidityPoolDepositResultCode"),
         switchName: "code",
         switches: [
-          ["liquidityPoolDepositSuccess", xdr.void()],
-          ["liquidityPoolDepositMalformed", xdr.void()],
-          ["liquidityPoolDepositNoTrust", xdr.void()],
-          ["liquidityPoolDepositNotAuthorized", xdr.void()],
-          ["liquidityPoolDepositUnderfunded", xdr.void()],
-          ["liquidityPoolDepositLineFull", xdr.void()],
-          ["liquidityPoolDepositBadPrice", xdr.void()],
-          ["liquidityPoolDepositPoolFull", xdr.void()],
-          ["liquidityPoolDepositTrustlineFrozen", xdr.void()]
+          ["liquidityPoolDepositSuccess", xdr2.void()],
+          ["liquidityPoolDepositMalformed", xdr2.void()],
+          ["liquidityPoolDepositNoTrust", xdr2.void()],
+          ["liquidityPoolDepositNotAuthorized", xdr2.void()],
+          ["liquidityPoolDepositUnderfunded", xdr2.void()],
+          ["liquidityPoolDepositLineFull", xdr2.void()],
+          ["liquidityPoolDepositBadPrice", xdr2.void()],
+          ["liquidityPoolDepositPoolFull", xdr2.void()],
+          ["liquidityPoolDepositTrustlineFrozen", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("LiquidityPoolWithdrawResultCode", {
+      xdr2.enum("LiquidityPoolWithdrawResultCode", {
         liquidityPoolWithdrawSuccess: 0,
         liquidityPoolWithdrawMalformed: -1,
         liquidityPoolWithdrawNoTrust: -2,
@@ -121602,21 +121602,21 @@ var init_curr_generated = __esm({
         liquidityPoolWithdrawUnderMinimum: -5,
         liquidityPoolWithdrawTrustlineFrozen: -6
       });
-      xdr.union("LiquidityPoolWithdrawResult", {
-        switchOn: xdr.lookup("LiquidityPoolWithdrawResultCode"),
+      xdr2.union("LiquidityPoolWithdrawResult", {
+        switchOn: xdr2.lookup("LiquidityPoolWithdrawResultCode"),
         switchName: "code",
         switches: [
-          ["liquidityPoolWithdrawSuccess", xdr.void()],
-          ["liquidityPoolWithdrawMalformed", xdr.void()],
-          ["liquidityPoolWithdrawNoTrust", xdr.void()],
-          ["liquidityPoolWithdrawUnderfunded", xdr.void()],
-          ["liquidityPoolWithdrawLineFull", xdr.void()],
-          ["liquidityPoolWithdrawUnderMinimum", xdr.void()],
-          ["liquidityPoolWithdrawTrustlineFrozen", xdr.void()]
+          ["liquidityPoolWithdrawSuccess", xdr2.void()],
+          ["liquidityPoolWithdrawMalformed", xdr2.void()],
+          ["liquidityPoolWithdrawNoTrust", xdr2.void()],
+          ["liquidityPoolWithdrawUnderfunded", xdr2.void()],
+          ["liquidityPoolWithdrawLineFull", xdr2.void()],
+          ["liquidityPoolWithdrawUnderMinimum", xdr2.void()],
+          ["liquidityPoolWithdrawTrustlineFrozen", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("InvokeHostFunctionResultCode", {
+      xdr2.enum("InvokeHostFunctionResultCode", {
         invokeHostFunctionSuccess: 0,
         invokeHostFunctionMalformed: -1,
         invokeHostFunctionTrapped: -2,
@@ -121624,56 +121624,56 @@ var init_curr_generated = __esm({
         invokeHostFunctionEntryArchived: -4,
         invokeHostFunctionInsufficientRefundableFee: -5
       });
-      xdr.union("InvokeHostFunctionResult", {
-        switchOn: xdr.lookup("InvokeHostFunctionResultCode"),
+      xdr2.union("InvokeHostFunctionResult", {
+        switchOn: xdr2.lookup("InvokeHostFunctionResultCode"),
         switchName: "code",
         switches: [
           ["invokeHostFunctionSuccess", "success"],
-          ["invokeHostFunctionMalformed", xdr.void()],
-          ["invokeHostFunctionTrapped", xdr.void()],
-          ["invokeHostFunctionResourceLimitExceeded", xdr.void()],
-          ["invokeHostFunctionEntryArchived", xdr.void()],
-          ["invokeHostFunctionInsufficientRefundableFee", xdr.void()]
+          ["invokeHostFunctionMalformed", xdr2.void()],
+          ["invokeHostFunctionTrapped", xdr2.void()],
+          ["invokeHostFunctionResourceLimitExceeded", xdr2.void()],
+          ["invokeHostFunctionEntryArchived", xdr2.void()],
+          ["invokeHostFunctionInsufficientRefundableFee", xdr2.void()]
         ],
         arms: {
-          success: xdr.lookup("Hash")
+          success: xdr2.lookup("Hash")
         }
       });
-      xdr.enum("ExtendFootprintTtlResultCode", {
+      xdr2.enum("ExtendFootprintTtlResultCode", {
         extendFootprintTtlSuccess: 0,
         extendFootprintTtlMalformed: -1,
         extendFootprintTtlResourceLimitExceeded: -2,
         extendFootprintTtlInsufficientRefundableFee: -3
       });
-      xdr.union("ExtendFootprintTtlResult", {
-        switchOn: xdr.lookup("ExtendFootprintTtlResultCode"),
+      xdr2.union("ExtendFootprintTtlResult", {
+        switchOn: xdr2.lookup("ExtendFootprintTtlResultCode"),
         switchName: "code",
         switches: [
-          ["extendFootprintTtlSuccess", xdr.void()],
-          ["extendFootprintTtlMalformed", xdr.void()],
-          ["extendFootprintTtlResourceLimitExceeded", xdr.void()],
-          ["extendFootprintTtlInsufficientRefundableFee", xdr.void()]
+          ["extendFootprintTtlSuccess", xdr2.void()],
+          ["extendFootprintTtlMalformed", xdr2.void()],
+          ["extendFootprintTtlResourceLimitExceeded", xdr2.void()],
+          ["extendFootprintTtlInsufficientRefundableFee", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("RestoreFootprintResultCode", {
+      xdr2.enum("RestoreFootprintResultCode", {
         restoreFootprintSuccess: 0,
         restoreFootprintMalformed: -1,
         restoreFootprintResourceLimitExceeded: -2,
         restoreFootprintInsufficientRefundableFee: -3
       });
-      xdr.union("RestoreFootprintResult", {
-        switchOn: xdr.lookup("RestoreFootprintResultCode"),
+      xdr2.union("RestoreFootprintResult", {
+        switchOn: xdr2.lookup("RestoreFootprintResultCode"),
         switchName: "code",
         switches: [
-          ["restoreFootprintSuccess", xdr.void()],
-          ["restoreFootprintMalformed", xdr.void()],
-          ["restoreFootprintResourceLimitExceeded", xdr.void()],
-          ["restoreFootprintInsufficientRefundableFee", xdr.void()]
+          ["restoreFootprintSuccess", xdr2.void()],
+          ["restoreFootprintMalformed", xdr2.void()],
+          ["restoreFootprintResourceLimitExceeded", xdr2.void()],
+          ["restoreFootprintInsufficientRefundableFee", xdr2.void()]
         ],
         arms: {}
       });
-      xdr.enum("OperationResultCode", {
+      xdr2.enum("OperationResultCode", {
         opInner: 0,
         opBadAuth: -1,
         opNoAccount: -2,
@@ -121682,8 +121682,8 @@ var init_curr_generated = __esm({
         opExceededWorkLimit: -5,
         opTooManySponsoring: -6
       });
-      xdr.union("OperationResultTr", {
-        switchOn: xdr.lookup("OperationType"),
+      xdr2.union("OperationResultTr", {
+        switchOn: xdr2.lookup("OperationType"),
         switchName: "type",
         switches: [
           ["createAccount", "createAccountResult"],
@@ -121715,60 +121715,60 @@ var init_curr_generated = __esm({
           ["restoreFootprint", "restoreFootprintResult"]
         ],
         arms: {
-          createAccountResult: xdr.lookup("CreateAccountResult"),
-          paymentResult: xdr.lookup("PaymentResult"),
-          pathPaymentStrictReceiveResult: xdr.lookup(
+          createAccountResult: xdr2.lookup("CreateAccountResult"),
+          paymentResult: xdr2.lookup("PaymentResult"),
+          pathPaymentStrictReceiveResult: xdr2.lookup(
             "PathPaymentStrictReceiveResult"
           ),
-          manageSellOfferResult: xdr.lookup("ManageSellOfferResult"),
-          createPassiveSellOfferResult: xdr.lookup("ManageSellOfferResult"),
-          setOptionsResult: xdr.lookup("SetOptionsResult"),
-          changeTrustResult: xdr.lookup("ChangeTrustResult"),
-          allowTrustResult: xdr.lookup("AllowTrustResult"),
-          accountMergeResult: xdr.lookup("AccountMergeResult"),
-          inflationResult: xdr.lookup("InflationResult"),
-          manageDataResult: xdr.lookup("ManageDataResult"),
-          bumpSeqResult: xdr.lookup("BumpSequenceResult"),
-          manageBuyOfferResult: xdr.lookup("ManageBuyOfferResult"),
-          pathPaymentStrictSendResult: xdr.lookup("PathPaymentStrictSendResult"),
-          createClaimableBalanceResult: xdr.lookup("CreateClaimableBalanceResult"),
-          claimClaimableBalanceResult: xdr.lookup("ClaimClaimableBalanceResult"),
-          beginSponsoringFutureReservesResult: xdr.lookup(
+          manageSellOfferResult: xdr2.lookup("ManageSellOfferResult"),
+          createPassiveSellOfferResult: xdr2.lookup("ManageSellOfferResult"),
+          setOptionsResult: xdr2.lookup("SetOptionsResult"),
+          changeTrustResult: xdr2.lookup("ChangeTrustResult"),
+          allowTrustResult: xdr2.lookup("AllowTrustResult"),
+          accountMergeResult: xdr2.lookup("AccountMergeResult"),
+          inflationResult: xdr2.lookup("InflationResult"),
+          manageDataResult: xdr2.lookup("ManageDataResult"),
+          bumpSeqResult: xdr2.lookup("BumpSequenceResult"),
+          manageBuyOfferResult: xdr2.lookup("ManageBuyOfferResult"),
+          pathPaymentStrictSendResult: xdr2.lookup("PathPaymentStrictSendResult"),
+          createClaimableBalanceResult: xdr2.lookup("CreateClaimableBalanceResult"),
+          claimClaimableBalanceResult: xdr2.lookup("ClaimClaimableBalanceResult"),
+          beginSponsoringFutureReservesResult: xdr2.lookup(
             "BeginSponsoringFutureReservesResult"
           ),
-          endSponsoringFutureReservesResult: xdr.lookup(
+          endSponsoringFutureReservesResult: xdr2.lookup(
             "EndSponsoringFutureReservesResult"
           ),
-          revokeSponsorshipResult: xdr.lookup("RevokeSponsorshipResult"),
-          clawbackResult: xdr.lookup("ClawbackResult"),
-          clawbackClaimableBalanceResult: xdr.lookup(
+          revokeSponsorshipResult: xdr2.lookup("RevokeSponsorshipResult"),
+          clawbackResult: xdr2.lookup("ClawbackResult"),
+          clawbackClaimableBalanceResult: xdr2.lookup(
             "ClawbackClaimableBalanceResult"
           ),
-          setTrustLineFlagsResult: xdr.lookup("SetTrustLineFlagsResult"),
-          liquidityPoolDepositResult: xdr.lookup("LiquidityPoolDepositResult"),
-          liquidityPoolWithdrawResult: xdr.lookup("LiquidityPoolWithdrawResult"),
-          invokeHostFunctionResult: xdr.lookup("InvokeHostFunctionResult"),
-          extendFootprintTtlResult: xdr.lookup("ExtendFootprintTtlResult"),
-          restoreFootprintResult: xdr.lookup("RestoreFootprintResult")
+          setTrustLineFlagsResult: xdr2.lookup("SetTrustLineFlagsResult"),
+          liquidityPoolDepositResult: xdr2.lookup("LiquidityPoolDepositResult"),
+          liquidityPoolWithdrawResult: xdr2.lookup("LiquidityPoolWithdrawResult"),
+          invokeHostFunctionResult: xdr2.lookup("InvokeHostFunctionResult"),
+          extendFootprintTtlResult: xdr2.lookup("ExtendFootprintTtlResult"),
+          restoreFootprintResult: xdr2.lookup("RestoreFootprintResult")
         }
       });
-      xdr.union("OperationResult", {
-        switchOn: xdr.lookup("OperationResultCode"),
+      xdr2.union("OperationResult", {
+        switchOn: xdr2.lookup("OperationResultCode"),
         switchName: "code",
         switches: [
           ["opInner", "tr"],
-          ["opBadAuth", xdr.void()],
-          ["opNoAccount", xdr.void()],
-          ["opNotSupported", xdr.void()],
-          ["opTooManySubentries", xdr.void()],
-          ["opExceededWorkLimit", xdr.void()],
-          ["opTooManySponsoring", xdr.void()]
+          ["opBadAuth", xdr2.void()],
+          ["opNoAccount", xdr2.void()],
+          ["opNotSupported", xdr2.void()],
+          ["opTooManySubentries", xdr2.void()],
+          ["opExceededWorkLimit", xdr2.void()],
+          ["opTooManySponsoring", xdr2.void()]
         ],
         arms: {
-          tr: xdr.lookup("OperationResultTr")
+          tr: xdr2.lookup("OperationResultTr")
         }
       });
-      xdr.enum("TransactionResultCode", {
+      xdr2.enum("TransactionResultCode", {
         txFeeBumpInnerSuccess: 1,
         txSuccess: 0,
         txFailed: -1,
@@ -121790,133 +121790,133 @@ var init_curr_generated = __esm({
         txSorobanInvalid: -17,
         txFrozenKeyAccessed: -18
       });
-      xdr.union("InnerTransactionResultResult", {
-        switchOn: xdr.lookup("TransactionResultCode"),
+      xdr2.union("InnerTransactionResultResult", {
+        switchOn: xdr2.lookup("TransactionResultCode"),
         switchName: "code",
         switches: [
           ["txSuccess", "results"],
           ["txFailed", "results"],
-          ["txTooEarly", xdr.void()],
-          ["txTooLate", xdr.void()],
-          ["txMissingOperation", xdr.void()],
-          ["txBadSeq", xdr.void()],
-          ["txBadAuth", xdr.void()],
-          ["txInsufficientBalance", xdr.void()],
-          ["txNoAccount", xdr.void()],
-          ["txInsufficientFee", xdr.void()],
-          ["txBadAuthExtra", xdr.void()],
-          ["txInternalError", xdr.void()],
-          ["txNotSupported", xdr.void()],
-          ["txBadSponsorship", xdr.void()],
-          ["txBadMinSeqAgeOrGap", xdr.void()],
-          ["txMalformed", xdr.void()],
-          ["txSorobanInvalid", xdr.void()],
-          ["txFrozenKeyAccessed", xdr.void()]
+          ["txTooEarly", xdr2.void()],
+          ["txTooLate", xdr2.void()],
+          ["txMissingOperation", xdr2.void()],
+          ["txBadSeq", xdr2.void()],
+          ["txBadAuth", xdr2.void()],
+          ["txInsufficientBalance", xdr2.void()],
+          ["txNoAccount", xdr2.void()],
+          ["txInsufficientFee", xdr2.void()],
+          ["txBadAuthExtra", xdr2.void()],
+          ["txInternalError", xdr2.void()],
+          ["txNotSupported", xdr2.void()],
+          ["txBadSponsorship", xdr2.void()],
+          ["txBadMinSeqAgeOrGap", xdr2.void()],
+          ["txMalformed", xdr2.void()],
+          ["txSorobanInvalid", xdr2.void()],
+          ["txFrozenKeyAccessed", xdr2.void()]
         ],
         arms: {
-          results: xdr.varArray(xdr.lookup("OperationResult"), 2147483647)
+          results: xdr2.varArray(xdr2.lookup("OperationResult"), 2147483647)
         }
       });
-      xdr.union("InnerTransactionResultExt", {
-        switchOn: xdr.int(),
+      xdr2.union("InnerTransactionResultExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("InnerTransactionResult", [
-        ["feeCharged", xdr.lookup("Int64")],
-        ["result", xdr.lookup("InnerTransactionResultResult")],
-        ["ext", xdr.lookup("InnerTransactionResultExt")]
+      xdr2.struct("InnerTransactionResult", [
+        ["feeCharged", xdr2.lookup("Int64")],
+        ["result", xdr2.lookup("InnerTransactionResultResult")],
+        ["ext", xdr2.lookup("InnerTransactionResultExt")]
       ]);
-      xdr.struct("InnerTransactionResultPair", [
-        ["transactionHash", xdr.lookup("Hash")],
-        ["result", xdr.lookup("InnerTransactionResult")]
+      xdr2.struct("InnerTransactionResultPair", [
+        ["transactionHash", xdr2.lookup("Hash")],
+        ["result", xdr2.lookup("InnerTransactionResult")]
       ]);
-      xdr.union("TransactionResultResult", {
-        switchOn: xdr.lookup("TransactionResultCode"),
+      xdr2.union("TransactionResultResult", {
+        switchOn: xdr2.lookup("TransactionResultCode"),
         switchName: "code",
         switches: [
           ["txFeeBumpInnerSuccess", "innerResultPair"],
           ["txFeeBumpInnerFailed", "innerResultPair"],
           ["txSuccess", "results"],
           ["txFailed", "results"],
-          ["txTooEarly", xdr.void()],
-          ["txTooLate", xdr.void()],
-          ["txMissingOperation", xdr.void()],
-          ["txBadSeq", xdr.void()],
-          ["txBadAuth", xdr.void()],
-          ["txInsufficientBalance", xdr.void()],
-          ["txNoAccount", xdr.void()],
-          ["txInsufficientFee", xdr.void()],
-          ["txBadAuthExtra", xdr.void()],
-          ["txInternalError", xdr.void()],
-          ["txNotSupported", xdr.void()],
-          ["txBadSponsorship", xdr.void()],
-          ["txBadMinSeqAgeOrGap", xdr.void()],
-          ["txMalformed", xdr.void()],
-          ["txSorobanInvalid", xdr.void()],
-          ["txFrozenKeyAccessed", xdr.void()]
+          ["txTooEarly", xdr2.void()],
+          ["txTooLate", xdr2.void()],
+          ["txMissingOperation", xdr2.void()],
+          ["txBadSeq", xdr2.void()],
+          ["txBadAuth", xdr2.void()],
+          ["txInsufficientBalance", xdr2.void()],
+          ["txNoAccount", xdr2.void()],
+          ["txInsufficientFee", xdr2.void()],
+          ["txBadAuthExtra", xdr2.void()],
+          ["txInternalError", xdr2.void()],
+          ["txNotSupported", xdr2.void()],
+          ["txBadSponsorship", xdr2.void()],
+          ["txBadMinSeqAgeOrGap", xdr2.void()],
+          ["txMalformed", xdr2.void()],
+          ["txSorobanInvalid", xdr2.void()],
+          ["txFrozenKeyAccessed", xdr2.void()]
         ],
         arms: {
-          innerResultPair: xdr.lookup("InnerTransactionResultPair"),
-          results: xdr.varArray(xdr.lookup("OperationResult"), 2147483647)
+          innerResultPair: xdr2.lookup("InnerTransactionResultPair"),
+          results: xdr2.varArray(xdr2.lookup("OperationResult"), 2147483647)
         }
       });
-      xdr.union("TransactionResultExt", {
-        switchOn: xdr.int(),
+      xdr2.union("TransactionResultExt", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.struct("TransactionResult", [
-        ["feeCharged", xdr.lookup("Int64")],
-        ["result", xdr.lookup("TransactionResultResult")],
-        ["ext", xdr.lookup("TransactionResultExt")]
+      xdr2.struct("TransactionResult", [
+        ["feeCharged", xdr2.lookup("Int64")],
+        ["result", xdr2.lookup("TransactionResultResult")],
+        ["ext", xdr2.lookup("TransactionResultExt")]
       ]);
-      xdr.typedef("Hash", xdr.opaque(32));
-      xdr.typedef("Uint256", xdr.opaque(32));
-      xdr.typedef("Uint32", xdr.uint());
-      xdr.typedef("Int32", xdr.int());
-      xdr.typedef("Uint64", xdr.uhyper());
-      xdr.typedef("Int64", xdr.hyper());
-      xdr.typedef("TimePoint", xdr.lookup("Uint64"));
-      xdr.typedef("Duration", xdr.lookup("Uint64"));
-      xdr.union("ExtensionPoint", {
-        switchOn: xdr.int(),
+      xdr2.typedef("Hash", xdr2.opaque(32));
+      xdr2.typedef("Uint256", xdr2.opaque(32));
+      xdr2.typedef("Uint32", xdr2.uint());
+      xdr2.typedef("Int32", xdr2.int());
+      xdr2.typedef("Uint64", xdr2.uhyper());
+      xdr2.typedef("Int64", xdr2.hyper());
+      xdr2.typedef("TimePoint", xdr2.lookup("Uint64"));
+      xdr2.typedef("Duration", xdr2.lookup("Uint64"));
+      xdr2.union("ExtensionPoint", {
+        switchOn: xdr2.int(),
         switchName: "v",
-        switches: [[0, xdr.void()]],
+        switches: [[0, xdr2.void()]],
         arms: {}
       });
-      xdr.enum("CryptoKeyType", {
+      xdr2.enum("CryptoKeyType", {
         keyTypeEd25519: 0,
         keyTypePreAuthTx: 1,
         keyTypeHashX: 2,
         keyTypeEd25519SignedPayload: 3,
         keyTypeMuxedEd25519: 256
       });
-      xdr.enum("PublicKeyType", {
+      xdr2.enum("PublicKeyType", {
         publicKeyTypeEd25519: 0
       });
-      xdr.enum("SignerKeyType", {
+      xdr2.enum("SignerKeyType", {
         signerKeyTypeEd25519: 0,
         signerKeyTypePreAuthTx: 1,
         signerKeyTypeHashX: 2,
         signerKeyTypeEd25519SignedPayload: 3
       });
-      xdr.union("PublicKey", {
-        switchOn: xdr.lookup("PublicKeyType"),
+      xdr2.union("PublicKey", {
+        switchOn: xdr2.lookup("PublicKeyType"),
         switchName: "type",
         switches: [["publicKeyTypeEd25519", "ed25519"]],
         arms: {
-          ed25519: xdr.lookup("Uint256")
+          ed25519: xdr2.lookup("Uint256")
         }
       });
-      xdr.struct("SignerKeyEd25519SignedPayload", [
-        ["ed25519", xdr.lookup("Uint256")],
-        ["payload", xdr.varOpaque(64)]
+      xdr2.struct("SignerKeyEd25519SignedPayload", [
+        ["ed25519", xdr2.lookup("Uint256")],
+        ["payload", xdr2.varOpaque(64)]
       ]);
-      xdr.union("SignerKey", {
-        switchOn: xdr.lookup("SignerKeyType"),
+      xdr2.union("SignerKey", {
+        switchOn: xdr2.lookup("SignerKeyType"),
         switchName: "type",
         switches: [
           ["signerKeyTypeEd25519", "ed25519"],
@@ -121925,55 +121925,55 @@ var init_curr_generated = __esm({
           ["signerKeyTypeEd25519SignedPayload", "ed25519SignedPayload"]
         ],
         arms: {
-          ed25519: xdr.lookup("Uint256"),
-          preAuthTx: xdr.lookup("Uint256"),
-          hashX: xdr.lookup("Uint256"),
-          ed25519SignedPayload: xdr.lookup("SignerKeyEd25519SignedPayload")
+          ed25519: xdr2.lookup("Uint256"),
+          preAuthTx: xdr2.lookup("Uint256"),
+          hashX: xdr2.lookup("Uint256"),
+          ed25519SignedPayload: xdr2.lookup("SignerKeyEd25519SignedPayload")
         }
       });
-      xdr.typedef("Signature", xdr.varOpaque(64));
-      xdr.typedef("SignatureHint", xdr.opaque(4));
-      xdr.typedef("NodeId", xdr.lookup("PublicKey"));
-      xdr.typedef("AccountId", xdr.lookup("PublicKey"));
-      xdr.typedef("ContractId", xdr.lookup("Hash"));
-      xdr.struct("Curve25519Secret", [["key", xdr.opaque(32)]]);
-      xdr.struct("Curve25519Public", [["key", xdr.opaque(32)]]);
-      xdr.struct("HmacSha256Key", [["key", xdr.opaque(32)]]);
-      xdr.struct("HmacSha256Mac", [["mac", xdr.opaque(32)]]);
-      xdr.struct("ShortHashSeed", [["seed", xdr.opaque(16)]]);
-      xdr.enum("BinaryFuseFilterType", {
+      xdr2.typedef("Signature", xdr2.varOpaque(64));
+      xdr2.typedef("SignatureHint", xdr2.opaque(4));
+      xdr2.typedef("NodeId", xdr2.lookup("PublicKey"));
+      xdr2.typedef("AccountId", xdr2.lookup("PublicKey"));
+      xdr2.typedef("ContractId", xdr2.lookup("Hash"));
+      xdr2.struct("Curve25519Secret", [["key", xdr2.opaque(32)]]);
+      xdr2.struct("Curve25519Public", [["key", xdr2.opaque(32)]]);
+      xdr2.struct("HmacSha256Key", [["key", xdr2.opaque(32)]]);
+      xdr2.struct("HmacSha256Mac", [["mac", xdr2.opaque(32)]]);
+      xdr2.struct("ShortHashSeed", [["seed", xdr2.opaque(16)]]);
+      xdr2.enum("BinaryFuseFilterType", {
         binaryFuseFilter8Bit: 0,
         binaryFuseFilter16Bit: 1,
         binaryFuseFilter32Bit: 2
       });
-      xdr.struct("SerializedBinaryFuseFilter", [
-        ["type", xdr.lookup("BinaryFuseFilterType")],
-        ["inputHashSeed", xdr.lookup("ShortHashSeed")],
-        ["filterSeed", xdr.lookup("ShortHashSeed")],
-        ["segmentLength", xdr.lookup("Uint32")],
-        ["segementLengthMask", xdr.lookup("Uint32")],
-        ["segmentCount", xdr.lookup("Uint32")],
-        ["segmentCountLength", xdr.lookup("Uint32")],
-        ["fingerprintLength", xdr.lookup("Uint32")],
-        ["fingerprints", xdr.varOpaque()]
+      xdr2.struct("SerializedBinaryFuseFilter", [
+        ["type", xdr2.lookup("BinaryFuseFilterType")],
+        ["inputHashSeed", xdr2.lookup("ShortHashSeed")],
+        ["filterSeed", xdr2.lookup("ShortHashSeed")],
+        ["segmentLength", xdr2.lookup("Uint32")],
+        ["segementLengthMask", xdr2.lookup("Uint32")],
+        ["segmentCount", xdr2.lookup("Uint32")],
+        ["segmentCountLength", xdr2.lookup("Uint32")],
+        ["fingerprintLength", xdr2.lookup("Uint32")],
+        ["fingerprints", xdr2.varOpaque()]
       ]);
-      xdr.typedef("PoolId", xdr.lookup("Hash"));
-      xdr.enum("ClaimableBalanceIdType", {
+      xdr2.typedef("PoolId", xdr2.lookup("Hash"));
+      xdr2.enum("ClaimableBalanceIdType", {
         claimableBalanceIdTypeV0: 0
       });
-      xdr.union("ClaimableBalanceId", {
-        switchOn: xdr.lookup("ClaimableBalanceIdType"),
+      xdr2.union("ClaimableBalanceId", {
+        switchOn: xdr2.lookup("ClaimableBalanceIdType"),
         switchName: "type",
         switches: [["claimableBalanceIdTypeV0", "v0"]],
         arms: {
-          v0: xdr.lookup("Hash")
+          v0: xdr2.lookup("Hash")
         }
       });
-      xdr.typedef("ScBytes", xdr.varOpaque());
-      xdr.typedef("ScString", xdr.string());
-      xdr.const("SCSYMBOL_LIMIT", 32);
-      xdr.typedef("ScSymbol", xdr.string(SCSYMBOL_LIMIT));
-      xdr.enum("ScValType", {
+      xdr2.typedef("ScBytes", xdr2.varOpaque());
+      xdr2.typedef("ScString", xdr2.string());
+      xdr2.const("SCSYMBOL_LIMIT", 32);
+      xdr2.typedef("ScSymbol", xdr2.string(SCSYMBOL_LIMIT));
+      xdr2.enum("ScValType", {
         scvBool: 0,
         scvVoid: 1,
         scvError: 2,
@@ -121998,7 +121998,7 @@ var init_curr_generated = __esm({
         scvLedgerKeyNonce: 21,
         scvExecutableTag: 22
       });
-      xdr.enum("ScErrorType", {
+      xdr2.enum("ScErrorType", {
         sceContract: 0,
         sceWasmVm: 1,
         sceContext: 2,
@@ -122010,7 +122010,7 @@ var init_curr_generated = __esm({
         sceValue: 8,
         sceAuth: 9
       });
-      xdr.enum("ScErrorCode", {
+      xdr2.enum("ScErrorCode", {
         scecArithDomain: 0,
         scecIndexBounds: 1,
         scecInvalidInput: 2,
@@ -122022,8 +122022,8 @@ var init_curr_generated = __esm({
         scecUnexpectedType: 8,
         scecUnexpectedSize: 9
       });
-      xdr.union("ScError", {
-        switchOn: xdr.lookup("ScErrorType"),
+      xdr2.union("ScError", {
+        switchOn: xdr2.lookup("ScErrorType"),
         switchName: "type",
         switches: [
           ["sceContract", "contractCode"],
@@ -122038,48 +122038,48 @@ var init_curr_generated = __esm({
           ["sceAuth", "code"]
         ],
         arms: {
-          contractCode: xdr.lookup("Uint32"),
-          code: xdr.lookup("ScErrorCode")
+          contractCode: xdr2.lookup("Uint32"),
+          code: xdr2.lookup("ScErrorCode")
         }
       });
-      xdr.struct("UInt128Parts", [
-        ["hi", xdr.lookup("Uint64")],
-        ["lo", xdr.lookup("Uint64")]
+      xdr2.struct("UInt128Parts", [
+        ["hi", xdr2.lookup("Uint64")],
+        ["lo", xdr2.lookup("Uint64")]
       ]);
-      xdr.struct("Int128Parts", [
-        ["hi", xdr.lookup("Int64")],
-        ["lo", xdr.lookup("Uint64")]
+      xdr2.struct("Int128Parts", [
+        ["hi", xdr2.lookup("Int64")],
+        ["lo", xdr2.lookup("Uint64")]
       ]);
-      xdr.struct("UInt256Parts", [
-        ["hiHi", xdr.lookup("Uint64")],
-        ["hiLo", xdr.lookup("Uint64")],
-        ["loHi", xdr.lookup("Uint64")],
-        ["loLo", xdr.lookup("Uint64")]
+      xdr2.struct("UInt256Parts", [
+        ["hiHi", xdr2.lookup("Uint64")],
+        ["hiLo", xdr2.lookup("Uint64")],
+        ["loHi", xdr2.lookup("Uint64")],
+        ["loLo", xdr2.lookup("Uint64")]
       ]);
-      xdr.struct("Int256Parts", [
-        ["hiHi", xdr.lookup("Int64")],
-        ["hiLo", xdr.lookup("Uint64")],
-        ["loHi", xdr.lookup("Uint64")],
-        ["loLo", xdr.lookup("Uint64")]
+      xdr2.struct("Int256Parts", [
+        ["hiHi", xdr2.lookup("Int64")],
+        ["hiLo", xdr2.lookup("Uint64")],
+        ["loHi", xdr2.lookup("Uint64")],
+        ["loLo", xdr2.lookup("Uint64")]
       ]);
-      xdr.enum("ContractExecutableType", {
+      xdr2.enum("ContractExecutableType", {
         contractExecutableWasm: 0,
         contractExecutableStellarAsset: 1,
         contractExecutableExternalRef: 2
       });
-      xdr.enum("ScAddressType", {
+      xdr2.enum("ScAddressType", {
         scAddressTypeAccount: 0,
         scAddressTypeContract: 1,
         scAddressTypeMuxedAccount: 2,
         scAddressTypeClaimableBalance: 3,
         scAddressTypeLiquidityPool: 4
       });
-      xdr.struct("MuxedEd25519Account", [
-        ["id", xdr.lookup("Uint64")],
-        ["ed25519", xdr.lookup("Uint256")]
+      xdr2.struct("MuxedEd25519Account", [
+        ["id", xdr2.lookup("Uint64")],
+        ["ed25519", xdr2.lookup("Uint256")]
       ]);
-      xdr.union("ScAddress", {
-        switchOn: xdr.lookup("ScAddressType"),
+      xdr2.union("ScAddress", {
+        switchOn: xdr2.lookup("ScAddressType"),
         switchName: "type",
         switches: [
           ["scAddressTypeAccount", "accountId"],
@@ -122089,43 +122089,43 @@ var init_curr_generated = __esm({
           ["scAddressTypeLiquidityPool", "liquidityPoolId"]
         ],
         arms: {
-          accountId: xdr.lookup("AccountId"),
-          contractId: xdr.lookup("ContractId"),
-          muxedAccount: xdr.lookup("MuxedEd25519Account"),
-          claimableBalanceId: xdr.lookup("ClaimableBalanceId"),
-          liquidityPoolId: xdr.lookup("PoolId")
+          accountId: xdr2.lookup("AccountId"),
+          contractId: xdr2.lookup("ContractId"),
+          muxedAccount: xdr2.lookup("MuxedEd25519Account"),
+          claimableBalanceId: xdr2.lookup("ClaimableBalanceId"),
+          liquidityPoolId: xdr2.lookup("PoolId")
         }
       });
-      xdr.struct("ContractExecutableExternalRef", [
-        ["executableOwner", xdr.lookup("ScAddress")],
-        ["tag", xdr.lookup("ScString")]
+      xdr2.struct("ContractExecutableExternalRef", [
+        ["executableOwner", xdr2.lookup("ScAddress")],
+        ["tag", xdr2.lookup("ScString")]
       ]);
-      xdr.union("ContractExecutable", {
-        switchOn: xdr.lookup("ContractExecutableType"),
+      xdr2.union("ContractExecutable", {
+        switchOn: xdr2.lookup("ContractExecutableType"),
         switchName: "type",
         switches: [
           ["contractExecutableWasm", "wasmHash"],
-          ["contractExecutableStellarAsset", xdr.void()],
+          ["contractExecutableStellarAsset", xdr2.void()],
           ["contractExecutableExternalRef", "externalRef"]
         ],
         arms: {
-          wasmHash: xdr.lookup("Hash"),
-          externalRef: xdr.lookup("ContractExecutableExternalRef")
+          wasmHash: xdr2.lookup("Hash"),
+          externalRef: xdr2.lookup("ContractExecutableExternalRef")
         }
       });
-      xdr.typedef("ScVec", xdr.varArray(xdr.lookup("ScVal"), 2147483647));
-      xdr.typedef("ScMap", xdr.varArray(xdr.lookup("ScMapEntry"), 2147483647));
-      xdr.struct("ScNonceKey", [["nonce", xdr.lookup("Int64")]]);
-      xdr.struct("ScContractInstance", [
-        ["executable", xdr.lookup("ContractExecutable")],
-        ["storage", xdr.option(xdr.lookup("ScMap"))]
+      xdr2.typedef("ScVec", xdr2.varArray(xdr2.lookup("ScVal"), 2147483647));
+      xdr2.typedef("ScMap", xdr2.varArray(xdr2.lookup("ScMapEntry"), 2147483647));
+      xdr2.struct("ScNonceKey", [["nonce", xdr2.lookup("Int64")]]);
+      xdr2.struct("ScContractInstance", [
+        ["executable", xdr2.lookup("ContractExecutable")],
+        ["storage", xdr2.option(xdr2.lookup("ScMap"))]
       ]);
-      xdr.union("ScVal", {
-        switchOn: xdr.lookup("ScValType"),
+      xdr2.union("ScVal", {
+        switchOn: xdr2.lookup("ScValType"),
         switchName: "type",
         switches: [
           ["scvBool", "b"],
-          ["scvVoid", xdr.void()],
+          ["scvVoid", xdr2.void()],
           ["scvError", "error"],
           ["scvU32", "u32"],
           ["scvI32", "i32"],
@@ -122144,70 +122144,70 @@ var init_curr_generated = __esm({
           ["scvMap", "map"],
           ["scvAddress", "address"],
           ["scvContractInstance", "instance"],
-          ["scvLedgerKeyContractInstance", xdr.void()],
+          ["scvLedgerKeyContractInstance", xdr2.void()],
           ["scvLedgerKeyNonce", "nonceKey"],
           ["scvExecutableTag", "executableTag"]
         ],
         arms: {
-          b: xdr.bool(),
-          error: xdr.lookup("ScError"),
-          u32: xdr.lookup("Uint32"),
-          i32: xdr.lookup("Int32"),
-          u64: xdr.lookup("Uint64"),
-          i64: xdr.lookup("Int64"),
-          timepoint: xdr.lookup("TimePoint"),
-          duration: xdr.lookup("Duration"),
-          u128: xdr.lookup("UInt128Parts"),
-          i128: xdr.lookup("Int128Parts"),
-          u256: xdr.lookup("UInt256Parts"),
-          i256: xdr.lookup("Int256Parts"),
-          bytes: xdr.lookup("ScBytes"),
-          str: xdr.lookup("ScString"),
-          sym: xdr.lookup("ScSymbol"),
-          vec: xdr.option(xdr.lookup("ScVec")),
-          map: xdr.option(xdr.lookup("ScMap")),
-          address: xdr.lookup("ScAddress"),
-          instance: xdr.lookup("ScContractInstance"),
-          nonceKey: xdr.lookup("ScNonceKey"),
-          executableTag: xdr.lookup("ScString")
+          b: xdr2.bool(),
+          error: xdr2.lookup("ScError"),
+          u32: xdr2.lookup("Uint32"),
+          i32: xdr2.lookup("Int32"),
+          u64: xdr2.lookup("Uint64"),
+          i64: xdr2.lookup("Int64"),
+          timepoint: xdr2.lookup("TimePoint"),
+          duration: xdr2.lookup("Duration"),
+          u128: xdr2.lookup("UInt128Parts"),
+          i128: xdr2.lookup("Int128Parts"),
+          u256: xdr2.lookup("UInt256Parts"),
+          i256: xdr2.lookup("Int256Parts"),
+          bytes: xdr2.lookup("ScBytes"),
+          str: xdr2.lookup("ScString"),
+          sym: xdr2.lookup("ScSymbol"),
+          vec: xdr2.option(xdr2.lookup("ScVec")),
+          map: xdr2.option(xdr2.lookup("ScMap")),
+          address: xdr2.lookup("ScAddress"),
+          instance: xdr2.lookup("ScContractInstance"),
+          nonceKey: xdr2.lookup("ScNonceKey"),
+          executableTag: xdr2.lookup("ScString")
         }
       });
-      xdr.struct("ScMapEntry", [
-        ["key", xdr.lookup("ScVal")],
-        ["val", xdr.lookup("ScVal")]
+      xdr2.struct("ScMapEntry", [
+        ["key", xdr2.lookup("ScVal")],
+        ["val", xdr2.lookup("ScVal")]
       ]);
-      xdr.enum("ScEnvMetaKind", {
+      xdr2.enum("ScEnvMetaKind", {
         scEnvMetaKindInterfaceVersion: 0
       });
-      xdr.struct("ScEnvMetaEntryInterfaceVersion", [
-        ["protocol", xdr.lookup("Uint32")],
-        ["preRelease", xdr.lookup("Uint32")]
+      xdr2.struct("ScEnvMetaEntryInterfaceVersion", [
+        ["protocol", xdr2.lookup("Uint32")],
+        ["preRelease", xdr2.lookup("Uint32")]
       ]);
-      xdr.union("ScEnvMetaEntry", {
-        switchOn: xdr.lookup("ScEnvMetaKind"),
+      xdr2.union("ScEnvMetaEntry", {
+        switchOn: xdr2.lookup("ScEnvMetaKind"),
         switchName: "kind",
         switches: [["scEnvMetaKindInterfaceVersion", "interfaceVersion"]],
         arms: {
-          interfaceVersion: xdr.lookup("ScEnvMetaEntryInterfaceVersion")
+          interfaceVersion: xdr2.lookup("ScEnvMetaEntryInterfaceVersion")
         }
       });
-      xdr.struct("ScMetaV0", [
-        ["key", xdr.string()],
-        ["val", xdr.string()]
+      xdr2.struct("ScMetaV0", [
+        ["key", xdr2.string()],
+        ["val", xdr2.string()]
       ]);
-      xdr.enum("ScMetaKind", {
+      xdr2.enum("ScMetaKind", {
         scMetaV0: 0
       });
-      xdr.union("ScMetaEntry", {
-        switchOn: xdr.lookup("ScMetaKind"),
+      xdr2.union("ScMetaEntry", {
+        switchOn: xdr2.lookup("ScMetaKind"),
         switchName: "kind",
         switches: [["scMetaV0", "v0"]],
         arms: {
-          v0: xdr.lookup("ScMetaV0")
+          v0: xdr2.lookup("ScMetaV0")
         }
       });
-      xdr.const("SC_SPEC_DOC_LIMIT", 1024);
-      xdr.enum("ScSpecType", {
+      xdr2.const("SC_SPEC_DOC_LIMIT", 1024);
+      xdr2.enum("ScSpecType", {
         scSpecTypeVal: 0,
         scSpecTypeBool: 1,
         scSpecTypeVoid: 2,
@@ -122235,44 +122235,44 @@ var init_curr_generated = __esm({
         scSpecTypeBytesN: 1006,
         scSpecTypeUdt: 2e3
       });
-      xdr.struct("ScSpecTypeOption", [["valueType", xdr.lookup("ScSpecTypeDef")]]);
-      xdr.struct("ScSpecTypeResult", [
-        ["okType", xdr.lookup("ScSpecTypeDef")],
-        ["errorType", xdr.lookup("ScSpecTypeDef")]
+      xdr2.struct("ScSpecTypeOption", [["valueType", xdr2.lookup("ScSpecTypeDef")]]);
+      xdr2.struct("ScSpecTypeResult", [
+        ["okType", xdr2.lookup("ScSpecTypeDef")],
+        ["errorType", xdr2.lookup("ScSpecTypeDef")]
       ]);
-      xdr.struct("ScSpecTypeVec", [["elementType", xdr.lookup("ScSpecTypeDef")]]);
-      xdr.struct("ScSpecTypeMap", [
-        ["keyType", xdr.lookup("ScSpecTypeDef")],
-        ["valueType", xdr.lookup("ScSpecTypeDef")]
+      xdr2.struct("ScSpecTypeVec", [["elementType", xdr2.lookup("ScSpecTypeDef")]]);
+      xdr2.struct("ScSpecTypeMap", [
+        ["keyType", xdr2.lookup("ScSpecTypeDef")],
+        ["valueType", xdr2.lookup("ScSpecTypeDef")]
       ]);
-      xdr.struct("ScSpecTypeTuple", [
-        ["valueTypes", xdr.varArray(xdr.lookup("ScSpecTypeDef"), 12)]
+      xdr2.struct("ScSpecTypeTuple", [
+        ["valueTypes", xdr2.varArray(xdr2.lookup("ScSpecTypeDef"), 12)]
       ]);
-      xdr.struct("ScSpecTypeBytesN", [["n", xdr.lookup("Uint32")]]);
-      xdr.struct("ScSpecTypeUdt", [["name", xdr.string(60)]]);
-      xdr.union("ScSpecTypeDef", {
-        switchOn: xdr.lookup("ScSpecType"),
+      xdr2.struct("ScSpecTypeBytesN", [["n", xdr2.lookup("Uint32")]]);
+      xdr2.struct("ScSpecTypeUdt", [["name", xdr2.string(60)]]);
+      xdr2.union("ScSpecTypeDef", {
+        switchOn: xdr2.lookup("ScSpecType"),
         switchName: "type",
         switches: [
-          ["scSpecTypeVal", xdr.void()],
-          ["scSpecTypeBool", xdr.void()],
-          ["scSpecTypeVoid", xdr.void()],
-          ["scSpecTypeError", xdr.void()],
-          ["scSpecTypeU32", xdr.void()],
-          ["scSpecTypeI32", xdr.void()],
-          ["scSpecTypeU64", xdr.void()],
-          ["scSpecTypeI64", xdr.void()],
-          ["scSpecTypeTimepoint", xdr.void()],
-          ["scSpecTypeDuration", xdr.void()],
-          ["scSpecTypeU128", xdr.void()],
-          ["scSpecTypeI128", xdr.void()],
-          ["scSpecTypeU256", xdr.void()],
-          ["scSpecTypeI256", xdr.void()],
-          ["scSpecTypeBytes", xdr.void()],
-          ["scSpecTypeString", xdr.void()],
-          ["scSpecTypeSymbol", xdr.void()],
-          ["scSpecTypeAddress", xdr.void()],
-          ["scSpecTypeMuxedAddress", xdr.void()],
+          ["scSpecTypeVal", xdr2.void()],
+          ["scSpecTypeBool", xdr2.void()],
+          ["scSpecTypeVoid", xdr2.void()],
+          ["scSpecTypeError", xdr2.void()],
+          ["scSpecTypeU32", xdr2.void()],
+          ["scSpecTypeI32", xdr2.void()],
+          ["scSpecTypeU64", xdr2.void()],
+          ["scSpecTypeI64", xdr2.void()],
+          ["scSpecTypeTimepoint", xdr2.void()],
+          ["scSpecTypeDuration", xdr2.void()],
+          ["scSpecTypeU128", xdr2.void()],
+          ["scSpecTypeI128", xdr2.void()],
+          ["scSpecTypeU256", xdr2.void()],
+          ["scSpecTypeI256", xdr2.void()],
+          ["scSpecTypeBytes", xdr2.void()],
+          ["scSpecTypeString", xdr2.void()],
+          ["scSpecTypeSymbol", xdr2.void()],
+          ["scSpecTypeAddress", xdr2.void()],
+          ["scSpecTypeMuxedAddress", xdr2.void()],
           ["scSpecTypeOption", "option"],
           ["scSpecTypeResult", "result"],
           ["scSpecTypeVec", "vec"],
@@ -122282,114 +122282,114 @@ var init_curr_generated = __esm({
           ["scSpecTypeUdt", "udt"]
         ],
         arms: {
-          option: xdr.lookup("ScSpecTypeOption"),
-          result: xdr.lookup("ScSpecTypeResult"),
-          vec: xdr.lookup("ScSpecTypeVec"),
-          map: xdr.lookup("ScSpecTypeMap"),
-          tuple: xdr.lookup("ScSpecTypeTuple"),
-          bytesN: xdr.lookup("ScSpecTypeBytesN"),
-          udt: xdr.lookup("ScSpecTypeUdt")
+          option: xdr2.lookup("ScSpecTypeOption"),
+          result: xdr2.lookup("ScSpecTypeResult"),
+          vec: xdr2.lookup("ScSpecTypeVec"),
+          map: xdr2.lookup("ScSpecTypeMap"),
+          tuple: xdr2.lookup("ScSpecTypeTuple"),
+          bytesN: xdr2.lookup("ScSpecTypeBytesN"),
+          udt: xdr2.lookup("ScSpecTypeUdt")
         }
       });
-      xdr.struct("ScSpecUdtStructFieldV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["name", xdr.string(30)],
-        ["type", xdr.lookup("ScSpecTypeDef")]
+      xdr2.struct("ScSpecUdtStructFieldV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["name", xdr2.string(30)],
+        ["type", xdr2.lookup("ScSpecTypeDef")]
       ]);
-      xdr.struct("ScSpecUdtStructV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["lib", xdr.string(80)],
-        ["name", xdr.string(60)],
-        ["fields", xdr.varArray(xdr.lookup("ScSpecUdtStructFieldV0"), 2147483647)]
+      xdr2.struct("ScSpecUdtStructV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["lib", xdr2.string(80)],
+        ["name", xdr2.string(60)],
+        ["fields", xdr2.varArray(xdr2.lookup("ScSpecUdtStructFieldV0"), 2147483647)]
       ]);
-      xdr.struct("ScSpecUdtUnionCaseVoidV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["name", xdr.string(60)]
+      xdr2.struct("ScSpecUdtUnionCaseVoidV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["name", xdr2.string(60)]
       ]);
-      xdr.struct("ScSpecUdtUnionCaseTupleV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["name", xdr.string(60)],
-        ["type", xdr.varArray(xdr.lookup("ScSpecTypeDef"), 2147483647)]
+      xdr2.struct("ScSpecUdtUnionCaseTupleV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["name", xdr2.string(60)],
+        ["type", xdr2.varArray(xdr2.lookup("ScSpecTypeDef"), 2147483647)]
       ]);
-      xdr.enum("ScSpecUdtUnionCaseV0Kind", {
+      xdr2.enum("ScSpecUdtUnionCaseV0Kind", {
         scSpecUdtUnionCaseVoidV0: 0,
         scSpecUdtUnionCaseTupleV0: 1
       });
-      xdr.union("ScSpecUdtUnionCaseV0", {
-        switchOn: xdr.lookup("ScSpecUdtUnionCaseV0Kind"),
+      xdr2.union("ScSpecUdtUnionCaseV0", {
+        switchOn: xdr2.lookup("ScSpecUdtUnionCaseV0Kind"),
         switchName: "kind",
         switches: [
           ["scSpecUdtUnionCaseVoidV0", "voidCase"],
           ["scSpecUdtUnionCaseTupleV0", "tupleCase"]
         ],
         arms: {
-          voidCase: xdr.lookup("ScSpecUdtUnionCaseVoidV0"),
-          tupleCase: xdr.lookup("ScSpecUdtUnionCaseTupleV0")
+          voidCase: xdr2.lookup("ScSpecUdtUnionCaseVoidV0"),
+          tupleCase: xdr2.lookup("ScSpecUdtUnionCaseTupleV0")
         }
       });
-      xdr.struct("ScSpecUdtUnionV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["lib", xdr.string(80)],
-        ["name", xdr.string(60)],
-        ["cases", xdr.varArray(xdr.lookup("ScSpecUdtUnionCaseV0"), 2147483647)]
+      xdr2.struct("ScSpecUdtUnionV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["lib", xdr2.string(80)],
+        ["name", xdr2.string(60)],
+        ["cases", xdr2.varArray(xdr2.lookup("ScSpecUdtUnionCaseV0"), 2147483647)]
       ]);
-      xdr.struct("ScSpecUdtEnumCaseV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["name", xdr.string(60)],
-        ["value", xdr.lookup("Uint32")]
+      xdr2.struct("ScSpecUdtEnumCaseV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["name", xdr2.string(60)],
+        ["value", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("ScSpecUdtEnumV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["lib", xdr.string(80)],
-        ["name", xdr.string(60)],
-        ["cases", xdr.varArray(xdr.lookup("ScSpecUdtEnumCaseV0"), 2147483647)]
+      xdr2.struct("ScSpecUdtEnumV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["lib", xdr2.string(80)],
+        ["name", xdr2.string(60)],
+        ["cases", xdr2.varArray(xdr2.lookup("ScSpecUdtEnumCaseV0"), 2147483647)]
       ]);
-      xdr.struct("ScSpecUdtErrorEnumCaseV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["name", xdr.string(60)],
-        ["value", xdr.lookup("Uint32")]
+      xdr2.struct("ScSpecUdtErrorEnumCaseV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["name", xdr2.string(60)],
+        ["value", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("ScSpecUdtErrorEnumV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["lib", xdr.string(80)],
-        ["name", xdr.string(60)],
-        ["cases", xdr.varArray(xdr.lookup("ScSpecUdtErrorEnumCaseV0"), 2147483647)]
+      xdr2.struct("ScSpecUdtErrorEnumV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["lib", xdr2.string(80)],
+        ["name", xdr2.string(60)],
+        ["cases", xdr2.varArray(xdr2.lookup("ScSpecUdtErrorEnumCaseV0"), 2147483647)]
       ]);
-      xdr.struct("ScSpecFunctionInputV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["name", xdr.string(30)],
-        ["type", xdr.lookup("ScSpecTypeDef")]
+      xdr2.struct("ScSpecFunctionInputV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["name", xdr2.string(30)],
+        ["type", xdr2.lookup("ScSpecTypeDef")]
       ]);
-      xdr.struct("ScSpecFunctionV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["name", xdr.lookup("ScSymbol")],
-        ["inputs", xdr.varArray(xdr.lookup("ScSpecFunctionInputV0"), 2147483647)],
-        ["outputs", xdr.varArray(xdr.lookup("ScSpecTypeDef"), 1)]
+      xdr2.struct("ScSpecFunctionV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["name", xdr2.lookup("ScSymbol")],
+        ["inputs", xdr2.varArray(xdr2.lookup("ScSpecFunctionInputV0"), 2147483647)],
+        ["outputs", xdr2.varArray(xdr2.lookup("ScSpecTypeDef"), 1)]
       ]);
-      xdr.enum("ScSpecEventParamLocationV0", {
+      xdr2.enum("ScSpecEventParamLocationV0", {
         scSpecEventParamLocationData: 0,
         scSpecEventParamLocationTopicList: 1
       });
-      xdr.struct("ScSpecEventParamV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["name", xdr.string(30)],
-        ["type", xdr.lookup("ScSpecTypeDef")],
-        ["location", xdr.lookup("ScSpecEventParamLocationV0")]
+      xdr2.struct("ScSpecEventParamV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["name", xdr2.string(30)],
+        ["type", xdr2.lookup("ScSpecTypeDef")],
+        ["location", xdr2.lookup("ScSpecEventParamLocationV0")]
       ]);
-      xdr.enum("ScSpecEventDataFormat", {
+      xdr2.enum("ScSpecEventDataFormat", {
         scSpecEventDataFormatSingleValue: 0,
         scSpecEventDataFormatVec: 1,
         scSpecEventDataFormatMap: 2
       });
-      xdr.struct("ScSpecEventV0", [
-        ["doc", xdr.string(SC_SPEC_DOC_LIMIT)],
-        ["lib", xdr.string(80)],
-        ["name", xdr.lookup("ScSymbol")],
-        ["prefixTopics", xdr.varArray(xdr.lookup("ScSymbol"), 2)],
-        ["params", xdr.varArray(xdr.lookup("ScSpecEventParamV0"), 2147483647)],
-        ["dataFormat", xdr.lookup("ScSpecEventDataFormat")]
+      xdr2.struct("ScSpecEventV0", [
+        ["doc", xdr2.string(SC_SPEC_DOC_LIMIT)],
+        ["lib", xdr2.string(80)],
+        ["name", xdr2.lookup("ScSymbol")],
+        ["prefixTopics", xdr2.varArray(xdr2.lookup("ScSymbol"), 2)],
+        ["params", xdr2.varArray(xdr2.lookup("ScSpecEventParamV0"), 2147483647)],
+        ["dataFormat", xdr2.lookup("ScSpecEventDataFormat")]
       ]);
-      xdr.enum("ScSpecEntryKind", {
+      xdr2.enum("ScSpecEntryKind", {
         scSpecEntryFunctionV0: 0,
         scSpecEntryUdtStructV0: 1,
         scSpecEntryUdtUnionV0: 2,
@@ -122397,8 +122397,8 @@ var init_curr_generated = __esm({
         scSpecEntryUdtErrorEnumV0: 4,
         scSpecEntryEventV0: 5
       });
-      xdr.union("ScSpecEntry", {
-        switchOn: xdr.lookup("ScSpecEntryKind"),
+      xdr2.union("ScSpecEntry", {
+        switchOn: xdr2.lookup("ScSpecEntryKind"),
         switchName: "kind",
         switches: [
           ["scSpecEntryFunctionV0", "functionV0"],
@@ -122409,61 +122409,61 @@ var init_curr_generated = __esm({
           ["scSpecEntryEventV0", "eventV0"]
         ],
         arms: {
-          functionV0: xdr.lookup("ScSpecFunctionV0"),
-          udtStructV0: xdr.lookup("ScSpecUdtStructV0"),
-          udtUnionV0: xdr.lookup("ScSpecUdtUnionV0"),
-          udtEnumV0: xdr.lookup("ScSpecUdtEnumV0"),
-          udtErrorEnumV0: xdr.lookup("ScSpecUdtErrorEnumV0"),
-          eventV0: xdr.lookup("ScSpecEventV0")
+          functionV0: xdr2.lookup("ScSpecFunctionV0"),
+          udtStructV0: xdr2.lookup("ScSpecUdtStructV0"),
+          udtUnionV0: xdr2.lookup("ScSpecUdtUnionV0"),
+          udtEnumV0: xdr2.lookup("ScSpecUdtEnumV0"),
+          udtErrorEnumV0: xdr2.lookup("ScSpecUdtErrorEnumV0"),
+          eventV0: xdr2.lookup("ScSpecEventV0")
         }
       });
-      xdr.typedef("EncodedLedgerKey", xdr.varOpaque());
-      xdr.struct("ConfigSettingContractExecutionLanesV0", [
-        ["ledgerMaxTxCount", xdr.lookup("Uint32")]
+      xdr2.typedef("EncodedLedgerKey", xdr2.varOpaque());
+      xdr2.struct("ConfigSettingContractExecutionLanesV0", [
+        ["ledgerMaxTxCount", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("ConfigSettingContractComputeV0", [
-        ["ledgerMaxInstructions", xdr.lookup("Int64")],
-        ["txMaxInstructions", xdr.lookup("Int64")],
-        ["feeRatePerInstructionsIncrement", xdr.lookup("Int64")],
-        ["txMemoryLimit", xdr.lookup("Uint32")]
+      xdr2.struct("ConfigSettingContractComputeV0", [
+        ["ledgerMaxInstructions", xdr2.lookup("Int64")],
+        ["txMaxInstructions", xdr2.lookup("Int64")],
+        ["feeRatePerInstructionsIncrement", xdr2.lookup("Int64")],
+        ["txMemoryLimit", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("ConfigSettingContractParallelComputeV0", [
-        ["ledgerMaxDependentTxClusters", xdr.lookup("Uint32")]
+      xdr2.struct("ConfigSettingContractParallelComputeV0", [
+        ["ledgerMaxDependentTxClusters", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("ConfigSettingContractLedgerCostV0", [
-        ["ledgerMaxDiskReadEntries", xdr.lookup("Uint32")],
-        ["ledgerMaxDiskReadBytes", xdr.lookup("Uint32")],
-        ["ledgerMaxWriteLedgerEntries", xdr.lookup("Uint32")],
-        ["ledgerMaxWriteBytes", xdr.lookup("Uint32")],
-        ["txMaxDiskReadEntries", xdr.lookup("Uint32")],
-        ["txMaxDiskReadBytes", xdr.lookup("Uint32")],
-        ["txMaxWriteLedgerEntries", xdr.lookup("Uint32")],
-        ["txMaxWriteBytes", xdr.lookup("Uint32")],
-        ["feeDiskReadLedgerEntry", xdr.lookup("Int64")],
-        ["feeWriteLedgerEntry", xdr.lookup("Int64")],
-        ["feeDiskRead1Kb", xdr.lookup("Int64")],
-        ["sorobanStateTargetSizeBytes", xdr.lookup("Int64")],
-        ["rentFee1KbSorobanStateSizeLow", xdr.lookup("Int64")],
-        ["rentFee1KbSorobanStateSizeHigh", xdr.lookup("Int64")],
-        ["sorobanStateRentFeeGrowthFactor", xdr.lookup("Uint32")]
+      xdr2.struct("ConfigSettingContractLedgerCostV0", [
+        ["ledgerMaxDiskReadEntries", xdr2.lookup("Uint32")],
+        ["ledgerMaxDiskReadBytes", xdr2.lookup("Uint32")],
+        ["ledgerMaxWriteLedgerEntries", xdr2.lookup("Uint32")],
+        ["ledgerMaxWriteBytes", xdr2.lookup("Uint32")],
+        ["txMaxDiskReadEntries", xdr2.lookup("Uint32")],
+        ["txMaxDiskReadBytes", xdr2.lookup("Uint32")],
+        ["txMaxWriteLedgerEntries", xdr2.lookup("Uint32")],
+        ["txMaxWriteBytes", xdr2.lookup("Uint32")],
+        ["feeDiskReadLedgerEntry", xdr2.lookup("Int64")],
+        ["feeWriteLedgerEntry", xdr2.lookup("Int64")],
+        ["feeDiskRead1Kb", xdr2.lookup("Int64")],
+        ["sorobanStateTargetSizeBytes", xdr2.lookup("Int64")],
+        ["rentFee1KbSorobanStateSizeLow", xdr2.lookup("Int64")],
+        ["rentFee1KbSorobanStateSizeHigh", xdr2.lookup("Int64")],
+        ["sorobanStateRentFeeGrowthFactor", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("ConfigSettingContractLedgerCostExtV0", [
-        ["txMaxFootprintEntries", xdr.lookup("Uint32")],
-        ["feeWrite1Kb", xdr.lookup("Int64")]
+      xdr2.struct("ConfigSettingContractLedgerCostExtV0", [
+        ["txMaxFootprintEntries", xdr2.lookup("Uint32")],
+        ["feeWrite1Kb", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("ConfigSettingContractHistoricalDataV0", [
-        ["feeHistorical1Kb", xdr.lookup("Int64")]
+      xdr2.struct("ConfigSettingContractHistoricalDataV0", [
+        ["feeHistorical1Kb", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("ConfigSettingContractEventsV0", [
-        ["txMaxContractEventsSizeBytes", xdr.lookup("Uint32")],
-        ["feeContractEvents1Kb", xdr.lookup("Int64")]
+      xdr2.struct("ConfigSettingContractEventsV0", [
+        ["txMaxContractEventsSizeBytes", xdr2.lookup("Uint32")],
+        ["feeContractEvents1Kb", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("ConfigSettingContractBandwidthV0", [
-        ["ledgerMaxTxsSizeBytes", xdr.lookup("Uint32")],
-        ["txMaxSizeBytes", xdr.lookup("Uint32")],
-        ["feeTxSize1Kb", xdr.lookup("Int64")]
+      xdr2.struct("ConfigSettingContractBandwidthV0", [
+        ["ledgerMaxTxsSizeBytes", xdr2.lookup("Uint32")],
+        ["txMaxSizeBytes", xdr2.lookup("Uint32")],
+        ["feeTxSize1Kb", xdr2.lookup("Int64")]
       ]);
-      xdr.enum("ContractCostType", {
+      xdr2.enum("ContractCostType", {
         wasmInsnExec: 0,
         memAlloc: 1,
         memCpy: 2,
@@ -122551,61 +122551,61 @@ var init_curr_generated = __esm({
         bn254FrInv: 84,
         bn254G1Msm: 85
       });
-      xdr.struct("ContractCostParamEntry", [
-        ["ext", xdr.lookup("ExtensionPoint")],
-        ["constTerm", xdr.lookup("Int64")],
-        ["linearTerm", xdr.lookup("Int64")]
+      xdr2.struct("ContractCostParamEntry", [
+        ["ext", xdr2.lookup("ExtensionPoint")],
+        ["constTerm", xdr2.lookup("Int64")],
+        ["linearTerm", xdr2.lookup("Int64")]
       ]);
-      xdr.struct("StateArchivalSettings", [
-        ["maxEntryTtl", xdr.lookup("Uint32")],
-        ["minTemporaryTtl", xdr.lookup("Uint32")],
-        ["minPersistentTtl", xdr.lookup("Uint32")],
-        ["persistentRentRateDenominator", xdr.lookup("Int64")],
-        ["tempRentRateDenominator", xdr.lookup("Int64")],
-        ["maxEntriesToArchive", xdr.lookup("Uint32")],
-        ["liveSorobanStateSizeWindowSampleSize", xdr.lookup("Uint32")],
-        ["liveSorobanStateSizeWindowSamplePeriod", xdr.lookup("Uint32")],
-        ["evictionScanSize", xdr.lookup("Uint32")],
-        ["startingEvictionScanLevel", xdr.lookup("Uint32")]
+      xdr2.struct("StateArchivalSettings", [
+        ["maxEntryTtl", xdr2.lookup("Uint32")],
+        ["minTemporaryTtl", xdr2.lookup("Uint32")],
+        ["minPersistentTtl", xdr2.lookup("Uint32")],
+        ["persistentRentRateDenominator", xdr2.lookup("Int64")],
+        ["tempRentRateDenominator", xdr2.lookup("Int64")],
+        ["maxEntriesToArchive", xdr2.lookup("Uint32")],
+        ["liveSorobanStateSizeWindowSampleSize", xdr2.lookup("Uint32")],
+        ["liveSorobanStateSizeWindowSamplePeriod", xdr2.lookup("Uint32")],
+        ["evictionScanSize", xdr2.lookup("Uint32")],
+        ["startingEvictionScanLevel", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("EvictionIterator", [
-        ["bucketListLevel", xdr.lookup("Uint32")],
-        ["isCurrBucket", xdr.bool()],
-        ["bucketFileOffset", xdr.lookup("Uint64")]
+      xdr2.struct("EvictionIterator", [
+        ["bucketListLevel", xdr2.lookup("Uint32")],
+        ["isCurrBucket", xdr2.bool()],
+        ["bucketFileOffset", xdr2.lookup("Uint64")]
       ]);
-      xdr.struct("ConfigSettingScpTiming", [
-        ["ledgerTargetCloseTimeMilliseconds", xdr.lookup("Uint32")],
-        ["nominationTimeoutInitialMilliseconds", xdr.lookup("Uint32")],
-        ["nominationTimeoutIncrementMilliseconds", xdr.lookup("Uint32")],
-        ["ballotTimeoutInitialMilliseconds", xdr.lookup("Uint32")],
-        ["ballotTimeoutIncrementMilliseconds", xdr.lookup("Uint32")]
+      xdr2.struct("ConfigSettingScpTiming", [
+        ["ledgerTargetCloseTimeMilliseconds", xdr2.lookup("Uint32")],
+        ["nominationTimeoutInitialMilliseconds", xdr2.lookup("Uint32")],
+        ["nominationTimeoutIncrementMilliseconds", xdr2.lookup("Uint32")],
+        ["ballotTimeoutInitialMilliseconds", xdr2.lookup("Uint32")],
+        ["ballotTimeoutIncrementMilliseconds", xdr2.lookup("Uint32")]
       ]);
-      xdr.struct("FrozenLedgerKeys", [
-        ["keys", xdr.varArray(xdr.lookup("EncodedLedgerKey"), 2147483647)]
+      xdr2.struct("FrozenLedgerKeys", [
+        ["keys", xdr2.varArray(xdr2.lookup("EncodedLedgerKey"), 2147483647)]
       ]);
-      xdr.struct("FrozenLedgerKeysDelta", [
-        ["keysToFreeze", xdr.varArray(xdr.lookup("EncodedLedgerKey"), 2147483647)],
+      xdr2.struct("FrozenLedgerKeysDelta", [
+        ["keysToFreeze", xdr2.varArray(xdr2.lookup("EncodedLedgerKey"), 2147483647)],
         [
           "keysToUnfreeze",
-          xdr.varArray(xdr.lookup("EncodedLedgerKey"), 2147483647)
+          xdr2.varArray(xdr2.lookup("EncodedLedgerKey"), 2147483647)
         ]
       ]);
-      xdr.struct("FreezeBypassTxes", [
-        ["txHashes", xdr.varArray(xdr.lookup("Hash"), 2147483647)]
+      xdr2.struct("FreezeBypassTxes", [
+        ["txHashes", xdr2.varArray(xdr2.lookup("Hash"), 2147483647)]
       ]);
-      xdr.struct("FreezeBypassTxsDelta", [
-        ["addTxes", xdr.varArray(xdr.lookup("Hash"), 2147483647)],
-        ["removeTxes", xdr.varArray(xdr.lookup("Hash"), 2147483647)]
+      xdr2.struct("FreezeBypassTxsDelta", [
+        ["addTxes", xdr2.varArray(xdr2.lookup("Hash"), 2147483647)],
+        ["removeTxes", xdr2.varArray(xdr2.lookup("Hash"), 2147483647)]
       ]);
-      xdr.const("CONTRACT_COST_COUNT_LIMIT", 1024);
-      xdr.typedef(
+      xdr2.const("CONTRACT_COST_COUNT_LIMIT", 1024);
+      xdr2.typedef(
         "ContractCostParams",
-        xdr.varArray(
-          xdr.lookup("ContractCostParamEntry"),
-          xdr.lookup("CONTRACT_COST_COUNT_LIMIT")
+        xdr2.varArray(
+          xdr2.lookup("ContractCostParamEntry"),
+          xdr2.lookup("CONTRACT_COST_COUNT_LIMIT")
         )
       );
-      xdr.enum("ConfigSettingId", {
+      xdr2.enum("ConfigSettingId", {
         configSettingContractMaxSizeBytes: 0,
         configSettingContractComputeV0: 1,
         configSettingContractLedgerCostV0: 2,
@@ -122628,8 +122628,8 @@ var init_curr_generated = __esm({
         configSettingFreezeBypassTxes: 19,
         configSettingFreezeBypassTxsDelta: 20
       });
-      xdr.union("ConfigSettingEntry", {
-        switchOn: xdr.lookup("ConfigSettingId"),
+      xdr2.union("ConfigSettingEntry", {
+        switchOn: xdr2.lookup("ConfigSettingId"),
         switchName: "configSettingId",
         switches: [
           ["configSettingContractMaxSizeBytes", "contractMaxSizeBytes"],
@@ -122661,44 +122661,44 @@ var init_curr_generated = __esm({
           ["configSettingFreezeBypassTxsDelta", "freezeBypassTxsDelta"]
         ],
         arms: {
-          contractMaxSizeBytes: xdr.lookup("Uint32"),
-          contractCompute: xdr.lookup("ConfigSettingContractComputeV0"),
-          contractLedgerCost: xdr.lookup("ConfigSettingContractLedgerCostV0"),
-          contractHistoricalData: xdr.lookup(
+          contractMaxSizeBytes: xdr2.lookup("Uint32"),
+          contractCompute: xdr2.lookup("ConfigSettingContractComputeV0"),
+          contractLedgerCost: xdr2.lookup("ConfigSettingContractLedgerCostV0"),
+          contractHistoricalData: xdr2.lookup(
             "ConfigSettingContractHistoricalDataV0"
           ),
-          contractEvents: xdr.lookup("ConfigSettingContractEventsV0"),
-          contractBandwidth: xdr.lookup("ConfigSettingContractBandwidthV0"),
-          contractCostParamsCpuInsns: xdr.lookup("ContractCostParams"),
-          contractCostParamsMemBytes: xdr.lookup("ContractCostParams"),
-          contractDataKeySizeBytes: xdr.lookup("Uint32"),
-          contractDataEntrySizeBytes: xdr.lookup("Uint32"),
-          stateArchivalSettings: xdr.lookup("StateArchivalSettings"),
-          contractExecutionLanes: xdr.lookup(
+          contractEvents: xdr2.lookup("ConfigSettingContractEventsV0"),
+          contractBandwidth: xdr2.lookup("ConfigSettingContractBandwidthV0"),
+          contractCostParamsCpuInsns: xdr2.lookup("ContractCostParams"),
+          contractCostParamsMemBytes: xdr2.lookup("ContractCostParams"),
+          contractDataKeySizeBytes: xdr2.lookup("Uint32"),
+          contractDataEntrySizeBytes: xdr2.lookup("Uint32"),
+          stateArchivalSettings: xdr2.lookup("StateArchivalSettings"),
+          contractExecutionLanes: xdr2.lookup(
             "ConfigSettingContractExecutionLanesV0"
           ),
-          liveSorobanStateSizeWindow: xdr.varArray(
-            xdr.lookup("Uint64"),
+          liveSorobanStateSizeWindow: xdr2.varArray(
+            xdr2.lookup("Uint64"),
             2147483647
           ),
-          evictionIterator: xdr.lookup("EvictionIterator"),
-          contractParallelCompute: xdr.lookup(
+          evictionIterator: xdr2.lookup("EvictionIterator"),
+          contractParallelCompute: xdr2.lookup(
             "ConfigSettingContractParallelComputeV0"
           ),
-          contractLedgerCostExt: xdr.lookup("ConfigSettingContractLedgerCostExtV0"),
-          contractScpTiming: xdr.lookup("ConfigSettingScpTiming"),
-          frozenLedgerKeys: xdr.lookup("FrozenLedgerKeys"),
-          frozenLedgerKeysDelta: xdr.lookup("FrozenLedgerKeysDelta"),
-          freezeBypassTxes: xdr.lookup("FreezeBypassTxes"),
-          freezeBypassTxsDelta: xdr.lookup("FreezeBypassTxsDelta")
+          contractLedgerCostExt: xdr2.lookup("ConfigSettingContractLedgerCostExtV0"),
+          contractScpTiming: xdr2.lookup("ConfigSettingScpTiming"),
+          frozenLedgerKeys: xdr2.lookup("FrozenLedgerKeys"),
+          frozenLedgerKeysDelta: xdr2.lookup("FrozenLedgerKeysDelta"),
+          freezeBypassTxes: xdr2.lookup("FreezeBypassTxes"),
+          freezeBypassTxsDelta: xdr2.lookup("FreezeBypassTxsDelta")
         }
       });
-      xdr.struct("LedgerCloseMetaBatch", [
-        ["startSequence", xdr.lookup("Uint32")],
-        ["endSequence", xdr.lookup("Uint32")],
+      xdr2.struct("LedgerCloseMetaBatch", [
+        ["startSequence", xdr2.lookup("Uint32")],
+        ["endSequence", xdr2.lookup("Uint32")],
         [
           "ledgerCloseMeta",
-          xdr.varArray(xdr.lookup("LedgerCloseMeta"), 2147483647)
+          xdr2.varArray(xdr2.lookup("LedgerCloseMeta"), 2147483647)
         ]
       ]);
     });
@@ -132317,10 +132317,10 @@ async function withExponentialBackoff(fn, keepWaitingIf, timeoutInSeconds, expon
   let count = 0;
   attempts.push(await fn());
   if (!keepWaitingIf(attempts[attempts.length - 1])) return attempts;
-  const waitUntil4 = new Date(Date.now() + timeoutInSeconds * 1e3).valueOf();
+  const waitUntil5 = new Date(Date.now() + timeoutInSeconds * 1e3).valueOf();
   let waitTime = 1e3;
   let totalWaitTime = waitTime;
-  while (Date.now() < waitUntil4 && keepWaitingIf(attempts[attempts.length - 1])) {
+  while (Date.now() < waitUntil5 && keepWaitingIf(attempts[attempts.length - 1])) {
     count += 1;
     if (verbose) {
       console.info(
@@ -132329,8 +132329,8 @@ async function withExponentialBackoff(fn, keepWaitingIf, timeoutInSeconds, expon
     }
     await new Promise((res) => setTimeout(res, waitTime));
     waitTime *= exponentialFactor;
-    if (new Date(Date.now() + waitTime).valueOf() > waitUntil4) {
-      waitTime = waitUntil4 - Date.now();
+    if (new Date(Date.now() + waitTime).valueOf() > waitUntil5) {
+      waitTime = waitUntil5 - Date.now();
       if (verbose) {
         console.info(`was gonna wait too long; new waitTime: ${waitTime}ms`);
       }
@@ -134141,9 +134141,9 @@ var init_signer = __esm({
            holding no secret key — rejects the returned promise instead of throwing,
            preserving the behavior `basicNodeSigner` had before it delegated here. */
       // eslint-disable-next-line @typescript-eslint/require-await
-      signTransaction = async (xdr, opts) => {
+      signTransaction = async (xdr2, opts) => {
         const t = TransactionBuilder.fromXDR(
-          xdr,
+          xdr2,
           opts?.networkPassphrase || this.networkPassphrase
         );
         t.sign(this.keypair);
@@ -137176,10 +137176,12 @@ var init_esm5 = __esm({
     init_address4();
     init_transaction_builder();
     init_contract3();
+    init_fee_bump_transaction();
     init_hyper();
     init_keypair();
     init_network();
     init_strkey();
+    init_transaction3();
     init_unsigned_hyper();
     init_auth();
     init_scval();
@@ -138323,9 +138325,9 @@ var require_metrics = __commonJS({
     Object.defineProperty(exports2, "__esModule", { value: true });
     exports2.x402Metrics = x402Metrics;
     var DEFAULT_LATENCY_BUCKETS = [0.1, 0.5, 1, 2.5, 5, 10];
-    function decodePaymentRequiredHeader(headerValue) {
+    function decodePaymentRequiredHeader(headerValue2) {
       try {
-        return JSON.parse(Buffer.from(headerValue, "base64").toString("utf-8"));
+        return JSON.parse(Buffer.from(headerValue2, "base64").toString("utf-8"));
       } catch {
         return null;
       }
@@ -139291,8 +139293,8 @@ var require_dist5 = __commonJS({
         return this.request("POST", "/api/treasury/rebalance/execute", options);
       }
       /** Broadcast an XDR you already signed (deploy/deposit/withdraw/rebalance/set-rebalance-manager) and wait for confirmation. */
-      async submitTreasuryTx(xdr) {
-        return this.request("POST", "/api/treasury/submit", { xdr });
+      async submitTreasuryTx(xdr2) {
+        return this.request("POST", "/api/treasury/submit", { xdr: xdr2 });
       }
       // ─── Admin ───────────────────────────────────────────────
       /** Update the active LLM provider (admin only). */
@@ -140045,11 +140047,11 @@ var require_wait_until = __commonJS({
     var __toCommonJS2 = (mod5) => __copyProps2(__defProp2({}, "__esModule", { value: true }), mod5);
     var wait_until_exports = {};
     __export2(wait_until_exports, {
-      waitUntil: () => waitUntil4
+      waitUntil: () => waitUntil5
     });
     module2.exports = __toCommonJS2(wait_until_exports);
     var import_get_context = require_get_context();
-    var waitUntil4 = (promise2) => {
+    var waitUntil5 = (promise2) => {
       if (promise2 === null || typeof promise2 !== "object" || typeof promise2.then !== "function") {
         throw new TypeError(
           `waitUntil can only be called with a Promise, got ${typeof promise2}`
@@ -145370,6 +145372,7 @@ var import_express2 = require("express");
 // src/services/fxRate.ts
 var cache = null;
 var CACHE_TTL_MS = 60 * 1e3;
+var BITSO_TIMEOUT_MS = 2500;
 var FALLBACK_USD_MXN = 18.5;
 function num2(value, field) {
   const n = parseFloat(value ?? "");
@@ -145400,7 +145403,8 @@ async function getUsdMxnTicker() {
   }
   try {
     const res = await fetch("https://api.bitso.com/v3/ticker/?book=usd_mxn", {
-      cache: "no-store"
+      cache: "no-store",
+      signal: AbortSignal.timeout(BITSO_TIMEOUT_MS)
     });
     if (!res.ok) throw new Error(`Bitso ticker respondi\xF3 ${res.status}`);
     const data = await res.json();
@@ -145432,7 +145436,11 @@ async function getUsdMxnTicker() {
     cache = { ticker, fetchedAt: now };
     return ticker;
   } catch (err) {
-    console.warn("[fx] Bitso fallback:", err);
+    console.warn(
+      "[fx] Bitso fallback:",
+      err instanceof Error ? err.message : "bitso"
+    );
+    if (cache) return cache.ticker;
     return fallbackTicker();
   }
 }
@@ -147342,8 +147350,204 @@ async function lookupAudit(hex3) {
   return pending ? { pending: true } : null;
 }
 
-// src/lib/receipt.ts
+// src/services/paidReceiptStore.ts
 var import_node_crypto4 = require("node:crypto");
+
+// src/services/stellarPayment.ts
+init_esm5();
+var chainLookupForTests = null;
+function stellarNetworkPassphrase() {
+  return process.env.STELLAR_NETWORK === "mainnet" || process.env.STELLAR_NETWORK === "pubnet" ? Networks.PUBLIC : Networks.TESTNET;
+}
+function horizonBase() {
+  return stellarNetworkPassphrase() === Networks.PUBLIC ? "https://horizon.stellar.org" : "https://horizon-testnet.stellar.org";
+}
+function innerTransaction(envelopeXdr) {
+  try {
+    const parsed = TransactionBuilder.fromXDR(envelopeXdr, stellarNetworkPassphrase());
+    if (parsed instanceof FeeBumpTransaction) return parsed.innerTransaction;
+    if (parsed instanceof Transaction) return parsed;
+    return null;
+  } catch {
+    return null;
+  }
+}
+function amountOf(value) {
+  if (typeof value === "bigint" || typeof value === "number") return value.toString();
+  if (typeof value === "string" && value.length > 0) return value;
+  return null;
+}
+function readInvokeTransfer(func) {
+  if (func.switch().name !== "hostFunctionTypeInvokeContract") return null;
+  const invoke = func.invokeContract();
+  if (invoke.functionName().toString() !== "transfer") return null;
+  const args = invoke.args();
+  if (args.length < 3) return null;
+  const from43 = scValToNative(args[0]);
+  const to3 = scValToNative(args[1]);
+  const amount2 = amountOf(scValToNative(args[2]));
+  if (typeof to3 !== "string" || !amount2) return null;
+  return {
+    source: typeof from43 === "string" ? from43 : null,
+    destination: to3,
+    amount: amount2
+  };
+}
+function readTransfer(envelopeXdr) {
+  const tx = innerTransaction(envelopeXdr);
+  if (!tx) return null;
+  for (const op of tx.operations) {
+    if (op.type === "payment" || op.type === "pathPaymentStrictReceive" || op.type === "pathPaymentStrictSend") {
+      const amount2 = "amount" in op ? amountOf(op.amount) : null;
+      if (!amount2) continue;
+      return {
+        source: op.source ?? tx.source,
+        destination: op.destination,
+        amount: amount2
+      };
+    }
+    if (op.type === "invokeHostFunction" && op.func) {
+      const transfer3 = readInvokeTransfer(op.func);
+      if (transfer3) return transfer3;
+    }
+  }
+  return null;
+}
+function transferTo(envelopeXdr, payTo) {
+  const transfer3 = readTransfer(envelopeXdr);
+  if (!transfer3 || transfer3.destination !== payTo) return null;
+  return transfer3;
+}
+function fingerprintFromPaymentHeader(header) {
+  try {
+    const pad6 = header.replace(/-/g, "+").replace(/_/g, "/");
+    const parsed = JSON.parse(Buffer.from(pad6, "base64").toString("utf8"));
+    const xdrTx = parsed.payload?.transaction;
+    if (typeof xdrTx !== "string" || xdrTx.length === 0) return null;
+    const transfer3 = readTransfer(xdrTx);
+    if (!transfer3) return null;
+    return {
+      payer: transfer3.source,
+      amount: transfer3.amount,
+      payTo: transfer3.destination
+    };
+  } catch {
+    return null;
+  }
+}
+async function lookupChainPayment(txHash, payTo) {
+  if (chainLookupForTests) return chainLookupForTests(txHash, payTo);
+  try {
+    const res = await fetch(`${horizonBase()}/transactions/${txHash}`, {
+      signal: AbortSignal.timeout(4e3)
+    });
+    if (res.status === 404) return { kind: "missing" };
+    if (!res.ok) return { kind: "unavailable" };
+    const body = await res.json();
+    if (body.successful !== true || typeof body.envelope_xdr !== "string") {
+      return { kind: "other" };
+    }
+    const transfer3 = transferTo(body.envelope_xdr, payTo);
+    if (!transfer3) return { kind: "other" };
+    return {
+      kind: "pays_us",
+      payer: transfer3.source,
+      amount: transfer3.amount,
+      payTo
+    };
+  } catch {
+    return { kind: "unavailable" };
+  }
+}
+
+// src/services/paidReceiptStore.ts
+var TTL_SECONDS = 7 * 24 * 60 * 60;
+var OPEN_MAX = 100;
+var OPEN_KEY = "tia:x402:open";
+function idKey(id) {
+  return `tia:x402:id:${id}`;
+}
+function txKey(hash11) {
+  return `tia:x402:tx:${hash11}`;
+}
+async function readRecord(id) {
+  const raw = await getKvBackend().get(idKey(id));
+  if (!raw) return null;
+  try {
+    const parsed = JSON.parse(raw);
+    if (!parsed || parsed.id !== id || parsed.status !== "pending" && parsed.status !== "confirmed") {
+      return null;
+    }
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+async function savePaidResponse(input2) {
+  const id = (0, import_node_crypto4.randomUUID)();
+  const record2 = {
+    id,
+    status: "pending",
+    endpoint: input2.endpoint,
+    payload: input2.payload,
+    auditHash: input2.auditHash,
+    storedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    payer: input2.payer,
+    amount: input2.amount,
+    payTo: input2.payTo,
+    txHash: null
+  };
+  const kv = getKvBackend();
+  await kv.set(idKey(id), JSON.stringify(record2), TTL_SECONDS);
+  await kv.listPush(OPEN_KEY, id, OPEN_MAX);
+  return id;
+}
+async function confirmPaidResponse(id, txHash) {
+  const record2 = await readRecord(id);
+  if (!record2) return;
+  record2.status = "confirmed";
+  record2.txHash = txHash;
+  const kv = getKvBackend();
+  await kv.set(idKey(id), JSON.stringify(record2), TTL_SECONDS);
+  await kv.set(txKey(txHash), id, TTL_SECONDS);
+}
+async function recordByTx(txHash) {
+  const id = await getKvBackend().get(txKey(txHash));
+  if (!id) return null;
+  return readRecord(id);
+}
+async function matchOpen(payer, amount2, payTo) {
+  if (!payer || !amount2) return null;
+  const ids = await getKvBackend().listAll(OPEN_KEY);
+  let best = null;
+  for (const id of ids) {
+    const record2 = await readRecord(id);
+    if (!record2 || record2.status === "confirmed") continue;
+    if (record2.payTo !== payTo || record2.payer !== payer || record2.amount !== amount2) continue;
+    if (!best || record2.storedAt > best.storedAt) best = record2;
+  }
+  return best;
+}
+async function resolvePaidReceipt(txHash) {
+  const payTo = process.env.STELLAR_PAY_TO?.trim() || "";
+  const direct = await recordByTx(txHash);
+  const chain = payTo ? await lookupChainPayment(txHash, payTo) : { kind: "unavailable" };
+  if (chain.kind === "pays_us") {
+    const record2 = direct ?? await matchOpen(chain.payer, chain.amount, chain.payTo);
+    if (!record2) return { status: "missing" };
+    if (record2.status !== "confirmed" || record2.txHash !== txHash) {
+      await confirmPaidResponse(record2.id, txHash);
+    }
+    const fresh = await readRecord(record2.id) ?? record2;
+    return { status: "confirmed", record: fresh };
+  }
+  if (chain.kind === "other") return { status: "missing" };
+  if (direct) return { status: "pending" };
+  return { status: "missing" };
+}
+
+// src/lib/receipt.ts
+var import_node_crypto5 = require("node:crypto");
 init_esm5();
 var import_nirium = __toESM(require_dist5(), 1);
 var STATEMENT_PREFIX2 = "nirium-audit-v1:";
@@ -147364,7 +147568,7 @@ function sortValue2(value) {
   return value;
 }
 function sha256Hex2(text) {
-  return (0, import_node_crypto4.createHash)("sha256").update(text, "utf8").digest("hex");
+  return (0, import_node_crypto5.createHash)("sha256").update(text, "utf8").digest("hex");
 }
 function receiptSigner() {
   const secret = process.env.TIA_RECEIPT_SECRET?.trim();
@@ -147498,7 +147702,22 @@ var receipt = {
 };
 
 // src/routes/v1.ts
-var import_node_crypto5 = require("node:crypto");
+var import_functions2 = __toESM(require_functions(), 1);
+var import_node_crypto6 = require("node:crypto");
+var RECEIPT_ANCHOR_BUDGET_MS = 8e3;
+function anchorRouteReceipt(payload) {
+  const task = new Promise((resolve6) => {
+    const timer = setTimeout(() => {
+      console.warn("[GET /v1/route] receipt anchor exceeded 8s");
+      resolve6();
+    }, RECEIPT_ANCHOR_BUDGET_MS);
+    void receipt.anchorReceipt(payload).finally(() => {
+      clearTimeout(timer);
+      resolve6();
+    });
+  });
+  (0, import_functions2.waitUntil)(task);
+}
 var router3 = (0, import_express3.Router)();
 router3.get("/channel/merktop/usage", merktopUsageHandler);
 router3.get("/audit/:hash", async (req, res) => {
@@ -147530,6 +147749,41 @@ router3.get("/audit/:hash", async (req, res) => {
   } catch (err) {
     console.error(
       "[GET /v1/audit] error:",
+      err instanceof Error ? err.message : "lookup failed"
+    );
+    res.status(500).json({ ok: false, error: "internal_error" });
+  }
+});
+var TX_HASH = /^[0-9a-fA-F]{64}$/;
+router3.get("/receipt/tx/:txHash", async (req, res) => {
+  const txHash = (req.params.txHash ?? "").trim().toLowerCase();
+  if (!TX_HASH.test(txHash)) {
+    res.status(400).json({ ok: false, error: "invalid_tx_hash" });
+    return;
+  }
+  try {
+    const found = await resolvePaidReceipt(txHash);
+    if (found.status === "missing") {
+      res.status(404).json({ ok: false, error: "not_found" });
+      return;
+    }
+    if (found.status === "pending") {
+      res.json({ ok: true, status: "pending", txHash });
+      return;
+    }
+    const { record: record2 } = found;
+    res.json({
+      ok: true,
+      status: "confirmed",
+      txHash,
+      endpoint: record2.endpoint,
+      auditHash: record2.auditHash,
+      storedAt: record2.storedAt,
+      payload: record2.payload
+    });
+  } catch (err) {
+    console.error(
+      "[GET /v1/receipt/tx] error:",
       err instanceof Error ? err.message : "lookup failed"
     );
     res.status(500).json({ ok: false, error: "internal_error" });
@@ -147591,6 +147845,26 @@ router3.get("/receipt/:cid", async (req, res) => {
     res.status(500).json({ ok: false, error: "internal_error" });
   }
 });
+router3.get("/quote/mock", (_req, res) => {
+  res.json({
+    ok: true,
+    apiVersion: "1",
+    pair: "USD/MXN",
+    rate: 18.5,
+    bid: 18.5,
+    ask: 18.5,
+    spread: 0,
+    spreadPct: 0,
+    volume24hUsd: 0,
+    vwap24h: 18.5,
+    high24h: 18.5,
+    low24h: 18.5,
+    source: "bitso",
+    isLive: false,
+    generatedAt: (/* @__PURE__ */ new Date()).toISOString(),
+    mock: true
+  });
+});
 router3.get("/quote", async (_req, res) => {
   try {
     const t = await getUsdMxnTicker();
@@ -147629,36 +147903,21 @@ router3.get("/route", async (req, res) => {
   }
   try {
     const estimate = await estimateRoutes(amount2);
-    const requestId = (0, import_node_crypto5.randomUUID)();
-    const receiptPromise = receipt.anchorReceipt({
+    const requestId = (0, import_node_crypto6.randomUUID)();
+    res.json({
+      ok: true,
+      requestId,
+      ...estimate,
+      receipt: null,
+      receiptStatus: "pending"
+    });
+    anchorRouteReceipt({
       v: "tia-receipt-v1",
       endpoint: "GET /v1/route",
       requestId,
       timestamp: estimate.generatedAt,
       data: estimate
-    }).catch((err) => {
-      console.warn("[GET /v1/route] Receipt anchor failed:", err instanceof Error ? err.message : "unknown");
-      return null;
     });
-    const response = {
-      ok: true,
-      requestId,
-      ...estimate,
-      receipt: null
-    };
-    const receiptData = await Promise.race([
-      receiptPromise,
-      new Promise((resolve6) => setTimeout(() => resolve6(null), 8e3))
-    ]);
-    if (receiptData) {
-      response.receipt = {
-        cid: receiptData.cid,
-        sha256: receiptData.sha256,
-        signer: receiptData.signer,
-        anchoredAt: receiptData.anchoredAt
-      };
-    }
-    res.json(response);
   } catch (err) {
     const message2 = err instanceof Error ? err.message : "Unknown error";
     console.error("[GET /v1/route] error:", err);
@@ -147692,7 +147951,7 @@ var import_node_fs2 = require("node:fs");
 var import_express4 = require("express");
 
 // src/services/reportLeads.ts
-var import_node_crypto6 = require("node:crypto");
+var import_node_crypto7 = require("node:crypto");
 var import_node_fs = require("node:fs");
 var import_node_path = __toESM(require("node:path"), 1);
 var REPORT_FILENAME = "reporte-remesas-agenticas-2026.pdf";
@@ -147741,7 +148000,7 @@ function downloadKey(token) {
   return `${DOWNLOAD_KEY_PREFIX}${token}`;
 }
 function shortHash(input2) {
-  return (0, import_node_crypto6.createHash)("sha256").update(input2).digest("hex").slice(0, 16);
+  return (0, import_node_crypto7.createHash)("sha256").update(input2).digest("hex").slice(0, 16);
 }
 function leadsStoreRequired() {
   return process.env.NODE_ENV === "production" || Boolean(process.env.VERCEL);
@@ -147758,7 +148017,7 @@ async function createReportLead(input2) {
   if (leadsStoreRequired() && !hasDurableKv()) {
     return { ok: false, status: 503, error: "store_unavailable" };
   }
-  const token = (0, import_node_crypto6.randomBytes)(24).toString("base64url");
+  const token = (0, import_node_crypto7.randomBytes)(24).toString("base64url");
   const kv = getKvBackend();
   const record2 = {
     channel: normalized.channel,
@@ -147897,7 +148156,7 @@ function publicOrigin() {
 }
 
 // src/middleware/paymentGuard.ts
-var import_node_crypto7 = require("node:crypto");
+var import_node_crypto8 = require("node:crypto");
 var MAX_PAYMENT_HEADER_BYTES = 8 * 1024;
 function getEffectivePaymentHeader(req) {
   const v2 = req.headers["payment-signature"];
@@ -147978,7 +148237,7 @@ function paymentReplayGuard() {
       });
       return;
     }
-    const digest = (0, import_node_crypto7.createHash)("sha256").update(effective.value).update("\n").update(`${req.method} ${req.originalUrl}`).digest("hex");
+    const digest = (0, import_node_crypto8.createHash)("sha256").update(effective.value).update("\n").update(`${req.method} ${req.originalUrl}`).digest("hex");
     const key = `tia:xpay:${digest}`;
     const ttlMs = envInt("X402_REPLAY_TTL_SECONDS", 900) * 1e3;
     let first;
@@ -148026,7 +148285,7 @@ function paymentReplayGuard() {
 }
 
 // src/middleware/auditTrail.ts
-var import_functions2 = __toESM(require_functions(), 1);
+var import_functions3 = __toESM(require_functions(), 1);
 var AUDITED = /* @__PURE__ */ new Set(["GET /quote", "GET /route", "POST /alert"]);
 function audited(req) {
   return AUDITED.has(`${req.method} ${req.path}`);
@@ -148070,7 +148329,174 @@ function auditTrail() {
       if (res.statusCode < 200 || res.statusCode >= 300) return;
       const { hex: hex3, mode } = pending;
       const task = scheduleAnchor(hex3, auditTag(endpoint, mode), endpoint, mode);
-      (0, import_functions2.waitUntil)(task);
+      (0, import_functions3.waitUntil)(task);
+    });
+    next2();
+  };
+}
+
+// src/middleware/x402PhaseLog.ts
+var import_node_async_hooks = require("node:async_hooks");
+var import_node_perf_hooks = require("node:perf_hooks");
+var als = new import_node_async_hooks.AsyncLocalStorage();
+var installed = false;
+function requestUrl(input2) {
+  if (typeof input2 === "string") return input2;
+  if (input2 instanceof URL) return input2.href;
+  return input2.url;
+}
+function phaseOf(url2) {
+  try {
+    const path2 = new URL(url2).pathname.replace(/\/+$/, "");
+    if (path2.endsWith("/verify")) return "verify";
+    if (path2.endsWith("/settle")) return "settle";
+  } catch {
+    return null;
+  }
+  return null;
+}
+function installFetchTiming() {
+  if (installed) return;
+  installed = true;
+  const inner = globalThis.fetch.bind(globalThis);
+  globalThis.fetch = async (input2, init) => {
+    const phases = als.getStore();
+    const phase = phases && !phases.inFetch ? phaseOf(requestUrl(input2)) : null;
+    if (!phases || !phase) return inner(input2, init);
+    const started = import_node_perf_hooks.performance.now();
+    if (phase === "settle" && phases.settleStartedAt === 0) {
+      phases.settleStartedAt = started;
+    }
+    phases.inFetch = true;
+    try {
+      return await inner(input2, init);
+    } finally {
+      phases.inFetch = false;
+      const elapsed = import_node_perf_hooks.performance.now() - started;
+      if (phase === "verify") {
+        phases.verifyMs += elapsed;
+        phases.verifyEndedAt = import_node_perf_hooks.performance.now();
+      } else {
+        phases.settleMs += elapsed;
+      }
+    }
+  };
+}
+function txHashFromPaymentResponse(header) {
+  const raw = Array.isArray(header) ? header[0] : header;
+  if (typeof raw !== "string" || raw.length === 0) return null;
+  try {
+    const pad6 = raw.replace(/-/g, "+").replace(/_/g, "/");
+    const parsed = JSON.parse(Buffer.from(pad6, "base64").toString("utf8"));
+    if (typeof parsed.transaction !== "string") return null;
+    const hash11 = parsed.transaction.trim().toLowerCase();
+    return /^[0-9a-f]{64}$/.test(hash11) ? hash11 : null;
+  } catch {
+    return null;
+  }
+}
+function phaseLogLine(phases, route, txHash, finishedAt = import_node_perf_hooks.performance.now()) {
+  if (phases.verifyMs === 0 && phases.settleMs === 0) return null;
+  let handlerMs = 0;
+  if (phases.verifyEndedAt > 0 && phases.settleStartedAt > 0) {
+    handlerMs = Math.max(0, phases.settleStartedAt - phases.verifyEndedAt);
+  } else if (phases.verifyEndedAt > 0) {
+    handlerMs = Math.max(0, finishedAt - phases.verifyEndedAt);
+  }
+  return JSON.stringify({
+    verify_ms: Math.round(phases.verifyMs),
+    handler_ms: Math.round(handlerMs),
+    settle_ms: Math.round(phases.settleMs),
+    total_ms: Math.round(finishedAt - phases.startedAt),
+    route,
+    tx_hash: txHash
+  });
+}
+function observePaidPhases(req, res, run) {
+  const presented = req.get("payment-signature") || req.get("x-payment");
+  if (!presented) {
+    run();
+    return;
+  }
+  installFetchTiming();
+  const phases = {
+    startedAt: import_node_perf_hooks.performance.now(),
+    verifyMs: 0,
+    settleMs: 0,
+    verifyEndedAt: 0,
+    settleStartedAt: 0,
+    inFetch: false
+  };
+  als.run(phases, () => {
+    res.on("finish", () => {
+      const txHash = txHashFromPaymentResponse(
+        res.getHeader("payment-response") ?? res.getHeader("x-payment-response")
+      );
+      const line = phaseLogLine(phases, `${req.method} ${req.baseUrl}${req.path}`, txHash);
+      if (line) console.log(line);
+    });
+    run();
+  });
+}
+
+// src/middleware/paidReceiptCapture.ts
+var CAPTURED = /* @__PURE__ */ new Set(["GET /quote", "GET /route", "POST /alert"]);
+function headerValue(value) {
+  if (typeof value === "string") return value;
+  if (Array.isArray(value) && typeof value[0] === "string") return value[0];
+  return null;
+}
+function paidReceiptCapture() {
+  return (req, res, next2) => {
+    if (!CAPTURED.has(`${req.method} ${req.path}`) || res.locals.merktopFree === true) {
+      next2();
+      return;
+    }
+    const paymentHeader = req.get("payment-signature") || req.get("x-payment");
+    if (!paymentHeader) {
+      next2();
+      return;
+    }
+    const previousJson = res.json.bind(res);
+    let saved = Promise.resolve(null);
+    res.json = ((body) => {
+      const sent = previousJson(body);
+      const okStatus = res.statusCode >= 200 && res.statusCode < 300;
+      const okBody = !!body && typeof body === "object" && (!("ok" in body) || body.ok !== false);
+      if (!okStatus || !okBody) return sent;
+      const fingerprint2 = fingerprintFromPaymentHeader(paymentHeader);
+      const audit = headerValue(res.getHeader("X-TIA-Audit-Hash"));
+      saved = savePaidResponse({
+        endpoint: `${req.method} ${req.baseUrl}${req.path}`,
+        payload: body,
+        auditHash: audit,
+        payer: fingerprint2?.payer ?? null,
+        amount: fingerprint2?.amount ?? null,
+        payTo: fingerprint2?.payTo ?? null
+      }).catch((err) => {
+        console.warn(
+          "[TIA paid-receipt] no se pudo guardar:",
+          err instanceof Error ? err.message : "store"
+        );
+        return null;
+      });
+      return sent;
+    });
+    res.on("finish", () => {
+      if (res.statusCode < 200 || res.statusCode >= 300) return;
+      const txHash = txHashFromPaymentResponse(
+        res.getHeader("payment-response") ?? res.getHeader("x-payment-response")
+      );
+      if (!txHash) return;
+      void saved.then((id) => {
+        if (!id) return;
+        return confirmPaidResponse(id, txHash);
+      }).catch((err) => {
+        console.warn(
+          "[TIA paid-receipt] no se pudo ligar la tx:",
+          err instanceof Error ? err.message : "store"
+        );
+      });
     });
     next2();
   };
@@ -148286,10 +148712,13 @@ ${premiumEndpoints}
             next2();
             return;
           }
-          v1Payment(req, res, next2);
+          observePaidPhases(req, res, () => {
+            v1Payment(req, res, next2);
+          });
         }
       );
       app.use("/v1", auditTrail());
+      app.use("/v1", paidReceiptCapture());
       app.use("/v1", v1_default);
       x402Mount.mounted = true;
       x402Mount.reason = null;
