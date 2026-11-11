@@ -100,7 +100,8 @@ if (!hash) {
   process.exit(0);
 }
 
-const deadline = Date.now() + 30_000;
+const pendingUntil = Date.now() + 30_000;
+const missingUntil = Date.now() + 15_000;
 while (true) {
   const lookup = await fetch(`${base}/v1/receipt/tx/${hash}`);
   let payload = {};
@@ -111,8 +112,8 @@ while (true) {
   }
   const state = lookup.status === 404 ? "404" : (payload.status ?? String(lookup.status));
   console.log(`receipt_tx ${state}`);
-  if (state !== "pending") break;
-  if (Date.now() + 5_000 > deadline) break;
-  await new Promise((resolve) => setTimeout(resolve, 5_000));
+  const until = state === "pending" ? pendingUntil : state === "404" ? missingUntil : 0;
+  if (Date.now() >= until) break;
+  await new Promise((resolve) => setTimeout(resolve, Math.min(5_000, until - Date.now())));
 }
 EOF
