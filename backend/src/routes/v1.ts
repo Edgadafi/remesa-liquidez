@@ -5,6 +5,7 @@ import { checkAndFireAlerts, registerAlert } from "../services/alerts.js";
 import { requireCronSecret } from "../middleware/overrideAuth.js";
 import { merktopUsageHandler } from "../middleware/merktopFreeTier.js";
 import { lookupAudit, parseAuditHash } from "../services/auditTrail.js";
+import { resolvePaidReceipt } from "../services/paidReceiptStore.js";
 import { receipt, type ReceiptPayload } from "../lib/receipt.js";
 import { waitUntil } from "@vercel/functions";
 import { randomUUID } from "node:crypto";
@@ -75,6 +76,51 @@ router.get("/audit/:hash", async (req: Request, res: Response) => {
   } catch (err: unknown) {
     console.error(
       "[GET /v1/audit] error:",
+      err instanceof Error ? err.message : "lookup failed"
+    );
+    res.status(500).json({ ok: false, error: "internal_error" });
+  }
+});
+
+const TX_HASH = /^[0-9a-fA-F]{64}$/;
+
+/**
+ * GET /v1/receipt/tx/:txHash — payload que el handler ya había producido
+ * para un pago liquidado. Gratis: no está en la tabla x402.
+ *
+ * 200 confirmed: la tx existe y paga a STELLAR_PAY_TO, y tenemos el JSON.
+ * 200 pending: hay registro pero la cadena aún no confirma ese pago.
+ * 404: no hay tx, no paga a payTo, o no guardamos payload.
+ */
+router.get("/receipt/tx/:txHash", async (req: Request, res: Response) => {
+  const txHash = (req.params.txHash ?? "").trim().toLowerCase();
+  if (!TX_HASH.test(txHash)) {
+    res.status(400).json({ ok: false, error: "invalid_tx_hash" });
+    return;
+  }
+  try {
+    const found = await resolvePaidReceipt(txHash);
+    if (found.status === "missing") {
+      res.status(404).json({ ok: false, error: "not_found" });
+      return;
+    }
+    if (found.status === "pending") {
+      res.json({ ok: true, status: "pending", txHash });
+      return;
+    }
+    const { record } = found;
+    res.json({
+      ok: true,
+      status: "confirmed",
+      txHash,
+      endpoint: record.endpoint,
+      auditHash: record.auditHash,
+      storedAt: record.storedAt,
+      payload: record.payload,
+    });
+  } catch (err: unknown) {
+    console.error(
+      "[GET /v1/receipt/tx] error:",
       err instanceof Error ? err.message : "lookup failed"
     );
     res.status(500).json({ ok: false, error: "internal_error" });

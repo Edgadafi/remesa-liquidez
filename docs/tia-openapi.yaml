@@ -80,6 +80,57 @@ paths:
         "500":
           $ref: "#/components/responses/HandlerError"
 
+  /v1/receipt/tx/{txHash}:
+    get:
+      tags: [v1]
+      operationId: getReceiptByTx
+      summary: Recover a paid payload by settlement transaction hash
+      description: |
+        Free. Not an x402 route and not part of the Merktop quota.
+
+        Before settlement the server stores the handler JSON (quote, route,
+        or alert), the audit hash and the time, linked to the payment. When
+        settlement confirms, that record is linked to the transaction hash.
+
+        The payload is returned only when the transaction exists and is a
+        payment to this server's `payTo`. A stored record whose payment is
+        not confirmed yet returns `status: pending` and no payload. Unknown
+        hashes, and transactions that do not pay `payTo`, are 404.
+
+        Storage is the existing KV (Upstash when `UPSTASH_REDIS_REST_URL` and
+        `UPSTASH_REDIS_REST_TOKEN` are set; otherwise in-memory per instance).
+      parameters:
+        - name: txHash
+          in: path
+          required: true
+          description: Stellar transaction hash, 64 hex characters.
+          schema:
+            type: string
+            pattern: "^[0-9a-fA-F]{64}$"
+      responses:
+        "200":
+          description: Stored handler payload, or a pending record.
+          content:
+            application/json:
+              schema:
+                oneOf:
+                  - $ref: "#/components/schemas/PaidReceiptConfirmed"
+                  - $ref: "#/components/schemas/PaidReceiptPending"
+        "400":
+          description: txHash is not 64 hex characters.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaidReceiptError"
+        "404":
+          description: No transaction, no stored payload, or the transaction does not pay this server.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/PaidReceiptError"
+        "500":
+          $ref: "#/components/responses/HandlerError"
+
   /v1/route:
     get:
       tags: [v1]
@@ -733,6 +784,55 @@ components:
           type: string
           const: pending
           description: Background anchor has been scheduled and is not inlined.
+
+    PaidReceiptConfirmed:
+      type: object
+      required: [ok, status, txHash, endpoint, auditHash, storedAt, payload]
+      properties:
+        ok:
+          type: boolean
+          const: true
+        status:
+          type: string
+          const: confirmed
+        txHash:
+          type: string
+        endpoint:
+          type: string
+        auditHash:
+          type: string
+          nullable: true
+        storedAt:
+          type: string
+          format: date-time
+        payload:
+          description: The quote, route, or alert JSON the handler produced.
+      additionalProperties: false
+
+    PaidReceiptPending:
+      type: object
+      required: [ok, status, txHash]
+      properties:
+        ok:
+          type: boolean
+          const: true
+        status:
+          type: string
+          const: pending
+        txHash:
+          type: string
+      additionalProperties: false
+
+    PaidReceiptError:
+      type: object
+      required: [ok, error]
+      properties:
+        ok:
+          type: boolean
+          const: false
+        error:
+          type: string
+          enum: [not_found, invalid_tx_hash, internal_error]
 
     RouteAmountError:
       type: object
