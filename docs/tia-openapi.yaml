@@ -88,6 +88,11 @@ paths:
       description: |
         Default price `$0.25` USDC. `amount` is USD. The handler rejects
         values that are not finite or are outside 1..50000 before estimating.
+
+        `receipt` is always `null` and `receiptStatus` is `pending`. The IPFS
+        anchor runs after the response via `waitUntil` (capped at 8s) and is
+        not part of the body x402 holds until settlement. `null` means the
+        anchor is still in progress, not that it failed.
       parameters:
         - $ref: "#/components/parameters/PaymentSignature"
         - name: amount
@@ -716,6 +721,18 @@ components:
         generatedAt:
           type: string
           format: date-time
+        requestId:
+          type: string
+          format: uuid
+        receipt:
+          nullable: true
+          description: |
+            Always null on this response. Anchoring continues in the
+            background. Null means pending, not a failed anchor.
+        receiptStatus:
+          type: string
+          const: pending
+          description: Background anchor has been scheduled and is not inlined.
 
     RouteAmountError:
       type: object

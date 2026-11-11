@@ -5,8 +5,30 @@ import { checkAndFireAlerts, registerAlert } from "../services/alerts.js";
 import { requireCronSecret } from "../middleware/overrideAuth.js";
 import { merktopUsageHandler } from "../middleware/merktopFreeTier.js";
 import { lookupAudit, parseAuditHash } from "../services/auditTrail.js";
-import { receipt } from "../lib/receipt.js";
+import { receipt, type ReceiptPayload } from "../lib/receipt.js";
+import { waitUntil } from "@vercel/functions";
 import { randomUUID } from "node:crypto";
+
+/** Tope del anclaje en segundo plano. No bloquea la respuesta. */
+const RECEIPT_ANCHOR_BUDGET_MS = 8_000;
+
+/**
+ * Ancla el recibo después de responder. waitUntil mantiene la función viva
+ * en Vercel sin retener el body; a los 8 s se suelta aunque Nirium no conteste.
+ */
+function anchorRouteReceipt(payload: ReceiptPayload): void {
+  const task = new Promise<void>((resolve) => {
+    const timer = setTimeout(() => {
+      console.warn("[GET /v1/route] receipt anchor exceeded 8s");
+      resolve();
+    }, RECEIPT_ANCHOR_BUDGET_MS);
+    void receipt.anchorReceipt(payload).finally(() => {
+      clearTimeout(timer);
+      resolve();
+    });
+  });
+  waitUntil(task);
+}
 
 const router = Router();
 
@@ -173,43 +195,22 @@ router.get("/route", async (req: Request, res: Response) => {
   try {
     const estimate = await estimateRoutes(amount);
     const requestId = randomUUID();
-    
-    // Anchor receipt asynchronously - failures don't break the response
-    const receiptPromise = receipt.anchorReceipt({
+    // receipt null y receiptStatus "pending": el anclaje sigue en waitUntil
+    // y no forma parte del camino que x402 retiene hasta liquidar.
+    res.json({
+      ok: true,
+      requestId,
+      ...estimate,
+      receipt: null,
+      receiptStatus: "pending",
+    });
+    anchorRouteReceipt({
       v: "tia-receipt-v1",
       endpoint: "GET /v1/route",
       requestId,
       timestamp: estimate.generatedAt,
       data: estimate,
-    }).catch((err: unknown) => {
-      console.warn("[GET /v1/route] Receipt anchor failed:", err instanceof Error ? err.message : "unknown");
-      return null;
     });
-
-    // Send response immediately with receipt pending
-    const response = {
-      ok: true,
-      requestId,
-      ...estimate,
-      receipt: null as typeof receiptData,
-    };
-
-    // Wait for receipt with timeout
-    const receiptData = await Promise.race([
-      receiptPromise,
-      new Promise<null>((resolve) => setTimeout(() => resolve(null), 8000)),
-    ]);
-
-    if (receiptData) {
-      response.receipt = {
-        cid: receiptData.cid,
-        sha256: receiptData.sha256,
-        signer: receiptData.signer,
-        anchoredAt: receiptData.anchoredAt,
-      };
-    }
-
-    res.json(response);
   } catch (err: unknown) {
     const message = err instanceof Error ? err.message : "Unknown error";
     console.error("[GET /v1/route] error:", err);
