@@ -9,6 +9,8 @@
 #
 # El cliente usa @stellar/stellar-sdk 17. La 16.3.1 del backend no decodifica
 # el XDR actual. El backend no firma, así que su dependencia no cambia.
+# No uses policy de nirium: con el SDK 17 falla en signAuthEntries
+# (pre.switch is not a function). El 402 se vuelve a leer justo antes de pagar.
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
@@ -203,25 +205,47 @@ if (horizonForNetwork[network] !== horizon || !usdc) {
 
 const url = `${base}/v1/route?amount=100`;
 const agent = new Agent({ apiKey: "paid-route-test", baseUrl: base });
-agent.initX402({
-  secretKey: secret,
-  network,
-  policy: {
-    evaluate: async (ctx) => {
-      const req = ctx.requirements;
-      if (req.network !== network || req.asset !== usdc) {
-        return { decision: "DENY", reason: `el 402 no es USDC de Circle en ${network}` };
-      }
-      if (confirmedPayTo && req.payTo !== confirmedPayTo) {
-        return { decision: "DENY", reason: "payTo distinto del que confirmaste" };
-      }
-      if (confirmedAmount && req.amount !== confirmedAmount) {
-        return { decision: "DENY", reason: "monto distinto del que confirmaste" };
-      }
-      return { decision: "ALLOW", contextHash: ctx.contextHash };
-    },
-  },
-});
+agent.initX402({ secretKey: secret, network });
+
+function paymentRequired(header) {
+  if (!header) return null;
+  try {
+    const pad = header.replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(Buffer.from(pad, "base64").toString("utf8"));
+  } catch {
+    return null;
+  }
+}
+
+const probe = await fetch(url);
+const requiredHeader =
+  probe.headers.get("payment-required") ??
+  probe.headers.get("PAYMENT-REQUIRED");
+if (probe.status !== 402 || !requiredHeader) {
+  console.error(`Se esperaba 402 con PAYMENT-REQUIRED y llegó ${probe.status}.`);
+  process.exit(1);
+}
+const required = paymentRequired(requiredHeader);
+const accepts = Array.isArray(required?.accepts) ? required.accepts : [];
+const chosen = accepts.find(
+  (item) => item?.scheme === "exact" && item?.network === network && item?.asset === usdc,
+);
+const payTo = String(chosen?.payTo ?? "");
+const amount = String(chosen?.amount ?? "");
+if (!chosen || chosen.network !== network || chosen.asset !== usdc) {
+  console.error(`El 402 no ofrece USDC de Circle en ${network}.`);
+  process.exit(1);
+}
+if (network === "stellar:pubnet") {
+  if (!confirmedPayTo || payTo !== confirmedPayTo) {
+    console.error("payTo distinto del que confirmaste.");
+    process.exit(1);
+  }
+  if (!confirmedAmount || amount !== confirmedAmount) {
+    console.error("Monto distinto del que confirmaste.");
+    process.exit(1);
+  }
+}
 
 const started = Date.now();
 let response;
