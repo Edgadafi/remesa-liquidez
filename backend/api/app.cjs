@@ -34822,7 +34822,7 @@ var require_auth = __commonJS({
       if (!pk) {
         throw new Error(`authorizeInvocation requires publicKey parameter`);
       }
-      const addressCredentials = new curr_generated.default.SorobanAddressCredentials({
+      const addressCredentials2 = new curr_generated.default.SorobanAddressCredentials({
         address: new address4.Address(pk).toScAddress(),
         nonce: nonce3,
         signatureExpirationLedger: 0,
@@ -34832,7 +34832,7 @@ var require_auth = __commonJS({
       });
       const entry = new curr_generated.default.SorobanAuthorizationEntry({
         rootInvocation: invocation,
-        credentials: authV2 ? curr_generated.default.SorobanCredentials.sorobanCredentialsAddressV2(addressCredentials) : curr_generated.default.SorobanCredentials.sorobanCredentialsAddress(addressCredentials)
+        credentials: authV2 ? curr_generated.default.SorobanCredentials.sorobanCredentialsAddressV2(addressCredentials2) : curr_generated.default.SorobanCredentials.sorobanCredentialsAddress(addressCredentials2)
       });
       return authorizeEntry2(entry, signer, validUntilLedgerSeq, networkPassphrase);
     }
@@ -40222,10 +40222,10 @@ var require_cjs3 = __commonJS({
       const alreadySigned = [];
       const pendingSignature = [];
       for (const entry of invokeOp.auth ?? []) {
-        const addressCredentials = getAddressCredentials2(entry.credentials());
-        if (addressCredentials) {
-          const address4 = import_stellar_sdk9.Address.fromScAddress(addressCredentials.address()).toString();
-          const signature2 = addressCredentials.signature();
+        const addressCredentials2 = getAddressCredentials2(entry.credentials());
+        if (addressCredentials2) {
+          const address4 = import_stellar_sdk9.Address.fromScAddress(addressCredentials2.address()).toString();
+          const signature2 = addressCredentials2.signature();
           const isSigned = signature2.switch().name !== "scvVoid";
           if (isSigned) {
             alreadySigned.push(address4);
@@ -147418,6 +147418,50 @@ function transferTo(envelopeXdr, payTo) {
   if (!transfer3 || transfer3.destination !== payTo) return null;
   return transfer3;
 }
+function addressCredentials(credentials) {
+  switch (credentials.switch().name) {
+    case "sorobanCredentialsAddress":
+      return credentials.address();
+    case "sorobanCredentialsAddressV2":
+      return credentials.addressV2();
+    case "sorobanCredentialsAddressWithDelegates":
+      return credentials.addressWithDelegates().addressCredentials();
+    default:
+      return null;
+  }
+}
+function paymentKeyFromEnvelope(envelopeXdr) {
+  try {
+    const tx = innerTransaction(envelopeXdr);
+    if (!tx) return null;
+    const parts = [];
+    for (const op of tx.operations) {
+      if (op.type !== "invokeHostFunction" || !op.auth) continue;
+      for (const entry of op.auth) {
+        const creds = addressCredentials(entry.credentials());
+        if (!creds) continue;
+        const signer = Address.fromScAddress(creds.address()).toString();
+        const nonce3 = creds.nonce().toString();
+        if (!signer || !nonce3) continue;
+        parts.push(`${signer}:${nonce3}`);
+      }
+    }
+    return parts.length > 0 ? parts.join(",") : null;
+  } catch {
+    return null;
+  }
+}
+function paymentKeyFromHeader(header) {
+  try {
+    const pad6 = header.replace(/-/g, "+").replace(/_/g, "/");
+    const parsed = JSON.parse(Buffer.from(pad6, "base64").toString("utf8"));
+    const xdrTx = parsed.payload?.transaction;
+    if (typeof xdrTx !== "string" || xdrTx.length === 0) return null;
+    return paymentKeyFromEnvelope(xdrTx);
+  } catch {
+    return null;
+  }
+}
 function fingerprintFromPaymentHeader(header) {
   try {
     const pad6 = header.replace(/-/g, "+").replace(/_/g, "/");
@@ -147453,7 +147497,8 @@ async function lookupChainPayment(txHash, payTo) {
       kind: "pays_us",
       payer: transfer3.source,
       amount: transfer3.amount,
-      payTo
+      payTo,
+      paymentKey: paymentKeyFromEnvelope(body.envelope_xdr)
     };
   } catch {
     return { kind: "unavailable" };
@@ -147462,22 +147507,24 @@ async function lookupChainPayment(txHash, payTo) {
 
 // src/services/paidReceiptStore.ts
 var TTL_SECONDS = 7 * 24 * 60 * 60;
-var OPEN_MAX = 100;
-var OPEN_KEY = "tia:x402:open";
 function idKey(id) {
   return `tia:x402:id:${id}`;
 }
 function txKey(hash11) {
   return `tia:x402:tx:${hash11}`;
 }
+function payKey(paymentKey) {
+  return `tia:x402:pay:${paymentKey}`;
+}
 async function readRecord(id) {
   const raw = await getKvBackend().get(idKey(id));
   if (!raw) return null;
   try {
     const parsed = JSON.parse(raw);
-    if (!parsed || parsed.id !== id || parsed.status !== "pending" && parsed.status !== "confirmed") {
+    if (!parsed || parsed.id !== id || parsed.status !== "pending" && parsed.status !== "confirmed" && parsed.status !== "unbound") {
       return null;
     }
+    if (typeof parsed.paymentKey !== "string") parsed.paymentKey = null;
     return parsed;
   } catch {
     return null;
@@ -147485,9 +147532,10 @@ async function readRecord(id) {
 }
 async function savePaidResponse(input2) {
   const id = (0, import_node_crypto4.randomUUID)();
+  const paymentKey = input2.paymentKey?.trim() || null;
   const record2 = {
     id,
-    status: "pending",
+    status: paymentKey ? "pending" : "unbound",
     endpoint: input2.endpoint,
     payload: input2.payload,
     auditHash: input2.auditHash,
@@ -147495,50 +147543,54 @@ async function savePaidResponse(input2) {
     payer: input2.payer,
     amount: input2.amount,
     payTo: input2.payTo,
+    paymentKey,
     txHash: null
   };
   const kv = getKvBackend();
   await kv.set(idKey(id), JSON.stringify(record2), TTL_SECONDS);
-  await kv.listPush(OPEN_KEY, id, OPEN_MAX);
+  if (paymentKey) await kv.set(payKey(paymentKey), id, TTL_SECONDS);
   return id;
 }
 async function confirmPaidResponse(id, txHash) {
   const record2 = await readRecord(id);
-  if (!record2) return;
+  if (!record2 || record2.status === "unbound" || !record2.paymentKey) return;
+  if (record2.txHash && record2.txHash !== txHash) return;
   record2.status = "confirmed";
   record2.txHash = txHash;
   const kv = getKvBackend();
   await kv.set(idKey(id), JSON.stringify(record2), TTL_SECONDS);
   await kv.set(txKey(txHash), id, TTL_SECONDS);
+  await kv.set(payKey(record2.paymentKey), id, TTL_SECONDS);
 }
 async function recordByTx(txHash) {
   const id = await getKvBackend().get(txKey(txHash));
   if (!id) return null;
-  return readRecord(id);
+  const record2 = await readRecord(id);
+  if (!record2 || record2.status === "unbound") return null;
+  if (record2.txHash && record2.txHash !== txHash) return null;
+  return record2;
 }
-async function matchOpen(payer, amount2, payTo) {
-  if (!payer || !amount2) return null;
-  const ids = await getKvBackend().listAll(OPEN_KEY);
-  let best = null;
-  for (const id of ids) {
-    const record2 = await readRecord(id);
-    if (!record2 || record2.status === "confirmed") continue;
-    if (record2.payTo !== payTo || record2.payer !== payer || record2.amount !== amount2) continue;
-    if (!best || record2.storedAt > best.storedAt) best = record2;
-  }
-  return best;
+async function recordByPaymentKey(paymentKey) {
+  const id = await getKvBackend().get(payKey(paymentKey));
+  if (!id) return null;
+  const record2 = await readRecord(id);
+  if (!record2 || record2.status === "unbound" || record2.paymentKey !== paymentKey) return null;
+  return record2;
 }
 async function resolvePaidReceipt(txHash) {
   const payTo = process.env.STELLAR_PAY_TO?.trim() || "";
   const direct = await recordByTx(txHash);
   const chain = payTo ? await lookupChainPayment(txHash, payTo) : { kind: "unavailable" };
   if (chain.kind === "pays_us") {
-    const record2 = direct ?? await matchOpen(chain.payer, chain.amount, chain.payTo);
-    if (!record2) return { status: "missing" };
+    const byKey = !direct && chain.paymentKey ? await recordByPaymentKey(chain.paymentKey) : null;
+    const record2 = direct ?? byKey;
+    if (!record2 || record2.status === "unbound") return { status: "missing" };
+    if (record2.txHash && record2.txHash !== txHash) return { status: "missing" };
     if (record2.status !== "confirmed" || record2.txHash !== txHash) {
       await confirmPaidResponse(record2.id, txHash);
     }
     const fresh = await readRecord(record2.id) ?? record2;
+    if (fresh.status === "unbound" || fresh.txHash !== txHash) return { status: "missing" };
     return { status: "confirmed", record: fresh };
   }
   if (chain.kind === "other") return { status: "missing" };
@@ -148482,6 +148534,10 @@ function paidReceiptCapture() {
       const okStatus = res.statusCode >= 200 && res.statusCode < 300;
       const okBody = !!body && typeof body === "object" && (!("ok" in body) || body.ok !== false);
       if (!okStatus || !okBody) return sent;
+      const paymentKey = paymentKeyFromHeader(paymentHeader);
+      if (!paymentKey) {
+        console.warn("[TIA paid-receipt] pago sin identificador; el recibo queda unbound");
+      }
       const fingerprint2 = fingerprintFromPaymentHeader(paymentHeader);
       const audit = headerValue(res.getHeader("X-TIA-Audit-Hash"));
       saved = savePaidResponse({
@@ -148490,7 +148546,8 @@ function paidReceiptCapture() {
         auditHash: audit,
         payer: fingerprint2?.payer ?? null,
         amount: fingerprint2?.amount ?? null,
-        payTo: fingerprint2?.payTo ?? null
+        payTo: fingerprint2?.payTo ?? null,
+        paymentKey
       }).catch((err) => {
         console.warn(
           "[TIA paid-receipt] no se pudo guardar:",
@@ -148505,7 +148562,7 @@ function paidReceiptCapture() {
       const txHash = txHashFromPaymentResponse(
         res.getHeader("payment-response") ?? res.getHeader("x-payment-response")
       );
-      if (!txHash) return;
+      if (!txHash || !paymentKeyFromHeader(paymentHeader)) return;
       void saved.then((id) => {
         if (!id) return;
         return confirmPaidResponse(id, txHash);
