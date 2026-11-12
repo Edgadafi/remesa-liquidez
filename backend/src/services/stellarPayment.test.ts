@@ -8,7 +8,7 @@ import {
   Operation,
   TransactionBuilder,
 } from "@stellar/stellar-sdk";
-import { transferTo } from "./stellarPayment.js";
+import { paymentKeyFromEnvelope, paymentKeyFromHeader, transferTo } from "./stellarPayment.js";
 
 function paymentXdr(destination: string): string {
   const source = Keypair.random();
@@ -41,5 +41,14 @@ describe("transferTo", () => {
     const payTo = Keypair.random().publicKey();
     const other = Keypair.random().publicKey();
     assert.equal(transferTo(paymentXdr(other), payTo), null);
+  });
+
+  it("un pago clásico no trae nonce de auth", () => {
+    const payTo = Keypair.random().publicKey();
+    assert.equal(paymentKeyFromEnvelope(paymentXdr(payTo)), null);
+    const header = Buffer.from(JSON.stringify({ payload: { transaction: paymentXdr(payTo) } })).toString(
+      "base64url"
+    );
+    assert.equal(paymentKeyFromHeader(header), null);
   });
 });

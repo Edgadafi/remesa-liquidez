@@ -4,6 +4,7 @@
  * tx no paga a esa cuenta.
  */
 import {
+  Address,
   FeeBumpTransaction,
   Networks,
   Transaction,
@@ -19,7 +20,14 @@ export interface TransferView {
 }
 
 export type ChainLookup =
-  | { kind: "pays_us"; payer: string | null; amount: string | null; payTo: string }
+  | {
+      kind: "pays_us";
+      payer: string | null;
+      amount: string | null;
+      payTo: string;
+      /** `cuenta:nonce` del auth entry, o null si el envelope no lo trae. */
+      paymentKey: string | null;
+    }
   | { kind: "other" }
   | { kind: "missing" }
   | { kind: "unavailable" };
@@ -111,6 +119,64 @@ export function transferTo(envelopeXdr: string, payTo: string): TransferView | n
   return transfer;
 }
 
+function addressCredentials(
+  credentials: xdr.SorobanCredentials
+): xdr.SorobanAddressCredentials | null {
+  switch (credentials.switch().name) {
+    case "sorobanCredentialsAddress":
+      return credentials.address();
+    case "sorobanCredentialsAddressV2":
+      return credentials.addressV2();
+    case "sorobanCredentialsAddressWithDelegates":
+      return credentials.addressWithDelegates().addressCredentials();
+    default:
+      return null;
+  }
+}
+
+/**
+ * Identificador del pago: `cuenta:nonce` de cada auth entry de Soroban.
+ * El nonce es único por firmante y viaja dentro del auth firmado, así que
+ * sigue en el envelope después de que el facilitador reconstruye la tx.
+ * null si no hay un nonce legible. No incluye la firma.
+ */
+export function paymentKeyFromEnvelope(envelopeXdr: string): string | null {
+  try {
+    const tx = innerTransaction(envelopeXdr);
+    if (!tx) return null;
+    const parts: string[] = [];
+    for (const op of tx.operations) {
+      if (op.type !== "invokeHostFunction" || !op.auth) continue;
+      for (const entry of op.auth) {
+        const creds = addressCredentials(entry.credentials());
+        if (!creds) continue;
+        const signer = Address.fromScAddress(creds.address()).toString();
+        const nonce = creds.nonce().toString();
+        if (!signer || !nonce) continue;
+        parts.push(`${signer}:${nonce}`);
+      }
+    }
+    return parts.length > 0 ? parts.join(",") : null;
+  } catch {
+    return null;
+  }
+}
+
+/** Lee el nonce del XDR que viene en PAYMENT-SIGNATURE o X-PAYMENT. No loguea el header. */
+export function paymentKeyFromHeader(header: string): string | null {
+  try {
+    const pad = header.replace(/-/g, "+").replace(/_/g, "/");
+    const parsed = JSON.parse(Buffer.from(pad, "base64").toString("utf8")) as {
+      payload?: { transaction?: unknown };
+    };
+    const xdrTx = parsed.payload?.transaction;
+    if (typeof xdrTx !== "string" || xdrTx.length === 0) return null;
+    return paymentKeyFromEnvelope(xdrTx);
+  } catch {
+    return null;
+  }
+}
+
 export interface PaymentFingerprint {
   payer: string | null;
   amount: string | null;
@@ -157,6 +223,7 @@ export async function lookupChainPayment(txHash: string, payTo: string): Promise
       payer: transfer.source,
       amount: transfer.amount,
       payTo,
+      paymentKey: paymentKeyFromEnvelope(body.envelope_xdr),
     };
   } catch {
     return { kind: "unavailable" };

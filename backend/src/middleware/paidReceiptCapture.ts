@@ -1,12 +1,17 @@
 /**
  * Antes de la liquidación guarda el JSON del handler (quote, route o alert)
- * ligado al pago. Cuando la respuesta 2xx ya trae PAYMENT-RESPONSE, liga
- * ese registro al hash de la tx. Las llamadas gratis de Merktop no se guardan.
+ * con el nonce del auth entry como clave. Cuando la respuesta 2xx ya trae
+ * PAYMENT-RESPONSE, liga ese mismo identificador al hash de la tx. Si el
+ * header no trae nonce, el registro queda unbound y no se liga. Las
+ * llamadas gratis de Merktop no se guardan.
  */
 import type { NextFunction, Request, RequestHandler, Response } from "express";
 import { txHashFromPaymentResponse } from "./x402PhaseLog.js";
 import { confirmPaidResponse, savePaidResponse } from "../services/paidReceiptStore.js";
-import { fingerprintFromPaymentHeader } from "../services/stellarPayment.js";
+import {
+  fingerprintFromPaymentHeader,
+  paymentKeyFromHeader,
+} from "../services/stellarPayment.js";
 
 const CAPTURED = new Set(["GET /quote", "GET /route", "POST /alert"]);
 
@@ -40,6 +45,10 @@ export function paidReceiptCapture(): RequestHandler {
         (!("ok" in body) || (body as { ok?: unknown }).ok !== false);
       if (!okStatus || !okBody) return sent;
 
+      const paymentKey = paymentKeyFromHeader(paymentHeader);
+      if (!paymentKey) {
+        console.warn("[TIA paid-receipt] pago sin identificador; el recibo queda unbound");
+      }
       const fingerprint = fingerprintFromPaymentHeader(paymentHeader);
       const audit = headerValue(res.getHeader("X-TIA-Audit-Hash"));
       saved = savePaidResponse({
@@ -49,6 +58,7 @@ export function paidReceiptCapture(): RequestHandler {
         payer: fingerprint?.payer ?? null,
         amount: fingerprint?.amount ?? null,
         payTo: fingerprint?.payTo ?? null,
+        paymentKey,
       }).catch((err: unknown) => {
         console.warn(
           "[TIA paid-receipt] no se pudo guardar:",
@@ -64,7 +74,7 @@ export function paidReceiptCapture(): RequestHandler {
       const txHash = txHashFromPaymentResponse(
         res.getHeader("payment-response") ?? res.getHeader("x-payment-response")
       );
-      if (!txHash) return;
+      if (!txHash || !paymentKeyFromHeader(paymentHeader)) return;
       void saved
         .then((id) => {
           if (!id) return;
