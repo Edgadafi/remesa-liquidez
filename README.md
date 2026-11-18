@@ -37,9 +37,16 @@ La versión desplegada en Stellar mainnet, `CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTS
 - el identificador de la reserva lo elegía el primero que llegara;
 - las entradas persistentes no extendían su TTL.
 
-Ese contrato **no es actualizable**. El arreglo está en este repositorio (`version()` `v0_c1` en Soroban, el mismo flujo en Solana) y hace falta un despliegue nuevo. Hasta ese despliegue, `CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTSAELKESPY6D7DUA22M5MP` no debe usarse con fondos de terceros.
+Ese contrato **no es actualizable**. El arreglo está en este repositorio (`version()` `v0_c2` en Soroban, el mismo flujo en Solana) y hace falta un despliegue nuevo. Hasta ese despliegue, `CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTSAELKESPY6D7DUA22M5MP` no debe usarse con fondos de terceros.
 
-Una reserva ya verificada no se cancela con `cancel_reservation`. El USDC sale con `validate_cashout`, o, si nadie cobra, con `refund_expired` después del vencimiento. Ese reembolso devuelve el 100% al remitente. Lo puede llamar el remitente o el admin. El comercio no puede. El comercio no debe entregar efectivo antes de que `validate_cashout` confirme. El vencimiento se fija al crear la reserva y no puede pasar de 30 días.
+El ciclo de una reserva es crear, verificar, y una sola salida:
+
+1. `initialize_reservation` bloquea el monto y fija `expires_at` (timestamp del ledger) a partir de `expiry_seconds`. En Soroban la ventana va de 1 hora a 30 días. Fuera de ese rango la llamada falla con `BadExpiry` y no mueve fondos. En Solana el tope es el mismo, 30 días, y el mínimo sigue siendo 1 segundo.
+2. `mark_verified` lo firma el admin o el verifier. El remitente no puede verificar la suya.
+3. Antes de `expires_at`, el comercio asignado y el receptor firman `validate_cashout`. El comercio recibe el 99.75% y el tesoro el 0.25%.
+4. Desde `expires_at`, `validate_cashout` falla (`Expired` en Soroban, `ReservationExpired` en Solana) y `refund_expired` devuelve el 100% al remitente, sin fee. Lo firma el remitente, o el admin si no es el comercio ni el receptor. El comercio y el receptor no pueden.
+
+El cobro y el reembolso no se traslapan. En el instante del vencimiento el cobro ya está cerrado y solo queda el reembolso. Una reserva cobrada o ya reembolsada no se mueve otra vez. Una reserva verificada tampoco se cancela con `cancel_reservation`. El comercio no debe entregar efectivo antes de que `validate_cashout` confirme.
 
 Crédito del reporte: KupiaSec.
 
@@ -77,8 +84,9 @@ flowchart LR
 
 1. **Sender** bloquea SPL tokens en un vault PDA con `initialize_reservation`.
 2. **World ID** valida la identidad del receptor; el backend TIA firma `mark_verified` on-chain.
-3. **Merchant** cobra solo si es el comercio asignado a la reserva. `validate_cashout` lo firman el comercio y el receptor (prueba de que recibió el efectivo). El comercio recibe el 99.75%; el 0.25% va al tesoro del protocolo.
-4. El admin puede drenar el tesoro con `withdraw_treasury` (admin-only).
+3. **Merchant** cobra solo si es el comercio asignado a la reserva y el vencimiento no llegó. `validate_cashout` lo firman el comercio y el receptor (prueba de que recibió el efectivo). El comercio recibe el 99.75%; el 0.25% va al tesoro del protocolo.
+4. Si el receptor no firma, los fondos no se quedan atrapados. Al llegar `expires_at` el cobro falla y `refund_expired` devuelve el 100% al remitente. Esas dos salidas no conviven: ver [Seguridad del escrow](#seguridad-del-escrow).
+5. El admin puede drenar el tesoro con `withdraw_treasury` (admin-only).
 
 ---
 
