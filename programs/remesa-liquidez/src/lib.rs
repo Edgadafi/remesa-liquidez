@@ -40,9 +40,15 @@ pub mod remesa_liquidez {
 
     /// Refund path while the reservation is still unverified. The receiver may
     /// cancel anytime; the sender only after `expires_at`. A verified
-    /// reservation can only leave through `validate_cashout`.
+    /// reservation uses `refund_expired` instead.
     pub fn cancel_reservation(ctx: Context<CancelReservation>, reservation_id: u64) -> Result<()> {
         instructions::cancel_reservation::handler(ctx, reservation_id)
+    }
+
+    /// Return 100% of a verified reservation to the sender after `expires_at`.
+    /// The sender or the protocol admin may sign. The merchant may not.
+    pub fn refund_expired(ctx: Context<RefundExpired>, reservation_id: u64) -> Result<()> {
+        instructions::refund_expired::handler(ctx, reservation_id)
     }
 
     /// Create or toggle a merchant whitelist entry. Admin only.

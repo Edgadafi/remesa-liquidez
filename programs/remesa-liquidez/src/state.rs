@@ -25,7 +25,7 @@ pub struct TurnReservation {
     pub mint: Pubkey,
     /// Tokens held in escrow.
     pub amount: u64,
-    /// Unix timestamp after which the sender may cancel.
+    /// Unix timestamp. Cashout requires `now < expires_at`. `refund_expired` requires `now >= expires_at`.
     pub expires_at: i64,
     /// Off-chain verification flag. Flipped by `mark_verified`, which only
     /// the protocol admin or the configured verifier may sign.

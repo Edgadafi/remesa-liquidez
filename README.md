@@ -39,7 +39,7 @@ La versión desplegada en Stellar mainnet, `CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTS
 
 Ese contrato **no es actualizable**. El arreglo está en este repositorio (`version()` `v0_c1` en Soroban, el mismo flujo en Solana) y hace falta un despliegue nuevo. Hasta ese despliegue, `CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTSAELKESPY6D7DUA22M5MP` no debe usarse con fondos de terceros.
 
-Una reserva ya verificada no se puede cancelar: el USDC solo sale con `validate_cashout`. El comercio no debe entregar efectivo antes de que esa transacción confirme. Si el receptor no firma el cobro, los fondos se quedan en el contrato.
+Una reserva ya verificada no se cancela con `cancel_reservation`. El USDC sale con `validate_cashout`, o, si nadie cobra, con `refund_expired` después del vencimiento. Ese reembolso devuelve el 100% al remitente. Lo puede llamar el remitente o el admin. El comercio no puede. El comercio no debe entregar efectivo antes de que `validate_cashout` confirme. El vencimiento se fija al crear la reserva y no puede pasar de 30 días.
 
 Crédito del reporte: KupiaSec.
 

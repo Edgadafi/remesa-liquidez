@@ -40,4 +40,8 @@ pub enum ErrorCode {
     InvalidAdmin,
     #[msg("A verified reservation cannot be cancelled")]
     CannotCancelVerified,
+    #[msg("Caller cannot refund this reservation")]
+    UnauthorizedRefund,
+    #[msg("Verified reservation has not expired yet")]
+    NotExpired,
 }

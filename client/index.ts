@@ -239,6 +239,42 @@ export async function buildCancelReservationIx(
     .instruction();
 }
 
+export interface RefundExpiredArgs {
+  program: RemesaProgram;
+  signer: PublicKey;
+  sender: PublicKey;
+  mint: PublicKey;
+  senderTokenAccount: PublicKey;
+  reservationId: BN | number | bigint;
+}
+
+export async function buildRefundExpiredIx(
+  args: RefundExpiredArgs
+): Promise<TransactionInstruction> {
+  const reservationId = new BN(args.reservationId.toString());
+  const [reservation] = findReservationPda(
+    args.program.programId,
+    args.sender,
+    reservationId
+  );
+  const [vault] = findVaultPda(args.program.programId, reservation);
+  const [config] = findConfigPda(args.program.programId);
+
+  return args.program.methods
+    .refundExpired(reservationId)
+    .accountsStrict({
+      signer: args.signer,
+      sender: args.sender,
+      config,
+      reservation,
+      mint: args.mint,
+      vault,
+      senderTokenAccount: args.senderTokenAccount,
+      tokenProgram: TOKEN_PROGRAM_ID,
+    })
+    .instruction();
+}
+
 export interface RegisterMerchantArgs {
   program: RemesaProgram;
   admin: PublicKey;

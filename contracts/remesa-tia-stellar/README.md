@@ -18,12 +18,12 @@ Dual-chain sibling of `programs/remesa-liquidez` (Solana Anchor).
 
 | Solana (Anchor) | Stellar (Soroban) |
 |-----------------|-------------------|
-| `initialize_reservation` + SPL transfer in. Id is `Config.next_reservation_id` (PDA seed sender + id). Merchant account is bound. | `initialize_reservation(sender, receiver, merchant, amount) -> u64`. The contract assigns the id. |
+| `initialize_reservation` + SPL transfer in. Id is `Config.next_reservation_id` (PDA seed sender + id). Merchant account is bound. Expiry is capped at 30 days. | `initialize_reservation(sender, receiver, merchant, amount, expiry_seconds) -> u64`. The contract assigns the id and stores `expires_at` from the ledger timestamp. Expiry is capped at 30 days. |
 | `mark_verified` signed by admin or `Config.verifier` | `mark_verified` signed by admin or the stored verifier. The sender cannot. |
 | `validate_cashout` + 25 bps. Merchant and receiver both sign. Merchant must be the one stored on the reservation. | `validate_cashout` + 25 bps. `merchant.require_auth()` and `receiver.require_auth()`. Merchant must equal `reservation.merchant` and be active. |
 | `set_merchant_status(merchant, active)` creates the PDA on first use (`init_if_needed`) | `set_merchant_status(merchant, active)` writes the persistent flag. `register_merchant` is gone. |
 | `set_admin` / `set_verifier` | `set_admin` / `set_verifier` |
-| `cancel_reservation` refund | `cancel_reservation` refund |
+| `cancel_reservation` refunds an unverified reservation. `refund_expired` returns 100% to the sender after expiry of a verified reservation. Sender or admin. Not the merchant. | `cancel_reservation` refunds an unverified reservation. `refund_expired(caller, reservation_id)` does the same for a verified, expired, unsettled reservation. |
 | Rent-exempt accounts | `extend_ttl` on instance storage and on Reservation / Merchant entries |
 
 Testnet USDC SAC (x402 unpaid historically): `CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUZ2BQN4WFRIE3USCIHMXQDAMAA`

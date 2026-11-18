@@ -22,6 +22,7 @@ import {
   buildInitializeConfigIx,
   buildInitializeReservationIx,
   buildMarkVerifiedIx,
+  buildRefundExpiredIx,
   buildRegisterMerchantIx,
   buildSetAdminIx,
   buildSetMerchantStatusIx,
@@ -669,6 +670,101 @@ describe("remesa-liquidez", () => {
       expect.fail("expected CannotCancelVerified");
     } catch (e: any) {
       expect(e.toString()).to.match(/CannotCancelVerified|cannot be cancelled/i);
+    }
+  });
+
+  it("verified reservation refunds the sender in full after expiry", async () => {
+    const s = await setup();
+    const opened = await initialize(s, 100_000_000, 1);
+    await markVerified(s, opened.reservationId);
+    await sleep(2500);
+
+    const ix = await buildRefundExpiredIx({
+      program,
+      signer: s.sender.publicKey,
+      sender: s.sender.publicKey,
+      mint: s.mint,
+      senderTokenAccount: s.senderAta,
+      reservationId: opened.reservationId,
+    });
+    await provider.sendAndConfirm(new Transaction().add(ix), [s.sender]);
+
+    const senderBal = await getAccount(connection, s.senderAta);
+    expect(Number(senderBal.amount)).to.equal(1_000_000_000);
+    const [reservationPda] = findReservationPda(
+      program.programId,
+      s.sender.publicKey,
+      opened.reservationId
+    );
+    const acc = await connection.getAccountInfo(reservationPda);
+    expect(acc).to.equal(null);
+  });
+
+  it("refund_expired fails before the reservation expires", async () => {
+    const s = await setup();
+    const opened = await initialize(s, 100_000_000, 60);
+    await markVerified(s, opened.reservationId);
+
+    const ix = await buildRefundExpiredIx({
+      program,
+      signer: s.sender.publicKey,
+      sender: s.sender.publicKey,
+      mint: s.mint,
+      senderTokenAccount: s.senderAta,
+      reservationId: opened.reservationId,
+    });
+    try {
+      await provider.sendAndConfirm(new Transaction().add(ix), [s.sender]);
+      expect.fail("expected NotExpired");
+    } catch (e: any) {
+      expect(e.toString()).to.match(/NotExpired|has not expired/i);
+    }
+  });
+
+  it("merchant cannot refund an expired verified reservation", async () => {
+    const s = await setup();
+    const opened = await initialize(s, 100_000_000, 1);
+    await markVerified(s, opened.reservationId);
+    await sleep(2500);
+
+    const ix = await buildRefundExpiredIx({
+      program,
+      signer: s.merchant.publicKey,
+      sender: s.sender.publicKey,
+      mint: s.mint,
+      senderTokenAccount: s.senderAta,
+      reservationId: opened.reservationId,
+    });
+    try {
+      await provider.sendAndConfirm(new Transaction().add(ix), [s.merchant]);
+      expect.fail("expected UnauthorizedRefund");
+    } catch (e: any) {
+      expect(e.toString()).to.match(/UnauthorizedRefund|cannot refund/i);
+    }
+  });
+
+  it("a cashed-out reservation cannot be refunded", async () => {
+    const s = await setup();
+    const opened = await initialize(s, 100_000_000, 60);
+    await markVerified(s, opened.reservationId);
+    await provider.sendAndConfirm(
+      new Transaction().add(await cashoutIx(s, opened.reservationId)),
+      [s.merchant, s.receiver]
+    );
+
+    const ix = await buildRefundExpiredIx({
+      program,
+      signer: s.sender.publicKey,
+      sender: s.sender.publicKey,
+      mint: s.mint,
+      senderTokenAccount: s.senderAta,
+      reservationId: opened.reservationId,
+    });
+    try {
+      await provider.sendAndConfirm(new Transaction().add(ix), [s.sender]);
+      expect.fail("expected ReservationNotActive");
+    } catch (e: any) {
+      expect(e.toString()).to.match(/ReservationNotActive|not in Active/i);
     }
   });
 

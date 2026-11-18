@@ -1,6 +1,7 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 
+use crate::constants::MAX_EXPIRY_SECONDS;
 use crate::errors::ErrorCode;
 use crate::events::ReservationCreated;
 use crate::state::{Config, MerchantAccount, ReservationStatus, TurnReservation};
@@ -74,7 +75,10 @@ pub fn handler(
     reservation_id: u64,
 ) -> Result<()> {
     require!(amount > 0, ErrorCode::InvalidAmount);
-    require!(expiry_seconds > 0, ErrorCode::InvalidExpiry);
+    require!(
+        expiry_seconds > 0 && expiry_seconds <= MAX_EXPIRY_SECONDS,
+        ErrorCode::InvalidExpiry
+    );
 
     let clock = Clock::get()?;
     let expires_at = clock

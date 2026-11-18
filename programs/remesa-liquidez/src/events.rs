@@ -35,6 +35,14 @@ pub struct ReservationCancelled {
 }
 
 #[event]
+pub struct ReservationRefunded {
+    pub id: u64,
+    pub reservation: Pubkey,
+    pub caller: Pubkey,
+    pub amount: u64,
+}
+
+#[event]
 pub struct MerchantStatusChanged {
     pub merchant: Pubkey,
     pub active: bool,

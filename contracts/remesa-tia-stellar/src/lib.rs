@@ -20,6 +20,8 @@ const INSTANCE_TTL_THRESHOLD: u32 = 30 * LEDGERS_PER_DAY;
 const INSTANCE_TTL_EXTEND_TO: u32 = 60 * LEDGERS_PER_DAY;
 const PERSISTENT_TTL_THRESHOLD: u32 = 30 * LEDGERS_PER_DAY;
 const PERSISTENT_TTL_EXTEND_TO: u32 = 90 * LEDGERS_PER_DAY;
+/// Pickup window cap. `initialize_reservation` rejects anything longer.
+const MAX_EXPIRY_SECONDS: u64 = 30 * 24 * 60 * 60;
 
 #[contracterror]
 #[derive(Copy, Clone, Debug, Eq, PartialEq)]
@@ -37,6 +39,9 @@ pub enum Error {
     NotVerifier = 10,
     AlreadyVerified = 11,
     CannotCancel = 12,
+    InvalidExpiry = 13,
+    NotExpired = 14,
+    Expired = 15,
 }
 
 #[contracttype]
@@ -58,6 +63,8 @@ pub struct Reservation {
     pub receiver: Address,
     pub merchant: Address,
     pub amount: i128,
+    /// Unix time from the ledger. Cashout closes at this instant; `refund_expired` opens.
+    pub expires_at: u64,
     pub verified: bool,
     pub settled: bool,
 }
@@ -178,14 +185,23 @@ impl RemesaTiaContract {
         receiver: Address,
         merchant: Address,
         amount: i128,
+        expiry_seconds: u64,
     ) -> Result<u64, Error> {
         sender.require_auth();
         if amount <= 0 {
             return Err(Error::BadAmount);
         }
+        if expiry_seconds == 0 || expiry_seconds > MAX_EXPIRY_SECONDS {
+            return Err(Error::InvalidExpiry);
+        }
         if !merchant_is_active(&env, &merchant) {
             return Err(Error::NotMerchant);
         }
+        let expires_at = env
+            .ledger()
+            .timestamp()
+            .checked_add(expiry_seconds)
+            .ok_or(Error::InvalidExpiry)?;
         let (_, _, token, _) = require_cfg(&env);
         let reservation_id: u64 = env
             .storage()
@@ -207,6 +223,7 @@ impl RemesaTiaContract {
             receiver: receiver.clone(),
             merchant: merchant.clone(),
             amount,
+            expires_at,
             verified: false,
             settled: false,
         };
@@ -253,6 +270,9 @@ impl RemesaTiaContract {
         }
         if !reservation.verified {
             return Err(Error::NotVerified);
+        }
+        if env.ledger().timestamp() >= reservation.expires_at {
+            return Err(Error::Expired);
         }
         if !merchant_is_active(&env, &merchant) {
             return Err(Error::NotMerchant);
@@ -314,6 +334,38 @@ impl RemesaTiaContract {
         Ok(())
     }
 
+    /// Return 100% of a verified, unsettled, expired reservation to the sender.
+    /// The sender or the admin may call this. The assigned merchant may not.
+    pub fn refund_expired(env: Env, caller: Address, reservation_id: u64) -> Result<(), Error> {
+        caller.require_auth();
+        let (admin, _, token, _) = require_cfg(&env);
+        let mut reservation = read_reservation(&env, reservation_id)?;
+        if reservation.settled {
+            return Err(Error::Settled);
+        }
+        if !reservation.verified {
+            return Err(Error::NotVerified);
+        }
+        if caller == reservation.merchant {
+            return Err(Error::NotParty);
+        }
+        if caller != reservation.sender && caller != admin {
+            return Err(Error::NotParty);
+        }
+        if env.ledger().timestamp() < reservation.expires_at {
+            return Err(Error::NotExpired);
+        }
+        TokenClient::new(&env, &token).transfer(
+            &env.current_contract_address(),
+            &reservation.sender,
+            &reservation.amount,
+        );
+        reservation.settled = true;
+        write_reservation(&env, reservation_id, &reservation);
+        emit(&env, "rsv_refunded", reservation_id, caller);
+        Ok(())
+    }
+
     pub fn get_reservation(env: Env, reservation_id: u64) -> Option<Reservation> {
         let key = DataKey::Reservation(reservation_id);
         let reservation = env.storage().persistent().get(&key);
@@ -328,12 +380,13 @@ impl RemesaTiaContract {
 mod test {
     use super::*;
     use soroban_sdk::{
-        testutils::{Address as _, MockAuth, MockAuthInvoke},
+        testutils::{Address as _, Ledger as _, MockAuth, MockAuthInvoke},
         token::{StellarAssetClient, TokenClient},
         Address, Env, IntoVal,
     };
 
     const GROSS: i128 = 10_000_000; // 1 USDC (7 decimals on Stellar)
+    const EXPIRY: u64 = 3_600;
 
     struct Fixture {
         env: Env,
@@ -376,9 +429,13 @@ mod test {
         }
     }
 
-    fn open(f: &Fixture) -> u64 {
+    fn open_for(f: &Fixture, expiry_seconds: u64) -> u64 {
         let client = RemesaTiaContractClient::new(&f.env, &f.contract);
-        client.initialize_reservation(&f.sender, &f.receiver, &f.merchant, &GROSS)
+        client.initialize_reservation(&f.sender, &f.receiver, &f.merchant, &GROSS, &expiry_seconds)
+    }
+
+    fn open(f: &Fixture) -> u64 {
+        open_for(f, EXPIRY)
     }
 
     #[test]
@@ -399,7 +456,7 @@ mod test {
         let f = setup();
         let client = RemesaTiaContractClient::new(&f.env, &f.contract);
         let token_client = TokenClient::new(&f.env, &f.token);
-        let id = client.initialize_reservation(&f.sender, &f.receiver, &f.merchant, &GROSS);
+        let id = client.initialize_reservation(&f.sender, &f.receiver, &f.merchant, &GROSS, &EXPIRY);
         assert_eq!(id, 0);
         assert_eq!(token_client.balance(&f.contract), GROSS);
         assert_eq!(token_client.balance(&f.sender), GROSS * 3);
@@ -521,8 +578,10 @@ mod test {
     fn reservation_ids_are_assigned_and_distinct() {
         let f = setup();
         let client = RemesaTiaContractClient::new(&f.env, &f.contract);
-        let first = client.initialize_reservation(&f.sender, &f.receiver, &f.merchant, &GROSS);
-        let second = client.initialize_reservation(&f.sender, &f.receiver, &f.merchant, &GROSS);
+        let first =
+            client.initialize_reservation(&f.sender, &f.receiver, &f.merchant, &GROSS, &EXPIRY);
+        let second =
+            client.initialize_reservation(&f.sender, &f.receiver, &f.merchant, &GROSS, &EXPIRY);
         assert_eq!(first, 0);
         assert_eq!(second, 1);
         assert_ne!(first, second);
@@ -546,5 +605,82 @@ mod test {
             Err(Ok(Error::CannotCancel))
         );
         assert!(!client.get_reservation(&id).unwrap().settled);
+    }
+
+    #[test]
+    fn refund_expired_returns_full_amount_to_sender() {
+        let f = setup();
+        let client = RemesaTiaContractClient::new(&f.env, &f.contract);
+        let token_client = TokenClient::new(&f.env, &f.token);
+        let id = open_for(&f, 60);
+        client.mark_verified(&f.admin, &id);
+        let expires_at = client.get_reservation(&id).unwrap().expires_at;
+        f.env.ledger().set_timestamp(expires_at);
+        let before = token_client.balance(&f.sender);
+        client.refund_expired(&f.sender, &id);
+        assert_eq!(token_client.balance(&f.sender), before + GROSS);
+        assert_eq!(token_client.balance(&f.contract), 0);
+        assert!(client.get_reservation(&id).unwrap().settled);
+        assert_eq!(
+            client.try_refund_expired(&f.sender, &id),
+            Err(Ok(Error::Settled))
+        );
+    }
+
+    #[test]
+    fn admin_can_refund_expired() {
+        let f = setup();
+        let client = RemesaTiaContractClient::new(&f.env, &f.contract);
+        let token_client = TokenClient::new(&f.env, &f.token);
+        let id = open_for(&f, 60);
+        client.mark_verified(&f.admin, &id);
+        let expires_at = client.get_reservation(&id).unwrap().expires_at;
+        f.env.ledger().set_timestamp(expires_at);
+        client.refund_expired(&f.admin, &id);
+        assert_eq!(token_client.balance(&f.sender), GROSS * 4);
+        assert!(client.get_reservation(&id).unwrap().settled);
+    }
+
+    #[test]
+    fn refund_expired_rejects_before_expiry() {
+        let f = setup();
+        let client = RemesaTiaContractClient::new(&f.env, &f.contract);
+        let id = open_for(&f, EXPIRY);
+        client.mark_verified(&f.admin, &id);
+        assert_eq!(
+            client.try_refund_expired(&f.sender, &id),
+            Err(Ok(Error::NotExpired))
+        );
+        assert!(!client.get_reservation(&id).unwrap().settled);
+    }
+
+    #[test]
+    fn merchant_cannot_refund_expired() {
+        let f = setup();
+        let client = RemesaTiaContractClient::new(&f.env, &f.contract);
+        let id = open_for(&f, 60);
+        client.mark_verified(&f.admin, &id);
+        let expires_at = client.get_reservation(&id).unwrap().expires_at;
+        f.env.ledger().set_timestamp(expires_at);
+        assert_eq!(
+            client.try_refund_expired(&f.merchant, &id),
+            Err(Ok(Error::NotParty))
+        );
+        assert!(!client.get_reservation(&id).unwrap().settled);
+    }
+
+    #[test]
+    fn cashed_out_reservation_cannot_be_refunded() {
+        let f = setup();
+        let client = RemesaTiaContractClient::new(&f.env, &f.contract);
+        let id = open_for(&f, 60);
+        client.mark_verified(&f.admin, &id);
+        client.validate_cashout(&f.merchant, &id);
+        let expires_at = client.get_reservation(&id).unwrap().expires_at;
+        f.env.ledger().set_timestamp(expires_at);
+        assert_eq!(
+            client.try_refund_expired(&f.sender, &id),
+            Err(Ok(Error::Settled))
+        );
     }
 }

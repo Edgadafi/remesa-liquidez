@@ -5,6 +5,9 @@ pub const FEE_BPS: u64 = 25;
 /// Denominator for basis-point math.
 pub const BPS_DENOMINATOR: u64 = 10_000;
 
+/// Longest pickup window `initialize_reservation` accepts. 30 days.
+pub const MAX_EXPIRY_SECONDS: i64 = 30 * 24 * 60 * 60;
+
 /// Seed for the treasury authority PDA. The PDA at `[TREASURY_AUTHORITY_SEED]`
 /// owns every per-mint treasury vault and is the only entity that can move
 /// the accumulated fees out (via a future `withdraw_treasury` instruction).
