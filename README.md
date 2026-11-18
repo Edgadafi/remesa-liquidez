@@ -41,12 +41,14 @@ Ese contrato **no es actualizable**. El arreglo está en este repositorio (`vers
 
 El ciclo de una reserva es crear, verificar, y una sola salida:
 
-1. `initialize_reservation` bloquea el monto y fija `expires_at` (timestamp del ledger) a partir de `expiry_seconds`. En Soroban la ventana va de 1 hora a 30 días. Fuera de ese rango la llamada falla con `BadExpiry` y no mueve fondos. En Solana el tope es el mismo, 30 días, y el mínimo sigue siendo 1 segundo.
+1. `initialize_reservation` bloquea el monto y fija `expires_at` (timestamp del ledger) a partir de `expiry_seconds`. En las dos cadenas la ventana va de 1 hora (`MIN_EXPIRY_SECONDS = 3600`) a 30 días. Fuera de rango, Soroban falla con `BadExpiry` y Solana con `InvalidExpiry`. No se mueve el USDC.
 2. `mark_verified` lo firma el admin o el verifier. El remitente no puede verificar la suya.
 3. Antes de `expires_at`, el comercio asignado y el receptor firman `validate_cashout`. El comercio recibe el 99.75% y el tesoro el 0.25%.
 4. Desde `expires_at`, `validate_cashout` falla (`Expired` en Soroban, `ReservationExpired` en Solana) y `refund_expired` devuelve el 100% al remitente, sin fee. Lo firma el remitente, o el admin si no es el comercio ni el receptor. El comercio y el receptor no pueden.
 
 El cobro y el reembolso no se traslapan. En el instante del vencimiento el cobro ya está cerrado y solo queda el reembolso. Una reserva cobrada o ya reembolsada no se mueve otra vez. Una reserva verificada tampoco se cancela con `cancel_reservation`. El comercio no debe entregar efectivo antes de que `validate_cashout` confirme.
+
+En Solana el mínimo de una hora está en el build de despliegue. El feature de Cargo `test-short-expiry` lo baja a 1 segundo para que la suite de Anchor pueda esperar el reloj del validator. Un build de despliegue no debe usar ese feature: `anchor build` a secas, sin `--features test-short-expiry`.
 
 Crédito del reporte: KupiaSec.
 
@@ -189,8 +191,11 @@ npm run sync-env          # propaga a web/.env (y backend/.env cuando exista)
 ### Compilar y testear el programa
 
 ```bash
+# Despliegue. No pases --features test-short-expiry.
 anchor build
-anchor test
+
+# Suite. Ese feature baja el mínimo de expiry a 1 segundo.
+anchor test -- --features test-short-expiry
 ```
 
 ### E2E en devnet (mint → reserve → verify → cashout)

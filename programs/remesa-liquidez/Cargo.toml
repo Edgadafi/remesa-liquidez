@@ -10,6 +10,9 @@ name = "remesa_liquidez"
 
 [features]
 default = []
+# Lowers MIN_EXPIRY_SECONDS to 1 second so the Anchor suite can wait out
+# expiry on a local validator clock. Never enable this in a deploy build.
+test-short-expiry = []
 cpi = ["no-entrypoint"]
 no-entrypoint = []
 no-idl = []
