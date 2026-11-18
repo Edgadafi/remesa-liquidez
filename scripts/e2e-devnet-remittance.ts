@@ -39,6 +39,7 @@ import {
   buildInitializeReservationIx,
   buildMarkVerifiedIx,
   buildValidateCashoutIx,
+  findConfigPda,
   findMerchantPda,
   findTreasuryTokenAccountPda,
   findReservationPda,
@@ -212,7 +213,10 @@ async function main() {
     );
   }
 
-  // 4) Initialize reservation — sender signs
+  // 4) Initialize reservation — sender signs. The id is the protocol counter.
+  const [configPda] = findConfigPda(program.programId);
+  const cfg = await program.account.config.fetch(configPda);
+  const reservationId = cfg.nextReservationId;
   const initIx = await buildInitializeReservationIx({
     program,
     sender: sender.publicKey,
@@ -221,7 +225,8 @@ async function main() {
     senderTokenAccount: senderAta,
     amount: amountRaw,
     expirySeconds,
-    preferredMerchant: null,
+    merchant: merchant.publicKey,
+    reservationId,
   });
 
   console.log("[e2e] initializeReservation...");
@@ -235,22 +240,24 @@ async function main() {
 
   const [reservationPk] = findReservationPda(
     program.programId,
-    receiver.publicKey
+    sender.publicKey,
+    reservationId
   );
   console.log("[e2e] reservation PDA", reservationPk.toBase58());
 
-  // 5) markVerified — sender signs
+  // 5) markVerified — protocol admin signs, not the sender
   const verifyIx = await buildMarkVerifiedIx({
     program,
+    verifier: admin.publicKey,
     sender: sender.publicKey,
-    receiver: receiver.publicKey,
+    reservationId,
   });
   console.log("[e2e] markVerified...");
   const sigMv = await sendTx(
     connection,
     new Transaction().add(verifyIx),
-    [sender],
-    sender
+    [admin],
+    admin
   );
   console.log("[e2e] markVerified tx", sigMv);
 
@@ -264,19 +271,21 @@ async function main() {
   ).amount;
   console.log("[e2e] merchant ATA before cashout", merchantBalBefore.toString());
 
-  // 6) validateCashout — merchant signs (+ may pay treasury_vault rent)
+  // 6) validateCashout — assigned merchant and receiver both sign
   const cashIx = await buildValidateCashoutIx({
     program,
+    sender: sender.publicKey,
     receiver: receiver.publicKey,
     merchant: merchant.publicKey,
     mint: mintPk,
     merchantTokenAccount: merchantAta,
+    reservationId,
   });
   console.log("[e2e] validateCashout...");
   const sigCo = await sendTx(
     connection,
     new Transaction().add(cashIx),
-    [merchant],
+    [merchant, receiver],
     merchant
   );
   console.log("[e2e] cashout tx", sigCo);

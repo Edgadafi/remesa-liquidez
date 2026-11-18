@@ -2,6 +2,7 @@ use anchor_lang::prelude::*;
 
 pub mod constants;
 pub mod errors;
+pub mod events;
 pub mod instructions;
 pub mod state;
 
@@ -13,53 +14,61 @@ declare_id!("Fprb6jTLfjXfZ6yuWzS7LVXxwVvPbPgPZiEqDEL9bRfj");
 pub mod remesa_liquidez {
     use super::*;
 
-    /// Sender locks `amount` SPL tokens into a PDA-controlled vault for the
-    /// receiver. Optionally pre-selects a merchant; otherwise the merchant
-    /// slot is locked-on-claim during `validate_cashout`.
+    /// Sender locks `amount` SPL tokens into a PDA-controlled vault.
+    /// `reservation_id` must equal `Config.next_reservation_id`. The merchant
+    /// account passed in is bound to the reservation.
     pub fn initialize_reservation(
         ctx: Context<InitializeReservation>,
         amount: u64,
         expiry_seconds: i64,
-        preferred_merchant: Option<Pubkey>,
+        reservation_id: u64,
     ) -> Result<()> {
-        instructions::initialize_reservation::handler(
-            ctx,
-            amount,
-            expiry_seconds,
-            preferred_merchant,
-        )
+        instructions::initialize_reservation::handler(ctx, amount, expiry_seconds, reservation_id)
     }
 
-    /// Records that the receiver has completed off-chain humanity verification
-    /// (World ID). Signed by the sender — whose backend integrates with the
-    /// World ID API and is therefore the trust anchor for the proof. Once
-    /// flipped, `validate_cashout` no longer requires the receiver's signature.
-    pub fn mark_verified(ctx: Context<MarkVerified>) -> Result<()> {
-        instructions::mark_verified::handler(ctx)
+    /// Records off-chain verification. Signed by the protocol admin or the
+    /// configured verifier, never by the sender.
+    pub fn mark_verified(ctx: Context<MarkVerified>, reservation_id: u64) -> Result<()> {
+        instructions::mark_verified::handler(ctx, reservation_id)
     }
 
-    /// Merchant-only settlement that releases the vault tokens to a whitelisted
-    /// merchant. Requires `is_verified == true` (set by `mark_verified`) so the
-    /// receiver does not need to sign at the point of sale.
-    pub fn validate_cashout(ctx: Context<ValidateCashout>) -> Result<()> {
-        instructions::validate_cashout::handler(ctx)
+    /// Settlement for the merchant bound at init. The receiver must sign, as
+    /// proof they collected cash. Fee is 25 bps to the treasury vault.
+    pub fn validate_cashout(ctx: Context<ValidateCashout>, reservation_id: u64) -> Result<()> {
+        instructions::validate_cashout::handler(ctx, reservation_id)
     }
 
-    /// Refund path. Receiver may cancel anytime while Active; sender may only
-    /// cancel after `expires_at`.
-    pub fn cancel_reservation(ctx: Context<CancelReservation>) -> Result<()> {
-        instructions::cancel_reservation::handler(ctx)
+    /// Refund path while the reservation is still unverified. The receiver may
+    /// cancel anytime; the sender only after `expires_at`. A verified
+    /// reservation uses `refund_expired` instead.
+    pub fn cancel_reservation(ctx: Context<CancelReservation>, reservation_id: u64) -> Result<()> {
+        instructions::cancel_reservation::handler(ctx, reservation_id)
     }
 
-    /// Whitelist a merchant pubkey so it can be a counterparty in
-    /// `validate_cashout`.
-    pub fn register_merchant(ctx: Context<RegisterMerchant>, merchant: Pubkey) -> Result<()> {
-        instructions::register_merchant::register_handler(ctx, merchant)
+    /// Return 100% of a verified reservation to the sender after `expires_at`.
+    /// The sender or the protocol admin may sign. The merchant may not.
+    pub fn refund_expired(ctx: Context<RefundExpired>, reservation_id: u64) -> Result<()> {
+        instructions::refund_expired::handler(ctx, reservation_id)
     }
 
-    /// Toggle a merchant's active flag (admin-only).
-    pub fn set_merchant_status(ctx: Context<SetMerchantStatus>, active: bool) -> Result<()> {
-        instructions::register_merchant::set_status_handler(ctx, active)
+    /// Create or toggle a merchant whitelist entry. Admin only.
+    /// `active = false` blocks that merchant's cashouts.
+    pub fn set_merchant_status(
+        ctx: Context<SetMerchantStatus>,
+        merchant: Pubkey,
+        active: bool,
+    ) -> Result<()> {
+        instructions::register_merchant::set_status_handler(ctx, merchant, active)
+    }
+
+    /// Rotate the protocol admin. Current admin only.
+    pub fn set_admin(ctx: Context<SetAdmin>, new_admin: Pubkey) -> Result<()> {
+        instructions::set_admin::set_admin_handler(ctx, new_admin)
+    }
+
+    /// Rotate the verifier allowed to call `mark_verified`. Admin only.
+    pub fn set_verifier(ctx: Context<SetVerifier>, new_verifier: Pubkey) -> Result<()> {
+        instructions::set_admin::set_verifier_handler(ctx, new_verifier)
     }
 
     /// One-shot bootstrap: persists the protocol admin pubkey in a singleton

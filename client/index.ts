@@ -21,12 +21,18 @@ export const BPS_DENOMINATOR = 10_000;
 
 export type RemesaProgram = Program<RemesaLiquidez>;
 
+export function reservationIdSeed(reservationId: BN | number | bigint): Buffer {
+  return new BN(reservationId.toString()).toArrayLike(Buffer, "le", 8);
+}
+
+/** PDA `[reservation, sender, id_le]`. The id is the protocol counter. */
 export function findReservationPda(
   programId: PublicKey,
-  receiver: PublicKey
+  sender: PublicKey,
+  reservationId: BN | number | bigint
 ): [PublicKey, number] {
   return PublicKey.findProgramAddressSync(
-    [RESERVATION_SEED, receiver.toBuffer()],
+    [RESERVATION_SEED, sender.toBuffer(), reservationIdSeed(reservationId)],
     programId
   );
 }
@@ -79,25 +85,37 @@ export interface InitializeReservationArgs {
   senderTokenAccount: PublicKey;
   amount: BN | number | bigint;
   expirySeconds: BN | number | bigint;
-  preferredMerchant?: PublicKey | null;
+  /** Merchant bound to this reservation. Must already be active. */
+  merchant: PublicKey;
+  /** Must equal Config.nextReservationId. Any other value is rejected. */
+  reservationId: BN | number | bigint;
 }
 
 export async function buildInitializeReservationIx(
   args: InitializeReservationArgs
 ): Promise<TransactionInstruction> {
-  const [reservation] = findReservationPda(args.program.programId, args.receiver);
+  const reservationId = new BN(args.reservationId.toString());
+  const [reservation] = findReservationPda(
+    args.program.programId,
+    args.sender,
+    reservationId
+  );
   const [vault] = findVaultPda(args.program.programId, reservation);
+  const [config] = findConfigPda(args.program.programId);
+  const [merchantAccount] = findMerchantPda(args.program.programId, args.merchant);
 
   const amount = new BN(args.amount.toString());
   const expirySeconds = new BN(args.expirySeconds.toString());
 
   return args.program.methods
-    .initializeReservation(amount, expirySeconds, args.preferredMerchant ?? null)
+    .initializeReservation(amount, expirySeconds, reservationId)
     .accountsStrict({
       sender: args.sender,
       receiver: args.receiver,
       mint: args.mint,
       senderTokenAccount: args.senderTokenAccount,
+      config,
+      merchantAccount,
       reservation,
       vault,
       tokenProgram: TOKEN_PROGRAM_ID,
@@ -109,16 +127,23 @@ export async function buildInitializeReservationIx(
 
 export interface ValidateCashoutArgs {
   program: RemesaProgram;
+  sender: PublicKey;
   receiver: PublicKey;
   merchant: PublicKey;
   mint: PublicKey;
   merchantTokenAccount: PublicKey;
+  reservationId: BN | number | bigint;
 }
 
 export async function buildValidateCashoutIx(
   args: ValidateCashoutArgs
 ): Promise<TransactionInstruction> {
-  const [reservation] = findReservationPda(args.program.programId, args.receiver);
+  const reservationId = new BN(args.reservationId.toString());
+  const [reservation] = findReservationPda(
+    args.program.programId,
+    args.sender,
+    reservationId
+  );
   const [vault] = findVaultPda(args.program.programId, reservation);
   const [merchantWhitelist] = findMerchantPda(
     args.program.programId,
@@ -131,9 +156,11 @@ export async function buildValidateCashoutIx(
   );
 
   return args.program.methods
-    .validateCashout()
+    .validateCashout(reservationId)
     .accountsStrict({
       merchant: args.merchant,
+      receiver: args.receiver,
+      sender: args.sender,
       merchantWhitelist,
       reservation,
       mint: args.mint,
@@ -150,17 +177,27 @@ export async function buildValidateCashoutIx(
 
 export interface MarkVerifiedArgs {
   program: RemesaProgram;
+  /** Protocol admin or Config.verifier. The sender cannot verify. */
+  verifier: PublicKey;
   sender: PublicKey;
-  receiver: PublicKey;
+  reservationId: BN | number | bigint;
 }
 
 export async function buildMarkVerifiedIx(
   args: MarkVerifiedArgs
 ): Promise<TransactionInstruction> {
-  const [reservation] = findReservationPda(args.program.programId, args.receiver);
+  const reservationId = new BN(args.reservationId.toString());
+  const [reservation] = findReservationPda(
+    args.program.programId,
+    args.sender,
+    reservationId
+  );
+  const [config] = findConfigPda(args.program.programId);
   return args.program.methods
-    .markVerified()
+    .markVerified(reservationId)
     .accountsStrict({
+      verifier: args.verifier,
+      config,
       sender: args.sender,
       reservation,
     })
@@ -174,19 +211,61 @@ export interface CancelReservationArgs {
   receiver: PublicKey;
   mint: PublicKey;
   senderTokenAccount: PublicKey;
+  reservationId: BN | number | bigint;
 }
 
 export async function buildCancelReservationIx(
   args: CancelReservationArgs
 ): Promise<TransactionInstruction> {
-  const [reservation] = findReservationPda(args.program.programId, args.receiver);
+  const reservationId = new BN(args.reservationId.toString());
+  const [reservation] = findReservationPda(
+    args.program.programId,
+    args.sender,
+    reservationId
+  );
   const [vault] = findVaultPda(args.program.programId, reservation);
 
   return args.program.methods
-    .cancelReservation()
+    .cancelReservation(reservationId)
     .accountsStrict({
       signer: args.signer,
       sender: args.sender,
+      reservation,
+      mint: args.mint,
+      vault,
+      senderTokenAccount: args.senderTokenAccount,
+      tokenProgram: TOKEN_PROGRAM_ID,
+    })
+    .instruction();
+}
+
+export interface RefundExpiredArgs {
+  program: RemesaProgram;
+  signer: PublicKey;
+  sender: PublicKey;
+  mint: PublicKey;
+  senderTokenAccount: PublicKey;
+  reservationId: BN | number | bigint;
+}
+
+export async function buildRefundExpiredIx(
+  args: RefundExpiredArgs
+): Promise<TransactionInstruction> {
+  const reservationId = new BN(args.reservationId.toString());
+  const [reservation] = findReservationPda(
+    args.program.programId,
+    args.sender,
+    reservationId
+  );
+  const [vault] = findVaultPda(args.program.programId, reservation);
+  const [config] = findConfigPda(args.program.programId);
+
+  return args.program.methods
+    .refundExpired(reservationId)
+    .accountsStrict({
+      signer: args.signer,
+      sender: args.sender,
+      config,
       reservation,
       mint: args.mint,
       vault,
@@ -205,19 +284,12 @@ export interface RegisterMerchantArgs {
 export async function buildRegisterMerchantIx(
   args: RegisterMerchantArgs
 ): Promise<TransactionInstruction> {
-  const [merchantAccount] = findMerchantPda(
-    args.program.programId,
-    args.merchant
-  );
-
-  return args.program.methods
-    .registerMerchant(args.merchant)
-    .accountsStrict({
-      admin: args.admin,
-      merchantAccount,
-      systemProgram: SystemProgram.programId,
-    })
-    .instruction();
+  return buildSetMerchantStatusIx({
+    program: args.program,
+    admin: args.admin,
+    merchant: args.merchant,
+    active: true,
+  });
 }
 
 export interface SetMerchantStatusArgs {
@@ -235,11 +307,15 @@ export async function buildSetMerchantStatusIx(
     args.merchant
   );
 
+  const [config] = findConfigPda(args.program.programId);
+
   return args.program.methods
-    .setMerchantStatus(args.active)
+    .setMerchantStatus(args.merchant, args.active)
     .accountsStrict({
       admin: args.admin,
+      config,
       merchantAccount,
+      systemProgram: SystemProgram.programId,
     })
     .instruction();
 }
@@ -259,6 +335,44 @@ export async function buildInitializeConfigIx(
       admin: args.admin,
       config,
       systemProgram: SystemProgram.programId,
+    })
+    .instruction();
+}
+
+export interface SetAdminArgs {
+  program: RemesaProgram;
+  admin: PublicKey;
+  newAdmin: PublicKey;
+}
+
+export async function buildSetAdminIx(
+  args: SetAdminArgs
+): Promise<TransactionInstruction> {
+  const [config] = findConfigPda(args.program.programId);
+  return args.program.methods
+    .setAdmin(args.newAdmin)
+    .accountsStrict({
+      admin: args.admin,
+      config,
+    })
+    .instruction();
+}
+
+export interface SetVerifierArgs {
+  program: RemesaProgram;
+  admin: PublicKey;
+  newVerifier: PublicKey;
+}
+
+export async function buildSetVerifierIx(
+  args: SetVerifierArgs
+): Promise<TransactionInstruction> {
+  const [config] = findConfigPda(args.program.programId);
+  return args.program.methods
+    .setVerifier(args.newVerifier)
+    .accountsStrict({
+      admin: args.admin,
+      config,
     })
     .instruction();
 }

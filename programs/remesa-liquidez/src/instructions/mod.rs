@@ -2,7 +2,9 @@ pub mod cancel_reservation;
 pub mod initialize_config;
 pub mod initialize_reservation;
 pub mod mark_verified;
+pub mod refund_expired;
 pub mod register_merchant;
+pub mod set_admin;
 pub mod validate_cashout;
 pub mod withdraw_treasury;
 
@@ -12,7 +14,9 @@ mod re_exports {
     pub use super::initialize_config::*;
     pub use super::initialize_reservation::*;
     pub use super::mark_verified::*;
+    pub use super::refund_expired::*;
     pub use super::register_merchant::*;
+    pub use super::set_admin::*;
     pub use super::validate_cashout::*;
     pub use super::withdraw_treasury::*;
 }

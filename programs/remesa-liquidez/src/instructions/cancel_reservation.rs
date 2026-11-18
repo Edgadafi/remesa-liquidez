@@ -2,11 +2,13 @@ use anchor_lang::prelude::*;
 use anchor_spl::token::{self, CloseAccount, Token, TokenAccount, Transfer};
 
 use crate::errors::ErrorCode;
+use crate::events::ReservationCancelled;
 use crate::state::{ReservationStatus, TurnReservation};
 
 #[derive(Accounts)]
+#[instruction(reservation_id: u64)]
 pub struct CancelReservation<'info> {
-    /// Either the receiver (anytime) or the sender (post-expiry).
+    /// Receiver (anytime) or sender (post-expiry), and only while unverified.
     #[account(mut)]
     pub signer: Signer<'info>,
 
@@ -17,7 +19,11 @@ pub struct CancelReservation<'info> {
     #[account(
         mut,
         close = sender,
-        seeds = [TurnReservation::SEED_PREFIX, reservation.receiver.as_ref()],
+        seeds = [
+            TurnReservation::SEED_PREFIX,
+            sender.key().as_ref(),
+            &reservation_id.to_le_bytes(),
+        ],
         bump = reservation.bump,
         has_one = sender @ ErrorCode::SenderMismatch,
         has_one = mint @ ErrorCode::MintMismatch,
@@ -45,8 +51,13 @@ pub struct CancelReservation<'info> {
     pub token_program: Program<'info, Token>,
 }
 
-pub fn handler(ctx: Context<CancelReservation>) -> Result<()> {
+pub fn handler(ctx: Context<CancelReservation>, reservation_id: u64) -> Result<()> {
     let clock = Clock::get()?;
+
+    let sender_key = ctx.accounts.reservation.sender;
+    let reservation_bump = ctx.accounts.reservation.bump;
+    let amount = ctx.accounts.reservation.amount;
+    let reservation_key = ctx.accounts.reservation.key();
 
     {
         let reservation = &ctx.accounts.reservation;
@@ -54,6 +65,11 @@ pub fn handler(ctx: Context<CancelReservation>) -> Result<()> {
             reservation.status == ReservationStatus::Active,
             ErrorCode::ReservationNotActive
         );
+        require!(
+            reservation.id == reservation_id,
+            ErrorCode::ReservationIdMismatch
+        );
+        require!(!reservation.is_verified, ErrorCode::CannotCancelVerified);
 
         let signer_key = ctx.accounts.signer.key();
         if signer_key == reservation.receiver {
@@ -68,13 +84,11 @@ pub fn handler(ctx: Context<CancelReservation>) -> Result<()> {
         }
     }
 
-    let amount = ctx.accounts.reservation.amount;
-    let receiver_key = ctx.accounts.reservation.receiver;
-    let reservation_bump = ctx.accounts.reservation.bump;
-
+    let id_bytes = reservation_id.to_le_bytes();
     let signer_seeds: &[&[&[u8]]] = &[&[
         TurnReservation::SEED_PREFIX,
-        receiver_key.as_ref(),
+        sender_key.as_ref(),
+        id_bytes.as_ref(),
         std::slice::from_ref(&reservation_bump),
     ]];
 
@@ -107,12 +121,11 @@ pub fn handler(ctx: Context<CancelReservation>) -> Result<()> {
     let reservation = &mut ctx.accounts.reservation;
     reservation.status = ReservationStatus::Cancelled;
 
-    msg!(
-        "Reservation cancelled by {} for receiver {} (refunded {} tokens)",
-        ctx.accounts.signer.key(),
-        receiver_key,
-        amount
-    );
+    emit!(ReservationCancelled {
+        id: reservation_id,
+        reservation: reservation_key,
+        caller: ctx.accounts.signer.key(),
+    });
 
     Ok(())
 }

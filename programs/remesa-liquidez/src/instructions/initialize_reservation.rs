@@ -1,16 +1,19 @@
 use anchor_lang::prelude::*;
 use anchor_spl::token::{self, Mint, Token, TokenAccount, Transfer};
 
+use crate::constants::MAX_EXPIRY_SECONDS;
 use crate::errors::ErrorCode;
-use crate::state::{ReservationStatus, TurnReservation};
+use crate::events::ReservationCreated;
+use crate::state::{Config, MerchantAccount, ReservationStatus, TurnReservation};
 
 #[derive(Accounts)]
+#[instruction(amount: u64, expiry_seconds: i64, reservation_id: u64)]
 pub struct InitializeReservation<'info> {
     #[account(mut)]
     pub sender: Signer<'info>,
 
     /// CHECK: The receiver does not need to sign at init time. The pubkey is
-    /// recorded on the reservation and is validated on subsequent ixs.
+    /// recorded on the reservation and must sign `validate_cashout`.
     pub receiver: UncheckedAccount<'info>,
 
     pub mint: Account<'info, Mint>,
@@ -23,10 +26,29 @@ pub struct InitializeReservation<'info> {
     pub sender_token_account: Account<'info, TokenAccount>,
 
     #[account(
+        mut,
+        seeds = [Config::SEED_PREFIX],
+        bump = config.bump,
+        constraint = reservation_id == config.next_reservation_id @ ErrorCode::ReservationIdMismatch,
+    )]
+    pub config: Account<'info, Config>,
+
+    #[account(
+        seeds = [MerchantAccount::SEED_PREFIX, merchant_account.merchant.as_ref()],
+        bump = merchant_account.bump,
+        constraint = merchant_account.active @ ErrorCode::InvalidMerchant,
+    )]
+    pub merchant_account: Account<'info, MerchantAccount>,
+
+    #[account(
         init,
         payer = sender,
         space = TurnReservation::SPACE,
-        seeds = [TurnReservation::SEED_PREFIX, receiver.key().as_ref()],
+        seeds = [
+            TurnReservation::SEED_PREFIX,
+            sender.key().as_ref(),
+            &reservation_id.to_le_bytes(),
+        ],
         bump,
     )]
     pub reservation: Account<'info, TurnReservation>,
@@ -50,10 +72,13 @@ pub fn handler(
     ctx: Context<InitializeReservation>,
     amount: u64,
     expiry_seconds: i64,
-    preferred_merchant: Option<Pubkey>,
+    reservation_id: u64,
 ) -> Result<()> {
     require!(amount > 0, ErrorCode::InvalidAmount);
-    require!(expiry_seconds > 0, ErrorCode::InvalidExpiry);
+    require!(
+        expiry_seconds > 0 && expiry_seconds <= MAX_EXPIRY_SECONDS,
+        ErrorCode::InvalidExpiry
+    );
 
     let clock = Clock::get()?;
     let expires_at = clock
@@ -61,10 +86,21 @@ pub fn handler(
         .checked_add(expiry_seconds)
         .ok_or(ErrorCode::NumericOverflow)?;
 
+    let merchant = ctx.accounts.merchant_account.merchant;
+    let sender = ctx.accounts.sender.key();
+    let receiver = ctx.accounts.receiver.key();
+
+    ctx.accounts.config.next_reservation_id = ctx
+        .accounts
+        .config
+        .next_reservation_id
+        .checked_add(1)
+        .ok_or(ErrorCode::NumericOverflow)?;
+
     let reservation = &mut ctx.accounts.reservation;
-    reservation.sender = ctx.accounts.sender.key();
-    reservation.receiver = ctx.accounts.receiver.key();
-    reservation.merchant = preferred_merchant.unwrap_or_default();
+    reservation.sender = sender;
+    reservation.receiver = receiver;
+    reservation.merchant = merchant;
     reservation.mint = ctx.accounts.mint.key();
     reservation.amount = amount;
     reservation.expires_at = expires_at;
@@ -72,6 +108,7 @@ pub fn handler(
     reservation.status = ReservationStatus::Active;
     reservation.bump = ctx.bumps.reservation;
     reservation.vault_bump = ctx.bumps.vault;
+    reservation.id = reservation_id;
 
     let cpi_accounts = Transfer {
         from: ctx.accounts.sender_token_account.to_account_info(),
@@ -81,12 +118,14 @@ pub fn handler(
     let cpi_ctx = CpiContext::new(ctx.accounts.token_program.to_account_info(), cpi_accounts);
     token::transfer(cpi_ctx, amount)?;
 
-    msg!(
-        "Reservation initialized: receiver={}, amount={}, expires_at={}",
-        reservation.receiver,
-        reservation.amount,
-        reservation.expires_at
-    );
+    emit!(ReservationCreated {
+        id: reservation_id,
+        reservation: reservation.key(),
+        sender,
+        receiver,
+        merchant,
+        amount,
+    });
 
     Ok(())
 }
