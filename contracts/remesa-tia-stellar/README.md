@@ -2,13 +2,13 @@
 
 Dual-chain sibling of `programs/remesa-liquidez` (Solana Anchor).
 
-**Status:** deployed on **Stellar mainnet** (14 sep 2026). Constructor bound Circle USDC SAC + treasury.
+**Status:** the mainnet deployment below is **v0_b2** and is **not safe for third-party funds**. KupiaSec reported the flaws (cashout not bound to a merchant, sender-signed verification, no merchant deactivation, caller-chosen ids, no TTL extension). That contract is not upgradeable. `version()` in this source is `v0_c1` and needs a new deploy. Do not redeploy unless the founder asks.
 
 | | Mainnet |
 |--|--|
 | Contract | `CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTSAELKESPY6D7DUA22M5MP` |
 | Deploy tx | [113f072b…32e6](https://stellar.expert/explorer/public/tx/113f072b09b6addd41f9d2e98cb2e6d91d83f6da1b9c7f265231e0e4c5c432e6) |
-| `version()` | `v0_b2` |
+| `version()` on that deploy | `v0_b2` (vulnerable). Source in this repo is `v0_c1` and is not this address. |
 | Admin | Freighter `GB3RZCIAUDTUDLQZTJ3OFVZPS3VNTYKJST3M66NMOXUQFKYFPEN4OII4` |
 | Treasury | Lobstr `GBRMBOEGDTF72FP72D7OQLICBXVTSG25GYWZ3W7TNCLD47NEYVU7JUBS` |
 | USDC SAC | `CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75` |
@@ -18,11 +18,13 @@ Dual-chain sibling of `programs/remesa-liquidez` (Solana Anchor).
 
 | Solana (Anchor) | Stellar (Soroban) |
 |-----------------|-------------------|
-| `initialize_reservation` + SPL transfer in | `initialize_reservation` + SAC `transfer` into contract |
-| `mark_verified` | `mark_verified` |
-| `validate_cashout` + 25 bps treasury | `validate_cashout` + 25 bps treasury |
-| Merchant whitelist | `register_merchant` |
+| `initialize_reservation` + SPL transfer in. Id is `Config.next_reservation_id` (PDA seed sender + id). Merchant account is bound. | `initialize_reservation(sender, receiver, merchant, amount) -> u64`. The contract assigns the id. |
+| `mark_verified` signed by admin or `Config.verifier` | `mark_verified` signed by admin or the stored verifier. The sender cannot. |
+| `validate_cashout` + 25 bps. Merchant and receiver both sign. Merchant must be the one stored on the reservation. | `validate_cashout` + 25 bps. `merchant.require_auth()` and `receiver.require_auth()`. Merchant must equal `reservation.merchant` and be active. |
+| `set_merchant_status(merchant, active)` creates the PDA on first use (`init_if_needed`) | `set_merchant_status(merchant, active)` writes the persistent flag. `register_merchant` is gone. |
+| `set_admin` / `set_verifier` | `set_admin` / `set_verifier` |
 | `cancel_reservation` refund | `cancel_reservation` refund |
+| Rent-exempt accounts | `extend_ttl` on instance storage and on Reservation / Merchant entries |
 
 Testnet USDC SAC (x402 unpaid historically): `CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUZ2BQN4WFRIE3USCIHMXQDAMAA`
 

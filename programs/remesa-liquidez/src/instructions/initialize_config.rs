@@ -25,6 +25,8 @@ pub struct InitializeConfig<'info> {
 pub fn handler(ctx: Context<InitializeConfig>) -> Result<()> {
     let cfg = &mut ctx.accounts.config;
     cfg.admin = ctx.accounts.admin.key();
+    cfg.verifier = ctx.accounts.admin.key();
+    cfg.next_reservation_id = 0;
     cfg.bump = ctx.bumps.config;
     msg!("Protocol Config initialized. Admin = {}", cfg.admin);
     Ok(())

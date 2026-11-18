@@ -5,14 +5,21 @@ use crate::constants::{
     BPS_DENOMINATOR, FEE_BPS, TREASURY_AUTHORITY_SEED, TREASURY_VAULT_SEED,
 };
 use crate::errors::ErrorCode;
+use crate::events::ReservationCashed;
 use crate::state::{MerchantAccount, ReservationStatus, TurnReservation};
 
 #[derive(Accounts)]
+#[instruction(reservation_id: u64)]
 pub struct ValidateCashout<'info> {
-    /// Merchant providing physical liquidity. Sole signer of the cash-out and
-    /// payer for the lazy treasury init (cheap rent on first use per mint).
+    /// Merchant bound to the reservation. Pays the lazy treasury init.
     #[account(mut)]
     pub merchant: Signer<'info>,
+
+    /// Receiver. Their signature is the proof they collected cash.
+    pub receiver: Signer<'info>,
+
+    /// CHECK: PDA seed. `has_one = sender` checks the stored funder.
+    pub sender: UncheckedAccount<'info>,
 
     #[account(
         seeds = [MerchantAccount::SEED_PREFIX, merchant.key().as_ref()],
@@ -23,8 +30,14 @@ pub struct ValidateCashout<'info> {
 
     #[account(
         mut,
-        seeds = [TurnReservation::SEED_PREFIX, reservation.receiver.as_ref()],
+        seeds = [
+            TurnReservation::SEED_PREFIX,
+            sender.key().as_ref(),
+            &reservation_id.to_le_bytes(),
+        ],
         bump = reservation.bump,
+        has_one = sender @ ErrorCode::SenderMismatch,
+        has_one = receiver @ ErrorCode::ReceiverMismatch,
         has_one = mint @ ErrorCode::MintMismatch,
     )]
     pub reservation: Box<Account<'info, TurnReservation>>,
@@ -47,8 +60,7 @@ pub struct ValidateCashout<'info> {
     )]
     pub merchant_token_account: Box<Account<'info, TokenAccount>>,
 
-    /// Treasury authority PDA. Owns every per-mint treasury vault. Validated
-    /// by seeds; never signs from this instruction (only fees flow in).
+    /// Treasury authority PDA. Owns every per-mint treasury vault.
     /// CHECK: PDA validated by seeds.
     #[account(
         seeds = [TREASURY_AUTHORITY_SEED],
@@ -93,13 +105,17 @@ impl<'info> ValidateCashout<'info> {
     }
 }
 
-pub fn handler(ctx: Context<ValidateCashout>) -> Result<()> {
+pub fn handler(ctx: Context<ValidateCashout>, reservation_id: u64) -> Result<()> {
     let clock = Clock::get()?;
 
     require!(
         ctx.accounts.merchant_whitelist.active,
         ErrorCode::InvalidMerchant
     );
+
+    let sender_key = ctx.accounts.reservation.sender;
+    let reservation_bump = ctx.accounts.reservation.bump;
+    let total_amount = ctx.accounts.reservation.amount;
 
     {
         let reservation = &ctx.accounts.reservation;
@@ -112,17 +128,17 @@ pub fn handler(ctx: Context<ValidateCashout>) -> Result<()> {
             ErrorCode::ReservationExpired
         );
         require!(reservation.is_verified, ErrorCode::ReceiverNotVerified);
-
-        if reservation.merchant != Pubkey::default() {
-            require_keys_eq!(
-                reservation.merchant,
-                ctx.accounts.merchant.key(),
-                ErrorCode::InvalidMerchant
-            );
-        }
+        require!(
+            reservation.id == reservation_id,
+            ErrorCode::ReservationIdMismatch
+        );
+        require_keys_eq!(
+            reservation.merchant,
+            ctx.accounts.merchant.key(),
+            ErrorCode::InvalidMerchant
+        );
     }
 
-    let total_amount = ctx.accounts.reservation.amount;
     let fee_amount = total_amount
         .checked_mul(FEE_BPS)
         .and_then(|v| v.checked_div(BPS_DENOMINATOR))
@@ -131,11 +147,11 @@ pub fn handler(ctx: Context<ValidateCashout>) -> Result<()> {
         .checked_sub(fee_amount)
         .ok_or(ErrorCode::NumericOverflow)?;
 
-    let receiver_key = ctx.accounts.reservation.receiver;
-    let reservation_bump = ctx.accounts.reservation.bump;
+    let id_bytes = reservation_id.to_le_bytes();
     let signer_seeds: &[&[&[u8]]] = &[&[
         TurnReservation::SEED_PREFIX,
-        receiver_key.as_ref(),
+        sender_key.as_ref(),
+        id_bytes.as_ref(),
         std::slice::from_ref(&reservation_bump),
     ]];
 
@@ -158,17 +174,16 @@ pub fn handler(ctx: Context<ValidateCashout>) -> Result<()> {
     }
 
     let reservation = &mut ctx.accounts.reservation;
-    reservation.merchant = ctx.accounts.merchant.key();
     reservation.status = ReservationStatus::Completed;
 
-    msg!(
-        "Cashout settled: receiver={}, merchant={}, gross={}, fee={}, net={}",
-        reservation.receiver,
-        reservation.merchant,
-        total_amount,
-        fee_amount,
-        merchant_amount
-    );
+    emit!(ReservationCashed {
+        id: reservation_id,
+        reservation: reservation.key(),
+        merchant: ctx.accounts.merchant.key(),
+        gross: total_amount,
+        fee: fee_amount,
+        net: merchant_amount,
+    });
 
     Ok(())
 }

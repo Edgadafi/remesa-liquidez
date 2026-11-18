@@ -15,14 +15,31 @@
   | `POST /v1/alert` | $0.10 USDC |
   | `GET /health` | free |
 
-- **Soroban escrow contract (mainnet):** `CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTSAELKESPY6D7DUA22M5MP` — [stellar.expert](https://stellar.expert/explorer/public/contract/CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTSAELKESPY6D7DUA22M5MP)
+- **Soroban escrow contract (mainnet, v0_b2):** `CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTSAELKESPY6D7DUA22M5MP` — [stellar.expert](https://stellar.expert/explorer/public/contract/CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTSAELKESPY6D7DUA22M5MP). Esta dirección tiene fallas conocidas. Ver [Seguridad del escrow](#seguridad-del-escrow).
 - **First paid mainnet call (tx):** [b5fc310f…5695e0d](https://stellar.expert/explorer/public/tx/b5fc310f086d3e4e170384fec0ccd1485c9b348559a12f61aa1ec9f2b5695e0d) — replaying the same payment returned `409` (replay protection).
 
 ---
 
 > **Building an AI agent?** The TIA backend sells live USD/MXN intelligence paid per request with x402 on Stellar mainnet — no API key, ~$0.10 USDC per call. Guide + copy-paste TypeScript client: [docs/agents/README.md](docs/agents/README.md) · runnable example: [examples/agent-client/](examples/agent-client/)
 
-> **Seguridad:** el blindaje por capas del rail x402 (claves, contrato, facilitador, servidor, agente cliente, monitoreo) está documentado en [SECURITY.md](SECURITY.md).
+> **Seguridad:** el blindaje por capas del rail x402 (claves, contrato, facilitador, servidor, agente cliente, monitoreo) está documentado en [SECURITY.md](SECURITY.md). El escrow on-chain es una prueba de concepto; las fallas de la versión desplegada están en [Seguridad del escrow](#seguridad-del-escrow).
+
+## Seguridad del escrow
+
+El escrow (Soroban y el programa Anchor) es una **prueba de concepto**. No uses estos contratos para custodiar fondos de terceros.
+
+La versión desplegada en Stellar mainnet, `CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTSAELKESPY6D7DUA22M5MP`, tiene fallas conocidas. Las reportó **KupiaSec** y quedaron confirmadas en el código de esa versión:
+
+- cualquier comercio registrado podía cobrar una reserva verificada;
+- el remitente podía marcar como verificada su propia reserva;
+- el cobro no exigía la firma de quien recibe el efectivo;
+- no había forma de dar de baja a un comercio;
+- el identificador de la reserva lo elegía el primero que llegara;
+- las entradas persistentes no extendían su TTL.
+
+Ese contrato **no es actualizable**. El arreglo está en este repositorio (`version()` `v0_c1` en Soroban, el mismo flujo en Solana) y hace falta un despliegue nuevo. Hasta ese despliegue, `CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTSAELKESPY6D7DUA22M5MP` no debe usarse con fondos de terceros.
+
+Crédito del reporte: KupiaSec.
 
 ---
 
@@ -58,7 +75,7 @@ flowchart LR
 
 1. **Sender** bloquea SPL tokens en un vault PDA con `initialize_reservation`.
 2. **World ID** valida la identidad del receptor; el backend TIA firma `mark_verified` on-chain.
-3. **Merchant** escanea el Blink del receptor → firma `validate_cashout` → recibe el 99.75%; el 0.25% va al tesoro del protocolo.
+3. **Merchant** cobra solo si es el comercio asignado a la reserva. `validate_cashout` lo firman el comercio y el receptor (prueba de que recibió el efectivo). El comercio recibe el 99.75%; el 0.25% va al tesoro del protocolo.
 4. El admin puede drenar el tesoro con `withdraw_treasury` (admin-only).
 
 ---

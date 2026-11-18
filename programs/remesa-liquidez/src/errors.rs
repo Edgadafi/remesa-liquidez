@@ -32,4 +32,10 @@ pub enum ErrorCode {
     UnauthorizedAdmin,
     #[msg("Treasury vault has insufficient funds for the requested withdrawal")]
     InsufficientTreasury,
+    #[msg("Caller is not the protocol admin or the configured verifier")]
+    UnauthorizedVerifier,
+    #[msg("Reservation id does not match the protocol counter")]
+    ReservationIdMismatch,
+    #[msg("Admin pubkey is invalid")]
+    InvalidAdmin,
 }
