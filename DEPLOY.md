@@ -3,8 +3,11 @@
 ## Local validator (already working)
 
 ```bash
+# Deploy build. Do not pass --features test-short-expiry.
 anchor build
-anchor test
+
+# Anchor suite only. That feature lowers the expiry floor to 1 second.
+anchor test -- --features test-short-expiry
 ```
 
 12+ integration tests pass on `solana-test-validator`.
@@ -27,6 +30,7 @@ https://faucet.solana.com
 ### 2. Build + deploy
 
 ```bash
+# Deploy build. Do not pass --features test-short-expiry.
 anchor build
 anchor deploy --provider.cluster devnet
 ```

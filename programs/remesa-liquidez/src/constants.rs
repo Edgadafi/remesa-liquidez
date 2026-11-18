@@ -5,8 +5,32 @@ pub const FEE_BPS: u64 = 25;
 /// Denominator for basis-point math.
 pub const BPS_DENOMINATOR: u64 = 10_000;
 
+/// Shortest pickup window a deployment build accepts. One hour.
+/// The `test-short-expiry` feature lowers this to 1 second for the Anchor
+/// suite. A deploy build must not enable that feature.
+#[cfg(not(feature = "test-short-expiry"))]
+pub const MIN_EXPIRY_SECONDS: i64 = 3_600;
+
+/// Anchor suite only. One second, so tests can wait out expiry on the
+/// validator clock. Not for a deploy build.
+#[cfg(feature = "test-short-expiry")]
+pub const MIN_EXPIRY_SECONDS: i64 = 1;
+
 /// Longest pickup window `initialize_reservation` accepts. 30 days.
 pub const MAX_EXPIRY_SECONDS: i64 = 30 * 24 * 60 * 60;
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn min_expiry_matches_the_build() {
+        #[cfg(not(feature = "test-short-expiry"))]
+        assert_eq!(MIN_EXPIRY_SECONDS, 3_600);
+        #[cfg(feature = "test-short-expiry")]
+        assert_eq!(MIN_EXPIRY_SECONDS, 1);
+    }
+}
 
 /// Seed for the treasury authority PDA. The PDA at `[TREASURY_AUTHORITY_SEED]`
 /// owns every per-mint treasury vault and is the only entity that can move

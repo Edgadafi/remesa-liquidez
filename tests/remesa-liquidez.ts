@@ -698,6 +698,15 @@ describe("remesa-liquidez", () => {
     );
     const acc = await connection.getAccountInfo(reservationPda);
     expect(acc).to.equal(null);
+
+    try {
+      await provider.sendAndConfirm(new Transaction().add(ix), [s.sender]);
+      expect.fail("expected a second refund to fail");
+    } catch (e: any) {
+      expect(e.toString()).to.match(
+        /AccountNotInitialized|does not exist|could not find|seeds constraint|AccountOwnedByWrongProgram/i
+      );
+    }
   });
 
   it("refund_expired fails before the reservation expires", async () => {
@@ -719,6 +728,31 @@ describe("remesa-liquidez", () => {
     } catch (e: any) {
       expect(e.toString()).to.match(/NotExpired|has not expired/i);
     }
+  });
+
+  it("receiver cannot refund an expired verified reservation", async () => {
+    const s = await setup();
+    const opened = await initialize(s, 100_000_000, 1);
+    await markVerified(s, opened.reservationId);
+    await sleep(2500);
+
+    const ix = await buildRefundExpiredIx({
+      program,
+      signer: s.receiver.publicKey,
+      sender: s.sender.publicKey,
+      mint: s.mint,
+      senderTokenAccount: s.senderAta,
+      reservationId: opened.reservationId,
+    });
+    try {
+      await provider.sendAndConfirm(new Transaction().add(ix), [s.receiver]);
+      expect.fail("expected UnauthorizedRefund");
+    } catch (e: any) {
+      expect(e.toString()).to.match(/UnauthorizedRefund|cannot refund/i);
+    }
+
+    const senderBal = await getAccount(connection, s.senderAta);
+    expect(Number(senderBal.amount)).to.equal(1_000_000_000 - 100_000_000);
   });
 
   it("merchant cannot refund an expired verified reservation", async () => {

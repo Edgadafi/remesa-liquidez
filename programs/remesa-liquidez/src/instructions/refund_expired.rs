@@ -63,6 +63,7 @@ pub fn handler(ctx: Context<RefundExpired>, reservation_id: u64) -> Result<()> {
     let clock = Clock::get()?;
 
     let sender_key = ctx.accounts.reservation.sender;
+    let receiver = ctx.accounts.reservation.receiver;
     let merchant = ctx.accounts.reservation.merchant;
     let reservation_bump = ctx.accounts.reservation.bump;
     let amount = ctx.accounts.reservation.amount;
@@ -81,6 +82,10 @@ pub fn handler(ctx: Context<RefundExpired>, reservation_id: u64) -> Result<()> {
         );
         require!(reservation.is_verified, ErrorCode::ReceiverNotVerified);
         require!(signer_key != merchant, ErrorCode::UnauthorizedRefund);
+        require!(
+            signer_key != receiver || signer_key == sender_key,
+            ErrorCode::UnauthorizedRefund
+        );
         require!(
             signer_key == reservation.sender || signer_key == ctx.accounts.config.admin,
             ErrorCode::UnauthorizedRefund

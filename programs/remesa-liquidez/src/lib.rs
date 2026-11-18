@@ -46,7 +46,10 @@ pub mod remesa_liquidez {
     }
 
     /// Return 100% of a verified reservation to the sender after `expires_at`.
-    /// The sender or the protocol admin may sign. The merchant may not.
+    /// The sender may sign, and so may the admin, unless that admin is the
+    /// merchant or the receiver. The merchant and the receiver may not.
+    /// `validate_cashout` already fails at `expires_at`, so the two exits
+    /// do not overlap.
     pub fn refund_expired(ctx: Context<RefundExpired>, reservation_id: u64) -> Result<()> {
         instructions::refund_expired::handler(ctx, reservation_id)
     }

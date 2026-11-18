@@ -2,13 +2,13 @@
 
 Dual-chain sibling of `programs/remesa-liquidez` (Solana Anchor).
 
-**Status:** the mainnet deployment below is **v0_b2** and is **not safe for third-party funds**. KupiaSec reported the flaws (cashout not bound to a merchant, sender-signed verification, no merchant deactivation, caller-chosen ids, no TTL extension). That contract is not upgradeable. `version()` in this source is `v0_c1` and needs a new deploy. Do not redeploy unless the founder asks.
+**Status:** the mainnet deployment below is **v0_b2** and is **not safe for third-party funds**. KupiaSec reported the flaws (cashout not bound to a merchant, sender-signed verification, no merchant deactivation, caller-chosen ids, no TTL extension). That contract is not upgradeable. `version()` in this source is `v0_c2` and needs a new deploy. Do not redeploy unless the founder asks.
 
 | | Mainnet |
 |--|--|
 | Contract | `CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTSAELKESPY6D7DUA22M5MP` |
 | Deploy tx | [113f072b…32e6](https://stellar.expert/explorer/public/tx/113f072b09b6addd41f9d2e98cb2e6d91d83f6da1b9c7f265231e0e4c5c432e6) |
-| `version()` on that deploy | `v0_b2` (vulnerable). Source in this repo is `v0_c1` and is not this address. |
+| `version()` on that deploy | `v0_b2` (vulnerable). Source in this repo is `v0_c2` and is not this address. |
 | Admin | Freighter `GB3RZCIAUDTUDLQZTJ3OFVZPS3VNTYKJST3M66NMOXUQFKYFPEN4OII4` |
 | Treasury | Lobstr `GBRMBOEGDTF72FP72D7OQLICBXVTSG25GYWZ3W7TNCLD47NEYVU7JUBS` |
 | USDC SAC | `CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75` |
@@ -18,12 +18,12 @@ Dual-chain sibling of `programs/remesa-liquidez` (Solana Anchor).
 
 | Solana (Anchor) | Stellar (Soroban) |
 |-----------------|-------------------|
-| `initialize_reservation` + SPL transfer in. Id is `Config.next_reservation_id` (PDA seed sender + id). Merchant account is bound. Expiry is capped at 30 days. | `initialize_reservation(sender, receiver, merchant, amount, expiry_seconds) -> u64`. The contract assigns the id and stores `expires_at` from the ledger timestamp. Expiry is capped at 30 days. |
+| `initialize_reservation` + SPL transfer in. Id is `Config.next_reservation_id` (PDA seed sender + id). Merchant account is bound. A deploy build accepts `expiry_seconds` from 1 hour (`MIN_EXPIRY_SECONDS = 3600`) through 30 days. The Cargo feature `test-short-expiry` lowers the floor to 1 second for the Anchor suite and must not be enabled in a deploy build. | `initialize_reservation(sender, receiver, merchant, amount, expiry_seconds) -> u64`. The contract assigns the id and stores `expires_at` from the ledger timestamp. `expiry_seconds` must be from 1 hour through 30 days (`BadExpiry` otherwise). |
 | `mark_verified` signed by admin or `Config.verifier` | `mark_verified` signed by admin or the stored verifier. The sender cannot. |
-| `validate_cashout` + 25 bps. Merchant and receiver both sign. Merchant must be the one stored on the reservation. | `validate_cashout` + 25 bps. `merchant.require_auth()` and `receiver.require_auth()`. Merchant must equal `reservation.merchant` and be active. |
+| `validate_cashout` + 25 bps. Merchant and receiver both sign. Merchant must be the one stored on the reservation. Fails with `ReservationExpired` once `now >= expires_at`. | `validate_cashout` + 25 bps. `merchant.require_auth()` and `receiver.require_auth()`. Merchant must equal `reservation.merchant` and be active. Fails with `Expired` once `ledger.timestamp >= expires_at`. |
 | `set_merchant_status(merchant, active)` creates the PDA on first use (`init_if_needed`) | `set_merchant_status(merchant, active)` writes the persistent flag. `register_merchant` is gone. |
 | `set_admin` / `set_verifier` | `set_admin` / `set_verifier` |
-| `cancel_reservation` refunds an unverified reservation. `refund_expired` returns 100% to the sender after expiry of a verified reservation. Sender or admin. Not the merchant. | `cancel_reservation` refunds an unverified reservation. `refund_expired(caller, reservation_id)` does the same for a verified, expired, unsettled reservation. |
+| `cancel_reservation` refunds an unverified reservation. `refund_expired` returns 100% to the sender, with no fee, after expiry of a verified reservation. Sender, or admin who is not the merchant or the receiver. Not the merchant. Not the receiver. A second refund fails because the account is closed. Cashout and refund do not overlap. | `cancel_reservation` refunds an unverified reservation. `refund_expired(caller, reservation_id)` returns 100% to the sender, with no fee, for a verified, expired, unsettled reservation. Same caller rule. Emits `refunded`. A settled reservation returns `Settled`. Cashout and refund do not overlap. |
 | Rent-exempt accounts | `extend_ttl` on instance storage and on Reservation / Merchant entries |
 
 Testnet USDC SAC (x402 unpaid historically): `CBIELTK6YBZJU5UP2WWQEUCYKLPU6AUZ2BQN4WFRIE3USCIHMXQDAMAA`
