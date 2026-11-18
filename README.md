@@ -39,6 +39,8 @@ La versión desplegada en Stellar mainnet, `CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTS
 
 Ese contrato **no es actualizable**. El arreglo está en este repositorio (`version()` `v0_c1` en Soroban, el mismo flujo en Solana) y hace falta un despliegue nuevo. Hasta ese despliegue, `CBCWBOZBCKJ4FSCMQ2OJUI3UDDNT7QSPURTSAELKESPY6D7DUA22M5MP` no debe usarse con fondos de terceros.
 
+Una reserva ya verificada no se puede cancelar: el USDC solo sale con `validate_cashout`. El comercio no debe entregar efectivo antes de que esa transacción confirme. Si el receptor no firma el cobro, los fondos se quedan en el contrato.
+
 Crédito del reporte: KupiaSec.
 
 ---

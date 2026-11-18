@@ -36,6 +36,7 @@ pub enum Error {
     WrongMerchant = 9,
     NotVerifier = 10,
     AlreadyVerified = 11,
+    CannotCancel = 12,
 }
 
 #[contracttype]
@@ -295,6 +296,9 @@ impl RemesaTiaContract {
         if reservation.settled {
             return Err(Error::Settled);
         }
+        if reservation.verified {
+            return Err(Error::CannotCancel);
+        }
         if caller != reservation.sender && caller != reservation.receiver {
             return Err(Error::NotParty);
         }
@@ -525,5 +529,22 @@ mod test {
         let stored = client.get_reservation(&first).unwrap();
         assert_eq!(stored.sender, f.sender);
         assert!(client.get_reservation(&99).is_none());
+    }
+
+    #[test]
+    fn cannot_cancel_after_verified() {
+        let f = setup();
+        let client = RemesaTiaContractClient::new(&f.env, &f.contract);
+        let id = open(&f);
+        client.mark_verified(&f.admin, &id);
+        assert_eq!(
+            client.try_cancel_reservation(&f.sender, &id),
+            Err(Ok(Error::CannotCancel))
+        );
+        assert_eq!(
+            client.try_cancel_reservation(&f.receiver, &id),
+            Err(Ok(Error::CannotCancel))
+        );
+        assert!(!client.get_reservation(&id).unwrap().settled);
     }
 }

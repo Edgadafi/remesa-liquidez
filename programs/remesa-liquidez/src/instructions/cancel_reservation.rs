@@ -8,7 +8,7 @@ use crate::state::{ReservationStatus, TurnReservation};
 #[derive(Accounts)]
 #[instruction(reservation_id: u64)]
 pub struct CancelReservation<'info> {
-    /// Either the receiver (anytime) or the sender (post-expiry).
+    /// Receiver (anytime) or sender (post-expiry), and only while unverified.
     #[account(mut)]
     pub signer: Signer<'info>,
 
@@ -69,6 +69,7 @@ pub fn handler(ctx: Context<CancelReservation>, reservation_id: u64) -> Result<(
             reservation.id == reservation_id,
             ErrorCode::ReservationIdMismatch
         );
+        require!(!reservation.is_verified, ErrorCode::CannotCancelVerified);
 
         let signer_key = ctx.accounts.signer.key();
         if signer_key == reservation.receiver {

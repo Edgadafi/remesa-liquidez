@@ -650,6 +650,28 @@ describe("remesa-liquidez", () => {
     }
   });
 
+  it("cancel after mark_verified fails", async () => {
+    const s = await setup();
+    const opened = await initialize(s);
+    await markVerified(s, opened.reservationId);
+
+    const ix = await buildCancelReservationIx({
+      program,
+      signer: s.receiver.publicKey,
+      sender: s.sender.publicKey,
+      receiver: s.receiver.publicKey,
+      mint: s.mint,
+      senderTokenAccount: s.senderAta,
+      reservationId: opened.reservationId,
+    });
+    try {
+      await provider.sendAndConfirm(new Transaction().add(ix), [s.receiver]);
+      expect.fail("expected CannotCancelVerified");
+    } catch (e: any) {
+      expect(e.toString()).to.match(/CannotCancelVerified|cannot be cancelled/i);
+    }
+  });
+
   it("set_admin rotates the admin and the previous admin loses the role", async () => {
     const next = Keypair.generate();
     await airdrop(next.publicKey);

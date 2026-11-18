@@ -38,4 +38,6 @@ pub enum ErrorCode {
     ReservationIdMismatch,
     #[msg("Admin pubkey is invalid")]
     InvalidAdmin,
+    #[msg("A verified reservation cannot be cancelled")]
+    CannotCancelVerified,
 }

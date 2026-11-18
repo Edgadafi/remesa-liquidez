@@ -38,8 +38,9 @@ pub mod remesa_liquidez {
         instructions::validate_cashout::handler(ctx, reservation_id)
     }
 
-    /// Refund path. Receiver may cancel anytime while Active; sender may only
-    /// cancel after `expires_at`.
+    /// Refund path while the reservation is still unverified. The receiver may
+    /// cancel anytime; the sender only after `expires_at`. A verified
+    /// reservation can only leave through `validate_cashout`.
     pub fn cancel_reservation(ctx: Context<CancelReservation>, reservation_id: u64) -> Result<()> {
         instructions::cancel_reservation::handler(ctx, reservation_id)
     }
