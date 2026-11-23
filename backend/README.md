@@ -16,6 +16,8 @@ Backend TIA de holatia.app — notificaciones WhatsApp y API premium x402.
 | GET | `/v1/route?amount=USD` | x402 $0.25 — mejor ruta USD→MXN + supuestos |
 | POST | `/v1/alert` | x402 $0.10 — alerta umbral con webhook (one-shot) |
 | POST | `/v1/alert/check` | Bearer `CRON_SECRET` — evalúa y dispara alertas (cron) |
+| POST | `/v1/leads/pilot` | Aplicación al piloto de 30 días (fuera de x402) |
+| POST | `/v1/leads/report` | Lead-gate del PDF (WhatsApp o email, fuera de x402) |
 
 Smoke local del stack v1 (facilitador mock, sin pagos): `npm run smoke:v1`.
 

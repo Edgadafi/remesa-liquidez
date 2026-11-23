@@ -1,10 +1,12 @@
 # Remesa LiquidezIA
 
-> Mesa LATAM por turnos en Solana (Anchor): escrow + whitelist de comercios + fee al tesoro. Frontend Next.js en Vercel con Solana Actions (devnet). Backend TIA en Render con World ID + ElevenLabs + WhatsApp.
+## Qué lanzo el 27 de noviembre (Ship It · BAF)
+
+Página pública del piloto de TIA en stellar.holatia.app: cualquier fintech del corredor EE. UU.–México puede pedir una comparación de rutas USD→MXN y recibir un recibo firmado y verificable en IPFS. TIA compara y cotiza; no ejecuta pagos. Meta: 3 fintechs en un piloto gratuito de 30 días en el cierre de 2026.
 
 ## TIA on Stellar — live links (verifiable)
 
-- **Live site:** https://tia-stellar.vercel.app (source: [`site/`](site/))
+- **Live site:** https://stellar.holatia.app (source: [`site/`](site/))
 - **API (primary):** https://x402.holatia.app — x402 `exact` on `stellar:pubnet`. Contract: [docs/tia-openapi.yaml](docs/tia-openapi.yaml). License: [MIT](LICENSE).
 - **Testnet host (handshake):** https://remesa-tia-testnet.vercel.app — `stellar:testnet`
 
