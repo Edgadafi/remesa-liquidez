@@ -2493,7 +2493,7 @@ var require_websocket = __commonJS({
     var http4 = require("http");
     var net = require("net");
     var tls = require("tls");
-    var { randomBytes: randomBytes4, createHash: createHash6 } = require("crypto");
+    var { randomBytes: randomBytes4, createHash: createHash7 } = require("crypto");
     var { Duplex, Readable } = require("stream");
     var { URL: URL2 } = require("url");
     var PerMessageDeflate2 = require_permessage_deflate();
@@ -3174,7 +3174,7 @@ var require_websocket = __commonJS({
           abortHandshake(websocket, socket, "Invalid Upgrade header");
           return;
         }
-        const digest = createHash6("sha1").update(key + GUID).digest("base64");
+        const digest = createHash7("sha1").update(key + GUID).digest("base64");
         if (res.headers["sec-websocket-accept"] !== digest) {
           abortHandshake(websocket, socket, "Invalid Sec-WebSocket-Accept header");
           return;
@@ -3543,7 +3543,7 @@ var require_websocket_server = __commonJS({
     var EventEmitter3 = require("events");
     var http4 = require("http");
     var { Duplex } = require("stream");
-    var { createHash: createHash6 } = require("crypto");
+    var { createHash: createHash7 } = require("crypto");
     var extension2 = require_extension();
     var PerMessageDeflate2 = require_permessage_deflate();
     var subprotocol2 = require_subprotocol();
@@ -3850,7 +3850,7 @@ var require_websocket_server = __commonJS({
           );
         }
         if (this._state > RUNNING) return abortHandshake(socket, 503);
-        const digest = createHash6("sha1").update(key + GUID).digest("base64");
+        const digest = createHash7("sha1").update(key + GUID).digest("base64");
         const headers = [
           "HTTP/1.1 101 Switching Protocols",
           "Upgrade: websocket",
@@ -148002,6 +148002,9 @@ var v1_default = router3;
 var import_node_fs2 = require("node:fs");
 var import_express4 = require("express");
 
+// src/services/pilotLeads.ts
+var import_node_crypto8 = require("node:crypto");
+
 // src/services/reportLeads.ts
 var import_node_crypto7 = require("node:crypto");
 var import_node_fs = require("node:fs");
@@ -148109,6 +148112,73 @@ function publicBaseUrl() {
   return "https://x402.holatia.app";
 }
 
+// src/services/pilotLeads.ts
+var PILOT_LEADS_LIST_KEY = "tia:leads:pilot";
+var PILOT_LEADS_COUNT_KEY = "tia:leads:pilot:count";
+var PILOT_LEADS_LIST_MAX = 500;
+var PILOT_LEADS_HARD_CAP = 500;
+var EMAIL_CLAIM_TTL_MS = 400 * 24 * 60 * 60 * 1e3;
+var PILOT_ROLES = ["founder", "cto", "product", "compliance"];
+var PILOT_VOLUMES = ["under_100k", "100k_1m", "over_1m"];
+var NAME_MAX = 120;
+var COMPANY_MAX = 120;
+function isPilotRole(v) {
+  return PILOT_ROLES.includes(v);
+}
+function isPilotVolume(v) {
+  return PILOT_VOLUMES.includes(v);
+}
+function shortHash2(input2) {
+  return (0, import_node_crypto8.createHash)("sha256").update(input2).digest("hex").slice(0, 16);
+}
+function normalizeName(raw, max) {
+  const v = raw.trim().replace(/\s+/g, " ");
+  if (v.length < 2 || v.length > max) return null;
+  return v;
+}
+async function createPilotLead(input2) {
+  const name2 = normalizeName(input2.name, NAME_MAX);
+  if (!name2) return { ok: false, status: 400, error: "name_invalid" };
+  const email3 = normalizeEmail(input2.email);
+  if (!email3) return { ok: false, status: 400, error: "email_invalid" };
+  const company = normalizeName(input2.company, COMPANY_MAX);
+  if (!company) return { ok: false, status: 400, error: "company_invalid" };
+  const role = input2.role.trim().toLowerCase();
+  if (!isPilotRole(role)) return { ok: false, status: 400, error: "role_invalid" };
+  const volume = input2.volume.trim().toLowerCase();
+  if (!isPilotVolume(volume)) {
+    return { ok: false, status: 400, error: "volume_invalid" };
+  }
+  if (leadsStoreRequired() && !hasDurableKv()) {
+    return { ok: false, status: 503, error: "store_unavailable" };
+  }
+  const kv = getKvBackend();
+  const emailClaimKey = `tia:leads:pilot:email:${shortHash2(email3)}`;
+  const firstForEmail = await kv.claimOnce(emailClaimKey, EMAIL_CLAIM_TTL_MS);
+  if (!firstForEmail) {
+    return { ok: true };
+  }
+  const count = await kv.incr(PILOT_LEADS_COUNT_KEY);
+  if (count > PILOT_LEADS_HARD_CAP) {
+    await kv.decrBy(PILOT_LEADS_COUNT_KEY, 1);
+    await kv.del(emailClaimKey);
+    return { ok: false, status: 503, error: "store_unavailable" };
+  }
+  const record2 = {
+    kind: "pilot",
+    name: name2,
+    email: email3,
+    company,
+    role,
+    volume,
+    createdAt: (/* @__PURE__ */ new Date()).toISOString(),
+    ipHash: input2.ip ? shortHash2(input2.ip) : null,
+    uaHash: input2.userAgent ? shortHash2(input2.userAgent) : null
+  };
+  await kv.listPush(PILOT_LEADS_LIST_KEY, JSON.stringify(record2), PILOT_LEADS_LIST_MAX);
+  return { ok: true };
+}
+
 // src/routes/leads.ts
 var router4 = (0, import_express4.Router)();
 function downloadOrigin(req) {
@@ -148119,6 +148189,35 @@ function downloadOrigin(req) {
   }
   return publicBaseUrl();
 }
+router4.post("/pilot", async (req, res) => {
+  const body = req.body;
+  const str = (key) => typeof body[key] === "string" ? body[key] : "";
+  try {
+    const result = await createPilotLead({
+      name: str("name"),
+      email: str("email"),
+      company: str("company"),
+      role: str("role"),
+      volume: str("volume"),
+      ip: req.ip,
+      userAgent: typeof req.headers["user-agent"] === "string" ? req.headers["user-agent"] : void 0
+    });
+    if (!result.ok) {
+      res.status(result.status).json({ ok: false, error: result.error });
+      return;
+    }
+    res.json({
+      ok: true,
+      contact: "remesatia@gmail.com"
+    });
+  } catch (err) {
+    console.error(
+      "[POST /v1/leads/pilot] error:",
+      err instanceof Error ? err.message : "create failed"
+    );
+    res.status(500).json({ ok: false, error: "internal_error" });
+  }
+});
 router4.post("/report", async (req, res) => {
   const body = req.body;
   const channel = typeof body.channel === "string" ? body.channel : "";
@@ -148226,7 +148325,7 @@ function vercelDeploymentHost(req) {
 }
 
 // src/middleware/paymentGuard.ts
-var import_node_crypto8 = require("node:crypto");
+var import_node_crypto9 = require("node:crypto");
 var MAX_PAYMENT_HEADER_BYTES = 8 * 1024;
 function getEffectivePaymentHeader(req) {
   const v2 = req.headers["payment-signature"];
@@ -148307,7 +148406,7 @@ function paymentReplayGuard() {
       });
       return;
     }
-    const digest = (0, import_node_crypto8.createHash)("sha256").update(effective.value).update("\n").update(`${req.method} ${req.originalUrl}`).digest("hex");
+    const digest = (0, import_node_crypto9.createHash)("sha256").update(effective.value).update("\n").update(`${req.method} ${req.originalUrl}`).digest("hex");
     const key = `tia:xpay:${digest}`;
     const ttlMs = envInt("X402_REPLAY_TTL_SECONDS", 900) * 1e3;
     let first;
