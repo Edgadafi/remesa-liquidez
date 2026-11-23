@@ -1,5 +1,6 @@
 import { createReadStream } from "node:fs";
 import { Router, type Request, type Response } from "express";
+import { createPilotLead } from "../services/pilotLeads.js";
 import {
   REPORT_FILENAME,
   consumeDownloadToken,
@@ -27,6 +28,45 @@ function downloadOrigin(req: Request): string {
   }
   return publicBaseUrl();
 }
+
+/**
+ * POST /v1/leads/pilot — aplicación al piloto de 30 días (B2B). Fuera de x402.
+ */
+router.post("/pilot", async (req: Request, res: Response) => {
+  const body = req.body as Record<string, unknown>;
+  const str = (key: string) => (typeof body[key] === "string" ? body[key] : "");
+
+  try {
+    const result = await createPilotLead({
+      name: str("name"),
+      email: str("email"),
+      company: str("company"),
+      role: str("role"),
+      volume: str("volume"),
+      ip: req.ip,
+      userAgent:
+        typeof req.headers["user-agent"] === "string"
+          ? req.headers["user-agent"]
+          : undefined,
+    });
+
+    if (!result.ok) {
+      res.status(result.status).json({ ok: false, error: result.error });
+      return;
+    }
+
+    res.json({
+      ok: true,
+      contact: "remesatia@gmail.com",
+    });
+  } catch (err: unknown) {
+    console.error(
+      "[POST /v1/leads/pilot] error:",
+      err instanceof Error ? err.message : "create failed"
+    );
+    res.status(500).json({ ok: false, error: "internal_error" });
+  }
+});
 
 /**
  * POST /v1/leads/report — guarda WhatsApp o email y devuelve URL de descarga
