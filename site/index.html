@@ -166,14 +166,16 @@ h2 {
 }
 .lead { color: var(--color-text-secondary); max-width: 720px; font-size: 1.25rem; }
 .grid3, .grid4 { display: grid; gap: 16px; margin-top: 28px; }
-.grid3 { grid-template-columns: repeat(3, 1fr); }
-.grid4 { grid-template-columns: repeat(4, 1fr); }
+.grid3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.grid4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 .card {
   background: var(--color-card); border: 1px solid var(--color-line);
-  border-radius: 12px; padding: 22px;
+  border-radius: 12px; padding: 22px; min-width: 0;
 }
-.card h3 { margin: 0 0 8px; font-size: 1.31rem; color: var(--color-forest); }
-.card p { margin: 0; color: var(--color-text-secondary); font-size: 1.19rem; }
+.card h3 { margin: 0 0 8px; font-size: 1.31rem; color: var(--color-forest); overflow-wrap: break-word; }
+.card p { margin: 0; color: var(--color-text-secondary); font-size: 1.19rem; overflow-wrap: break-word; }
+.card code, .card a { overflow-wrap: anywhere; }
+.section-split { margin-top: 48px; }
 .step-n {
   display: inline-grid; place-items: center; width: 32px; height: 32px;
   border-radius: 6px; background: var(--color-forest); color: var(--color-cream);
@@ -219,7 +221,7 @@ footer a { color: var(--color-institution); }
 @media (max-width: 860px) {
   .hero-grid { grid-template-columns: 1fr; gap: 28px; }
   .hero-logo { grid-row: 1; width: min(220px, 56vw); }
-  .grid3, .grid4, .metrics, .form-grid { grid-template-columns: 1fr 1fr; }
+  .grid3, .grid4, .metrics, .form-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .nav-links { display: none; }
   nav.open .nav-links {
     display: flex; flex-direction: column; align-items: flex-start;
@@ -231,7 +233,7 @@ footer a { color: var(--color-institution); }
   .receipt dl { grid-template-columns: 1fr; }
 }
 @media (max-width: 560px) {
-  .grid3, .grid4, .metrics, .form-grid { grid-template-columns: 1fr; }
+  .grid3, .grid4, .metrics, .form-grid { grid-template-columns: minmax(0, 1fr); }
   header.hero, section { padding: 48px 0; }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -252,7 +254,7 @@ footer a { color: var(--color-institution); }
     <div class="nav-links" id="nav-links">
       <a href="#como">Cómo funciona</a>
       <a href="#demo">Demo en vivo</a>
-      <a href="#auditoria">Auditoría y trazabilidad</a>
+      <a href="#auditoria">Auditoría IPFS</a>
       <a href="https://x402.holatia.app" target="_blank" rel="noopener">Documentación API</a>
       <a class="btn btn-primary btn-nav" href="#piloto">Solicitar Piloto Gratis (30 días)</a>
     </div>
@@ -265,7 +267,7 @@ footer a { color: var(--color-institution); }
     <div>
       <span class="badge">Piloto abierto cierre 2026 · 3 cupos para fintechs</span>
       <h1>Inteligencia de rutas USD→MXN y recibos verificables para fintechs cross-border.</h1>
-      <p class="lede">Compara rieles de liquidez, usa el tipo de cambio de Bitso como referencia y obtén trazabilidad auditable en IPFS por cada cotización. Corredor EE. UU.–México (tamaño de mercado ~US$63B+). <strong>TIA compara y cotiza; no ejecuta ni custodia pagos.</strong></p>
+      <p class="lede">Capa de inteligencia para fintechs, wallets y agentes de pago: cotización USD→MXN, comparación de rutas y trazabilidad verificable. Corredor EE. UU.–México (~US$63.3B anuales). <strong>TIA compara y cotiza; no ejecuta pagos, no custodia fondos ni sustituye un SPEI.</strong></p>
       <div class="cta-row">
         <a class="btn btn-primary" href="#piloto">Aplicar al Piloto de 30 Días</a>
         <a class="btn btn-ghost" href="#demo">Probar comparación en vivo</a>
@@ -311,7 +313,7 @@ footer a { color: var(--color-institution); }
   <div class="wrap">
     <div class="eyebrow">Demo en vivo</div>
     <h2>Compara rutas USD→MXN</h2>
-    <p class="lead">Monto de referencia: US$412 (remesa promedio Banxico). Las cifras de costo por riel son supuestos publicados del modelo TIA. Si la API cobra x402, verás una estimación ilustrativa etiquetada — no un pago ejecutado.</p>
+    <p class="lead">Monto de referencia: US$412 (remesa promedio Banxico). Compara rieles frente al costo promedio reportado del corredor (~4.54%, World Bank; ~US$63.3B anuales). Las cifras por ruta son supuestos del modelo TIA. Si la API cobra x402, verás una estimación ilustrativa — no un pago ejecutado.</p>
     <form class="demo-bar" id="demo-form">
       <div class="field">
         <label for="amount">Monto en USD</label>
@@ -341,40 +343,34 @@ footer a { color: var(--color-institution); }
       <p class="cta-row" style="margin-top:16px">
         <a class="btn btn-ghost" id="r-verify" href="#" target="_blank" rel="noopener" aria-disabled="true">Verificar en /v1/audit</a>
       </p>
-      <p class="note">Privacidad por diseño: este recibo no almacena datos personales ni hashes de transacción, solo la huella criptográfica de la cotización. Los recibos viven en IPFS, no en la chain.</p>
+      <p class="note">Privacidad por diseño: este recibo no almacena PII ni hashes de transacciones privadas, solo la huella criptográfica de la cotización. Vive en IPFS (Nirium Audit Trail), no on-chain, y no sustituye un libro mayor ni un SPEI.</p>
     </div>
   </div>
 </section>
 
 <section id="auditoria">
   <div class="wrap">
-    <div class="eyebrow">Auditoría y trazabilidad</div>
+    <div class="eyebrow">Auditoría y cumplimiento</div>
     <h2>Respaldo verificable para cada tipo de cambio cotizado</h2>
-    <p class="lead">Protege a tu fintech ante aclaraciones de clientes o revisiones de cumplimiento. Cada consulta a <code>/v1/quote</code> y <code>/v1/route</code> devuelve un recibo digital independiente que prueba qué tasa estaba vigente y a qué hora, sin almacenar datos personales (PII).</p>
+    <p class="lead">Protege a tu fintech ante aclaraciones de clientes o revisiones internas. Cada consulta a <code>/v1/quote</code> y <code>/v1/route</code> devuelve un recibo firmado (ed25519) y anclado en IPFS (Nirium Audit Trail) para comprobar qué cotización existía y cuándo—sin guardar PII ni hashes de pago, y sin anclaje on-chain.</p>
     <div class="grid3">
-      <div class="card"><h3>Integridad garantizada</h3><p>Recibo firmado digitalmente (ed25519) sobre la cotización, nunca sobre tus pagos.</p></div>
-      <div class="card"><h3>Disponibilidad permanente</h3><p>Respaldo público en IPFS mediante Nirium Audit Trail, independiente de tu base de datos.</p></div>
-      <div class="card"><h3>Verificación gratuita</h3><p>Consulta pública en <code>/v1/audit/&lt;hash&gt;</code> sin consumo de créditos ni cargos extra.</p></div>
-    </div>
-  </div>
-</section>
-
-<section id="beneficios">
-  <div class="wrap">
-    <div class="eyebrow">Piloto gratuito</div>
-    <h2>Por qué unirse (3 fintechs, cierre 2026)</h2>
-    <div class="grid3">
-      <div class="card"><h3>0% durante 30 días</h3><p>Acceso sin cargos a cotización, ruteo y auditoría. Fuera del piloto esas llamadas se cobran en USDC vía x402.</p></div>
-      <div class="card"><h3>Cero custodia</h3><p>No tocamos fondos. Se integra como capa de inteligencia sobre tus rieles actuales.</p></div>
-      <div class="card"><h3>Acompañamiento directo</h3><p>OpenAPI en <a href="https://x402.holatia.app">x402.holatia.app</a> y soporte del equipo fundador.</p></div>
+      <div class="card"><h3>Respaldo ante disputas</h3><p>Comprueba qué tasa y ruta se cotizaron en el momento de la consulta, sin depender solo de logs internos. No representa el pago ejecutado después.</p></div>
+      <div class="card"><h3>Privacidad y cero custodia</h3><p>Sin PII ni hashes de transacciones privadas; el recibo guarda solo la huella de la cotización y no sustituye un libro mayor ni un SPEI.</p></div>
+      <div class="card"><h3>Verificación gratuita</h3><p>Consulta cualquier recibo sin costo en <a href="https://x402.holatia.app" target="_blank" rel="noopener"><code>https://x402.holatia.app/v1/audit/&lt;hash&gt;</code></a> (vía Nirium Audit Trail). Cotizar y rutear usan x402/USDC salvo en el piloto.</p></div>
     </div>
   </div>
 </section>
 
 <section id="piloto">
   <div class="wrap">
-    <div class="eyebrow">Aplicación</div>
-    <h2>Asegura uno de los 3 lugares para el Piloto Q4 2026</h2>
+    <div class="eyebrow">Piloto gratuito · cierre 2026</div>
+    <h2>Por qué unirse (3 fintechs, cierre 2026)</h2>
+    <div class="grid3">
+      <div class="card"><h3>0% durante 30 días</h3><p>Acceso sin cargos a cotización, ruteo y auditoría durante el piloto. Fuera del piloto, las llamadas se liquidan en USDC vía x402.</p></div>
+      <div class="card"><h3>Cero custodia y sin PII</h3><p>No movemos fondos ni almacenamos datos personales. Opera como capa de inteligencia y trazabilidad sobre tus rieles actuales.</p></div>
+      <div class="card"><h3>Soporte y OpenAPI</h3><p>Especificación OpenAPI en <a href="https://x402.holatia.app" target="_blank" rel="noopener">x402.holatia.app</a> y acompañamiento directo del equipo fundador para integrar y validar tu caso de uso.</p></div>
+    </div>
+    <h2 class="section-split">Asegura uno de los 3 lugares para el Piloto Q4 2026</h2>
     <p class="lead">Cuéntanos quién eres. Confirmamos por correo y puedes escribir también a <a href="mailto:remesatia@gmail.com">remesatia@gmail.com</a>.</p>
     <form class="form-grid" id="pilot-form" novalidate>
       <div class="field">
