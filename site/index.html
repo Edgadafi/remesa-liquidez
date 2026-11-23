@@ -252,7 +252,7 @@ footer a { color: var(--color-institution); }
     <div class="nav-links" id="nav-links">
       <a href="#como">Cómo funciona</a>
       <a href="#demo">Demo en vivo</a>
-      <a href="#auditoria">Auditoría IPFS</a>
+      <a href="#auditoria">Auditoría y trazabilidad</a>
       <a href="https://x402.holatia.app" target="_blank" rel="noopener">Documentación API</a>
       <a class="btn btn-primary btn-nav" href="#piloto">Solicitar Piloto Gratis (30 días)</a>
     </div>
@@ -348,13 +348,13 @@ footer a { color: var(--color-institution); }
 
 <section id="auditoria">
   <div class="wrap">
-    <div class="eyebrow">Auditoría IPFS</div>
-    <h2>Cada consulta puede dejar un rastro público</h2>
-    <p class="lead">Las llamadas de producción a <code>/v1/quote</code> y <code>/v1/route</code> generan un recibo firmado (ed25519) y lo anclan en IPFS (Nirium Audit Trail). La verificación es <code>GET https://x402.holatia.app/v1/audit/&lt;hash&gt;</code>. No hay anclaje on-chain y TIA no guarda PII.</p>
+    <div class="eyebrow">Auditoría y trazabilidad</div>
+    <h2>Respaldo verificable para cada tipo de cambio cotizado</h2>
+    <p class="lead">Protege a tu fintech ante aclaraciones de clientes o revisiones de cumplimiento. Cada consulta a <code>/v1/quote</code> y <code>/v1/route</code> devuelve un recibo digital independiente que prueba qué tasa estaba vigente y a qué hora, sin almacenar datos personales (PII).</p>
     <div class="grid3">
-      <div class="card"><h3>Firma</h3><p>Huella de la cotización, no del pago que tu fintech ejecute después.</p></div>
-      <div class="card"><h3>IPFS</h3><p>CID recuperable. No sustituye un libro mayor ni un SPEI.</p></div>
-      <div class="card"><h3>Gratis de verificar</h3><p><code>/v1/audit</code> no cobra x402. Cotizar y ruteo sí, salvo cupo de piloto.</p></div>
+      <div class="card"><h3>Integridad garantizada</h3><p>Recibo firmado digitalmente (ed25519) sobre la cotización, nunca sobre tus pagos.</p></div>
+      <div class="card"><h3>Disponibilidad permanente</h3><p>Respaldo público en IPFS mediante Nirium Audit Trail, independiente de tu base de datos.</p></div>
+      <div class="card"><h3>Verificación gratuita</h3><p>Consulta pública en <code>/v1/audit/&lt;hash&gt;</code> sin consumo de créditos ni cargos extra.</p></div>
     </div>
   </div>
 </section>
