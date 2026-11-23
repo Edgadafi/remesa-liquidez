@@ -406,13 +406,7 @@ footer a { color: var(--color-institution); }
 
 <script>
 (function () {
-  var API = (function () {
-    try {
-      var q = new URLSearchParams(location.search).get("api");
-      if (q && /^https:\/\//i.test(q)) return q.replace(/\/$/, "");
-    } catch (e) {}
-    return "https://x402.holatia.app";
-  })();
+  var API = "https://x402.holatia.app";
 
   var nav = document.getElementById("site-nav");
   var toggle = document.getElementById("menu-toggle");
@@ -508,23 +502,35 @@ footer a { color: var(--color-institution); }
       .catch(function () { return null; });
   }
 
+  function tdText(text) {
+    var td = document.createElement("td");
+    td.textContent = text;
+    return td;
+  }
+
   function renderTable(estimate, sourceLabel) {
     var tbody = document.getElementById("demo-rows");
     var wrap = document.getElementById("demo-table-wrap");
     var disc = document.getElementById("demo-disclaimer");
-    tbody.innerHTML = "";
-    estimate.options.forEach(function (opt) {
+    tbody.replaceChildren();
+    (estimate.options || []).forEach(function (opt) {
       var tr = document.createElement("tr");
       if (opt.route === estimate.best) tr.className = "best";
       var cost = opt.totalCostPct != null ? opt.totalCostPct.toFixed(2) + "%" : "—";
       if (opt.totalCostUsd != null) cost += " · " + opt.totalCostUsd.toLocaleString("en-US", { style: "currency", currency: "USD" });
       var eta = opt.etaMinutes >= 60 ? Math.round(opt.etaMinutes / 60) + " h" : opt.etaMinutes + " min";
-      tr.innerHTML =
-        "<td>" + opt.label + "</td>" +
-        "<td>" + moneyMxn(opt.mxnOut) + "</td>" +
-        "<td>" + cost + "</td>" +
-        "<td>" + eta + "</td>" +
-        "<td>" + (opt.route === estimate.best ? '<span class="pill">Mejor estimación</span>' : "") + "</td>";
+      tr.appendChild(tdText(String(opt.label || "")));
+      tr.appendChild(tdText(moneyMxn(opt.mxnOut)));
+      tr.appendChild(tdText(cost));
+      tr.appendChild(tdText(eta));
+      var mark = document.createElement("td");
+      if (opt.route === estimate.best) {
+        var pill = document.createElement("span");
+        pill.className = "pill";
+        pill.textContent = "Mejor estimación";
+        mark.appendChild(pill);
+      }
+      tr.appendChild(mark);
       tbody.appendChild(tr);
     });
     wrap.hidden = false;

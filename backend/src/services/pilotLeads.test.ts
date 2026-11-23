@@ -99,6 +99,16 @@ describe("createPilotLead", () => {
     assert.strictEqual(volume.body.error, "volume_invalid");
   });
 
+  it("el mismo correo no duplica la lista", async () => {
+    const first = await createPilotLead(valid);
+    const second = await createPilotLead({ ...valid, name: "Ana Dos" });
+    assert.deepStrictEqual(first, { ok: true });
+    assert.deepStrictEqual(second, { ok: true });
+    const lines = await getKvBackend().listAll(PILOT_LEADS_LIST_KEY);
+    assert.strictEqual(lines.length, 1);
+    assert.strictEqual(JSON.parse(lines[0]!).name, "Ana Founder");
+  });
+
   it("503 en producción sin Upstash", async () => {
     process.env.NODE_ENV = "production";
     const app = createApp();

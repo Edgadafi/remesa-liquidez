@@ -7,7 +7,11 @@ import { getKvBackend, hasDurableKv } from "./kvStore.js";
 import { leadsStoreRequired, normalizeEmail } from "./reportLeads.js";
 
 export const PILOT_LEADS_LIST_KEY = "tia:leads:pilot";
-export const PILOT_LEADS_LIST_MAX = 5_000;
+export const PILOT_LEADS_COUNT_KEY = "tia:leads:pilot:count";
+export const PILOT_LEADS_LIST_MAX = 500;
+/** Tope duro de solicitudes únicas (el piloto son 3 cupos). */
+export const PILOT_LEADS_HARD_CAP = 500;
+const EMAIL_CLAIM_TTL_MS = 400 * 24 * 60 * 60 * 1000;
 
 export const PILOT_ROLES = ["founder", "cto", "product", "compliance"] as const;
 export type PilotRole = (typeof PILOT_ROLES)[number];
@@ -71,6 +75,19 @@ export async function createPilotLead(input: {
   }
 
   const kv = getKvBackend();
+  const emailClaimKey = `tia:leads:pilot:email:${shortHash(email)}`;
+  const firstForEmail = await kv.claimOnce(emailClaimKey, EMAIL_CLAIM_TTL_MS);
+  if (!firstForEmail) {
+    return { ok: true };
+  }
+
+  const count = await kv.incr(PILOT_LEADS_COUNT_KEY);
+  if (count > PILOT_LEADS_HARD_CAP) {
+    await kv.decrBy(PILOT_LEADS_COUNT_KEY, 1);
+    await kv.del(emailClaimKey);
+    return { ok: false, status: 503, error: "store_unavailable" };
+  }
+
   const record = {
     kind: "pilot" as const,
     name,
