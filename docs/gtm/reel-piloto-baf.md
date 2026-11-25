@@ -8,7 +8,7 @@ Regenerar: `python3 docs/gtm/reel/render_reel.py`
 |---|---|
 | `/opt/cursor/artifacts/tia-piloto-baf-reel.mp4` | Instagram Reels, TikTok, Stories, X |
 | `/opt/cursor/artifacts/tia-piloto-baf-linkedin-1x1.jpg` | Feed LinkedIn / Discord BAF |
-| `docs/gtm/reel/frames/` | Stills si el video se recorta |
+| `docs/gtm/reel/frames/` | Stills si el video se recorta (gitignored) |
 
 Sin audio a propósito: el tipo está en cuadro. Grabar VO encima si el canal lo pide.
 
@@ -54,11 +54,15 @@ For BAF Builders Elite and the Stellar community — happy to intro a corridor o
 - ~US$63.3B y ~4.54% son del corredor / World Bank, no una medición de TIA.
 - El escrow Soroban no es este producto; no mencionarlo en el reel.
 
+## Dirección de arte
+
+El reel es holatia.app en vertical: tokens de `site/index.html` (Forest `#0F2318`, Cream `#F5F0E8`, Calor `#C9A84C`), logo circular de `site/logo.png`, nav, badge, métricas con barra dorada, tarjetas `#fffdf8` y botones `.btn-primary`. Fondo crema con grano de papel y una marca de agua suave del logo — sin mapas, sellos ni ilustraciones ajenas al sitio. Pillow + ffmpeg.
+
 ## Shot list
 
-1. Sello TIA · BAF Builders Elite × Stellar · “Inteligencia de rutas USD a MXN”
-2. Mapa abstracto del corredor · el costo vive en el FX
-3. “¿Con qué tipo de cambio decidimos?”
-4. Compara y cotiza · no ejecuta · no custodia · IPFS / sin PII
-5. 3 fintechs · 30 días · 0%
-6. CTA · holatia.app · 3 cupos
+1. Hero móvil · logo circular · badge de 3 cupos · H1 y CTAs del sitio
+2. El problema · tres cards (precios opacos / sin auditoría / cero custodia)
+3. Corredor · métricas ~4.54% / Bitso / IPFS y chrome de la tabla demo
+4. Cómo funciona · cuatro pasos con `.step-n`
+5. Piloto · 0% / cero custodia / OpenAPI
+6. Formulario CTA · holatia.app · Enviar solicitud
