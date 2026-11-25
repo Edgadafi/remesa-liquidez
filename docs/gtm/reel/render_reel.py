@@ -355,10 +355,10 @@ def captions_png(hook: str, sub: str, name: str) -> Path:
         d.text((x + (bw - tw) / 2, ty), line, font=hook_font, fill=(*CREAM, 255))
         ty += line_h + gap
 
-    sub_font = fnt(SANS_B, 24)
+    sub_font = fnt(SANS_B, 31)
     sub_lines = wrap(d, sub, sub_font, W - PAD * 2 - 56)
     s_line = int(sub_font.size * 1.16)
-    s_pad_x, s_pad_y = 28, 14
+    s_pad_x, s_pad_y = 32, 16
     sw = min(W - PAD * 2, int(max(d.textlength(line, font=sub_font) for line in sub_lines)) + s_pad_x * 2)
     sh = s_pad_y * 2 + s_line * len(sub_lines)
     sx = (W - sw) // 2
