@@ -83,6 +83,9 @@ pub struct RemesaTiaContract;
 mod receipts;
 pub use receipts::{ReceiptKey, ReceiptRecord};
 
+#[cfg(test)]
+mod receipts_test;
+
 fn bump_instance(env: &Env) {
     env.storage()
         .instance()
