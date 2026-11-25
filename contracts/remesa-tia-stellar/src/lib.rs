@@ -44,6 +44,12 @@ pub enum Error {
     BadExpiry = 13,
     NotExpired = 14,
     Expired = 15,
+    /// `register_receipt` before the admin set a receipt signer key.
+    NoReceiptSigner = 16,
+    /// CID is too short, too long, or has non base58/base32 characters.
+    BadCid = 17,
+    /// That receipt hash is already registered.
+    ReceiptExists = 18,
 }
 
 #[contracttype]
@@ -74,6 +80,9 @@ pub struct Reservation {
 #[contract]
 pub struct RemesaTiaContract;
 
+mod receipts;
+pub use receipts::{ReceiptKey, ReceiptRecord};
+
 fn bump_instance(env: &Env) {
     env.storage()
         .instance()
@@ -81,12 +90,19 @@ fn bump_instance(env: &Env) {
 }
 
 fn bump_persistent(env: &Env, key: &DataKey) {
+    bump_persistent_key(env, key);
+}
+
+pub(crate) fn bump_persistent_key<K>(env: &Env, key: &K)
+where
+    K: soroban_sdk::IntoVal<Env, soroban_sdk::Val>,
+{
     env.storage()
         .persistent()
         .extend_ttl(key, PERSISTENT_TTL_THRESHOLD, PERSISTENT_TTL_EXTEND_TO);
 }
 
-fn require_cfg(env: &Env) -> (Address, Address, Address, Address) {
+pub(crate) fn require_cfg(env: &Env) -> (Address, Address, Address, Address) {
     let admin: Address = env.storage().instance().get(&DataKey::Admin).unwrap();
     let verifier: Address = env
         .storage()
@@ -141,7 +157,7 @@ impl RemesaTiaContract {
     }
 
     pub fn version(_env: Env) -> Symbol {
-        symbol_short!("v0_c2")
+        symbol_short!("v0_c3")
     }
 
     /// Rotate the protocol admin. Only the current admin can call this.
@@ -456,10 +472,10 @@ mod test {
     }
 
     #[test]
-    fn version_is_v0_c2() {
+    fn version_is_v0_c3() {
         let f = setup();
         let client = RemesaTiaContractClient::new(&f.env, &f.contract);
-        assert_eq!(client.version(), symbol_short!("v0_c2"));
+        assert_eq!(client.version(), symbol_short!("v0_c3"));
     }
 
     #[test]
