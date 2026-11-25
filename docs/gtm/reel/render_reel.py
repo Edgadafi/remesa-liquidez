@@ -15,7 +15,10 @@ W, H = 1080, 1920
 FPS = 30
 PAD = 56
 NAV_H = 96
+HOOK_BAND = 68
+CONTENT_TOP = NAV_H + HOOK_BAND
 FOOT_H = 228
+XFADE = 0.26
 
 # holatia.app tokens (site/index.html :root)
 FOREST = (15, 35, 24)
@@ -330,12 +333,110 @@ def save(img: Image.Image, name: str) -> Path:
     return path
 
 
+def captions_png(hook: str, sub: str, name: str) -> Path:
+    """Hook under the TIA nav + subtitle above the footer. Does not cover CTAs."""
+    img = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    hook_font = fnt(SANS_B, 26)
+    max_w = W - PAD * 2 - 48
+    hook_lines = wrap(d, hook, hook_font, max_w)
+    pad_x, pad_y, gap = 26, 12, 4
+    line_h = int(hook_font.size * 1.12)
+    bw = min(W - PAD * 2, int(max(d.textlength(line, font=hook_font) for line in hook_lines)) + pad_x * 2)
+    bh = pad_y * 2 + line_h * len(hook_lines) + gap * (len(hook_lines) - 1)
+    x = (W - bw) // 2
+    y = NAV_H + 10
+    d.rounded_rectangle([x + 4, y + 6, x + bw + 4, y + bh + 6], radius=18, fill=(15, 35, 24, 45))
+    d.rounded_rectangle([x, y, x + bw, y + bh], radius=18, fill=(*FOREST, 246))
+    d.rounded_rectangle([x, y, x + bw, y + bh], radius=18, outline=(*CALOR, 230), width=2)
+    ty = y + pad_y - 1
+    for line in hook_lines:
+        tw = d.textlength(line, font=hook_font)
+        d.text((x + (bw - tw) / 2, ty), line, font=hook_font, fill=(*CREAM, 255))
+        ty += line_h + gap
+
+    sub_font = fnt(SANS_B, 24)
+    sub_lines = wrap(d, sub, sub_font, W - PAD * 2 - 56)
+    s_line = int(sub_font.size * 1.16)
+    s_pad_x, s_pad_y = 28, 14
+    sw = min(W - PAD * 2, int(max(d.textlength(line, font=sub_font) for line in sub_lines)) + s_pad_x * 2)
+    sh = s_pad_y * 2 + s_line * len(sub_lines)
+    sx = (W - sw) // 2
+    sy = H - FOOT_H - sh - 20
+    d.rounded_rectangle([sx + 4, sy + 6, sx + sw + 4, sy + sh + 6], radius=14, fill=(15, 35, 24, 40))
+    d.rounded_rectangle([sx, sy, sx + sw, sy + sh], radius=14, fill=(*FOREST, 236))
+    d.rounded_rectangle([sx, sy, sx + sw, sy + sh], radius=14, outline=(*CALOR, 200), width=2)
+    sty = sy + s_pad_y - 1
+    for line in sub_lines:
+        tw = d.textlength(line, font=sub_font)
+        d.text((sx + (sw - tw) / 2, sty), line, font=sub_font, fill=(*CREAM, 255))
+        sty += s_line
+    path = OUT / name
+    OUT.mkdir(parents=True, exist_ok=True)
+    img.save(path, "PNG")
+    return path
+
+
+def synth_bed(path: Path, seconds: float) -> Path:
+    """Original low-volume instrumental bed (pad + arpeggio). No third-party sample."""
+    import wave
+
+    import numpy as np
+
+    sr = 44100
+    n = int(round(seconds * sr))
+    t = np.arange(n, dtype=np.float64) / sr
+    bpm = 94
+    beat = 60.0 / bpm
+    y = np.zeros(n, dtype=np.float64)
+    roots = [130.81, 174.61, 196.00, 146.83]  # C F G D
+    for i, f0 in enumerate(roots * 24):
+        t0 = i * 4 * beat
+        if t0 >= seconds:
+            break
+        dur = 4 * beat + 0.55
+        idx = (t >= t0) & (t < t0 + dur)
+        tt = t[idx] - t0
+        e = np.minimum(tt / 0.2, 1.0) * np.exp(-0.28 * tt)
+        e *= np.clip((dur - tt) / 0.55, 0, 1)
+        for mul, amp in ((1.0, 0.10), (1.5, 0.045), (2.0, 0.028), (3.0, 0.012)):
+            y[idx] += amp * e * np.sin(2 * np.pi * f0 * mul * t[idx])
+    pent = [261.63, 293.66, 329.63, 392.00, 440.00, 523.25]
+    for i in range(int(seconds / (beat * 0.5)) + 1):
+        t0 = i * beat * 0.5
+        if t0 >= seconds:
+            break
+        f = pent[(i * 2) % len(pent)] if i % 4 else pent[(i * 3) % len(pent)]
+        idx = (t >= t0) & (t < t0 + 0.32)
+        tt = t[idx] - t0
+        e = np.exp(-6.5 * tt) * np.minimum(tt / 0.012, 1.0)
+        y[idx] += 0.038 * e * np.sin(2 * np.pi * f * t[idx])
+        y[idx] += 0.012 * e * np.sin(2 * np.pi * f * 2.0 * t[idx])
+    rng = np.random.default_rng(11)
+    y += 0.0035 * rng.standard_normal(n)
+    fade_in = 0.85
+    fade_out = min(1.5, max(0.8, seconds * 0.08))
+    y *= np.clip(t / fade_in, 0, 1) * np.clip((seconds - t) / fade_out, 0, 1)
+    y = np.tanh(y * 1.35)
+    peak = float(np.max(np.abs(y))) or 1.0
+    y = 0.22 * y / peak
+    stereo = np.column_stack((y, y * 0.96))
+    pcm = np.int16(np.clip(stereo, -1.0, 1.0) * 32767)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with wave.open(str(path), "w") as wav:
+        wav.setnchannels(2)
+        wav.setsampwidth(2)
+        wav.setframerate(sr)
+        wav.writeframes(pcm.tobytes())
+    return path
+
+
 def frame_open() -> Path:
     img = cream_canvas()
     draw_nav(img)
-    paste_logo(img, ((W - 240) // 2, NAV_H + 28), 240)
+    paste_logo(img, ((W - 240) // 2, CONTENT_TOP + 56), 240)
     d = ImageDraw.Draw(img)
-    y = badge(d, "Piloto abierto cierre 2026  ·  3 cupos", PAD, NAV_H + 288)
+    y = badge(d, "Piloto abierto cierre 2026  ·  3 cupos", PAD, CONTENT_TOP + 312)
     y = draw_wrapped(
         d,
         "Inteligencia de rutas USD a MXN y recibos verificables.",
@@ -370,7 +471,7 @@ def frame_problem() -> Path:
     img = cream_canvas()
     draw_nav(img)
     d = ImageDraw.Draw(img)
-    y = eyebrow(d, "El problema", PAD, NAV_H + 40)
+    y = eyebrow(d, "El problema", PAD, CONTENT_TOP + 8)
     y = draw_wrapped(
         d,
         "Spreads opacos y sin rastro auditable.",
@@ -415,7 +516,7 @@ def frame_corridor() -> Path:
     img = cream_canvas()
     draw_nav(img)
     d = ImageDraw.Draw(img)
-    y = eyebrow(d, "Demo en vivo", PAD, NAV_H + 40)
+    y = eyebrow(d, "Demo en vivo", PAD, CONTENT_TOP + 8)
     y = draw_wrapped(
         d,
         "Compara rutas USD a MXN.",
@@ -471,7 +572,7 @@ def frame_product() -> Path:
     img = cream_canvas()
     draw_nav(img)
     d = ImageDraw.Draw(img)
-    y = eyebrow(d, "Cómo funciona", PAD, NAV_H + 40)
+    y = eyebrow(d, "Cómo funciona", PAD, CONTENT_TOP + 8)
     y = draw_wrapped(
         d,
         "Cuatro pasos. Tú ejecutas el pago.",
@@ -509,7 +610,7 @@ def frame_offer() -> Path:
     img = cream_canvas()
     draw_nav(img)
     d = ImageDraw.Draw(img)
-    y = eyebrow(d, "Piloto gratuito  ·  cierre 2026", PAD, NAV_H + 120)
+    y = eyebrow(d, "Piloto gratuito  ·  cierre 2026", PAD, CONTENT_TOP + 36)
     y = draw_wrapped(
         d,
         "Por qué unirse (3 fintechs, cierre 2026)",
@@ -536,9 +637,9 @@ def frame_offer() -> Path:
 def frame_cta() -> Path:
     img = cream_canvas()
     draw_nav(img)
-    paste_logo(img, ((W - 200) // 2, NAV_H + 24), 200)
+    paste_logo(img, ((W - 180) // 2, CONTENT_TOP + 4), 180)
     d = ImageDraw.Draw(img)
-    y = eyebrow(d, "Asegura uno de 3 lugares", PAD, NAV_H + 244)
+    y = eyebrow(d, "Asegura uno de 3 lugares", PAD, CONTENT_TOP + 200)
     y = draw_wrapped(
         d,
         "Piloto Q4 2026. Confirmamos por correo.",
@@ -583,76 +684,233 @@ def frame_cta() -> Path:
     return save(img, "06-cta.png")
 
 
-def assemble(stills: list[tuple[Path, float]], dest: Path) -> None:
+def frame_close() -> Path:
+    img = cream_canvas()
+    draw_nav(img)
+    paste_logo(img, ((W - 220) // 2, CONTENT_TOP + 24), 220)
+    d = ImageDraw.Draw(img)
+    y = CONTENT_TOP + 268
+    inner = W - PAD * 2
+    d.rounded_rectangle([PAD, y, W - PAD, y + 168], radius=16, fill=FOREST)
+    d.rounded_rectangle([PAD, y, W - PAD, y + 168], radius=16, outline=CALOR, width=3)
+    y = draw_wrapped(
+        d,
+        "30 días gratis  ·  3 cupos  ·  Cero custodia",
+        fnt(SANS_B, 32),
+        PAD + 28,
+        y + 36,
+        CREAM,
+        inner - 56,
+        1.16,
+    )
+    draw_wrapped(
+        d,
+        "El piloto cierra 2026. Confirmamos por correo.",
+        fnt(SANS, 24),
+        PAD + 28,
+        y + 12,
+        (212, 232, 216),
+        inner - 56,
+        1.25,
+    )
+    y = CONTENT_TOP + 268 + 168 + 28
+    y = draw_wrapped(
+        d,
+        "Aplica ahora. Un enlace, dos puertas.",
+        fnt(SERIF, 44),
+        PAD,
+        y,
+        FOREST,
+        inner,
+        1.12,
+    )
+    y += 20
+    for url, label in (
+        ("holatia.app", "Landing del piloto"),
+        ("stellar.holatia.app", "Misma oferta en Stellar"),
+    ):
+        d.rounded_rectangle([PAD, y, W - PAD, y + 96], radius=12, fill=CARD, outline=LINE, width=2)
+        d.rectangle([PAD, y + 14, PAD + 6, y + 82], fill=CALOR)
+        d.text((PAD + 28, y + 16), url, font=fnt(SANS_B, 30), fill=FOREST)
+        d.text((PAD + 28, y + 54), label, font=fnt(SANS, 22), fill=SECONDARY)
+        y += 112
+    primary_btn(d, "Aplicar al Piloto de 30 días", PAD, y + 8, inner)
+    draw_footer(img, "holatia.app  ·  stellar.holatia.app")
+    return save(img, "07-close.png")
+
+
+def _run_ffmpeg(args: list[str]) -> None:
+    proc = subprocess.run(args, capture_output=True, text=True)
+    if proc.returncode != 0:
+        err = (proc.stderr or proc.stdout or "")[-2000:]
+        raise RuntimeError(f"ffmpeg failed ({proc.returncode}): {err}")
+
+
+def still_to_clip(path: Path, seconds: float, dest: Path, zoom: str | None) -> int:
+    frames = int(round(seconds * FPS))
+    if zoom:
+        if zoom == "hero":
+            z, y = "min(1.0+0.00062*on,1.07)", "max(0\\,ih/2-(ih/zoom/2)-70)"
+        elif zoom == "table":
+            z, y = "min(1.0+0.00058*on,1.065)", "min(ih-ih/zoom\\,ih/2-(ih/zoom/2)+90)"
+        else:
+            z, y = "min(1.0+0.0005*on,1.055)", "ih/2-(ih/zoom/2)"
+        vf = (
+            f"zoompan=z='{z}':x='iw/2-(iw/zoom/2)':y='{y}'"
+            f":d={frames}:s=1080x1920:fps={FPS}"
+        )
+        _run_ffmpeg(
+            [
+                "ffmpeg", "-y", "-i", str(path), "-vf", vf,
+                "-frames:v", str(frames), "-r", str(FPS),
+                "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                "-crf", "17", "-preset", "medium", str(dest),
+            ]
+        )
+        return frames
+    _run_ffmpeg(
+        [
+            "ffmpeg", "-y", "-loop", "1", "-i", str(path),
+            "-frames:v", str(frames), "-r", str(FPS),
+            "-vf", "scale=1080:1920,format=yuv420p",
+            "-c:v", "libx264", "-crf", "17", "-preset", "medium",
+            str(dest),
+        ]
+    )
+    return frames
+
+
+def burn_captions(clip: Path, overlay: Path, dest: Path, seconds: float) -> None:
+    fade_out_at = max(seconds - 0.34, 0.9)
+    fc = (
+        f"[1]format=rgba,fade=t=in:st=0:d=0.18:alpha=1,"
+        f"fade=t=out:st={fade_out_at:.2f}:d=0.26:alpha=1[h];"
+        f"[0][h]overlay=0:0"
+    )
+    _run_ffmpeg(
+        [
+            "ffmpeg", "-y", "-i", str(clip),
+            "-loop", "1", "-i", str(overlay),
+            "-filter_complex", fc, "-an",
+            "-t", f"{seconds:.3f}", "-r", str(FPS),
+            "-c:v", "libx264", "-pix_fmt", "yuv420p",
+            "-crf", "17", "-preset", "medium", str(dest),
+        ]
+    )
+
+
+def assemble(
+    shots: list[tuple[Path, float, str | None, Path | None]],
+    dest: Path,
+) -> float:
     dest.parent.mkdir(parents=True, exist_ok=True)
     work = Path("/tmp/tia-reel")
     work.mkdir(parents=True, exist_ok=True)
     clips: list[Path] = []
-    for i, (path, seconds) in enumerate(stills):
-        frames = int(round(seconds * FPS))
-        clip = work / f"clip{i:02d}.mp4"
-        zoom = "min(1.0+0.00045*on,1.035)" if i % 2 == 0 else "max(1.035-0.00035*on,1.0)"
-        vf = (
-            f"zoompan=z='{zoom}':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
-            f":d={frames}:s=1080x1920:fps={FPS},"
-            f"fade=t=in:st=0:d=0.14,fade=t=out:st={max(seconds - 0.18, 0):.2f}:d=0.18"
+    durs: list[float] = []
+    for i, (path, seconds, zoom, hook) in enumerate(shots):
+        raw = work / f"raw{i:02d}.mp4"
+        still_to_clip(path, seconds, raw, zoom)
+        hooked = work / f"clip{i:02d}.mp4"
+        if hook is not None:
+            burn_captions(raw, hook, hooked, seconds)
+        else:
+            hooked.write_bytes(raw.read_bytes())
+        clips.append(hooked)
+        durs.append(seconds)
+
+    # xfade slideup = scroll down the landing. First/last get a short dissolve edge.
+    if len(clips) == 1:
+        chained = clips[0]
+    else:
+        ins = []
+        for i, c in enumerate(clips):
+            ins += ["-i", str(c)]
+        parts = [f"[0][1]xfade=transition=slideup:duration={XFADE}:offset={durs[0] - XFADE:.3f}[v1]"]
+        acc = durs[0] - XFADE
+        last = "v1"
+        for i in range(2, len(clips)):
+            acc += durs[i - 1] - XFADE
+            nxt = f"v{i}"
+            parts.append(
+                f"[{last}][{i}]xfade=transition=slideup:duration={XFADE}:offset={acc:.3f}[{nxt}]"
+            )
+            last = nxt
+        total = sum(durs) - XFADE * (len(clips) - 1)
+        parts.append(
+            f"[{last}]fade=t=in:st=0:d=0.12,fade=t=out:st={max(total - 0.32, 0):.2f}:d=0.32[vout]"
         )
-        subprocess.run(
+        silent = work / "silent.mp4"
+        _run_ffmpeg(
             [
-                "ffmpeg", "-y", "-i", str(path), "-vf", vf,
-                "-frames:v", str(frames), "-c:v", "libx264", "-pix_fmt", "yuv420p",
-                "-crf", "17", "-preset", "medium", str(clip),
-            ],
-            check=True,
-            stdout=subprocess.DEVNULL,
-            stderr=subprocess.DEVNULL,
+                "ffmpeg", "-y", *ins,
+                "-filter_complex", ";".join(parts),
+                "-map", "[vout]", "-an",
+                "-c:v", "libx264", "-pix_fmt", "yuv420p",
+                "-crf", "17", "-preset", "medium", str(silent),
+            ]
         )
-        clips.append(clip)
-    listing = work / "concat.txt"
-    listing.write_text("".join(f"file '{c}'\n" for c in clips), encoding="utf-8")
-    subprocess.run(
+        chained = silent
+
+    total = sum(durs) - XFADE * max(len(clips) - 1, 0)
+    bed = synth_bed(work / "bed.wav", total + 0.15)
+    _run_ffmpeg(
         [
-            "ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", str(listing),
-            "-c:v", "libx264", "-pix_fmt", "yuv420p", "-crf", "17",
-            "-movflags", "+faststart", str(dest),
-        ],
-        check=True,
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL,
+            "ffmpeg", "-y", "-i", str(chained), "-i", str(bed),
+            "-filter_complex",
+            f"[1:a]volume=-8dB,afade=t=in:st=0:d=0.8,afade=t=out:st={max(total - 1.35, 0):.2f}:d=1.3[a]",
+            "-map", "0:v:0", "-map", "[a]",
+            "-c:v", "copy", "-c:a", "aac", "-b:a", "160k",
+            "-t", f"{total:.3f}", "-movflags", "+faststart", str(dest),
+        ]
     )
+    return total
 
 
-def export_stills(stills: list[tuple[Path, float]], artifacts: Path) -> None:
+def export_stills(paths: list[Path], artifacts: Path) -> None:
     artifacts.mkdir(parents=True, exist_ok=True)
     names = {
         "01-open.png": "tia-reel-01-open.jpg",
+        "03-corridor.png": "tia-reel-03-table.jpg",
         "05-offer.png": "tia-reel-05-offer.jpg",
         "06-cta.png": "tia-reel-06-cta.jpg",
+        "07-close.png": "tia-reel-07-close.jpg",
     }
-    for path, _ in stills:
+    for path in paths:
         dest_name = names.get(path.name)
         if dest_name:
             Image.open(path).convert("RGB").save(artifacts / dest_name, "JPEG", quality=92)
-    cta = Image.open(stills[-1][0]).convert("RGB")
+    close = Image.open(paths[-1]).convert("RGB")
     side = 1080
-    sq = cta.crop((0, (H - side) // 2, W, (H - side) // 2 + side))
+    sq = close.crop((0, (H - side) // 2, W, (H - side) // 2 + side))
     sq.save(artifacts / "tia-piloto-baf-linkedin-1x1.jpg", "JPEG", quality=92)
 
 
 def main() -> None:
-    stills = [
-        (frame_open(), 3.6),
-        (frame_problem(), 4.4),
-        (frame_corridor(), 4.6),
-        (frame_product(), 5.0),
-        (frame_offer(), 4.8),
-        (frame_cta(), 4.4),
+    # Clip lengths chosen so xfade 0.28s lands near the requested windows
+    # (~0-4, 4-8, 8-13, 13-18, 18-22, 22-26).
+    caps = [
+        ("Inteligencia USD a MXN sin custodia", "Cotiza, compara y audita sin mover dinero", "cap-01.png"),
+        ("¿Respaldas cada tasa que cotizas?", "Sin custodia · Sin PII · Sin fricción regulatoria", "cap-02.png"),
+        ("Compara rieles antes de ejecutar", "SPEI · Stablecoin · Bitso FX en un vistazo", "cap-03.png"),
+        ("Tú ejecutas. TIA deja la prueba", "Cotiza · Compara · Decide · Audita en IPFS", "cap-04.png"),
+        ("30 días gratis · Solo 3 fintechs", "Cero custodia y verificación en /v1/audit gratis", "cap-05.png"),
+        ("Asegura tu lugar en el piloto", "Aplica en holatia.app · Cierre 2026", "cap-06.png"),
+    ]
+    overlays = [captions_png(hook, sub, name) for hook, sub, name in caps]
+    shots: list[tuple[Path, float, str | None, Path | None]] = [
+        (frame_open(), 4.0, "hero", overlays[0]),
+        (frame_problem(), 4.2, None, overlays[1]),
+        (frame_corridor(), 5.0, "table", overlays[2]),
+        (frame_product(), 5.2, None, overlays[3]),
+        (frame_offer(), 4.2, "offer", overlays[4]),
+        (frame_close(), 5.0, "close", overlays[5]),
     ]
     artifacts = Path("/opt/cursor/artifacts")
-    assemble(stills, artifacts / "tia-piloto-baf-reel.mp4")
-    export_stills(stills, artifacts)
-    print("frames", [p.name for p, _ in stills])
-    print("duration", sum(s for _, s in stills))
+    duration = assemble(shots, artifacts / "tia-piloto-baf-reel.mp4")
+    export_stills([p for p, *_ in shots], artifacts)
+    print("frames", [p.name for p, *_ in shots])
+    print("duration", round(duration, 2))
 
 
 if __name__ == "__main__":
