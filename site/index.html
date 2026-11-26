@@ -357,7 +357,7 @@ footer a { color: var(--color-institution); }
     <div class="grid3">
       <div class="card"><h3>Respaldo ante disputas</h3><p>Comprueba qué tasa y ruta se cotizaron en el momento de la consulta, sin depender solo de logs internos. No representa el pago ejecutado después.</p></div>
       <div class="card"><h3>Privacidad y cero custodia</h3><p>Sin PII ni hashes de transacciones privadas; el recibo guarda solo la huella de la cotización y no sustituye un libro mayor ni un SPEI.</p></div>
-      <div class="card"><h3>Verificación de recibos</h3><p>Consulta cualquier recibo en <a href="https://x402.holatia.app" target="_blank" rel="noopener"><code>https://x402.holatia.app/v1/audit/&lt;hash&gt;</code></a> (vía Nirium Audit Trail). Cotizar y rutear usan x402/USDC; durante el piloto, sin cargos por 30 días.</p></div>
+      <div class="card"><h3>Verificación de recibos</h3><p>Consulta cualquier recibo en <a href="https://x402.holatia.app" target="_blank" rel="noopener"><code>https://x402.holatia.app/v1/audit/&lt;hash&gt;</code></a> (vía Nirium Audit Trail). Verificación incluida en el piloto de 30 días. Cotizar y rutear usan x402/USDC después del piloto.</p></div>
     </div>
   </div>
 </section>
@@ -367,7 +367,7 @@ footer a { color: var(--color-institution); }
     <div class="eyebrow">Piloto 30 días · Cierre Q4 2026</div>
     <h2>Valor para tu fintech (3 cupos, Q4 2026)</h2>
     <div class="grid3">
-      <div class="card"><h3>Piloto 30 días sin cargos</h3><p>Integra la API con acceso completo durante 30 días. Después del piloto: pago por llamada en USDC via x402 sobre Stellar.</p></div>
+      <div class="card"><h3>Integración asistida 30 días</h3><p>Integra la API con acceso completo durante 30 días. Después del piloto: pago por llamada en USDC vía x402 sobre Stellar.</p></div>
       <div class="card"><h3>Cero custodia y sin PII</h3><p>No movemos fondos ni almacenamos datos personales. Opera como capa de inteligencia y trazabilidad sobre tus rieles actuales.</p></div>
       <div class="card"><h3>Soporte y OpenAPI</h3><p>Especificación OpenAPI en <a href="https://x402.holatia.app" target="_blank" rel="noopener">x402.holatia.app</a> y acompañamiento directo del equipo fundador para integrar y validar tu caso de uso.</p></div>
     </div>
@@ -481,7 +481,7 @@ footer a { color: var(--color-institution); }
       "Bitso usd_mxn spot + retiro SPEI",
       hasFx ? amountUsd * useBid * (1 - BITSO_TAKER_FEE) : 0,
       15,
-      ["taker fee 0.65% (tier base)", "retiro SPEI MXN sin costo modelado"]
+      ["taker fee 0.65% (tier base)", "retiro SPEI MXN incluido en el modelo"]
     );
     var usdcNet = Math.max(amountUsd - USDC_NETWORK_FLAT_USD, 0);
     var stablecoin = option(
