@@ -97,8 +97,9 @@ nav .wrap { display: flex; align-items: center; justify-content: space-between; 
   text-decoration: none; border: 1px solid transparent; transition: background 0.15s, transform 0.15s;
 }
 .btn:hover { text-decoration: none; }
-.btn-primary { background: var(--color-forest); color: var(--color-cream); }
+.btn-primary { background: var(--color-forest); color: var(--color-cream) !important; }
 .btn-primary:hover { background: var(--color-institution); }
+.btn-primary:focus { color: var(--color-cream) !important; }
 .btn-ghost { background: transparent; color: var(--color-forest); border-color: var(--color-institution); }
 .btn-ghost:hover { background: #efe8d8; }
 .btn-nav { padding: 8px 14px; font-size: 0.88rem; }
@@ -256,7 +257,7 @@ footer a { color: var(--color-institution); }
       <a href="#demo">Demo en vivo</a>
       <a href="#auditoria">Auditoría IPFS</a>
       <a href="https://x402.holatia.app" target="_blank" rel="noopener">Documentación API</a>
-      <a class="btn btn-primary btn-nav" href="#piloto">Solicitar Piloto Gratis (30 días)</a>
+      <a class="btn btn-primary btn-nav" href="#piloto">Solicitar Piloto (30 días)</a>
     </div>
   </div>
 </nav>
