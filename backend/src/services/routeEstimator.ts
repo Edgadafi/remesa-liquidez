@@ -1,11 +1,16 @@
 /**
  * Estimador de rutas USD → MXN para GET /v1/route.
  *
- * Compara tres rieles con la tasa viva de Bitso como benchmark. Las comisiones
- * son SUPUESTOS documentados (constantes abajo), no cotizaciones ejecutables —
- * cada opción lista sus assumptions y la respuesta lleva disclaimer.
+ * Compara cuatro rieles con la tasa viva de Bitso como benchmark. Las primeras
+ * tres opciones usan SUPUESTOS documentados (constantes abajo), no cotizaciones
+ * ejecutables. Etherfuse usa cotizaciones reales del API v2 cuando está disponible.
  */
 import { getUsdMxnTicker } from "./fxRate.js";
+import {
+  getEtherfuseQuote,
+  isEtherfuseAvailable,
+  getEtherfuseEnvironment,
+} from "./etherfuse.js";
 
 // ── Supuestos por riel (documentados en cada respuesta) ─────────────────────
 /** Bitso taker fee del libro usd_mxn (tier base). */
@@ -20,7 +25,7 @@ const SPEI_FLAT_FEE_USD = 3;
 const SPEI_FX_MARGIN = 0.015;
 
 export interface RouteOption {
-  route: "bitso_directo" | "stablecoin_usdc" | "spei_tradicional";
+  route: "bitso_directo" | "stablecoin_usdc" | "spei_tradicional" | "etherfuse_offramp";
   label: string;
   mxnOut: number;
   effectiveRate: number;
@@ -28,6 +33,8 @@ export interface RouteOption {
   totalCostPct: number;
   etaMinutes: number;
   assumptions: string[];
+  unavailable?: boolean;
+  environment?: "sandbox" | "production";
 }
 
 export interface RouteEstimate {
@@ -109,7 +116,93 @@ export async function estimateRoutes(amountUsd: number): Promise<RouteEstimate> 
   );
 
   const options = [bitso, stablecoin, spei];
-  const best = options.reduce((a, b) => (b.mxnOut > a.mxnOut ? b : a));
+
+  // Etherfuse: USDC on Stellar → MXN offramp (REAL quote from API v2)
+  // Requires: API key + registered payment accounts (wallet + bank) + approved org.
+  // Without the key or on failure, show as unavailable.
+  let etherfuse: RouteOption;
+  if (isEtherfuseAvailable()) {
+    // These IDs must be configured in Etherfuse dashboard. For now, we show the
+    // route as unavailable if the quote fails (missing accounts, unapproved org, etc).
+    // TODO: Set ETHERFUSE_SOURCE_ACCOUNT_ID, ETHERFUSE_DEST_ACCOUNT_ID, ETHERFUSE_ORG_ID
+    // in env vars once payment accounts are registered.
+    const sourceAccountId = process.env.ETHERFUSE_SOURCE_ACCOUNT_ID ?? "";
+    const destAccountId = process.env.ETHERFUSE_DEST_ACCOUNT_ID ?? "";
+    const organizationId = process.env.ETHERFUSE_ORG_ID ?? "";
+
+    if (sourceAccountId && destAccountId && organizationId) {
+      try {
+        const quote = await getEtherfuseQuote(
+          amountUsd,
+          sourceAccountId,
+          destAccountId,
+          organizationId
+        );
+
+        if (quote) {
+          const mxnOut = parseFloat(quote.destinationAmount);
+          const env = getEtherfuseEnvironment();
+          etherfuse = option(
+            "etherfuse_offramp",
+            env === "sandbox"
+              ? "Etherfuse USDC→MXN (sandbox)"
+              : "Etherfuse USDC→MXN offramp",
+            mxnOut,
+            30,
+            [
+              `Cotización real API Etherfuse v2 (${env})`,
+              `Fee ${quote.feeBps} bps (~${(quote.feeBps / 100).toFixed(2)}%)`,
+              `USDC on Stellar → SPEI MXN`,
+              `Vence en 2 min (${new Date(quote.expiresAt).toISOString()})`,
+            ]
+          );
+          etherfuse.environment = env;
+        } else {
+          etherfuse = option(
+            "etherfuse_offramp",
+            "Etherfuse USDC→MXN offramp",
+            0,
+            30,
+            ["Cotización no disponible (revisa setup en Etherfuse)"]
+          );
+          etherfuse.unavailable = true;
+        }
+      } catch {
+        etherfuse = option(
+          "etherfuse_offramp",
+          "Etherfuse USDC→MXN offramp",
+          0,
+          30,
+          ["Cotización no disponible (error de red)"]
+        );
+        etherfuse.unavailable = true;
+      }
+    } else {
+      etherfuse = option(
+        "etherfuse_offramp",
+        "Etherfuse USDC→MXN offramp",
+        0,
+        30,
+        ["Cotización no disponible (cuentas no configuradas)"]
+      );
+      etherfuse.unavailable = true;
+    }
+  } else {
+    etherfuse = option(
+      "etherfuse_offramp",
+      "Etherfuse USDC→MXN offramp",
+      0,
+      30,
+      ["Cotización no disponible (ETHERFUSE_API_KEY no configurada)"]
+    );
+    etherfuse.unavailable = true;
+  }
+
+  options.push(etherfuse);
+
+  // Best route: ignore unavailable routes
+  const availableOptions = options.filter((o) => !o.unavailable);
+  const best = availableOptions.reduce((a, b) => (b.mxnOut > a.mxnOut ? b : a));
 
   return {
     apiVersion: "1",
@@ -120,7 +213,7 @@ export async function estimateRoutes(amountUsd: number): Promise<RouteEstimate> 
     best: best.route,
     options,
     disclaimer:
-      "Estimación con supuestos publicados por opción; no es una cotización ejecutable.",
+      "Estimación con supuestos publicados por opción (excepto Etherfuse); no es una cotización ejecutable.",
     generatedAt: new Date().toISOString(),
   };
 }
