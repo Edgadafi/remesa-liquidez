@@ -6,11 +6,11 @@ Este documento explica cómo desplegar el contrato de escrow `remesa-tia-stellar
 
 | Función | Qué hace | Pantalla/Componente | Archivo:Línea | Link TX |
 |---------|----------|---------------------|---------------|---------|
-| `set_merchant_status` | Activa o desactiva un comerciante en el sistema. Solo el admin puede llamarla. | Contrato TIA en mainnet | site/contrato.html:501 | [Por completar] |
-| `initialize_reservation` | Crea una reserva bloqueando USDC en el contrato. El sender firma y paga la operación. | Contrato TIA en mainnet | site/contrato.html:521 | [Por completar] |
-| `mark_verified` | Marca una reserva como verificada (KYC/compliance aprobado). Solo admin/verifier puede llamarla, y el caller NO puede ser el sender de la reserva. | Contrato TIA en mainnet | site/contrato.html:560 | [Por completar] |
-| `validate_cashout` | Liquida una reserva verificada pagando al merchant (neto - 25 bps) y al treasury (25 bps). Requiere firma del merchant y del receiver. | Contrato TIA en mainnet | site/contrato.html:581 | [Por completar] |
-| `open_dispute` | Abre una disputa en una reserva (en una segunda reserva para demo), congelándola. El sender, admin o verifier pueden llamarla. | Contrato TIA en mainnet | site/contrato.html:602 | [Por completar] |
+| `set_merchant_status` | Activa o desactiva un comerciante en el sistema. Solo el admin puede llamarla. | Contrato TIA en mainnet | site/contrato.html:530 | [Por completar] |
+| `initialize_reservation` | Crea una reserva bloqueando USDC en el contrato. El sender firma y paga la operación. | Contrato TIA en mainnet | site/contrato.html:550 | [Por completar] |
+| `mark_verified` | Marca una reserva como verificada (KYC/compliance aprobado). Solo admin/verifier puede llamarla, y el caller NO puede ser el sender de la reserva. | Contrato TIA en mainnet | site/contrato.html:589 | [Por completar] |
+| `validate_cashout` | Liquida una reserva verificada pagando al merchant (neto - 25 bps) y al treasury (25 bps). Requiere firma del merchant y del receiver. | Contrato TIA en mainnet | site/contrato.html:610 | [Por completar] |
+| `open_dispute` | Abre una disputa en una reserva (en una segunda reserva para demo), congelándola. El sender, admin o verifier pueden llamarla. | Contrato TIA en mainnet | site/contrato.html:631 | [Por completar] |
 
 **Nota:** `settle_with_receipt` está disponible como función extra (requiere recibo TIA registrado primero), pero NO se cuenta en las 5 principales para el hackathon.
 
