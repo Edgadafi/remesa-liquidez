@@ -84,5 +84,24 @@ describe("routeEstimator", () => {
         "Should mention missing accounts"
       );
     });
+
+    it("marks Etherfuse unavailable when account IDs are whitespace", async () => {
+      process.env.ETHERFUSE_API_KEY = "api_sand:mock:org";
+      process.env.ETHERFUSE_SOURCE_ACCOUNT_ID = "   ";
+      process.env.ETHERFUSE_DEST_ACCOUNT_ID = "   ";
+      process.env.ETHERFUSE_ORG_ID = "   ";
+
+      const estimate = await estimateRoutes(100);
+
+      const etherfuse = estimate.options.find(
+        (o) => o.route === "etherfuse_offramp"
+      );
+      assert.ok(etherfuse, "Etherfuse route should be present");
+      assert.strictEqual(etherfuse.unavailable, true, "Etherfuse should be unavailable with whitespace accounts");
+      assert.ok(
+        etherfuse.assumptions.some(a => a.includes("cuentas no configuradas")),
+        "Should mention missing accounts when whitespace"
+      );
+    });
   });
 });

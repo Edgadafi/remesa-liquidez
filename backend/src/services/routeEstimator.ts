@@ -126,9 +126,9 @@ export async function estimateRoutes(amountUsd: number): Promise<RouteEstimate> 
     // route as unavailable if the quote fails (missing accounts, unapproved org, etc).
     // TODO: Set ETHERFUSE_SOURCE_ACCOUNT_ID, ETHERFUSE_DEST_ACCOUNT_ID, ETHERFUSE_ORG_ID
     // in env vars once payment accounts are registered.
-    const sourceAccountId = process.env.ETHERFUSE_SOURCE_ACCOUNT_ID ?? "";
-    const destAccountId = process.env.ETHERFUSE_DEST_ACCOUNT_ID ?? "";
-    const organizationId = process.env.ETHERFUSE_ORG_ID ?? "";
+    const sourceAccountId = (process.env.ETHERFUSE_SOURCE_ACCOUNT_ID ?? "").trim();
+    const destAccountId = (process.env.ETHERFUSE_DEST_ACCOUNT_ID ?? "").trim();
+    const organizationId = (process.env.ETHERFUSE_ORG_ID ?? "").trim();
 
     if (sourceAccountId && destAccountId && organizationId) {
       try {
