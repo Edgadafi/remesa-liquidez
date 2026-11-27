@@ -500,14 +500,19 @@ footer a { color: var(--color-institution); }
       ["fee fijo $3", "margen FX 1.50% sobre mid"]
     );
     var options = [bitso, stablecoin, spei];
-    var best = options.reduce(function (a, b) {
-      if (a.mxnOut == null) return a;
+    var cheapest = options.reduce(function (a, b) {
+      if (a.mxnOut == null) return b;
+      if (b.mxnOut == null) return a;
       return b.mxnOut > a.mxnOut ? b : a;
+    });
+    var fastest = options.reduce(function (a, b) {
+      return a.etaMinutes < b.etaMinutes ? a : b;
     });
     return {
       amountUsd: amountUsd,
       midRate: hasFx ? round4(mid) : null,
-      best: best.route,
+      cheapest: cheapest.route,
+      fastest: fastest.route,
       options: options,
       disclaimer: "Estimación con supuestos publicados por opción; no es una cotización ejecutable. TIA no ejecuta el pago."
     };
@@ -539,7 +544,7 @@ footer a { color: var(--color-institution); }
     tbody.replaceChildren();
     (estimate.options || []).forEach(function (opt) {
       var tr = document.createElement("tr");
-      if (opt.route === estimate.best) tr.className = "best";
+      if (opt.route === estimate.cheapest) tr.className = "best";
       var cost = opt.totalCostPct != null ? opt.totalCostPct.toFixed(2) + "%" : "—";
       if (opt.totalCostUsd != null) cost += " · " + opt.totalCostUsd.toLocaleString("en-US", { style: "currency", currency: "USD" });
       var eta = opt.etaMinutes >= 60 ? Math.round(opt.etaMinutes / 60) + " h" : opt.etaMinutes + " min";
@@ -548,11 +553,18 @@ footer a { color: var(--color-institution); }
       tr.appendChild(tdText(cost));
       tr.appendChild(tdText(eta));
       var mark = document.createElement("td");
-      if (opt.route === estimate.best) {
+      if (opt.route === estimate.cheapest) {
         var pill = document.createElement("span");
         pill.className = "pill";
-        pill.textContent = "Mejor estimación";
+        pill.textContent = "Menor costo estimado";
         mark.appendChild(pill);
+      }
+      if (opt.route === estimate.fastest && opt.route !== estimate.cheapest) {
+        var fastPill = document.createElement("span");
+        fastPill.className = "pill";
+        fastPill.style.marginLeft = opt.route === estimate.cheapest ? "8px" : "0";
+        fastPill.textContent = "Más rápida";
+        mark.appendChild(fastPill);
       }
       tr.appendChild(mark);
       tbody.appendChild(tr);
