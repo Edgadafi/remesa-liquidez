@@ -28,7 +28,7 @@ TIA es capa de inteligencia para fintechs del corredor EE. UU.–México: cotiza
 
 Compara y cotiza. No ejecuta pagos. No custodia fondos. No sustituye un SPEI.
 
-Piloto gratuito de 30 días · 3 cupos · cierre 2026.
+Piloto de calibración de 30 días · 3 cupos de founder · cierre 2026.
 Cotizar, rutear y auditar a 0% durante el piloto.
 
 Aplica: holatia.app
@@ -41,7 +41,7 @@ We just shipped an update to holatia.app.
 
 TIA is an intelligence layer for US–Mexico corridor fintechs: USD/MXN quotes, route comparison, and signed IPFS receipts (Nirium Audit Trail). We quote and compare. We do not execute payments, custody funds, store PII, or replace SPEI.
 
-Offer: a 30-day free pilot for 3 fintechs (close 2026). Quote, route, and audit at 0% during the pilot; outside the slot, calls settle in USDC via x402. Verification at /v1/audit remains free.
+Offer: a 30-day calibration pilot for 3 fintechs (3 founder slots, close 2026). Quote, route, and audit at 0% during the pilot; outside the slot, calls settle in USDC via x402. Verification at /v1/audit remains free.
 
 Apply: https://holatia.app
 
