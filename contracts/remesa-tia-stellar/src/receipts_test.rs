@@ -9,6 +9,28 @@ use soroban_sdk::{
     Address, BytesN, Env, IntoVal, String, Symbol, TryFromVal, Val, Vec,
 };
 
+#[cfg(test)]
+pub fn register_test_receipt(f: &crate::test::Fixture) -> BytesN<32> {
+    use crate::receipts::receipt_message;
+    use ed25519_dalek::{Signer, SigningKey};
+
+    let tia_key = SigningKey::from_bytes(&[7u8; 32]);
+    let tia_pubkey = BytesN::from_array(&f.env, &tia_key.verifying_key().to_bytes());
+
+    let client = RemesaTiaContractClient::new(&f.env, &f.contract);
+    client.set_receipt_signer(&tia_pubkey);
+
+    let receipt_hash = BytesN::from_array(&f.env, &[42u8; 32]);
+    let msg = receipt_message(&f.env, &receipt_hash);
+    let mut raw = [0u8; 80];
+    msg.copy_into_slice(&mut raw);
+    let sig = BytesN::from_array(&f.env, &tia_key.sign(&raw).to_bytes());
+    let cid = String::from_str(&f.env, "bafkreigh2akiscaildcqabsyg3dfr6chu3fgpregiymsck7e7aqa4s52zy");
+
+    client.register_receipt(&f.admin, &receipt_hash, &cid, &sig);
+    receipt_hash
+}
+
 /// Real CIDv1 shape (59 chars, base32).
 const CID: &str = "bafkreigh2akiscaildcqabsyg3dfr6chu3fgpregiymsck7e7aqa4s52zy";
 

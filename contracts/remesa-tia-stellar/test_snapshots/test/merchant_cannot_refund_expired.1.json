@@ -453,6 +453,14 @@
                     },
                     {
                       "key": {
+                        "symbol": "disputed"
+                      },
+                      "val": {
+                        "bool": false
+                      }
+                    },
+                    {
+                      "key": {
                         "symbol": "expires_at"
                       },
                       "val": {
