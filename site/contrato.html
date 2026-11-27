@@ -289,6 +289,24 @@ h1 {
       <div class="status" id="status-dispute"></div>
     </div>
 
+    <!-- Admin: resolve_dispute -->
+    <div class="card">
+      <h2>Admin: resolve_dispute</h2>
+      <p>Resuelve una disputa (solo admin). Libera fondos al comerciante o devuelve al remitente.</p>
+      <div class="field">
+        <label for="reservation-id-resolve">ID de la reserva</label>
+        <input type="number" id="reservation-id-resolve" placeholder="1" value="1" min="0">
+      </div>
+      <div class="field">
+        <label>
+          <input type="checkbox" id="release-to-merchant">
+          Liberar al comerciante (si no, reembolso al remitente)
+        </label>
+      </div>
+      <button class="btn btn-primary" id="btn-resolve">Ejecutar resolve_dispute</button>
+      <div class="status" id="status-resolve"></div>
+    </div>
+
     <!-- Extra: settle_with_receipt (requiere recibo registrado, NO contada en las 5) -->
     <div class="card" style="opacity:0.7;">
       <h2>Extra: settle_with_receipt</h2>
@@ -719,6 +737,26 @@ h1 {
     );
 
     await buildAndSubmit(operation, 'status-settle');
+  });
+
+  // Admin: resolve_dispute
+  document.getElementById('btn-resolve').addEventListener('click', async function() {
+    const reservationId = parseInt(document.getElementById('reservation-id-resolve').value);
+    const releaseToMerchant = document.getElementById('release-to-merchant').checked;
+
+    if (isNaN(reservationId) || reservationId < 0) {
+      showStatus('status-resolve', 'Error: ID de reserva inválido', 'error');
+      return;
+    }
+
+    const contract = new StellarSdk.Contract(activeContractId);
+    const operation = contract.call(
+      'resolve_dispute',
+      StellarSdk.nativeToScVal(reservationId, { type: 'u64' }),
+      StellarSdk.nativeToScVal(releaseToMerchant, { type: 'bool' })
+    );
+
+    await buildAndSubmit(operation, 'status-resolve');
   });
 
   // Event listeners
