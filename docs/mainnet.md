@@ -6,13 +6,17 @@ Este documento explica cómo desplegar el contrato de escrow `remesa-tia-stellar
 
 | Función | Qué hace | Pantalla/Componente | Archivo:Línea | Link TX |
 |---------|----------|---------------------|---------------|---------|
-| `set_merchant_status` | Activa o desactiva un comerciante en el sistema. Solo el admin puede llamarla. | Contrato TIA en mainnet | site/contrato.html:547 | [Por completar] |
-| `initialize_reservation` | Crea una reserva bloqueando USDC en el contrato. El sender firma y paga la operación. | Contrato TIA en mainnet | site/contrato.html:567 | [Por completar] |
-| `mark_verified` | Marca una reserva como verificada (KYC/compliance aprobado). Solo admin/verifier puede llamarla, y el caller NO puede ser el sender de la reserva. | Contrato TIA en mainnet | site/contrato.html:606 | [Por completar] |
-| `validate_cashout` | Liquida una reserva verificada pagando al merchant (neto - 25 bps) y al treasury (25 bps). Requiere firma del merchant y del receiver. | Contrato TIA en mainnet | site/contrato.html:627 | [Por completar] |
-| `open_dispute` | Abre una disputa en una reserva (en una segunda reserva para demo), congelándola. El sender, admin o verifier pueden llamarla. | Contrato TIA en mainnet | site/contrato.html:648 | [Por completar] |
+| `set_merchant_status` | Activa o desactiva un comerciante en el sistema. Solo el admin puede llamarla. | Contrato TIA en mainnet | site/contrato.html:547 | [TX](https://stellar.expert/explorer/public/tx/204288c1e624c9d002f44317a7bbf4ad517d0801d7dfef5248ac9a3721ad9679) |
+| `initialize_reservation` | Crea una reserva bloqueando USDC en el contrato. El sender firma y paga la operación. | Contrato TIA en mainnet | site/contrato.html:567 | [TX](https://stellar.expert/explorer/public/tx/8bfc02c5af4943a9d2bbea7a4154181db5291470fea75d5a57ddded7cc336816) |
+| `mark_verified` | Marca una reserva como verificada (KYC/compliance aprobado). Solo admin/verifier puede llamarla. | Contrato TIA en mainnet | site/contrato.html:606 | [TX](https://stellar.expert/explorer/public/tx/7f65f6d7fbd29779f461dc2481e6bbe4fefb0b39f53380ec1dd54609a6865654) |
+| `validate_cashout` | Liquida una reserva verificada pagando al merchant (neto - 25 bps) y al treasury (25 bps). Requiere firma del merchant y del receiver. | Contrato TIA en mainnet | site/contrato.html:627 | [TX](https://stellar.expert/explorer/public/tx/7184fe9fb84e86740a1e6f155fe0f3f13a2e44b544a2885529f1beaad85997af) |
+| `open_dispute` | Abre una disputa en una reserva (en una segunda reserva para demo), congelándola. El sender, admin o verifier pueden llamarla. | Contrato TIA en mainnet | site/contrato.html:648 | [TX](https://stellar.expert/explorer/public/tx/5f56a47008567ac57748bb64543cf206e6c0cc58ef5e2c53d32e40496c3dba50) |
 
-**Nota:** `settle_with_receipt` está disponible como función extra (requiere recibo TIA registrado primero), pero NO se cuenta en las 5 principales para el hackathon.
+**Notas:**
+- Todas las transacciones fueron firmadas desde el frontend en [https://stellar.holatia.app/contrato.html](https://stellar.holatia.app/contrato.html) por la wallet GB3RZCIAUDTUDLQZTJ3OFVZPS3VNTYKJST3M66NMOXUQFKYFPEN4OII4.
+- **TX auxiliar** (creación de reservation 1 para `open_dispute`, no cuenta en las 5): [318f9fde9314dcc02babbd69eefb9f98443ec4f01af026219fc1e33c516f9991](https://stellar.expert/explorer/public/tx/318f9fde9314dcc02babbd69eefb9f98443ec4f01af026219fc1e33c516f9991)
+- **Contrato en mainnet**: [CAWNJUYUPUJHI7ABJ2US7J4B4FLQ7AJLXMNMNC3HC5NWZTY4GVWR3L5T](https://stellar.expert/explorer/public/contract/CAWNJUYUPUJHI7ABJ2US7J4B4FLQ7AJLXMNMNC3HC5NWZTY4GVWR3L5T)
+- `settle_with_receipt` está disponible como función extra (requiere recibo TIA registrado primero), pero NO se cuenta en las 5 principales para el hackathon.
 
 ## Requisitos previos
 
