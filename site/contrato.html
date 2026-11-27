@@ -70,6 +70,7 @@ h1 {
   cursor: pointer;
   transition: background 0.15s;
   text-decoration: none;
+  background: none;
 }
 .btn-primary {
   background: var(--color-forest);
@@ -170,6 +171,8 @@ h1 {
   border-radius: 3px;
 }
 </style>
+<!-- Stellar SDK UMD -->
+<script src="https://cdn.jsdelivr.net/npm/@stellar/stellar-sdk@12.3.0/dist/stellar-sdk.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -193,6 +196,7 @@ h1 {
   <div class="wallet-status">
     <div id="wallet-disconnected">
       <button class="btn btn-primary" id="connect-wallet">Conectar Wallet (Freighter/Varial)</button>
+      <div class="status" id="wallet-error" style="margin-top:12px;"></div>
     </div>
     <div id="wallet-connected" style="display:none;">
       <strong>Wallet conectada:</strong><br>
@@ -305,350 +309,381 @@ h1 {
 </div>
 
 <script type="module">
-import {
-  Contract,
-  Address,
-  xdr,
-  nativeToScVal,
-  scValToNative,
-  TransactionBuilder,
-  Networks,
-  Operation,
-  BASE_FEE,
-  SorobanRpc,
-} from 'https://cdn.jsdelivr.net/npm/@stellar/stellar-sdk@12/+esm';
+// Import Freighter API as ES module
+import freighterApi from 'https://cdn.jsdelivr.net/npm/@stellar/freighter-api@2.0.0/+esm';
 
-// Configuration - Can be overridden via ?contract=C... query param
-const CONFIG = {
-  contractId: '', // Empty by default - set via URL param or update here after deploy
-  usdcAddress: 'CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75', // Circle USDC SAC on Mainnet
-  networkPassphrase: 'Public Global Stellar Network ; September 2015',
-  rpcUrl: 'https://mainnet.sorobanrpc.com',
-};
+(function() {
+  'use strict';
 
-let currentPublicKey = null;
-let rpcServer = null;
-let activeContractId = null;
+  // Access Stellar SDK from UMD bundle
+  const StellarSdk = window.StellarSdk;
 
-// Get contract ID from URL param or config
-function getContractId() {
-  const urlParams = new URLSearchParams(window.location.search);
-  return urlParams.get('contract') || CONFIG.contractId;
-}
+  // Configuration
+  const CONFIG = {
+    contractId: '',
+    usdcAddress: 'CCW67TSZV3SSS2HXMBQ5JFGCKJNXKZM7UQUWUZPUTHXSTZLEO7SJMI75',
+    networkPassphrase: 'Public Global Stellar Network ; September 2015',
+    rpcUrl: 'https://mainnet.sorobanrpc.com',
+  };
 
-// Initialize
-activeContractId = getContractId();
+  let currentPublicKey = null;
+  let rpcServer = null;
+  let activeContractId = null;
 
-// Update UI with config
-document.getElementById('contract-id-display').textContent = activeContractId || 'NO CONFIGURADO';
-document.getElementById('usdc-address').textContent = CONFIG.usdcAddress;
-document.getElementById('rpc-url').textContent = CONFIG.rpcUrl;
-
-// Show warning if no contract ID
-if (!activeContractId) {
-  document.getElementById('contract-warning').style.display = 'block';
-  document.getElementById('config-section').style.borderColor = '#721c24';
-}
-
-// Initialize RPC
-rpcServer = new SorobanRpc.Server(CONFIG.rpcUrl);
-
-// Check if Freighter is installed
-function isFreighterInstalled() {
-  return typeof window.freighter !== 'undefined';
-}
-
-// Connect wallet
-async function connectWallet() {
-  if (!isFreighterInstalled()) {
-    alert('Por favor instala Freighter o Varial wallet');
-    return;
+  // Get contract ID from URL param or config
+  function getContractId() {
+    const urlParams = new URLSearchParams(window.location.search);
+    return urlParams.get('contract') || CONFIG.contractId;
   }
 
-  try {
-    const publicKey = await window.freighter.getPublicKey();
-    currentPublicKey = publicKey;
-    
-    document.getElementById('wallet-disconnected').style.display = 'none';
-    document.getElementById('wallet-connected').style.display = 'block';
-    document.getElementById('wallet-address').textContent = publicKey;
-    document.getElementById('functions-container').style.display = 'block';
-  } catch (error) {
-    console.error('Error connecting wallet:', error);
-    alert('Error al conectar la wallet: ' + error.message);
-  }
-}
-
-// Disconnect wallet
-function disconnectWallet() {
-  currentPublicKey = null;
-  document.getElementById('wallet-disconnected').style.display = 'block';
-  document.getElementById('wallet-connected').style.display = 'none';
-  document.getElementById('functions-container').style.display = 'none';
-}
-
-// Show status message
-function showStatus(elementId, message, type = 'info', txHash = null) {
-  const statusEl = document.getElementById(elementId);
-  statusEl.className = `status show ${type}`;
-  statusEl.innerHTML = message;
-  
-  if (txHash) {
-    const link = document.createElement('div');
-    link.className = 'tx-link';
-    link.innerHTML = `<a href="https://stellar.expert/explorer/public/tx/${txHash}" target="_blank" rel="noopener">Ver en Stellar Expert →</a>`;
-    statusEl.appendChild(link);
-  }
-}
-
-// Build and submit transaction
-async function buildAndSubmit(operation, statusId) {
-  if (!currentPublicKey) {
-    showStatus(statusId, 'Error: Conecta tu wallet primero', 'error');
-    return;
-  }
+  // Initialize
+  activeContractId = getContractId();
+  document.getElementById('contract-id-display').textContent = activeContractId || 'NO CONFIGURADO';
+  document.getElementById('usdc-address').textContent = CONFIG.usdcAddress;
+  document.getElementById('rpc-url').textContent = CONFIG.rpcUrl;
 
   if (!activeContractId) {
-    showStatus(statusId, 'Error: Contract ID no configurado. Agrega ?contract=C... a la URL', 'error');
-    return;
+    document.getElementById('contract-warning').style.display = 'block';
+    document.getElementById('config-section').style.borderColor = '#721c24';
   }
 
-  try {
-    showStatus(statusId, 'Construyendo transacción...', 'info');
+  // Initialize RPC
+  rpcServer = new StellarSdk.SorobanRpc.Server(CONFIG.rpcUrl);
 
-    // Load account
-    const sourceAccount = await rpcServer.getAccount(currentPublicKey);
-
-    // Build transaction
-    const transaction = new TransactionBuilder(sourceAccount, {
-      fee: BASE_FEE,
-      networkPassphrase: CONFIG.networkPassphrase,
-    })
-      .addOperation(operation)
-      .setTimeout(300)
-      .build();
-
-    // Simulate first
-    showStatus(statusId, 'Simulando transacción...', 'info');
-    const simResponse = await rpcServer.simulateTransaction(transaction);
-
-    if (SorobanRpc.Api.isSimulationError(simResponse)) {
-      throw new Error('Simulation failed: ' + JSON.stringify(simResponse.error));
-    }
-
-    // Prepare transaction
-    const preparedTx = SorobanRpc.assembleTransaction(transaction, simResponse).build();
-
-    // Sign with Freighter - ensure correct network passphrase
-    showStatus(statusId, 'Esperando firma de la wallet...', 'info');
-    const signedXdr = await window.freighter.signTransaction(preparedTx.toXDR(), {
-      networkPassphrase: CONFIG.networkPassphrase,
-    });
-
-    const signedTx = TransactionBuilder.fromXDR(signedXdr, CONFIG.networkPassphrase);
-
-    // Submit
-    showStatus(statusId, 'Enviando transacción a la red...', 'info');
-    const sendResponse = await rpcServer.sendTransaction(signedTx);
-
-    if (sendResponse.status === 'ERROR') {
-      throw new Error('Transaction failed: ' + JSON.stringify(sendResponse));
-    }
-
-    // Wait for confirmation
-    showStatus(statusId, 'Esperando confirmación...', 'info');
-    let getResponse = await rpcServer.getTransaction(sendResponse.hash);
-    let attempts = 0;
+  // Show status message
+  function showStatus(elementId, message, type, txHash) {
+    const statusEl = document.getElementById(elementId);
+    statusEl.className = 'status show ' + (type || 'info');
+    statusEl.innerHTML = message;
     
-    while (getResponse.status === 'NOT_FOUND' && attempts < 30) {
-      await new Promise(resolve => setTimeout(resolve, 2000));
-      getResponse = await rpcServer.getTransaction(sendResponse.hash);
-      attempts++;
+    if (txHash) {
+      const link = document.createElement('div');
+      link.className = 'tx-link';
+      link.innerHTML = '<a href="https://stellar.expert/explorer/public/tx/' + txHash + '" target="_blank" rel="noopener">Ver en Stellar Expert →</a>';
+      statusEl.appendChild(link);
+    }
+  }
+
+  // Check if Freighter/Varial is installed
+  async function isWalletInstalled() {
+    return await freighterApi.isConnected();
+  }
+
+  // Get current public key (re-read to support account switching)
+  async function getCurrentPublicKey() {
+    try {
+      const publicKey = await freighterApi.getPublicKey();
+      return publicKey;
+    } catch (error) {
+      throw new Error('No se pudo obtener la dirección de la wallet: ' + error.message);
+    }
+  }
+
+  // Connect wallet
+  async function connectWallet() {
+    showStatus('wallet-error', '', 'info');
+    
+    try {
+      // Check if wallet is installed
+      const installed = await isWalletInstalled();
+      if (!installed) {
+        showStatus('wallet-error', '⚠️ Wallet no detectada. Por favor instala Freighter o Varial.', 'error');
+        return;
+      }
+
+      // Request access
+      const accessGranted = await freighterApi.requestAccess();
+      if (!accessGranted) {
+        showStatus('wallet-error', 'Acceso denegado por el usuario.', 'error');
+        return;
+      }
+
+      // Get public key
+      currentPublicKey = await getCurrentPublicKey();
+      
+      document.getElementById('wallet-disconnected').style.display = 'none';
+      document.getElementById('wallet-connected').style.display = 'block';
+      document.getElementById('wallet-address').textContent = currentPublicKey;
+      document.getElementById('functions-container').style.display = 'block';
+    } catch (error) {
+      console.error('Error connecting wallet:', error);
+      showStatus('wallet-error', 'Error al conectar: ' + error.message, 'error');
+    }
+  }
+
+  // Disconnect wallet
+  function disconnectWallet() {
+    currentPublicKey = null;
+    document.getElementById('wallet-disconnected').style.display = 'block';
+    document.getElementById('wallet-connected').style.display = 'none';
+    document.getElementById('functions-container').style.display = 'none';
+    showStatus('wallet-error', '', 'info');
+  }
+
+  // Build and submit transaction
+  async function buildAndSubmit(operation, statusId) {
+    if (!activeContractId) {
+      showStatus(statusId, 'Error: Contract ID no configurado. Agrega ?contract=C... a la URL', 'error');
+      return;
     }
 
-    if (getResponse.status === 'SUCCESS') {
-      showStatus(statusId, '✓ Transacción confirmada exitosamente', 'success', sendResponse.hash);
+    try {
+      showStatus(statusId, 'Construyendo transacción...', 'info');
+
+      // Re-read public key to support account switching
+      currentPublicKey = await getCurrentPublicKey();
+      
+      // Load account
+      const sourceAccount = await rpcServer.getAccount(currentPublicKey);
+
+      // Build transaction
+      const transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
+        fee: StellarSdk.BASE_FEE,
+        networkPassphrase: CONFIG.networkPassphrase,
+      })
+        .addOperation(operation)
+        .setTimeout(300)
+        .build();
+
+      // Simulate first
+      showStatus(statusId, 'Simulando transacción...', 'info');
+      const simResponse = await rpcServer.simulateTransaction(transaction);
+
+      if (StellarSdk.SorobanRpc.Api.isSimulationError(simResponse)) {
+        throw new Error('Simulation failed: ' + JSON.stringify(simResponse.error));
+      }
+
+      // Prepare transaction
+      const preparedTx = StellarSdk.SorobanRpc.assembleTransaction(transaction, simResponse).build();
+
+      // Sign with Freighter
+      showStatus(statusId, 'Esperando firma de la wallet...', 'info');
+      const signedResult = await freighterApi.signTransaction(preparedTx.toXDR(), {
+        networkPassphrase: CONFIG.networkPassphrase,
+      });
+
+      // Handle both v3 (string) and v4+ ({signedTxXdr, signerAddress}) response formats
+      const signedXdr = typeof signedResult === 'string' ? signedResult : signedResult.signedTxXdr;
+      const signedTx = StellarSdk.TransactionBuilder.fromXDR(signedXdr, CONFIG.networkPassphrase);
+
+      // Submit
+      showStatus(statusId, 'Enviando transacción a la red...', 'info');
+      const sendResponse = await rpcServer.sendTransaction(signedTx);
+
+      if (sendResponse.status === 'ERROR') {
+        throw new Error('Transaction failed: ' + JSON.stringify(sendResponse));
+      }
+
+      // Wait for confirmation
+      showStatus(statusId, 'Esperando confirmación...', 'info');
+      let getResponse = await rpcServer.getTransaction(sendResponse.hash);
+      let attempts = 0;
+      
+      while (getResponse.status === 'NOT_FOUND' && attempts < 30) {
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        getResponse = await rpcServer.getTransaction(sendResponse.hash);
+        attempts++;
+      }
+
+      if (getResponse.status === 'SUCCESS') {
+        showStatus(statusId, '✓ Transacción confirmada exitosamente', 'success', sendResponse.hash);
+      } else {
+        throw new Error('Transaction status: ' + getResponse.status);
+      }
+
+    } catch (error) {
+      console.error('Transaction error:', error);
+      showStatus(statusId, 'Error: ' + error.message, 'error');
+    }
+  }
+
+  // Function 1: set_merchant_status
+  document.getElementById('btn-set-merchant').addEventListener('click', async function() {
+    const merchantAddress = document.getElementById('merchant-address').value.trim();
+    const active = document.getElementById('merchant-active').checked;
+
+    if (!merchantAddress.startsWith('G') || merchantAddress.length !== 56) {
+      showStatus('status-merchant', 'Error: Dirección inválida', 'error');
+      return;
+    }
+
+    const contract = new StellarSdk.Contract(activeContractId);
+    const operation = contract.call(
+      'set_merchant_status',
+      StellarSdk.nativeToScVal(merchantAddress, { type: 'address' }),
+      StellarSdk.nativeToScVal(active, { type: 'bool' })
+    );
+
+    await buildAndSubmit(operation, 'status-merchant');
+  });
+
+  // Function 2: initialize_reservation
+  document.getElementById('btn-initialize').addEventListener('click', async function() {
+    const receiverAddress = document.getElementById('receiver-address').value.trim();
+    const merchantAddress = document.getElementById('merchant-address-init').value.trim();
+    const amountUsdc = parseFloat(document.getElementById('amount-usdc').value);
+    const expirySeconds = parseInt(document.getElementById('expiry-seconds').value);
+
+    if (!receiverAddress.startsWith('G') || receiverAddress.length !== 56) {
+      showStatus('status-init', 'Error: Dirección del receptor inválida', 'error');
+      return;
+    }
+    if (!merchantAddress.startsWith('G') || merchantAddress.length !== 56) {
+      showStatus('status-init', 'Error: Dirección del comerciante inválida', 'error');
+      return;
+    }
+    if (isNaN(amountUsdc) || amountUsdc <= 0) {
+      showStatus('status-init', 'Error: Monto inválido', 'error');
+      return;
+    }
+
+    // Convert to base units (USDC has 7 decimals on Stellar)
+    const amountBaseUnits = BigInt(Math.floor(amountUsdc * 10000000));
+
+    // Re-read current key for sender
+    const senderKey = await getCurrentPublicKey();
+
+    const contract = new StellarSdk.Contract(activeContractId);
+    const operation = contract.call(
+      'initialize_reservation',
+      StellarSdk.nativeToScVal(senderKey, { type: 'address' }),
+      StellarSdk.nativeToScVal(receiverAddress, { type: 'address' }),
+      StellarSdk.nativeToScVal(merchantAddress, { type: 'address' }),
+      StellarSdk.nativeToScVal(amountBaseUnits, { type: 'i128' }),
+      StellarSdk.nativeToScVal(expirySeconds, { type: 'u64' })
+    );
+
+    await buildAndSubmit(operation, 'status-init');
+  });
+
+  // Function 3: mark_verified
+  document.getElementById('btn-mark-verified').addEventListener('click', async function() {
+    const reservationId = parseInt(document.getElementById('reservation-id-verify').value);
+
+    if (isNaN(reservationId) || reservationId < 0) {
+      showStatus('status-verify', 'Error: ID de reserva inválido', 'error');
+      return;
+    }
+
+    const callerKey = await getCurrentPublicKey();
+
+    const contract = new StellarSdk.Contract(activeContractId);
+    const operation = contract.call(
+      'mark_verified',
+      StellarSdk.nativeToScVal(callerKey, { type: 'address' }),
+      StellarSdk.nativeToScVal(reservationId, { type: 'u64' })
+    );
+
+    await buildAndSubmit(operation, 'status-verify');
+  });
+
+  // Function 4: validate_cashout
+  document.getElementById('btn-cashout').addEventListener('click', async function() {
+    const reservationId = parseInt(document.getElementById('reservation-id-cashout').value);
+
+    if (isNaN(reservationId) || reservationId < 0) {
+      showStatus('status-cashout', 'Error: ID de reserva inválido', 'error');
+      return;
+    }
+
+    const merchantKey = await getCurrentPublicKey();
+
+    const contract = new StellarSdk.Contract(activeContractId);
+    const operation = contract.call(
+      'validate_cashout',
+      StellarSdk.nativeToScVal(merchantKey, { type: 'address' }),
+      StellarSdk.nativeToScVal(reservationId, { type: 'u64' })
+    );
+
+    await buildAndSubmit(operation, 'status-cashout');
+  });
+
+  // Function 5: open_dispute
+  document.getElementById('btn-dispute').addEventListener('click', async function() {
+    const reservationId = parseInt(document.getElementById('reservation-id-dispute').value);
+    const reasonText = document.getElementById('reason-hash').value.trim();
+
+    if (isNaN(reservationId) || reservationId < 0) {
+      showStatus('status-dispute', 'Error: ID de reserva inválido', 'error');
+      return;
+    }
+
+    // Convert reason to 32-byte hash
+    let reasonHash;
+    if (/^[0-9a-fA-F]{64}$/.test(reasonText)) {
+      // Already a hex string
+      const bytes = [];
+      for (let i = 0; i < 64; i += 2) {
+        bytes.push(parseInt(reasonText.substr(i, 2), 16));
+      }
+      reasonHash = new Uint8Array(bytes);
     } else {
-      throw new Error('Transaction status: ' + getResponse.status);
+      // Convert text to bytes and pad to 32 bytes
+      const encoder = new TextEncoder();
+      const textBytes = encoder.encode(reasonText);
+      reasonHash = new Uint8Array(32);
+      for (let i = 0; i < Math.min(textBytes.length, 32); i++) {
+        reasonHash[i] = textBytes[i];
+      }
     }
 
-  } catch (error) {
-    console.error('Transaction error:', error);
-    showStatus(statusId, 'Error: ' + error.message, 'error');
-  }
-}
+    const callerKey = await getCurrentPublicKey();
 
-// Function 1: set_merchant_status
-document.getElementById('btn-set-merchant').addEventListener('click', async () => {
-  const merchantAddress = document.getElementById('merchant-address').value.trim();
-  const active = document.getElementById('merchant-active').checked;
+    const contract = new StellarSdk.Contract(activeContractId);
+    const operation = contract.call(
+      'open_dispute',
+      StellarSdk.nativeToScVal(callerKey, { type: 'address' }),
+      StellarSdk.nativeToScVal(reservationId, { type: 'u64' }),
+      StellarSdk.xdr.ScVal.scvBytes(reasonHash)
+    );
 
-  if (!merchantAddress.startsWith('G') || merchantAddress.length !== 56) {
-    showStatus('status-merchant', 'Error: Dirección inválida', 'error');
-    return;
-  }
+    await buildAndSubmit(operation, 'status-dispute');
+  });
 
-  const contract = new Contract(activeContractId);
-  const operation = contract.call(
-    'set_merchant_status',
-    nativeToScVal(merchantAddress, { type: 'address' }),
-    nativeToScVal(active, { type: 'bool' })
-  );
+  // Extra: settle_with_receipt
+  document.getElementById('btn-settle').addEventListener('click', async function() {
+    const reservationId = parseInt(document.getElementById('reservation-id-settle').value);
+    const receiptHashHex = document.getElementById('receipt-hash').value.trim();
 
-  await buildAndSubmit(operation, 'status-merchant');
-});
-
-// Function 2: initialize_reservation
-document.getElementById('btn-initialize').addEventListener('click', async () => {
-  const receiverAddress = document.getElementById('receiver-address').value.trim();
-  const merchantAddress = document.getElementById('merchant-address-init').value.trim();
-  const amountUsdc = parseFloat(document.getElementById('amount-usdc').value);
-  const expirySeconds = parseInt(document.getElementById('expiry-seconds').value);
-
-  if (!receiverAddress.startsWith('G') || receiverAddress.length !== 56) {
-    showStatus('status-init', 'Error: Dirección del receptor inválida', 'error');
-    return;
-  }
-  if (!merchantAddress.startsWith('G') || merchantAddress.length !== 56) {
-    showStatus('status-init', 'Error: Dirección del comerciante inválida', 'error');
-    return;
-  }
-  if (isNaN(amountUsdc) || amountUsdc <= 0) {
-    showStatus('status-init', 'Error: Monto inválido', 'error');
-    return;
-  }
-
-  // Convert to base units (USDC has 7 decimals on Stellar)
-  const amountBaseUnits = BigInt(Math.floor(amountUsdc * 10000000));
-
-  const contract = new Contract(activeContractId);
-  const operation = contract.call(
-    'initialize_reservation',
-    nativeToScVal(currentPublicKey, { type: 'address' }),
-    nativeToScVal(receiverAddress, { type: 'address' }),
-    nativeToScVal(merchantAddress, { type: 'address' }),
-    nativeToScVal(amountBaseUnits, { type: 'i128' }),
-    nativeToScVal(expirySeconds, { type: 'u64' })
-  );
-
-  await buildAndSubmit(operation, 'status-init');
-});
-
-// Function 3: mark_verified
-document.getElementById('btn-mark-verified').addEventListener('click', async () => {
-  const reservationId = parseInt(document.getElementById('reservation-id-verify').value);
-
-  if (isNaN(reservationId) || reservationId < 0) {
-    showStatus('status-verify', 'Error: ID de reserva inválido', 'error');
-    return;
-  }
-
-  const contract = new Contract(activeContractId);
-  const operation = contract.call(
-    'mark_verified',
-    nativeToScVal(currentPublicKey, { type: 'address' }),
-    nativeToScVal(reservationId, { type: 'u64' })
-  );
-
-  await buildAndSubmit(operation, 'status-verify');
-});
-
-// Function 4: validate_cashout
-document.getElementById('btn-cashout').addEventListener('click', async () => {
-  const reservationId = parseInt(document.getElementById('reservation-id-cashout').value);
-
-  if (isNaN(reservationId) || reservationId < 0) {
-    showStatus('status-cashout', 'Error: ID de reserva inválido', 'error');
-    return;
-  }
-
-  const contract = new Contract(activeContractId);
-  const operation = contract.call(
-    'validate_cashout',
-    nativeToScVal(currentPublicKey, { type: 'address' }),
-    nativeToScVal(reservationId, { type: 'u64' })
-  );
-
-  await buildAndSubmit(operation, 'status-cashout');
-});
-
-// Extra: settle_with_receipt
-document.getElementById('btn-settle').addEventListener('click', async () => {
-  const reservationId = parseInt(document.getElementById('reservation-id-settle').value);
-  const receiptHashHex = document.getElementById('receipt-hash').value.trim();
-
-  if (isNaN(reservationId) || reservationId < 0) {
-    showStatus('status-settle', 'Error: ID de reserva inválido', 'error');
-    return;
-  }
-
-  if (!/^[0-9a-fA-F]{64}$/.test(receiptHashHex)) {
-    showStatus('status-settle', 'Error: Hash del recibo debe ser 64 caracteres hexadecimales', 'error');
-    return;
-  }
-
-  // Convert hex to bytes
-  const receiptHashBytes = Buffer.from(receiptHashHex, 'hex');
-
-  const contract = new Contract(activeContractId);
-  const operation = contract.call(
-    'settle_with_receipt',
-    nativeToScVal(currentPublicKey, { type: 'address' }),
-    nativeToScVal(reservationId, { type: 'u64' }),
-    xdr.ScVal.scvBytes(receiptHashBytes)
-  );
-
-  await buildAndSubmit(operation, 'status-settle');
-});
-
-// Function 5: open_dispute
-document.getElementById('btn-dispute').addEventListener('click', async () => {
-  const reservationId = parseInt(document.getElementById('reservation-id-dispute').value);
-  const reasonText = document.getElementById('reason-hash').value.trim();
-
-  if (isNaN(reservationId) || reservationId < 0) {
-    showStatus('status-dispute', 'Error: ID de reserva inválido', 'error');
-    return;
-  }
-
-  // Convert reason to 32-byte hash (simple SHA-256 would be better, but for demo we'll pad/truncate)
-  let reasonHash;
-  if (/^[0-9a-fA-F]{64}$/.test(reasonText)) {
-    // Already a hex string
-    reasonHash = Buffer.from(reasonText, 'hex');
-  } else {
-    // Convert text to bytes and pad to 32 bytes
-    const encoder = new TextEncoder();
-    const textBytes = encoder.encode(reasonText);
-    reasonHash = Buffer.alloc(32);
-    textBytes.slice(0, 32).forEach((byte, i) => {
-      reasonHash[i] = byte;
-    });
-  }
-
-  const contract = new Contract(activeContractId);
-  const operation = contract.call(
-    'open_dispute',
-    nativeToScVal(currentPublicKey, { type: 'address' }),
-    nativeToScVal(reservationId, { type: 'u64' }),
-    xdr.ScVal.scvBytes(reasonHash)
-  );
-
-  await buildAndSubmit(operation, 'status-dispute');
-});
-
-// Event listeners
-document.getElementById('connect-wallet').addEventListener('click', connectWallet);
-document.getElementById('disconnect-wallet').addEventListener('click', disconnectWallet);
-
-// Auto-connect if already authorized
-if (isFreighterInstalled()) {
-  window.freighter.isConnected().then(connected => {
-    if (connected) {
-      connectWallet();
+    if (isNaN(reservationId) || reservationId < 0) {
+      showStatus('status-settle', 'Error: ID de reserva inválido', 'error');
+      return;
     }
-  }).catch(() => {});
-}
+
+    if (!/^[0-9a-fA-F]{64}$/.test(receiptHashHex)) {
+      showStatus('status-settle', 'Error: Hash del recibo debe ser 64 caracteres hexadecimales', 'error');
+      return;
+    }
+
+    // Convert hex to bytes
+    const bytes = [];
+    for (let i = 0; i < 64; i += 2) {
+      bytes.push(parseInt(receiptHashHex.substr(i, 2), 16));
+    }
+    const receiptHashBytes = new Uint8Array(bytes);
+
+    const merchantKey = await getCurrentPublicKey();
+
+    const contract = new StellarSdk.Contract(activeContractId);
+    const operation = contract.call(
+      'settle_with_receipt',
+      StellarSdk.nativeToScVal(merchantKey, { type: 'address' }),
+      StellarSdk.nativeToScVal(reservationId, { type: 'u64' }),
+      StellarSdk.xdr.ScVal.scvBytes(receiptHashBytes)
+    );
+
+    await buildAndSubmit(operation, 'status-settle');
+  });
+
+  // Event listeners
+  document.getElementById('connect-wallet').addEventListener('click', connectWallet);
+  document.getElementById('disconnect-wallet').addEventListener('click', disconnectWallet);
+
+  // Log loaded status for debugging
+  console.log('SDK loaded:', !!StellarSdk);
+  console.log('Freighter API loaded:', !!freighterApi);
+  console.log('Contract ID:', activeContractId);
+})();
 </script>
 </body>
 </html>
