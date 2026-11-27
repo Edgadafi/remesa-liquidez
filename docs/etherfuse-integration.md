@@ -22,6 +22,12 @@ To get **real quotes** from Etherfuse (not just "Cotización no disponible"):
 - Create an API key (format: `api_sand:key_id:org_id` for sandbox, `api_prod:key_id:org_id` for production)
 - **Important**: Do NOT use a `Bearer` prefix when setting the header. The header value is the raw API key.
 
+**Note on USDC Assets**: The integration automatically selects the correct USDC asset based on the environment:
+- **Sandbox**: `USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5`
+- **Production**: `USDC:GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN`
+
+You can override this by setting `ETHERFUSE_USDC_ASSET` if needed.
+
 ### 2. Payment Accounts
 
 Etherfuse quotes require **registered payment accounts** on both ends:
@@ -86,6 +92,11 @@ ETHERFUSE_API_KEY=api_sand:your_key_id:your_org_id
 
 # API base URL (sandbox by default)
 ETHERFUSE_API_BASE=https://api.sand.etherfuse.com
+
+# Optional: USDC asset override (defaults to sandbox/mainnet based on API_BASE)
+# Sandbox: USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5
+# Mainnet: USDC:GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN
+ETHERFUSE_USDC_ASSET=
 
 # Payment account IDs (from steps above)
 ETHERFUSE_SOURCE_ACCOUNT_ID=00000000-0000-0000-0000-000000000001

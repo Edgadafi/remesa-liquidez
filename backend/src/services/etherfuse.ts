@@ -14,12 +14,26 @@
 
 const TIMEOUT_MS = 5_000;
 
+// Default USDC assets by environment
+const MAINNET_USDC = "USDC:GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN";
+const SANDBOX_USDC = "USDC:GBBD47IF6LWK7P7MDEVSCWR7DPUWV3NY3DTQEVFL4NAT4AQH3ZLLFLA5";
+
 function getApiBase(): string {
   return process.env.ETHERFUSE_API_BASE ?? "https://api.sand.etherfuse.com";
 }
 
 function getApiKey(): string {
   return process.env.ETHERFUSE_API_KEY ?? "";
+}
+
+function getUsdcAsset(): string {
+  // If explicitly configured, use that
+  if (process.env.ETHERFUSE_USDC_ASSET?.trim()) {
+    return process.env.ETHERFUSE_USDC_ASSET.trim();
+  }
+  // Otherwise, default based on environment
+  const isSandbox = getApiBase().includes("sand.etherfuse.com");
+  return isSandbox ? SANDBOX_USDC : MAINNET_USDC;
 }
 
 export interface EtherfuseQuote {
@@ -49,6 +63,21 @@ interface EtherfuseErrorResponse {
  */
 export function isEtherfuseAvailable(): boolean {
   return getApiKey().trim().length > 0;
+}
+
+/**
+ * Returns whether account IDs are configured and non-empty.
+ */
+function areAccountsConfigured(
+  sourceAccountId: string,
+  destAccountId: string,
+  organizationId: string
+): boolean {
+  return (
+    sourceAccountId.trim().length > 0 &&
+    destAccountId.trim().length > 0 &&
+    organizationId.trim().length > 0
+  );
 }
 
 /**
@@ -102,6 +131,11 @@ export async function getEtherfuseQuote(
 ): Promise<EtherfuseQuote | null> {
   if (!isEtherfuseAvailable()) return null;
 
+  // Guard: check account IDs are non-empty before calling API
+  if (!areAccountsConfigured(sourceAccountId, destAccountId, organizationId)) {
+    return null;
+  }
+
   try {
     const res = await fetch(`${getApiBase()}/organization/${organizationId}/quote`, {
       method: "POST",
@@ -110,22 +144,31 @@ export async function getEtherfuseQuote(
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        source: { type: "stored", id: sourceAccountId },
-        destination: { type: "stored", id: destAccountId },
+        source: { type: "stored", id: sourceAccountId.trim() },
+        destination: { type: "stored", id: destAccountId.trim() },
         sourceAmount: amountUsdc.toFixed(6),
-        sourceAsset: "USDC:GA5ZSEJYB37JRC5AVCIA5MOP4RHTM335X2KGX3IHOJAPP5RE34K4KZVN", // USDC on Stellar
+        sourceAsset: getUsdcAsset(),
         destinationAsset: "MXN",
-        sourceRail: "stellar",
-        destinationRail: "spei",
       }),
       signal: AbortSignal.timeout(TIMEOUT_MS),
     });
 
     if (!res.ok) {
-      const err = (await res.json()) as EtherfuseErrorResponse;
-      console.warn(
-        `[etherfuse] quote failed: ${res.status} ${err.type} - ${err.detail}`
-      );
+      // Read text first, parse JSON only if non-empty
+      const text = await res.text();
+      if (text.trim()) {
+        try {
+          const err = JSON.parse(text) as EtherfuseErrorResponse;
+          console.warn(
+            `[etherfuse] quote failed: ${res.status} ${err.type ?? "unknown"} - ${err.detail ?? "no detail"}`
+          );
+        } catch {
+          // Not valid JSON, log status and body
+          console.warn(`[etherfuse] quote failed: ${res.status} - ${text.substring(0, 200)}`);
+        }
+      } else {
+        console.warn(`[etherfuse] quote failed: ${res.status} (empty response)`);
+      }
       return null;
     }
 
