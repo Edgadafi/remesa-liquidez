@@ -171,8 +171,8 @@ h1 {
   border-radius: 3px;
 }
 </style>
-<!-- Stellar SDK UMD -->
-<script src="https://cdn.jsdelivr.net/npm/@stellar/stellar-sdk@12.3.0/dist/stellar-sdk.min.js"></script>
+<!-- Stellar SDK v17.4.0 (mainnet protocol XDR compatible) -->
+<script src="https://cdn.jsdelivr.net/npm/@stellar/stellar-sdk@17.4.0/dist/stellar-sdk.min.js"></script>
 <!-- Varial SDK v7.0.0 (Freighter API compatible) -->
 <script src="https://cdn.jsdelivr.net/npm/@stellar/varial-sdk@7.0.0/build/index.min.js"></script>
 </head>
@@ -348,7 +348,7 @@ h1 {
   }
 
   // Initialize RPC
-  rpcServer = new StellarSdk.SorobanRpc.Server(CONFIG.rpcUrl);
+  rpcServer = new StellarSdk.rpc.Server(CONFIG.rpcUrl);
 
   // Check for mobile browser
   function isMobileVarial() {
@@ -468,12 +468,12 @@ h1 {
       showStatus(statusId, 'Simulando transacción...', 'info');
       const simResponse = await rpcServer.simulateTransaction(transaction);
 
-      if (StellarSdk.SorobanRpc.Api.isSimulationError(simResponse)) {
+      if (StellarSdk.rpc.Api.isSimulationError(simResponse)) {
         throw new Error('Simulation failed: ' + JSON.stringify(simResponse.error));
       }
 
       // Prepare transaction
-      const preparedTx = StellarSdk.SorobanRpc.assembleTransaction(transaction, simResponse).build();
+      const preparedTx = StellarSdk.rpc.assembleTransaction(transaction, simResponse).build();
 
       // Sign with Freighter/Varial - pass address of active account
       showStatus(statusId, 'Esperando firma de la wallet...', 'info');
