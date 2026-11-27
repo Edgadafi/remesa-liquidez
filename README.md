@@ -1,8 +1,70 @@
 # Remesa LiquidezIA
 
-## Qué lanzo el 27 de noviembre (Ship It · BAF)
+## Qué es
 
-Página pública del piloto de TIA en stellar.holatia.app: cualquier fintech del corredor EE. UU.–México puede pedir una comparación de rutas USD→MXN y recibir un recibo firmado y verificable en IPFS. TIA compara y cotiza; no ejecuta pagos. Meta: 3 fintechs en un piloto gratuito de 30 días en el cierre de 2026.
+TIA es una capa de inteligencia para fintechs del corredor EE. UU.–México: compara rutas USD→MXN, entrega cotizaciones verificables y emite recibos firmados anclados en IPFS (Nirium Audit Trail). **TIA compara y cotiza; no ejecuta pagos, no custodia fondos ni sustituye un SPEI.**
+
+## Demo
+
+- **Sitio en vivo:** [https://stellar.holatia.app](https://stellar.holatia.app) — demo interactiva de comparación de rutas
+- **API x402 (mainnet):** [https://x402.holatia.app](https://x402.holatia.app) — pagos por llamada en USDC sobre Stellar `pubnet`. Ver tabla de precios abajo.
+
+## Cómo se usa
+
+### (a) Demo web interactiva
+
+Abre [stellar.holatia.app](https://stellar.holatia.app) y solicita una comparación de rutas USD→MXN. El sitio muestra la estimación en vivo con recibo IPFS.
+
+### (b) Llamada pagada desde un agente (x402 sobre Stellar mainnet)
+
+La API cobra por llamada con x402 (HTTP 402) en USDC sobre Stellar mainnet. El pago es automático; no necesitas API key.
+
+- **Guía completa:** [docs/agents/README.md](docs/agents/README.md)
+- **Ejemplo ejecutable:** [examples/agent-client/](examples/agent-client/)
+
+| Endpoint | Precio |
+|----------|--------|
+| `GET /v1/quote` | $0.10 USDC |
+| `GET /v1/route?amount=USD` | $0.25 USDC |
+| `POST /v1/alert` | $0.10 USDC |
+| `GET /health` | gratis |
+
+### (c) Desarrollo local
+
+**Backend:**
+
+```bash
+cd backend
+npm install
+npm test
+npm run dev  # servidor local en puerto 3100
+```
+
+**Contrato Soroban (Stellar escrow PoC):**
+
+```bash
+cd contracts/remesa-tia-stellar
+cargo test
+```
+
+## Qué hay en v1.0.0
+
+### Live en mainnet
+
+- **API x402 pagada en USDC** sobre Stellar `pubnet` (`x402.holatia.app`) — `GET /v1/quote`, `GET /v1/route`, `POST /v1/alert`
+- **Recibos verificables** firmados con ed25519 y anclados en IPFS (Nirium Audit Trail) — endpoint `GET /v1/receipt/:cid` (gratis), función `register_receipt` (testnet)
+- **Sitio público** [stellar.holatia.app](https://stellar.holatia.app) desplegado en producción
+
+### Sandbox / testnet
+
+- **Integración Etherfuse** en SANDBOX: cotización 100 USDC → 1,959.26 MXN, costo total 0.17% — **sandbox únicamente, no ejecuta órdenes reales**
+- **Escrow Soroban** desplegado en testnet con `settle_with_receipt`, `open_dispute`, `resolve_dispute` — PR [#43](https://github.com/Edgadafi/remesa-liquidez/pull/43) pendiente de merge
+
+**Importante:** TIA no tiene clientes de pago. Es un prototipo de inteligencia y trazabilidad para fintechs; no ejecuta remesas, no custodia fondos de terceros ni sustituye un SPEI.
+
+## Piloto de calibración (30 días, 3 cupos de founder)
+
+Meta de cierre 2026: **3 fintechs en un piloto de calibración de 30 días**. Durante el piloto: condiciones comerciales acordadas con cada fintech. Fuera del piloto: cobro por llamada vía x402. Solicitudes en [stellar.holatia.app](https://stellar.holatia.app).
 
 ## TIA on Stellar — live links (verifiable)
 
