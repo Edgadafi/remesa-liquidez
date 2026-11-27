@@ -457,7 +457,7 @@ h1 {
 
       // Build transaction
       const transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
-        fee: StellarSdk.BASE_FEE,
+        fee: '100000', // 0.01 XLM inclusion fee for mainnet Soroban
         networkPassphrase: CONFIG.networkPassphrase,
       })
         .addOperation(operation)
@@ -495,20 +495,34 @@ h1 {
 
       const signedTx = StellarSdk.TransactionBuilder.fromXDR(signedXdr, CONFIG.networkPassphrase);
 
-      // Submit
+      // Submit with retry on TRY_AGAIN_LATER
       showStatus(statusId, 'Enviando transacción a la red...', 'info');
-      const sendResponse = await rpcServer.sendTransaction(signedTx);
-
-      if (sendResponse.status === 'ERROR') {
-        throw new Error('Transaction failed: ' + JSON.stringify(sendResponse));
+      let sendResponse;
+      let sendAttempts = 0;
+      while (sendAttempts < 3) {
+        sendResponse = await rpcServer.sendTransaction(signedTx);
+        if (sendResponse.status === 'PENDING' || sendResponse.status === 'DUPLICATE') {
+          break;
+        }
+        if (sendResponse.status === 'TRY_AGAIN_LATER') {
+          sendAttempts++;
+          if (sendAttempts < 3) {
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            continue;
+          }
+        }
+        if (sendResponse.status === 'ERROR') {
+          throw new Error('Error al enviar: ' + (sendResponse.errorResult || JSON.stringify(sendResponse)));
+        }
+        break;
       }
 
-      // Wait for confirmation
+      // Wait for confirmation (60 attempts x 2s = 120s)
       showStatus(statusId, 'Esperando confirmación...', 'info');
       let getResponse = await rpcServer.getTransaction(sendResponse.hash);
       let attempts = 0;
       
-      while (getResponse.status === 'NOT_FOUND' && attempts < 30) {
+      while (getResponse.status === 'NOT_FOUND' && attempts < 60) {
         await new Promise(resolve => setTimeout(resolve, 2000));
         getResponse = await rpcServer.getTransaction(sendResponse.hash);
         attempts++;
@@ -516,8 +530,11 @@ h1 {
 
       if (getResponse.status === 'SUCCESS') {
         showStatus(statusId, '✓ Transacción confirmada exitosamente', 'success', sendResponse.hash);
+      } else if (getResponse.status === 'NOT_FOUND') {
+        const explorerLink = 'https://stellar.expert/explorer/public/tx/' + sendResponse.hash;
+        throw new Error('Transaction NOT_FOUND después de 120s. Puede que aún se confirme, revisa: ' + explorerLink);
       } else {
-        throw new Error('Transaction status: ' + getResponse.status);
+        throw new Error('Transaction status: ' + getResponse.status + (getResponse.errorResult ? ' - ' + getResponse.errorResult : ''));
       }
 
     } catch (error) {
