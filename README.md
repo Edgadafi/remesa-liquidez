@@ -64,7 +64,7 @@ cargo test
 
 ## Piloto de calibración (30 días, 3 cupos de founder)
 
-Meta de cierre 2026: **3 fintechs en un piloto de calibración de 30 días**. Durante el piloto: cotizar, rutear y auditar a 0%. Fuera del piloto: cobro por llamada vía x402. Solicitudes en [stellar.holatia.app](https://stellar.holatia.app).
+Meta de cierre 2026: **3 fintechs en un piloto de calibración de 30 días**. Durante el piloto: condiciones comerciales acordadas con cada fintech. Fuera del piloto: cobro por llamada vía x402. Solicitudes en [stellar.holatia.app](https://stellar.holatia.app).
 
 ## TIA on Stellar — live links (verifiable)
 

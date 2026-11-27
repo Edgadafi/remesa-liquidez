@@ -1,6 +1,6 @@
 # Reel — piloto TIA · BAF Builders Elite × Stellar
 
-Reel 9:16 (~26 s) para comunicar la actualización de [holatia.app](https://holatia.app) y el CTA del piloto: **3 fintechs, 30 días, 0%**, corredor EE. UU. a México.
+Reel 9:16 (~26 s) para comunicar la actualización de [holatia.app](https://holatia.app) y el CTA del piloto: **3 fintechs, 30 días**, corredor EE. UU. a México.
 
 Regenerar: `python3 docs/gtm/reel/render_reel.py`
 
@@ -29,7 +29,7 @@ TIA es capa de inteligencia para fintechs del corredor EE. UU.–México: cotiza
 Compara y cotiza. No ejecuta pagos. No custodia fondos. No sustituye un SPEI.
 
 Piloto de calibración de 30 días · 3 cupos de founder · cierre 2026.
-Cotizar, rutear y auditar a 0% durante el piloto.
+Condiciones comerciales acordadas con cada fintech durante el piloto.
 
 Aplica: holatia.app
 
@@ -41,7 +41,7 @@ We just shipped an update to holatia.app.
 
 TIA is an intelligence layer for US–Mexico corridor fintechs: USD/MXN quotes, route comparison, and signed IPFS receipts (Nirium Audit Trail). We quote and compare. We do not execute payments, custody funds, store PII, or replace SPEI.
 
-Offer: a 30-day calibration pilot for 3 fintechs (3 founder slots, close 2026). Quote, route, and audit at 0% during the pilot; outside the slot, calls settle in USDC via x402. Verification at /v1/audit remains free.
+Offer: a 30-day calibration pilot for 3 fintechs (3 founder slots, close 2026). Commercial terms agreed with each fintech during the pilot; outside the slot, calls settle in USDC via x402. Verification at /v1/audit remains free.
 
 Apply: https://holatia.app
 
@@ -60,5 +60,5 @@ For BAF Builders Elite and the Stellar community — happy to intro a corridor o
 2. Mapa abstracto del corredor · el costo vive en el FX
 3. “¿Con qué tipo de cambio decidimos?”
 4. Compara y cotiza · no ejecuta · no custodia · IPFS / sin PII
-5. 3 fintechs · 30 días · 0%
-6. CTA · holatia.app · 3 cupos
+5. 3 fintechs · 30 días · piloto de calibración
+6. CTA · holatia.app · 3 cupos de founder

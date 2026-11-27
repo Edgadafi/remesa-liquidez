@@ -60,7 +60,7 @@ Primera release pública de **TIA** (Remesa LiquidezIA): capa de inteligencia pa
 ### Piloto de calibración (30 días, 3 cupos de founder)
 
 - **Meta:** 3 fintechs del corredor EE. UU.–México en un piloto de calibración de 30 días (cierre Q4 2026)
-- **Durante el piloto:** cotizar, rutear y auditar a 0%
+- **Durante el piloto:** condiciones comerciales acordadas con cada fintech
 - **Fuera del piloto:** cobro por llamada vía x402
 - **Solicitudes:** [https://stellar.holatia.app](https://stellar.holatia.app)
 
