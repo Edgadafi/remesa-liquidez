@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Contrato TIA en Stellar Mainnet</title>
+<meta name="theme-color" content="#0F2318">
+<link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png">
+<style>
+:root {
+  --color-forest: #0F2318;
+  --color-institution: #1A4A2E;
+  --color-cream: #F5F0E8;
+  --color-grove: #2A6A3E;
+  --color-calor: #C9A84C;
+  --color-calor-warm: #C1603A;
+  --color-text-dark: #1A4A2E;
+  --color-text-secondary: #2D5A3C;
+  --color-card: #fffdf8;
+  --color-line: #c9bfa8;
+  --font-ui: -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-mono: "Courier New", ui-monospace, monospace;
+  --radius: 8px;
+}
+*, *::before, *::after { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--color-cream);
+  color: var(--color-text-dark);
+  font-family: var(--font-ui);
+  line-height: 1.6;
+  padding: 24px;
+  -webkit-font-smoothing: antialiased;
+}
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+}
+h1 {
+  color: var(--color-forest);
+  font-size: 2rem;
+  margin: 0 0 8px;
+}
+.subtitle {
+  color: var(--color-text-secondary);
+  margin: 0 0 24px;
+}
+.wallet-status {
+  background: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 24px;
+}
+.wallet-address {
+  font-family: var(--font-mono);
+  font-size: 0.9rem;
+  word-break: break-all;
+  color: var(--color-grove);
+}
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  border-radius: var(--radius);
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: 1px solid transparent;
+  cursor: pointer;
+  transition: background 0.15s;
+  text-decoration: none;
+}
+.btn-primary {
+  background: var(--color-forest);
+  color: var(--color-cream);
+}
+.btn-primary:hover {
+  background: var(--color-institution);
+}
+.btn-primary:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+.card {
+  background: var(--color-card);
+  border: 1px solid var(--color-line);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+.card h2 {
+  margin: 0 0 12px;
+  font-size: 1.3rem;
+  color: var(--color-forest);
+}
+.card p {
+  margin: 0 0 16px;
+  color: var(--color-text-secondary);
+}
+.field {
+  margin-bottom: 16px;
+}
+.field label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--color-text-secondary);
+  margin-bottom: 6px;
+}
+.field input {
+  width: 100%;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--color-line);
+  background: #fff;
+  color: var(--color-forest);
+  font-size: 1rem;
+  font-family: var(--font-mono);
+}
+.field input:focus {
+  outline: 2px solid rgba(201, 168, 76, 0.55);
+  outline-offset: 1px;
+  border-color: var(--color-calor);
+}
+.status {
+  margin-top: 12px;
+  padding: 12px;
+  border-radius: var(--radius);
+  font-size: 0.9rem;
+  display: none;
+}
+.status.show {
+  display: block;
+}
+.status.info {
+  background: #e8f4f8;
+  color: #0c5460;
+}
+.status.success {
+  background: #d4edda;
+  color: #155724;
+}
+.status.error {
+  background: #f8d7da;
+  color: #721c24;
+}
+.tx-link {
+  margin-top: 8px;
+  word-break: break-all;
+}
+.tx-link a {
+  color: var(--color-grove);
+  text-decoration: underline;
+}
+.config-section {
+  background: #fff8e6;
+  border: 1px solid var(--color-calor);
+  border-radius: var(--radius);
+  padding: 16px;
+  margin-bottom: 24px;
+}
+.config-section code {
+  font-family: var(--font-mono);
+  font-size: 0.85rem;
+  background: rgba(0,0,0,0.05);
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Contrato TIA en Stellar Mainnet</h1>
+  <p class="subtitle">Interactúa con las 5 funciones principales del contrato de escrow en Stellar Mainnet.</p>
+
+  <div class="config-section">
+    <strong>Configuración actual:</strong><br>
+    Red: <code id="network-name">Stellar Mainnet</code><br>
+    Contract ID: <code id="contract-id">Por configurar</code><br>
+    USDC SAC: <code id="usdc-address">CCMSA3JFWUTMJQCPRMM56B2YSGJVVFG2LK4KCA34NHD2RRGDHMLZ4RJR</code><br>
+    RPC: <code id="rpc-url">https://soroban-rpc.mainnet.stellar.gateway.fm</code>
+  </div>
+
+  <div class="wallet-status">
+    <div id="wallet-disconnected">
+      <button class="btn btn-primary" id="connect-wallet">Conectar Wallet (Freighter/Varial)</button>
+    </div>
+    <div id="wallet-connected" style="display:none;">
+      <strong>Wallet conectada:</strong><br>
+      <span class="wallet-address" id="wallet-address"></span><br>
+      <button class="btn btn-primary" id="disconnect-wallet" style="margin-top:12px;">Desconectar</button>
+    </div>
+  </div>
+
+  <div id="functions-container" style="display:none;">
+    <!-- Function 1: set_merchant_status -->
+    <div class="card">
+      <h2>1. set_merchant_status</h2>
+      <p>Activa un comerciante en el sistema. Solo el admin puede llamar esta función.</p>
+      <div class="field">
+        <label for="merchant-address">Dirección del comerciante (G...)</label>
+        <input type="text" id="merchant-address" placeholder="GABC...">
+      </div>
+      <div class="field">
+        <label>
+          <input type="checkbox" id="merchant-active" checked> Activar (desmarcar para desactivar)
+        </label>
+      </div>
+      <button class="btn btn-primary" id="btn-set-merchant">Ejecutar set_merchant_status</button>
+      <div class="status" id="status-merchant"></div>
+    </div>
+
+    <!-- Function 2: initialize_reservation -->
+    <div class="card">
+      <h2>2. initialize_reservation</h2>
+      <p>Crea una reserva bloqueando USDC en el contrato. El sender firma la transacción.</p>
+      <div class="field">
+        <label for="receiver-address">Dirección del receptor (G...)</label>
+        <input type="text" id="receiver-address" placeholder="GABC...">
+      </div>
+      <div class="field">
+        <label for="merchant-address-init">Dirección del comerciante (G...)</label>
+        <input type="text" id="merchant-address-init" placeholder="GABC...">
+      </div>
+      <div class="field">
+        <label for="amount-usdc">Monto USDC (ej: 0.10)</label>
+        <input type="number" id="amount-usdc" step="0.01" min="0.01" value="0.10">
+      </div>
+      <div class="field">
+        <label for="expiry-seconds">Tiempo de expiración (segundos, 3600-2592000)</label>
+        <input type="number" id="expiry-seconds" value="3600" min="3600" max="2592000">
+      </div>
+      <button class="btn btn-primary" id="btn-initialize">Ejecutar initialize_reservation</button>
+      <div class="status" id="status-init"></div>
+    </div>
+
+    <!-- Function 3: mark_verified -->
+    <div class="card">
+      <h2>3. mark_verified</h2>
+      <p>Marca una reserva como verificada. Solo el admin o verifier puede llamarla. El caller NO puede ser el sender de la reserva.</p>
+      <div class="field">
+        <label for="reservation-id-verify">ID de la reserva</label>
+        <input type="number" id="reservation-id-verify" placeholder="0" min="0">
+      </div>
+      <button class="btn btn-primary" id="btn-mark-verified">Ejecutar mark_verified</button>
+      <div class="status" id="status-verify"></div>
+    </div>
+
+    <!-- Function 4: settle_with_receipt -->
+    <div class="card">
+      <h2>4. settle_with_receipt</h2>
+      <p>Liquida una reserva usando un recibo TIA registrado. Requiere firma del merchant y del receiver.</p>
+      <div class="field">
+        <label for="reservation-id-settle">ID de la reserva</label>
+        <input type="number" id="reservation-id-settle" placeholder="0" min="0">
+      </div>
+      <div class="field">
+        <label for="receipt-hash">Hash del recibo (32 bytes hex, 64 caracteres)</label>
+        <input type="text" id="receipt-hash" placeholder="abcd1234..." maxlength="64">
+      </div>
+      <p style="font-size:0.85rem;color:var(--color-text-secondary);">
+        <strong>Nota:</strong> El recibo debe estar registrado primero con <code>register_receipt</code>.
+        Para obtener un recibo válido, llama a <code>GET https://x402.holatia.app/v1/route?amount=100</code>
+        y extrae el hash del header <code>X-TIA-Audit-Hash</code>.
+      </p>
+      <button class="btn btn-primary" id="btn-settle">Ejecutar settle_with_receipt</button>
+      <div class="status" id="status-settle"></div>
+    </div>
+
+    <!-- Function 5: open_dispute -->
+    <div class="card">
+      <h2>5. open_dispute</h2>
+      <p>Abre una disputa en una reserva. El sender, admin o verifier pueden llamarla.</p>
+      <div class="field">
+        <label for="reservation-id-dispute">ID de la reserva</label>
+        <input type="number" id="reservation-id-dispute" placeholder="0" min="0">
+      </div>
+      <div class="field">
+        <label for="reason-hash">Razón (hash 32 bytes hex, 64 caracteres)</label>
+        <input type="text" id="reason-hash" placeholder="Razón de la disputa..." maxlength="64">
+      </div>
+      <button class="btn btn-primary" id="btn-dispute">Ejecutar open_dispute</button>
+      <div class="status" id="status-dispute"></div>
+    </div>
+  </div>
+</div>
+
+<script type="module">
+import {
+  SorobanRpc,
+  Contract,
+  Address,
+  xdr,
+  nativeToScVal,
+  scValToNative,
+  TransactionBuilder,
+  Networks,
+  Operation,
+  BASE_FEE,
+} from 'https://cdn.jsdelivr.net/npm/@stellar/stellar-sdk@12/+esm';
+
+// Configuration - MUST BE SET AFTER DEPLOYMENT
+const CONFIG = {
+  contractId: 'CBCWBOZTNHOZCTBGRNBCTILQB5IJXPW5T2ENNRGJTDQEQIHH5LGJM5MP', // PLACEHOLDER - UPDATE AFTER DEPLOY
+  usdcAddress: 'CCMSA3JFWUTMJQCPRMM56B2YSGJVVFG2LK4KCA34NHD2RRGDHMLZ4RJR', // Circle USDC on Mainnet
+  networkPassphrase: Networks.PUBLIC,
+  rpcUrl: 'https://soroban-rpc.mainnet.stellar.gateway.fm',
+};
+
+let currentPublicKey = null;
+let rpcServer = null;
+
+// Update UI with config
+document.getElementById('contract-id').textContent = CONFIG.contractId;
+document.getElementById('usdc-address').textContent = CONFIG.usdcAddress;
+document.getElementById('rpc-url').textContent = CONFIG.rpcUrl;
+
+// Initialize RPC
+rpcServer = new SorobanRpc.Server(CONFIG.rpcUrl);
+
+// Check if Freighter is installed
+function isFreighterInstalled() {
+  return typeof window.freighter !== 'undefined';
+}
+
+// Connect wallet
+async function connectWallet() {
+  if (!isFreighterInstalled()) {
+    alert('Por favor instala Freighter o Varial wallet');
+    return;
+  }
+
+  try {
+    const publicKey = await window.freighter.getPublicKey();
+    currentPublicKey = publicKey;
+    
+    document.getElementById('wallet-disconnected').style.display = 'none';
+    document.getElementById('wallet-connected').style.display = 'block';
+    document.getElementById('wallet-address').textContent = publicKey;
+    document.getElementById('functions-container').style.display = 'block';
+  } catch (error) {
+    console.error('Error connecting wallet:', error);
+    alert('Error al conectar la wallet: ' + error.message);
+  }
+}
+
+// Disconnect wallet
+function disconnectWallet() {
+  currentPublicKey = null;
+  document.getElementById('wallet-disconnected').style.display = 'block';
+  document.getElementById('wallet-connected').style.display = 'none';
+  document.getElementById('functions-container').style.display = 'none';
+}
+
+// Show status message
+function showStatus(elementId, message, type = 'info', txHash = null) {
+  const statusEl = document.getElementById(elementId);
+  statusEl.className = `status show ${type}`;
+  statusEl.innerHTML = message;
+  
+  if (txHash) {
+    const link = document.createElement('div');
+    link.className = 'tx-link';
+    link.innerHTML = `<a href="https://stellar.expert/explorer/public/tx/${txHash}" target="_blank" rel="noopener">Ver en Stellar Expert →</a>`;
+    statusEl.appendChild(link);
+  }
+}
+
+// Build and submit transaction
+async function buildAndSubmit(operation, statusId) {
+  if (!currentPublicKey) {
+    showStatus(statusId, 'Error: Conecta tu wallet primero', 'error');
+    return;
+  }
+
+  try {
+    showStatus(statusId, 'Construyendo transacción...', 'info');
+
+    // Load account
+    const sourceAccount = await rpcServer.getAccount(currentPublicKey);
+
+    // Build transaction
+    const transaction = new TransactionBuilder(sourceAccount, {
+      fee: BASE_FEE,
+      networkPassphrase: CONFIG.networkPassphrase,
+    })
+      .addOperation(operation)
+      .setTimeout(300)
+      .build();
+
+    // Simulate first
+    showStatus(statusId, 'Simulando transacción...', 'info');
+    const simResponse = await rpcServer.simulateTransaction(transaction);
+
+    if (SorobanRpc.Api.isSimulationError(simResponse)) {
+      throw new Error('Simulation failed: ' + JSON.stringify(simResponse.error));
+    }
+
+    // Prepare transaction
+    const preparedTx = SorobanRpc.assembleTransaction(transaction, simResponse).build();
+
+    // Sign with Freighter
+    showStatus(statusId, 'Esperando firma de la wallet...', 'info');
+    const signedXdr = await window.freighter.signTransaction(preparedTx.toXDR(), {
+      networkPassphrase: CONFIG.networkPassphrase,
+    });
+
+    const signedTx = TransactionBuilder.fromXDR(signedXdr, CONFIG.networkPassphrase);
+
+    // Submit
+    showStatus(statusId, 'Enviando transacción a la red...', 'info');
+    const sendResponse = await rpcServer.sendTransaction(signedTx);
+
+    if (sendResponse.status === 'ERROR') {
+      throw new Error('Transaction failed: ' + JSON.stringify(sendResponse));
+    }
+
+    // Wait for confirmation
+    showStatus(statusId, 'Esperando confirmación...', 'info');
+    let getResponse = await rpcServer.getTransaction(sendResponse.hash);
+    let attempts = 0;
+    
+    while (getResponse.status === 'NOT_FOUND' && attempts < 30) {
+      await new Promise(resolve => setTimeout(resolve, 2000));
+      getResponse = await rpcServer.getTransaction(sendResponse.hash);
+      attempts++;
+    }
+
+    if (getResponse.status === 'SUCCESS') {
+      showStatus(statusId, '✓ Transacción confirmada exitosamente', 'success', sendResponse.hash);
+    } else {
+      throw new Error('Transaction status: ' + getResponse.status);
+    }
+
+  } catch (error) {
+    console.error('Transaction error:', error);
+    showStatus(statusId, 'Error: ' + error.message, 'error');
+  }
+}
+
+// Function 1: set_merchant_status
+document.getElementById('btn-set-merchant').addEventListener('click', async () => {
+  const merchantAddress = document.getElementById('merchant-address').value.trim();
+  const active = document.getElementById('merchant-active').checked;
+
+  if (!merchantAddress.startsWith('G') || merchantAddress.length !== 56) {
+    showStatus('status-merchant', 'Error: Dirección inválida', 'error');
+    return;
+  }
+
+  const contract = new Contract(CONFIG.contractId);
+  const operation = contract.call(
+    'set_merchant_status',
+    nativeToScVal(merchantAddress, { type: 'address' }),
+    nativeToScVal(active, { type: 'bool' })
+  );
+
+  await buildAndSubmit(operation, 'status-merchant');
+});
+
+// Function 2: initialize_reservation
+document.getElementById('btn-initialize').addEventListener('click', async () => {
+  const receiverAddress = document.getElementById('receiver-address').value.trim();
+  const merchantAddress = document.getElementById('merchant-address-init').value.trim();
+  const amountUsdc = parseFloat(document.getElementById('amount-usdc').value);
+  const expirySeconds = parseInt(document.getElementById('expiry-seconds').value);
+
+  if (!receiverAddress.startsWith('G') || receiverAddress.length !== 56) {
+    showStatus('status-init', 'Error: Dirección del receptor inválida', 'error');
+    return;
+  }
+  if (!merchantAddress.startsWith('G') || merchantAddress.length !== 56) {
+    showStatus('status-init', 'Error: Dirección del comerciante inválida', 'error');
+    return;
+  }
+  if (isNaN(amountUsdc) || amountUsdc <= 0) {
+    showStatus('status-init', 'Error: Monto inválido', 'error');
+    return;
+  }
+
+  // Convert to base units (USDC has 7 decimals on Stellar)
+  const amountBaseUnits = BigInt(Math.floor(amountUsdc * 10000000));
+
+  const contract = new Contract(CONFIG.contractId);
+  const operation = contract.call(
+    'initialize_reservation',
+    nativeToScVal(currentPublicKey, { type: 'address' }),
+    nativeToScVal(receiverAddress, { type: 'address' }),
+    nativeToScVal(merchantAddress, { type: 'address' }),
+    nativeToScVal(amountBaseUnits, { type: 'i128' }),
+    nativeToScVal(expirySeconds, { type: 'u64' })
+  );
+
+  await buildAndSubmit(operation, 'status-init');
+});
+
+// Function 3: mark_verified
+document.getElementById('btn-mark-verified').addEventListener('click', async () => {
+  const reservationId = parseInt(document.getElementById('reservation-id-verify').value);
+
+  if (isNaN(reservationId) || reservationId < 0) {
+    showStatus('status-verify', 'Error: ID de reserva inválido', 'error');
+    return;
+  }
+
+  const contract = new Contract(CONFIG.contractId);
+  const operation = contract.call(
+    'mark_verified',
+    nativeToScVal(currentPublicKey, { type: 'address' }),
+    nativeToScVal(reservationId, { type: 'u64' })
+  );
+
+  await buildAndSubmit(operation, 'status-verify');
+});
+
+// Function 4: settle_with_receipt
+document.getElementById('btn-settle').addEventListener('click', async () => {
+  const reservationId = parseInt(document.getElementById('reservation-id-settle').value);
+  const receiptHashHex = document.getElementById('receipt-hash').value.trim();
+
+  if (isNaN(reservationId) || reservationId < 0) {
+    showStatus('status-settle', 'Error: ID de reserva inválido', 'error');
+    return;
+  }
+
+  if (!/^[0-9a-fA-F]{64}$/.test(receiptHashHex)) {
+    showStatus('status-settle', 'Error: Hash del recibo debe ser 64 caracteres hexadecimales', 'error');
+    return;
+  }
+
+  // Convert hex to bytes
+  const receiptHashBytes = Buffer.from(receiptHashHex, 'hex');
+
+  const contract = new Contract(CONFIG.contractId);
+  const operation = contract.call(
+    'settle_with_receipt',
+    nativeToScVal(currentPublicKey, { type: 'address' }),
+    nativeToScVal(reservationId, { type: 'u64' }),
+    xdr.ScVal.scvBytes(receiptHashBytes)
+  );
+
+  await buildAndSubmit(operation, 'status-settle');
+});
+
+// Function 5: open_dispute
+document.getElementById('btn-dispute').addEventListener('click', async () => {
+  const reservationId = parseInt(document.getElementById('reservation-id-dispute').value);
+  const reasonText = document.getElementById('reason-hash').value.trim();
+
+  if (isNaN(reservationId) || reservationId < 0) {
+    showStatus('status-dispute', 'Error: ID de reserva inválido', 'error');
+    return;
+  }
+
+  // Convert reason to 32-byte hash (simple SHA-256 would be better, but for demo we'll pad/truncate)
+  let reasonHash;
+  if (/^[0-9a-fA-F]{64}$/.test(reasonText)) {
+    // Already a hex string
+    reasonHash = Buffer.from(reasonText, 'hex');
+  } else {
+    // Convert text to bytes and pad to 32 bytes
+    const encoder = new TextEncoder();
+    const textBytes = encoder.encode(reasonText);
+    reasonHash = Buffer.alloc(32);
+    textBytes.slice(0, 32).forEach((byte, i) => {
+      reasonHash[i] = byte;
+    });
+  }
+
+  const contract = new Contract(CONFIG.contractId);
+  const operation = contract.call(
+    'open_dispute',
+    nativeToScVal(currentPublicKey, { type: 'address' }),
+    nativeToScVal(reservationId, { type: 'u64' }),
+    xdr.ScVal.scvBytes(reasonHash)
+  );
+
+  await buildAndSubmit(operation, 'status-dispute');
+});
+
+// Event listeners
+document.getElementById('connect-wallet').addEventListener('click', connectWallet);
+document.getElementById('disconnect-wallet').addEventListener('click', disconnectWallet);
+
+// Auto-connect if already authorized
+if (isFreighterInstalled()) {
+  window.freighter.isConnected().then(connected => {
+    if (connected) {
+      connectWallet();
+    }
+  }).catch(() => {});
+}
+</script>
+</body>
+</html>
