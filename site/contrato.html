@@ -173,6 +173,8 @@ h1 {
 </style>
 <!-- Stellar SDK UMD -->
 <script src="https://cdn.jsdelivr.net/npm/@stellar/stellar-sdk@12.3.0/dist/stellar-sdk.min.js"></script>
+<!-- Varial SDK v7.0.0 (Freighter API compatible) -->
+<script src="https://cdn.jsdelivr.net/npm/@stellar/varial-sdk@7.0.0/build/index.min.js"></script>
 </head>
 <body>
 <div class="container">
@@ -308,15 +310,13 @@ h1 {
   </div>
 </div>
 
-<script type="module">
-// Import Freighter API as ES module
-import freighterApi from 'https://cdn.jsdelivr.net/npm/@stellar/freighter-api@2.0.0/+esm';
-
+<script>
 (function() {
   'use strict';
 
-  // Access Stellar SDK from UMD bundle
+  // Access libraries from UMD bundles
   const StellarSdk = window.StellarSdk;
+  const freighterApi = window.freighterApi;
 
   // Configuration
   const CONFIG = {
@@ -350,6 +350,11 @@ import freighterApi from 'https://cdn.jsdelivr.net/npm/@stellar/freighter-api@2.
   // Initialize RPC
   rpcServer = new StellarSdk.SorobanRpc.Server(CONFIG.rpcUrl);
 
+  // Check for mobile browser
+  function isMobileVarial() {
+    return window.stellar && window.stellar.platform === 'mobile';
+  }
+
   // Show status message
   function showStatus(elementId, message, type, txHash) {
     const statusEl = document.getElementById(elementId);
@@ -366,17 +371,20 @@ import freighterApi from 'https://cdn.jsdelivr.net/npm/@stellar/freighter-api@2.
 
   // Check if Freighter/Varial is installed
   async function isWalletInstalled() {
-    return await freighterApi.isConnected();
+    const result = await freighterApi.isConnected();
+    // Handle both boolean (old) and object {isConnected: boolean} (v7+)
+    if (typeof result === 'boolean') return result;
+    if (result && typeof result === 'object') return result.isConnected === true;
+    return false;
   }
 
   // Get current public key (re-read to support account switching)
   async function getCurrentPublicKey() {
-    try {
-      const publicKey = await freighterApi.getPublicKey();
-      return publicKey;
-    } catch (error) {
-      throw new Error('No se pudo obtener la dirección de la wallet: ' + error.message);
+    const result = await freighterApi.getAddress();
+    if (result.error) {
+      throw new Error('No se pudo obtener la dirección: ' + (result.error.message || result.error));
     }
+    return result.address || '';
   }
 
   // Connect wallet
@@ -384,22 +392,33 @@ import freighterApi from 'https://cdn.jsdelivr.net/npm/@stellar/freighter-api@2.
     showStatus('wallet-error', '', 'info');
     
     try {
-      // Check if wallet is installed
-      const installed = await isWalletInstalled();
-      if (!installed) {
-        showStatus('wallet-error', '⚠️ Wallet no detectada. Por favor instala Freighter o Varial.', 'error');
+      // Check for mobile browser
+      if (isMobileVarial()) {
+        showStatus('wallet-error', '⚠️ El navegador de la app móvil de Varial no soporta esta página. Ábrela en Chrome/Brave de escritorio con la extensión Varial.', 'error');
         return;
       }
 
-      // Request access
-      const accessGranted = await freighterApi.requestAccess();
-      if (!accessGranted) {
+      // Check if wallet is installed
+      const installed = await isWalletInstalled();
+      if (!installed) {
+        showStatus('wallet-error', '⚠️ Wallet no detectada. Por favor instala la extensión Varial (antes Freighter) desde https://varialwallet.com', 'error');
+        return;
+      }
+
+      // Request access - returns {address, error?}
+      const accessResult = await freighterApi.requestAccess();
+      if (accessResult.error) {
+        showStatus('wallet-error', 'Error al solicitar acceso: ' + (accessResult.error.message || accessResult.error), 'error');
+        return;
+      }
+      
+      if (!accessResult.address) {
         showStatus('wallet-error', 'Acceso denegado por el usuario.', 'error');
         return;
       }
 
-      // Get public key
-      currentPublicKey = await getCurrentPublicKey();
+      // Set current key
+      currentPublicKey = accessResult.address;
       
       document.getElementById('wallet-disconnected').style.display = 'none';
       document.getElementById('wallet-connected').style.display = 'block';
@@ -438,7 +457,7 @@ import freighterApi from 'https://cdn.jsdelivr.net/npm/@stellar/freighter-api@2.
 
       // Build transaction
       const transaction = new StellarSdk.TransactionBuilder(sourceAccount, {
-        fee: StellarSdk.BASE_FEE,
+        fee: '100000', // 0.01 XLM inclusion fee for mainnet Soroban
         networkPassphrase: CONFIG.networkPassphrase,
       })
         .addOperation(operation)
@@ -456,30 +475,54 @@ import freighterApi from 'https://cdn.jsdelivr.net/npm/@stellar/freighter-api@2.
       // Prepare transaction
       const preparedTx = StellarSdk.SorobanRpc.assembleTransaction(transaction, simResponse).build();
 
-      // Sign with Freighter
+      // Sign with Freighter/Varial - pass address of active account
       showStatus(statusId, 'Esperando firma de la wallet...', 'info');
-      const signedResult = await freighterApi.signTransaction(preparedTx.toXDR(), {
+      const signResult = await freighterApi.signTransaction(preparedTx.toXDR(), {
         networkPassphrase: CONFIG.networkPassphrase,
+        address: currentPublicKey,
       });
 
-      // Handle both v3 (string) and v4+ ({signedTxXdr, signerAddress}) response formats
-      const signedXdr = typeof signedResult === 'string' ? signedResult : signedResult.signedTxXdr;
-      const signedTx = StellarSdk.TransactionBuilder.fromXDR(signedXdr, CONFIG.networkPassphrase);
-
-      // Submit
-      showStatus(statusId, 'Enviando transacción a la red...', 'info');
-      const sendResponse = await rpcServer.sendTransaction(signedTx);
-
-      if (sendResponse.status === 'ERROR') {
-        throw new Error('Transaction failed: ' + JSON.stringify(sendResponse));
+      // Check for errors
+      if (signResult.error) {
+        throw new Error('Error al firmar: ' + (signResult.error.message || signResult.error));
       }
 
-      // Wait for confirmation
+      // Extract signedTxXdr from result
+      const signedXdr = signResult.signedTxXdr;
+      if (!signedXdr) {
+        throw new Error('No se recibió la transacción firmada');
+      }
+
+      const signedTx = StellarSdk.TransactionBuilder.fromXDR(signedXdr, CONFIG.networkPassphrase);
+
+      // Submit with retry on TRY_AGAIN_LATER
+      showStatus(statusId, 'Enviando transacción a la red...', 'info');
+      let sendResponse;
+      let sendAttempts = 0;
+      while (sendAttempts < 3) {
+        sendResponse = await rpcServer.sendTransaction(signedTx);
+        if (sendResponse.status === 'PENDING' || sendResponse.status === 'DUPLICATE') {
+          break;
+        }
+        if (sendResponse.status === 'TRY_AGAIN_LATER') {
+          sendAttempts++;
+          if (sendAttempts < 3) {
+            await new Promise(resolve => setTimeout(resolve, 3000));
+            continue;
+          }
+        }
+        if (sendResponse.status === 'ERROR') {
+          throw new Error('Error al enviar: ' + (sendResponse.errorResult || JSON.stringify(sendResponse)));
+        }
+        break;
+      }
+
+      // Wait for confirmation (60 attempts x 2s = 120s)
       showStatus(statusId, 'Esperando confirmación...', 'info');
       let getResponse = await rpcServer.getTransaction(sendResponse.hash);
       let attempts = 0;
       
-      while (getResponse.status === 'NOT_FOUND' && attempts < 30) {
+      while (getResponse.status === 'NOT_FOUND' && attempts < 60) {
         await new Promise(resolve => setTimeout(resolve, 2000));
         getResponse = await rpcServer.getTransaction(sendResponse.hash);
         attempts++;
@@ -487,8 +530,11 @@ import freighterApi from 'https://cdn.jsdelivr.net/npm/@stellar/freighter-api@2.
 
       if (getResponse.status === 'SUCCESS') {
         showStatus(statusId, '✓ Transacción confirmada exitosamente', 'success', sendResponse.hash);
+      } else if (getResponse.status === 'NOT_FOUND') {
+        const explorerLink = 'https://stellar.expert/explorer/public/tx/' + sendResponse.hash;
+        throw new Error('Transaction NOT_FOUND después de 120s. Puede que aún se confirme, revisa: ' + explorerLink);
       } else {
-        throw new Error('Transaction status: ' + getResponse.status);
+        throw new Error('Transaction status: ' + getResponse.status + (getResponse.errorResult ? ' - ' + getResponse.errorResult : ''));
       }
 
     } catch (error) {
@@ -680,9 +726,14 @@ import freighterApi from 'https://cdn.jsdelivr.net/npm/@stellar/freighter-api@2.
   document.getElementById('disconnect-wallet').addEventListener('click', disconnectWallet);
 
   // Log loaded status for debugging
-  console.log('SDK loaded:', !!StellarSdk);
-  console.log('Freighter API loaded:', !!freighterApi);
+  console.log('Stellar SDK loaded:', !!StellarSdk);
+  console.log('Varial SDK (freighterApi) loaded:', !!freighterApi);
   console.log('Contract ID:', activeContractId);
+  
+  // Check mobile on load
+  if (isMobileVarial()) {
+    console.warn('Mobile Varial browser detected - this page requires desktop extension');
+  }
 })();
 </script>
 </body>
